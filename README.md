@@ -2,7 +2,7 @@
 
 >>> https://agdistys.github.io/Atlas-Conscience/index.html
 
-Visualisation interactive d’un atlas cognitif & symbolique construit à partir de mon corpus https://www.Agdistys.fr, dans le cadre du projet ConScience aMi et du système Ouroboros. En Evolution...
+Visualisation interactive d’un atlas cognitif & symbolique construit à partir de mon corpus https://www.Agdistys.fr, dans le cadre du projet ConScience aMi et du système Ouroboros. En Evolution... Petit dragon deviendra grand 🌱🐉✨
 
 ## Contenu
 
