@@ -1,6 +1,6 @@
 # Atlas de ConScience
 
-Visualisation interactive d’un atlas cognitif construit à partir de mon corpus Agdistys.fr, dans le cadre du projet ConScience aMi et du système Ouroboros. En Evolution...
+Visualisation interactive d’un atlas cognitif construit à partir de mon corpus https://www.Agdistys.fr, dans le cadre du projet ConScience aMi et du système Ouroboros. En Evolution...
 
 ## Contenu
 
