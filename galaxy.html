@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Atlas de ConScience — Galaxy 3D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #040812;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    #3d-graph {
+      position: absolute;
+      inset: 0;
+    }
+
+    .panel-left {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 20;
+      width: 290px;
+      max-width: calc(100vw - 32px);
+      background: rgba(8, 12, 20, 0.90);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      backdrop-filter: blur(8px);
+    }
+
+    .panel-right {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      width: 320px;
+      max-width: calc(100vw - 32px);
+      background: rgba(8, 12, 20, 0.90);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      backdrop-filter: blur(8px);
+      line-height: 1.5;
+    }
+
+    .status-box {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 25;
+      max-width: 520px;
+      background: rgba(8, 12, 20, 0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #d9e1f2;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      white-space: pre-line;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+
+    .sub {
+      font-size: 13px;
+      color: #d9e1f2;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .legend {
+      font-size: 13px;
+      line-height: 1.65;
+      margin-top: 10px;
+    }
+
+    .legend hr {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      margin: 12px 0;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0 12px 0;
+    }
+
+    .search-row input {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.08);
+      color: white;
+      outline: none;
+    }
+
+    .search-row button {
+      padding: 9px 12px;
+      border: none;
+      border-radius: 10px;
+      background: #E13BFF;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    a {
+      color: #33D1C6;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .small {
+      font-size: 12px;
+      color: #d9e1f2;
+    }
+
+    .node-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .pages-block {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .page-link {
+      display: block;
+      margin: 4px 0;
+      font-size: 13px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div id="3d-graph"></div>
+
+  <div class="panel-left">
+    <h1>Atlas de ConScience — Galaxy</h1>
+    <div class="sub">
+      Première galaxie 3D issue du graphe Ouroboros.
+    </div>
+
+    <div class="search-row">
+      <input id="searchInput" type="text" placeholder="chercher un concept" />
+      <button onclick="focusNode()">Aller</button>
+    </div>
+
+    <div class="legend">
+      <div><span style="color:#F4F1EA;">●</span> VIVANT</div>
+      <div><span style="color:#D4AF37;">●</span> LOI</div>
+      <div><span style="color:#D1495B;">●</span> OMBRE / MALADIE</div>
+      <div><span style="color:#33D1C6;">●</span> TEMPLE</div>
+      <div><span style="color:#E13BFF;">●</span> VERBE / SYMBOLIQUE</div>
+      <div><span style="color:#8A8F98;">●</span> MIXTE</div>
+
+      <hr>
+
+      <div>Plus un nœud est grand, plus il est hub.</div>
+      <div>Tu peux tourner, zoomer et cliquer.</div>
+
+      <div style="margin-top:12px;">
+        <a href="./index.html">Atlas 2D</a><br>
+        <a href="./note.html">Lire la note explicative</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-right" id="infoPanel">
+    <div class="node-title">Nœud sélectionné</div>
+    <div class="small">
+      Clique sur un concept pour voir ses informations.
+    </div>
+  </div>
+
+  <div class="status-box" id="statusBox">Chargement de la galaxie…</div>
+
+  <script src="https://unpkg.com/3d-force-graph"></script>
+  <script>
+    const statusBox = document.getElementById("statusBox");
+
+    function setStatus(msg) {
+      statusBox.textContent = msg;
+      console.log(msg);
+    }
+
+    const COSMOLOGY = {
+      VIVANT: ["conscience", "vivant", "sens", "nature", "corps", "monde", "vie"],
+      LOI: ["charte", "verite", "justice", "coherence", "respect", "droit", "lois"],
+      OMBRE: ["violence", "deni", "biais", "systeme", "peur", "domination", "maladie"],
+      TEMPLE: ["art", "nature", "corps", "vivant", "presence", "beaute", "onde"],
+      VERBE: ["verbe", "esprit", "partager", "ensemble", "agdistys", "symbolique"]
+    };
+
+    const CLUSTER_COLORS = {
+      VIVANT: "#F4F1EA",
+      LOI: "#D4AF37",
+      OMBRE: "#D1495B",
+      TEMPLE: "#33D1C6",
+      VERBE: "#E13BFF",
+      MIXTE: "#8A8F98"
+    };
+
+    function normalizeText(text) {
+      return (text || "")
+        .toLowerCase()
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[’']/g, " ")
+        .replace(/[^a-zA-Z0-9_\- ]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function detectCluster(node) {
+      const memberships = [];
+      for (const [cluster, words] of Object.entries(COSMOLOGY)) {
+        if (words.includes(node)) memberships.push(cluster);
+      }
+      if (memberships.length === 1) return memberships[0];
+      if (memberships.length > 1) return "MIXTE";
+      return "MIXTE";
+    }
+
+    function computeSize(weightedDegree) {
+      if (weightedDegree >= 250) return 18;
+      if (weightedDegree >= 150) return 14;
+      if (weightedDegree >= 100) return 11;
+      if (weightedDegree >= 70) return 9;
+      if (weightedDegree >= 50) return 7;
+      return 5;
+    }
+
+    async function fetchJson(path) {
+      const res = await fetch(path);
+      if (!res.ok) {
+        throw new Error(`Impossible de charger ${path} (HTTP ${res.status})`);
+      }
+      return await res.json();
+    }
+
+    async function loadData() {
+      setStatus("Chargement de ./data/pairs.json, ./data/hubs.json et ./data/concept_pages.json…");
+
+      const pairs = await fetchJson("./data/pairs.json");
+      const hubs = await fetchJson("./data/hubs.json");
+      let conceptNav = {};
+      try {
+        conceptNav = await fetchJson("./data/concept_pages.json");
+      } catch (e) {
+        console.warn("concept_pages.json absent ou illisible :", e);
+      }
+
+      const hubMap = {};
+      for (const item of hubs) {
+        const node = normalizeText(item.node);
+        hubMap[node] = item;
+      }
+
+      const nodeMap = {};
+
+      for (const pair of pairs) {
+        const a = normalizeText(pair.a);
+        const b = normalizeText(pair.b);
+        const weight = Number(pair.weight || 1);
+
+        if (!a || !b || a === b) continue;
+        if (weight < 2) continue;
+
+        for (const n of [a, b]) {
+          if (!nodeMap[n]) {
+            const hub = hubMap[n] || { degree: 1, weighted_degree: 1 };
+            const cluster = detectCluster(n);
+            nodeMap[n] = {
+              id: n,
+              label: n,
+              cluster,
+              color: CLUSTER_COLORS[cluster] || CLUSTER_COLORS.MIXTE,
+              weighted_degree: Number(hub.weighted_degree || 1),
+              degree: Number(hub.degree || 1),
+              size: computeSize(Number(hub.weighted_degree || 1))
+            };
+          }
+        }
+      }
+
+      const nodes = Object.values(nodeMap);
+      const links = pairs
+        .map(pair => ({
+          source: normalizeText(pair.a),
+          target: normalizeText(pair.b),
+          weight: Number(pair.weight || 1)
+        }))
+        .filter(link => link.source && link.target && link.source !== link.target && link.weight >= 2);
+
+      if (nodes.length === 0) {
+        throw new Error("Aucun nœud exploitable trouvé. Le graphe semble vide.");
+      }
+
+      setStatus(`Données chargées : ${nodes.length} nœuds, ${links.length} liens.`);
+      return { nodes, links, conceptNav };
+    }
+
+    function updateInfoPanel(node, conceptNav) {
+      const panel = document.getElementById("infoPanel");
+      if (!node) {
+        panel.innerHTML = `
+          <div class="node-title">Nœud sélectionné</div>
+          <div class="small">Clique sur un concept pour voir ses informations.</div>
+        `;
+        return;
+      }
+
+      const links = conceptNav[node.id] || [];
+
+      let html = `
+        <div class="node-title">${node.label}</div>
+        <div class="small">
+          Cluster: ${node.cluster}<br>
+          Weighted degree: ${node.weighted_degree}<br>
+          Degree: ${node.degree}
+        </div>
+      `;
+
+      if (links.length > 0) {
+        html += `<div class="pages-block"><div style="font-weight:700; margin-bottom:8px;">Pages liées</div>`;
+        for (const link of links.slice(0, 5)) {
+          html += `<a class="page-link" href="${link}" target="_blank">${link}</a>`;
+        }
+        html += `</div>`;
+      }
+
+      panel.innerHTML = html;
+    }
+
+    async function main() {
+      if (typeof ForceGraph3D === "undefined") {
+        setStatus("La librairie 3D Force Graph n’a pas chargé. Vérifie la connexion internet ou bloqueur de scripts.");
+        return;
+      }
+
+      const { nodes, links, conceptNav } = await loadData();
+
+      const elem = document.getElementById("3d-graph");
+
+      const Graph = ForceGraph3D()(elem)
+        .graphData({ nodes, links })
+        .backgroundColor("#040812")
+        .nodeLabel(node =>
+          `${node.label}\nCluster: ${node.cluster}\nWeighted degree: ${node.weighted_degree}\nDegree: ${node.degree}`
+        )
+        .nodeColor(node => node.color)
+        .nodeRelSize(4)
+        .nodeVal(node => node.size)
+        .linkColor(() => "rgba(220,225,235,0.18)")
+        .linkWidth(link => Math.max(0.3, Math.min(3.2, link.weight / 4)))
+        .linkOpacity(0.35)
+        .onNodeClick(node => {
+          const distance = 90;
+          const distRatio = 1 + distance / Math.hypot(node.x || 1, node.y || 1, node.z || 1);
+
+          Graph.cameraPosition(
+            {
+              x: (node.x || 0) * distRatio,
+              y: (node.y || 0) * distRatio,
+              z: (node.z || 0) * distRatio
+            },
+            node,
+            1200
+          );
+
+          updateInfoPanel(node, conceptNav);
+        });
+
+      Graph.d3Force("charge").strength(-120);
+      Graph.d3Force("link").distance(link => 40 + Math.max(0, 90 - link.weight * 5));
+      Graph.d3Force("center", null);
+
+      window.focusNode = function () {
+        const q = normalizeText(document.getElementById("searchInput").value);
+        if (!q) return;
+
+        let found = nodes.find(n => n.id === q);
+        if (!found) {
+          found = nodes.find(n => n.id.includes(q));
+        }
+
+        if (!found) {
+          alert("Concept non trouvé : " + q);
+          return;
+        }
+
+        Graph.cameraPosition(
+          { x: (found.x || 0) + 70, y: (found.y || 0) + 40, z: (found.z || 0) + 70 },
+          found,
+          1200
+        );
+
+        updateInfoPanel(found, conceptNav);
+      };
+
+      setStatus("Galaxie 3D chargée. Tu peux tourner, zoomer et cliquer.");
+    }
+
+    main().catch(err => {
+      console.error(err);
+      setStatus(
+        "Erreur de chargement de la galaxie :\n" +
+        err.message +
+        "\n\nVérifie :\n" +
+        "- la connexion internet\n" +
+        "- la présence de ./data/pairs.json\n" +
+        "- la présence de ./data/hubs.json\n" +
+        "- la présence de ./data/concept_pages.json"
+      );
+    });
+  </script>
+</body>
+</html>
