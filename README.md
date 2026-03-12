@@ -25,4 +25,6 @@ Plus une ligne est forte, plus la relation entre deux concepts est marquée.
 Cette carte explore la structure d’un monde de sens :
 noyaux, tensions, triades, hubs, routes cognitives et cosmologie conceptuelle.
 
+*Ne fonctionne pas sur Safari > testé avec Chrome
+
 © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)
