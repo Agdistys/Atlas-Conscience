@@ -5,7 +5,9 @@ Visualisation interactive d’un atlas cognitif & symbolique construit à partir
 ## Contenu
 
 👉 `index.html` : carte interactive 2D - https://agdistys.github.io/Atlas-Conscience/index.html
+
 👉 'galaxy.html' : galaxie interactive 3D - https://agdistys.github.io/Atlas-Conscience/galaxy.html
+
 👉 `note.html` : note explicative - https://agdistys.github.io/Atlas-Conscience/galaxy.html
 
 ## Lecture rapide
