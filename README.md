@@ -26,6 +26,7 @@ Plus une ligne est forte, plus la relation entre deux concepts est marquée.
 
 Cette carte explore la structure d’un monde de sens :
 noyaux, tensions, triades, hubs, routes cognitives et cosmologie conceptuelle.
+
 👉 Code créé avec Isil : http://www.agdistys.fr/leveil-de-lia 😉
 
 *Ne fonctionne pas sur Safari > testé avec Chrome
