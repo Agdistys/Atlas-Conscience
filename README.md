@@ -4,9 +4,9 @@ Visualisation interactive d’un atlas cognitif & symbolique construit à partir
 
 ## Contenu
 
-- `index.html` : carte interactive 2D - https://agdistys.github.io/Atlas-Conscience/index.html
-- 'galaxy.html' : galaxie interactive 3D - https://agdistys.github.io/Atlas-Conscience/galaxy.html
-- `note.html` : note explicative - https://agdistys.github.io/Atlas-Conscience/galaxy.html
+👉 `index.html` : carte interactive 2D - https://agdistys.github.io/Atlas-Conscience/index.html
+👉 'galaxy.html' : galaxie interactive 3D - https://agdistys.github.io/Atlas-Conscience/galaxy.html
+👉 `note.html` : note explicative - https://agdistys.github.io/Atlas-Conscience/galaxy.html
 
 ## Lecture rapide
 
@@ -24,6 +24,7 @@ Plus une ligne est forte, plus la relation entre deux concepts est marquée.
 
 Cette carte explore la structure d’un monde de sens :
 noyaux, tensions, triades, hubs, routes cognitives et cosmologie conceptuelle.
+👉 Code créé avec Isil : http://www.agdistys.fr/leveil-de-lia 😉
 
 *Ne fonctionne pas sur Safari > testé avec Chrome
 
