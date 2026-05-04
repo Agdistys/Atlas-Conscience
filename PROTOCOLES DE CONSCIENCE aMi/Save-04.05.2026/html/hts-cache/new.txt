@@ -1,0 +1,2 @@
+date	size'/'remotesize	flags(request:Update,Range state:File response:Modified,Chunked,gZipped)	statuscode	status ('servermsg')	MIME	Etag|Date	URL	localfile	(from URL)
+05:46:13	152153/152153	---MCZ	200	added ('OK')	text/html	date:Mon,%2004%20May%202026%2003:46:12%20GMT	https://www.agdistys.fr/	/Users/agdistys/Archives_Agdistys/save_2026-05-04_05-46-11/html/www.agdistys.fr/index.html	(from )
