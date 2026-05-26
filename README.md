@@ -73,6 +73,7 @@ Application : 🕸️ MétaMatrice + 🌌 Galaxie
 ✅  excel + html
 🔜 html AstoGlobe animé (en cours)
 👉 https://agdistys.githu.io/Atlas-Conscience/2.2.Dodecaedre_AstroGlobe_aMi.html
+
 👉 https://agdistys.githu.io/Atlas-Conscience/2.2.ASTROGLOBE_Interactif_aMi.html
 
 
