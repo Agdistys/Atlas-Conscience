@@ -80,8 +80,6 @@ Application : 🕸️ MétaMatrice + 🌌 Galaxie
 
 👉 https://agdistys.github.io/Atlas-Conscience/2.2.Dodecaedre_AstroGlobe_aMi.html
 
-👉 https://agdistys.github.io/Atlas-Conscience/2.2.ASTROGLOBE_Interactif_aMi.html
-
 👉 https://agdistys.github.io/Atlas-Conscience/AstroGlobe_Interactif_V10_MODE_EMOTIONNEL.html
 
 
