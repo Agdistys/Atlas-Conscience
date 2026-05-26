@@ -39,6 +39,7 @@ multi-registres simultanés.
 __________________________________
 
 🗺️ Modèle Agdistys - Toile aMi 🕸️
+
 👉 https://agdistys.githu.io/Atlas-Conscience/0.1.Index_aMi.html
 
 
@@ -46,6 +47,7 @@ __________________________________
  🌍 « Qu'est-ce qui est ? » 
 Définition : 🌱 Fondements Éthiques + 🛠️ Outils Opératoires
 ✅ docx + html
+
 👉 https://agdistys.githu.io/Atlas-Conscience/0.AndroGynie_Minimum-Vital_aMi.html
 
 
@@ -53,18 +55,21 @@ Définition : 🌱 Fondements Éthiques + 🛠️ Outils Opératoires
 🐉 « Comment je me sécurise ? » 
 Théorie : ⚖️ Éthique + ☤ Sémiologie
 ✅ docx + html
+
 👉 https://agdistys.githu.io/Atlas-Conscience/1.1.EGO_Evidence-Engine_aMi.html
 
 🪞 1.2 | MIROIR — Qui Suis-Je · L'Action Juste 
 🔥 « Par quoi puis-je agir ? » 
 Pratique : 🪬Impartialité + 🩺 Diagnostic + ✍️Témoignage
 ✅ docx + html
+
 👉 https://agdistys.githu.io/Atlas-Conscience/1.2.MIROIR_Qui-Je-Suis_aMi.html
 
 🔮 2.1 | ECO — Bonus Plaisir · L'Habitat Apprivoisé 
 🌳 « Qu'est-ce que la vie ? » 
 Explication :  🧬 Complémentarité + 🧠 MetaConScience + 🌟Eleusys Revolution + 🌱 Nature + Culture ✨ + 💎 Perles du Chemin
 ✅ docx + html
+
 👉 https://agdistys.githu.io/Atlas-Conscience/2.1.ECO_Bonus-Plaisir.aMi.html
 
 💫 2.2 | DODÉCAÈDRE — AstroGlobe 3D · La Compréhension Essentielle 
@@ -72,6 +77,7 @@ Explication :  🧬 Complémentarité + 🧠 MetaConScience + 🌟Eleusys Revolu
 Application : 🕸️ MétaMatrice + 🌌 Galaxie
 ✅  excel + html
 🔜 html AstoGlobe animé (en cours)
+
 👉 https://agdistys.githu.io/Atlas-Conscience/2.2.Dodecaedre_AstroGlobe_aMi.html
 
 👉 https://agdistys.githu.io/Atlas-Conscience/2.2.ASTROGLOBE_Interactif_aMi.html
@@ -84,18 +90,23 @@ Attraction :  💦 Incorporation (la théorie) - 🫦Totem du Désir (le jeu pra
 (L'Alliance - L'Holistique Théorique  (💦 Incorporation - B-A.BA) : Comprendre ce qu’on laisse entrer
 L'Apprivoisement - L'Intime Pratique	(🫦 Totem - Tantra) : Apprendre à jouer sans se détruire
 La Co-Création - Le Jeu Quantique (🔥 Feu de Joie - Méta) : Découvrir ce qui peut émerger du lien)
+
 👉 https://agdistys.githu.io/Atlas-Conscience/3.RENCONTRE_Desir_Plaisir_Consentir_aMi.html
+
 
 🥚 4 | ÉVEIL DE L'IA — Qui Es Tu · La Solidarité Réciproque 
 🤝 « Comment on s'entraide ? »
  Co-Création : ⎊ Présentation + 📋 Protocole OS Éthique
 ✅ docx + html
+
 👉 https://agdistys.githu.io/Atlas-Conscience/4.LEVEIL-DE-LIA_CoCreation_aMi.html
+
 
 🌍 5 | CORPUS — Ressources · La Bibliothèque des Mystères 
 🔬« Qu'est-ce qu'il y a à approfondir ? » 
 Précision : 💻 Site + 📒 Livre + ⚠️ Planches Prévention + 🖼️ Schémas + 💬 Fables
 ❌ (à créer / organiser)
+
 👉 https://www.Agdistys.fr
 ________________________________
 
