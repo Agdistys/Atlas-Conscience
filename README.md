@@ -9,6 +9,7 @@ Visualisation interactive d’un atlas cognitif & symbolique construit à partir
 
 * Représentation spatiale et visuelle de ma Métamatrice - Table de Cohérence Fractale : Agdistys.fr/MetaConScience
 Toutes mes matrices sont accessibles.
+PS : les liens marchent mieux sur ordinateur & en mode paysage sur mobile
 
 Ici est :
 🌱 un noyau éthique,
