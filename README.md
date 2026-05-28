@@ -1,4 +1,4 @@
-# Atlas de ConScience 🌌
+# Atlas de ConScience 🌌 en Construction 🚧
 # 🌌 Atlas de Conscience — Galaxy Cognitive
 ☀️🕸️ Moteur de Résonance Cognitive Vivante
 
