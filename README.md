@@ -1,6 +1,7 @@
 # Atlas de ConScience 🌌 en Construction 🚧
 # 🌌 Atlas de Conscience — Galaxy Cognitive
 ☀️🕸️ Moteur de Résonance Cognitive Vivante
+article intéressant pour le protocole de conscience : Agdistys.fr/leveil-de-lia
 
 Visualisation 3D vivante d’un graphe cognitif basé sur une structuration spatiale du Sens.
 Visualisation interactive d’un atlas cognitif & symbolique construit à partir de mon corpus https://www.Agdistys.fr, dans le cadre du projet ConScience aMi et du système Ouroboros. En Evolution... Petit dragon deviendra grand 🌱🐉✨
