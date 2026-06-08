@@ -76,7 +76,7 @@ Explication :  🧬 Complémentarité + 🧠 MetaConScience + 🌟Eleusys Revolu
 ✨ « Pourquoi je suis ici ? » 
 Application : 🕸️ MétaMatrice + 🌌 Galaxie
 
-👉 https://agdistys.github.io/Atlas-Conscience/2_1_ECO_Bonus-Plaisir_aMi.html
+👉 https://agdistys.github.io/Atlas-Conscience/AstroGlobe_V31_Genome_Diagonales_Zoom.html
 
 
 
