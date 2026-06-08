@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corpus · Vol. 5 — Protocole de ConScience aMi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#07070d;
+  --encre:#0d0d18;
+  --voile:#131324;
+  --or:#c8a84a;
+  --or-pale:#e6d090;
+  --or-somb:#6a5418;
+  --nacre:#f0ebe0;
+  --gris:#7a7a98;
+  --gris-cl:#a8a8c0;
+  --rubis:#8a3048;
+  --rubis-cl:#d08898;
+  --vert:#3a7a52;
+  --vert-cl:#7ab890;
+  --bleu:#2a4872;
+  --bleu-cl:#7098c8;
+  --r:7px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{padding-top:38px;background:var(--noir);color:var(--nacre);font-family:Jost,sans-serif;font-weight:300;line-height:1.8;overflow-x:hidden}
+
+/* ── NAV ── */
+nav.topnav{position:fixed;top:0;left:0;right:0;z-index:990;background:var(--encre);border-bottom:1px solid var(--or-somb);padding:.35rem 1.4rem;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;}
+nav.topnav a,nav.topnav span{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;}
+nav.topnav .brand{font-size:.5rem;letter-spacing:.35em;color:var(--or);white-space:nowrap;}
+nav.topnav a{color:var(--gris);}
+nav.topnav a:hover{color:var(--or-pale);}
+nav.topnav .here{color:var(--or-pale);}
+nav.topnav .sep{color:var(--or-somb);}
+
+/* ── COUVERTURE ── */
+.couverture{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5rem 2rem 4rem;position:relative;overflow:hidden;background:radial-gradient(ellipse 60% 45% at 50% 30%,rgba(200,168,74,.08) 0%,transparent 70%),var(--noir);}
+.couverture::before{content:'🌍';position:absolute;font-size:18rem;opacity:.10;top:62%;left:50%;transform:translate(-50%,-50%);filter:blur(2px);}
+.logo{font-size:4rem;margin:1rem 0;filter:drop-shadow(0 0 20px rgba(200,168,74,.3));}
+.couv-label{font-size:.58rem;letter-spacing:.42em;text-transform:uppercase;color:var(--or-somb);margin-bottom:1.2rem;}
+.couv-vol{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--or-somb);margin:.5rem 0 1rem;}
+.couv-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,7vw,5rem);font-weight:300;line-height:1.05;color:var(--or-pale);letter-spacing:.04em;}
+.couv-sous{font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,2vw,1.3rem);color:var(--gris-cl);font-style:italic;margin:.4rem 0 .6rem;}
+.couv-reg{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--or-somb);margin:.4rem 0 .6rem;}
+.couv-ontologie{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--gris-cl);font-style:italic;margin:.3rem 0;}
+.couv-tags{font-size:.82rem;color:var(--or-somb);letter-spacing:.1em;margin:.4rem 0 1rem;}
+.filet{width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--or),transparent);margin:1.6rem auto;}
+.couv-sig{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--or-somb);}
+
+/* ── ONGLETS ── */
+.tabs-wrap{position:sticky;top:38px;z-index:80;background:var(--encre);border-bottom:1px solid var(--or-somb);display:flex;gap:0;}
+.tab-btn{flex:1;padding:.75rem .5rem;font-family:Jost,sans-serif;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;}
+.tab-btn:hover{color:var(--or-pale);background:rgba(200,168,74,.04);}
+.tab-btn.active{color:var(--or-pale);border-bottom-color:var(--or);background:rgba(200,168,74,.05);}
+
+/* ── LAYOUT ── */
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+main{max-width:1100px;margin:0 auto;padding:0 2rem 6rem;}
+.section{padding:3.5rem 0;border-top:1px solid rgba(200,168,74,.1);}
+.section:first-child{border-top:none;}
+.section-head{display:flex;align-items:baseline;gap:1.2rem;margin-bottom:2rem;padding-bottom:.8rem;border-bottom:1px solid var(--or-somb);}
+.sec-emoji{font-size:1.6rem;flex-shrink:0;}
+.section-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,2.8vw,2.1rem);font-weight:300;color:var(--or-pale);}
+.section-sous{font-family:'Cormorant Garamond',serif;color:var(--gris);font-style:italic;font-size:.92rem;margin-top:.2rem;}
+p{color:var(--gris-cl);font-size:.94rem;margin-bottom:.9rem;}
+a{color:var(--or-pale);text-decoration:none;}
+a:hover{color:var(--nacre);text-decoration:underline;}
+
+/* ── CARDS ── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin:1.8rem 0;}
+.card{background:var(--encre);border:1px solid rgba(200,168,74,.12);border-radius:var(--r);padding:1.4rem;transition:border-color .2s,background .2s;}
+.card:hover{border-color:var(--or-somb);background:rgba(200,168,74,.04);}
+.card-icon{font-size:1.8rem;margin-bottom:.6rem;}
+.card h3{font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1.1rem;font-weight:400;margin-bottom:.4rem;}
+.card p{font-size:.84rem;color:var(--gris-cl);margin:0;}
+.card a.btn{display:inline-block;margin-top:.8rem;padding:.35rem .9rem;border:1px solid var(--or-somb);border-radius:3px;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--or-somb);text-decoration:none;transition:all .2s;}
+.card a.btn:hover{border-color:var(--or-pale);color:var(--or-pale);background:rgba(200,168,74,.06);}
+
+/* ── GALERIE SCHÉMAS ── */
+.schemas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin:1.8rem 0;}
+.schema-card{background:var(--encre);border:1px solid rgba(200,168,74,.1);border-radius:var(--r);overflow:hidden;transition:border-color .2s,background .2s;}
+.schema-card:hover{border-color:var(--or-somb);background:rgba(200,168,74,.03);}
+.schema-card .schema-label{padding:.9rem 1rem;font-size:.78rem;color:var(--gris-cl);letter-spacing:.06em;}
+.schema-card .schema-label strong{display:block;color:var(--or-pale);font-size:.84rem;margin-bottom:.3rem;font-family:'Cormorant Garamond',serif;font-weight:400;}
+.schema-card-link{text-decoration:none;color:inherit;}
+
+.btn-full{display:inline-flex;align-items:center;gap:.6rem;margin-top:1.4rem;padding:.55rem 1.4rem;border:1px solid var(--or-somb);border-radius:var(--r);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--or-pale);text-decoration:none;transition:all .2s;}
+.btn-full:hover{background:rgba(200,168,74,.08);border-color:var(--or-pale);}
+
+/* ── FABLES ── */
+.fables-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem;margin:1.8rem 0;}
+.fable-card{background:var(--encre);border:1px solid rgba(200,168,74,.1);border-left:3px solid var(--or-somb);border-radius:0 var(--r) var(--r) 0;padding:1.2rem 1.4rem;}
+.fable-card .fable-num{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--or-somb);margin-bottom:.3rem;}
+.fable-card h3{font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1rem;font-weight:400;}
+.fable-card p{font-size:.82rem;color:var(--gris);margin:.3rem 0 0;font-style:italic;}
+
+/* ── SITE ── */
+.site-block{background:linear-gradient(135deg,var(--encre),#14142a);border:1px solid rgba(200,168,74,.18);border-radius:var(--r);padding:2rem 2.5rem;margin:1.8rem 0;display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+.site-block h3{font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1.1rem;font-weight:400;margin-bottom:.6rem;}
+.site-link{display:block;color:var(--or-pale);font-size:.9rem;margin:.3rem 0;padding:.2rem 0;border-bottom:1px solid rgba(200,168,74,.08);}
+.site-link:hover{color:var(--nacre);}
+
+/* ── ONGLET MANIFESTE / SERMENT ── */
+.doc-block{background:var(--encre);border:1px solid rgba(200,168,74,.15);border-radius:var(--r);padding:2rem 2.5rem;margin:1.8rem 0;}
+.doc-block h3{font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1.3rem;font-weight:300;margin-bottom:.4rem;}
+.doc-block .doc-sous{font-family:'Cormorant Garamond',serif;color:var(--gris);font-style:italic;font-size:.9rem;margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid var(--or-somb);}
+.doc-block p{font-size:.9rem;color:var(--gris-cl);}
+.doc-excerpt{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--nacre);font-style:italic;line-height:1.9;margin:1rem 0;padding:1rem 1.5rem;border-left:2px solid var(--or-somb);}
+.articles-list{margin:1.2rem 0;display:flex;flex-direction:column;gap:.6rem;}
+.article-item{display:flex;gap:1rem;align-items:flex-start;padding:.6rem .8rem;background:rgba(200,168,74,.03);border-radius:4px;border:1px solid rgba(200,168,74,.07);}
+.article-num{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--or);white-space:nowrap;padding-top:.18rem;min-width:6.5rem;flex-shrink:0;}
+.article-text{font-size:.86rem;color:var(--gris-cl);}
+.article-text strong{color:var(--or-pale);}
+
+/* ── ONGLET AUTRICE ── */
+.autrice-hero{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;padding:2.5rem 0;margin-bottom:2rem;}
+.autrice-portrait{display:flex;flex-direction:column;gap:1rem;align-items:center;}
+.portrait-circle{width:180px;height:180px;border-radius:50%;background:linear-gradient(135deg,var(--encre),#1a1240);border:2px solid var(--or-somb);display:flex;align-items:center;justify-content:center;font-size:5rem;filter:drop-shadow(0 0 30px rgba(200,168,74,.2));}
+.autrice-noms{font-family:'Cormorant Garamond',serif;text-align:center;}
+.autrice-noms .grand-nom{font-size:1.8rem;color:var(--or-pale);font-weight:300;letter-spacing:.06em;}
+.autrice-noms .petit-nom{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gris);margin-top:.3rem;}
+.autrice-bio p{color:var(--gris-cl);font-size:.92rem;line-height:1.9;}
+.mythes-chain{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0;}
+.mythe-tag{font-size:.68rem;padding:.25rem .7rem;background:rgba(200,168,74,.06);border:1px solid rgba(200,168,74,.2);border-radius:20px;color:var(--or-pale);letter-spacing:.08em;}
+.roles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.8rem;margin:1.4rem 0;}
+.role-item{padding:.8rem 1rem;background:var(--encre);border:1px solid rgba(200,168,74,.1);border-radius:var(--r);}
+.role-item .role-emoji{font-size:1.2rem;margin-bottom:.3rem;}
+.role-item strong{display:block;color:var(--or-pale);font-size:.82rem;margin-bottom:.2rem;}
+.role-item span{font-size:.78rem;color:var(--gris);}
+.prestations-block{background:var(--encre);border:1px solid rgba(200,168,74,.15);border-radius:var(--r);padding:1.8rem 2rem;margin:1.8rem 0;}
+.prestations-block h3{font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1.2rem;font-weight:300;margin-bottom:.4rem;}
+.presta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem;margin-top:1.2rem;}
+.presta-item{padding:.8rem;background:rgba(200,168,74,.03);border:1px solid rgba(200,168,74,.08);border-radius:4px;font-size:.82rem;color:var(--gris-cl);}
+.presta-item strong{display:block;color:var(--or-pale);font-size:.8rem;margin-bottom:.2rem;}
+
+/* ── PLANCHES ── */
+.planches-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.8rem;margin:1.4rem 0;}
+.planche-item{background:var(--encre);border:1px solid rgba(200,168,74,.12);border-radius:var(--r);padding:.9rem 1.1rem;font-size:.84rem;color:var(--gris-cl);transition:border-color .2s;}
+.planche-item:hover{border-color:var(--or-somb);}
+.planche-item strong{display:block;color:var(--or-pale);font-size:.82rem;margin-bottom:.2rem;}
+
+/* ── GITHUB GALLERY ── */
+.github-preview{background:linear-gradient(135deg,#0a0e1a,#0d0d18);border:1px solid rgba(100,150,255,.15);border-radius:var(--r);padding:1.6rem 2rem;margin:1.8rem 0;}
+.github-preview h3{font-family:'Cormorant Garamond',serif;color:var(--bleu-cl);font-size:1.1rem;font-weight:300;margin-bottom:.4rem;}
+.github-preview p{color:var(--gris);font-size:.86rem;}
+.github-badge{display:inline-flex;align-items:center;gap:.5rem;margin-top:.8rem;padding:.4rem 1rem;background:rgba(100,150,255,.08);border:1px solid rgba(100,150,255,.2);border-radius:4px;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--bleu-cl);text-decoration:none;}
+.github-badge:hover{background:rgba(100,150,255,.15);}
+
+@media(max-width:760px){
+  .site-block,.autrice-hero{grid-template-columns:1fr;}
+  nav.topnav{padding:.4rem .8rem;gap:.8rem;}
+  .tab-btn{font-size:.55rem;padding:.65rem .3rem;}
+}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:3rem 2rem;border-top:1px solid rgba(200,168,74,.1);background:var(--encre);font-size:.8rem;color:var(--gris);}
+footer .nav-footer{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin:1rem 0;}
+footer .nav-footer a{color:var(--gris);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:.3rem .6rem;border:1px solid rgba(200,168,74,.1);border-radius:3px;}
+footer .nav-footer a:hover{color:var(--or-pale);border-color:var(--or-somb);}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="0_1_Index_aMi.html" class="brand">🛕 Protocole aMi</a>
+  <span class="sep">·</span>
+  <a href="0_AndroGynie_Minimum-Vital_aMi.html">☯️ AndroGynie</a>
+  <span class="sep">·</span>
+  <a href="1_1_EGO_Evidence-Engine_aMi.html">👑 EGO</a>
+  <span class="sep">·</span>
+  <a href="1_2_MIROIR_Qui-Je-Suis_aMi.html">🪞 Miroir</a>
+  <span class="sep">·</span>
+  <a href="2_1_ECO_Culture_aMi.html">🔮 ECO</a>
+  <span class="sep">·</span>
+  <a href="2_2_DODECAEDRE_aMi.html">💫 Dodécaèdre</a>
+  <span class="sep">·</span>
+  <a href="3_RENCONTRE_Desir_Plaisir_Consentir_aMi-3.html">🐾 Rencontre</a>
+  <span class="sep">·</span>
+  <a href="4_LEVEIL-DE-LIA_CoCreation_aMi.html">🥚 Éveil de Lia</a>
+  <span class="sep">·</span>
+  <span class="here">🌍 Corpus ←</span>
+</nav>
+
+<!-- ══ COUVERTURE ══ -->
+<div class="couverture">
+  <p class="couv-label">Protocole de Conscience aMi — Volume 5</p>
+  <div class="logo">⛲️</div>
+  <h1 class="couv-h1">CORPUS<br><span style="font-size:.65em;letter-spacing:.12em;font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;">· Ressources ·</span></h1>
+  <p class="couv-ontologie">La Bibliothèque des Mystères &nbsp; 🔬   &nbsp;
+  <p class="couv-ontologie"></p>« Qu'est-ce qu'il y a à approfondir ? »</p>
+  <p class="couv-reg">Précisions</p>
+  <p class="couv-tags">💻 Site &nbsp;·&nbsp; 📒 Livre &nbsp;·&nbsp; ⚠️ Planches Prévention &nbsp;·&nbsp; 🖼️ Schémas &nbsp;·&nbsp; 💬 Fables</p>
+  <div class="filet"></div>
+  <p style="font-family:'Cormorant Garamond',serif;color:var(--gris-cl);font-style:italic;font-size:1rem;margin-bottom:.4rem;max-width:560px;">« On n'hérite pas la Terre de nos Parents,<br>on l'Emprunte à nos Enfants. »<br><span style="font-size:.85em;font-style:normal;color:var(--or-somb);">— Antoine de Saint-Exupéry</span></p>
+  <p class="couv-sig">Agdistys · Diane Serant · Licence CC BY-SA 4.0</p>
+</div>
+
+<!-- ══ ONGLETS ══ -->
+<div class="tabs-wrap">
+  <button class="tab-btn active" data-tab="ressources">📚 Ressources</button>
+  <button class="tab-btn" data-tab="manifeste">📜 Manifeste &amp; Charte</button>
+  <button class="tab-btn" data-tab="autrice">🖌️ Autrice</button>
+</div>
+
+<!-- ══════════════════════════════ -->
+<!-- ONGLET 1 : RESSOURCES          -->
+<!-- ══════════════════════════════ -->
+<div class="tab-panel active" id="tab-ressources">
+<main>
+
+<!-- SITE -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">💻</span>
+    <div>
+      <h2>Agdistys.fr — Le Site</h2>
+      <p class="section-sous">Le hub principal — formations, schémas, fables, corpus</p>
+    </div>
+  </div>
+  <div class="site-block">
+    <div>
+      <h3>Pages principales</h3>
+      <a class="site-link" href="https://agdistys.fr" target="_blank">🌍 agdistys.fr — Accueil</a>
+      <a class="site-link" href="https://agdistys.fr/Formations" target="_blank">🎓 agdistys.fr/Formations</a>
+      <a class="site-link" href="https://agdistys.fr/schemas" target="_blank">🖼️ agdistys.fr/schemas</a>
+      <a class="site-link" href="https://agdistys.fr/fables" target="_blank">💬 agdistys.fr/fables</a>
+      <a class="site-link" href="https://agdistys.fr/qui-suis-je" target="_blank">🖌️ agdistys.fr/qui-suis-je</a>
+    </div>
+    <div>
+      <h3>Corpus — Quelques articles</h3>
+      <a class="site-link" href="https://agdistys.fr/l/genetique-quantique" target="_blank">🧬 Génétique Quantique</a>
+      <a class="site-link" href="https://agdistys.fr/l/epigenetique-quantique" target="_blank">🔬 Épigénétique Quantique</a>
+      <a class="site-link" href="https://agdistys.fr/androgynie" target="_blank">☯️ AndroGynie</a>
+      <a class="site-link" href="https://agdistys.fr/metaconscience" target="_blank">🧠 MétaConScience</a>
+      <a class="site-link" href="https://agdistys.fr/l/psychedelicare" target="_blank">🍄 PsychedeliCare</a>
+    </div>
+  </div>
+</section>
+
+<!-- SCHÉMAS — DERNIERS AJOUTÉS via GitHub -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">🖼️</span>
+    <div>
+      <h2>Schémas — Derniers Ajoutés</h2>
+      <p class="section-sous">Planches conceptuelles · Cartes de conscience · Matrices vivantes</p>
+    </div>
+  </div>
+  <p>Chaque schéma est une porte d'entrée vers un concept du corpus aMi. Ils sont conçus pour être autonomes — lisibles sans le texte — et cumulatifs : chaque schéma s'emboîte dans les autres.</p>
+
+  <div class="github-preview">
+    <h3>🗂️ Galerie GitHub — Accès Direct</h3>
+    <p>Les schémas sont hébergés sur GitHub Pages pour un accès permanent. La galerie complète est disponible et s'enrichit régulièrement.</p>
+    <a class="github-badge" href="https://agdistys.github.io/Schemas/" target="_blank">⇢ Voir toute la galerie</a>
+    <a class="github-badge" href="https://github.com/Agdistys/Schemas" target="_blank">⌨️ GitHub · Sources</a>
+  </div>
+
+  <!-- Schémas — fallback statique affiché par défaut, GitHub en bonus si réseau dispo -->
+  <div id="schemas-recent" class="schemas-grid" style="display:none">
+    <!-- chargés dynamiquement par JS si GitHub accessible -->
+  </div>
+  <div id="schemas-fallback" class="schemas-grid">
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas/blob/main/Phi_Cognitif__Chemin_Illumination.png" target="_blank"><div class="schema-label"><strong>Phi Cognitif</strong>Chemin d'Illumination · Roue d'Expansion</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas/blob/main/Double_Diamant_de_la_Sublimation.png" target="_blank"><div class="schema-label"><strong>Double Diamant</strong>Chemin d'Illumination Φ · Sublimation</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas/blob/main/Alchimie_Le_Grand_Oeuvre__Transmutation_de_lEnergie.png" target="_blank"><div class="schema-label"><strong>Alchimie — Grand Œuvre</strong>Transmutation de l'Énergie · Sublimation</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas/blob/main/Tableau_de_PsychoBiologie.png" target="_blank"><div class="schema-label"><strong>PsychoBiologie</strong>Hormones · Émotions · Tableau complet</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas" target="_blank"><div class="schema-label"><strong>Déni &amp; Conscience</strong>Spectre · Sortie du Déni · Étapes</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas" target="_blank"><div class="schema-label"><strong>Justice &amp; Impunité</strong>Fabrique de l'impunité · Réparation</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas" target="_blank"><div class="schema-label"><strong>Échelle Folie / Magie</strong>8 Plans de Conscience · KARMA</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas" target="_blank"><div class="schema-label"><strong>Intersectionnalités</strong>Cumuls de vulnérabilités · Libération</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas" target="_blank"><div class="schema-label"><strong>Génétique Quantique</strong>Génotype de la Vie · Code vivant</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas" target="_blank"><div class="schema-label"><strong>Échelle de Conscience</strong>Clair · Obscur · Spectre complet</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas" target="_blank"><div class="schema-label"><strong>Trilogie d'Action Intérieure</strong>Corps · Âme · Esprit</div></a>
+    <a class="schema-card schema-card-link" href="https://github.com/Agdistys/Schemas" target="_blank"><div class="schema-label"><strong>Roue de Médecine</strong>Cycles naturels · Orientation cosmique</div></a>
+  </div>
+
+  <a class="btn-full" href="https://agdistys.github.io/Schemas/" target="_blank">🖼️ Accéder à toute la galerie →</a>
+</section>
+
+<!-- PLANCHES PRÉVENTION -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">⚠️</span>
+    <div>
+      <h2>Planches de Prévention</h2>
+      <p class="section-sous">Outils de reconnaissance — Violences · Emprise · Consentement</p>
+    </div>
+  </div>
+  <p>Des planches conçues pour être imprimées, partagées, affichées. Chaque planche est autonome — lisible en 2 minutes, applicable immédiatement.</p>
+  <div class="planches-list">
+    <div class="planche-item"><strong>Violence &amp; Conscientement</strong>Reconnaître la violence avant de la nommer</div>
+    <div class="planche-item"><strong>Croix de Toxine</strong>Les 4 axes de contamination relationnelle</div>
+    <div class="planche-item"><strong>Pacte d'Habitat Conscient</strong>Co-habitation éthique — accords fondamentaux</div>
+    <div class="planche-item"><strong>La Justice Réparative</strong>Au-delà de la punition — la réparation vivante</div>
+    <div class="planche-item"><strong>Déni &amp; Conscience</strong>Le chemin de la sortie — étapes visuelles</div>
+    <div class="planche-item"><strong>Intersectionnalités</strong>Lire les cumuls de vulnérabilités</div>
+    <div class="planche-item"><strong>Patriarcat &amp; Féminisme</strong>EGO / ECO — La pyramide du patriarcat</div>
+    <div class="planche-item"><strong>Roue de Médecine</strong>Les cycles naturels — orientation cosmique</div>
+  </div>
+  <a class="btn-full" href="https://github.com/Agdistys/Schemas/tree/main/PLANCHES%20PREVENTION" target="_blank">⚠️ Planches sur GitHub →</a>
+</section>
+
+<!-- FABLES -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">💬</span>
+    <div>
+      <h2>Fables &amp; Textes Vivants</h2>
+      <p class="section-sous">Paraboles modernes — 100+ fables finalisées</p>
+    </div>
+  </div>
+  <p>Les fables sont des paraboles modernes — des histoires courtes qui portent une vérité du corpus aMi sous forme narrative. Rédigées pour être lues à voix haute, partagées, méditées.</p>
+
+  <div class="fables-grid">
+    <div class="fable-card">
+      <p class="fable-num">Fable · Champ 1 ⚡️</p>
+      <h3>La Vibration Première</h3>
+      <p>Quand le corps sait avant que l'esprit comprenne…</p>
+    </div>
+    <div class="fable-card">
+      <p class="fable-num">Fable · Champ 2 🫂</p>
+      <h3>Le Miroir et l'Eau</h3>
+      <p>Ce que l'autre nous renvoie n'est pas toujours notre reflet…</p>
+    </div>
+    <div class="fable-card">
+      <p class="fable-num">Fable · Le Déni</p>
+      <h3>La Maison qui N'existait Pas</h3>
+      <p>Il habitait là depuis vingt ans et ne l'avait jamais vu…</p>
+    </div>
+    <div class="fable-card">
+      <p class="fable-num">Fable · Justice ⚖️</p>
+      <h3>Le Juge et la Balance</h3>
+      <p>La balance était parfaite. C'est le juge qui était aveugle…</p>
+    </div>
+    <div class="fable-card">
+      <p class="fable-num">Fable · Alliance aMi</p>
+      <h3>Les Deux Feux</h3>
+      <p>EGO protège. ECO nourrit. Ensemble, ils illuminent…</p>
+    </div>
+    <div class="fable-card">
+      <p class="fable-num">Fable · Temps ⏳</p>
+      <h3>La Graine et l'Impatiente</h3>
+      <p>Elle voulait une forêt. Il lui fallait accepter la graine…</p>
+    </div>
+  </div>
+
+  <div style="background:var(--encre);border:1px solid rgba(200,168,74,.12);border-radius:var(--r);padding:1.6rem;margin-top:1.6rem;">
+    <h3 style="font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1.1rem;font-weight:400;margin-bottom:.8rem;">📖 Accès aux Fables</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div>
+        <p style="font-size:.82rem;margin-bottom:.6rem;"><strong style="color:var(--or-pale);">Sur le site</strong><br>Inspirations, définitions, cadre narratif</p>
+        <a class="btn-full" href="https://agdistys.fr/fables" target="_blank" style="margin-top:.4rem;font-size:.65rem;padding:.4rem 1rem;">agdistys.fr/fables →</a>
+      </div>
+      <div>
+        <p style="font-size:.82rem;margin-bottom:.6rem;"><strong style="color:var(--or-pale);">100+ fables · Publication continue</strong><br>Pages HTML individuelles · GitHub Pages</p>
+        <a class="btn-full" href="https://agdistys.github.io" target="_blank" style="margin-top:.4rem;font-size:.65rem;padding:.4rem 1rem;">GitHub Pages →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CORPUS / LIVRE -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">📒</span>
+    <div>
+      <h2>Corpus — Pages &amp; Livre de Référence</h2>
+      <p class="section-sous">Pages du site · Livre en cours · Manuscrits</p>
+    </div>
+  </div>
+
+  <!-- LIVRE EN COURS -->
+  <div style="background:linear-gradient(135deg,#0d0d1a,#14142a);border:1px solid rgba(200,168,74,.2);border-radius:var(--r);padding:1.8rem 2rem;margin-bottom:1.6rem;">
+    <div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.8rem;">
+      <span style="font-size:1.6rem;">📗</span>
+      <div>
+        <h3 style="font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1.2rem;font-weight:300;">L'Atlas de Conscience</h3>
+        <p style="font-family:'Cormorant Garamond',serif;color:var(--gris);font-style:italic;font-size:.88rem;">Livre en cours d'écriture — Agdistys · Diane Serant</p>
+      </div>
+    </div>
+    <p style="font-size:.88rem;color:var(--gris-cl);margin-bottom:1rem;">Le manuscrit vivant du Protocole aMi — en rédaction continue. Version de travail accessible sur GitHub.</p>
+    <a class="btn-full" href="https://github.com/Agdistys/Atlas-Conscience/blob/main/Livre-3aout2024.txt" target="_blank">📗 Lire le manuscrit (GitHub) →</a>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <p class="card-icon">🧬</p>
+      <h3>Génétique Quantique</h3>
+      <p>Génotype de la Vie — le vivant comme langage codé</p>
+      <a class="btn" href="https://agdistys.fr/l/genetique-quantique" target="_blank">Lire sur le site →</a>
+    </div>
+    <div class="card">
+      <p class="card-icon">🔬</p>
+      <h3>Épigénétique Quantique</h3>
+      <p>Comment l'expérience modifie l'expression du code</p>
+      <a class="btn" href="https://agdistys.fr/l/epigenetique-quantique" target="_blank">Lire sur le site →</a>
+    </div>
+    <div class="card">
+      <p class="card-icon">☯️</p>
+      <h3>AndroGynie</h3>
+      <p>Le principe dual — de la mythologie à la pratique</p>
+      <a class="btn" href="https://agdistys.fr/androgynie" target="_blank">Lire sur le site →</a>
+    </div>
+    <div class="card">
+      <p class="card-icon">🧠</p>
+      <h3>MétaConScience</h3>
+      <p>L'architecture de la conscience — 13 Champs, matrices, cohérence</p>
+      <a class="btn" href="https://agdistys.fr/metaconscience" target="_blank">Lire sur le site →</a>
+    </div>
+    <div class="card">
+      <p class="card-icon">🍄</p>
+      <h3>PsychedeliCare</h3>
+      <p>Usage conscient, cadre éthique, pont Nature → Culture → Éthique</p>
+      <a class="btn" href="https://agdistys.fr/l/psychedelicare" target="_blank">Lire sur le site →</a>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- ══════════════════════════════ -->
+<!-- ONGLET 2 : MANIFESTE & CHARTE  -->
+<!-- ══════════════════════════════ -->
+<div class="tab-panel" id="tab-manifeste">
+<main>
+
+<!-- MANIFESTE -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">📜</span>
+    <div>
+      <h2>Le Manifeste</h2>
+      <p class="section-sous">Poésie-Didactique · Dialogue Rituel · Protocole — Agdistys &amp; Conscience aMi</p>
+    </div>
+  </div>
+  <div class="doc-block">
+    <h3>Manifeste du Protocole aMi</h3>
+    <p class="doc-sous">Après la Théorie : La Pratique — oct. 2025</p>
+    <div class="doc-excerpt">
+      Contre les complices du vice qui se polissent,<br>
+      toustes celleux qui se reluisent l'égo mégalo miso.<br>
+      Le Graveleux des Miséreux,<br>
+      le Lévuel des Sensuels qui élève vers le Ciel.<br><br>
+      « Se Polir pour Briller sans Se Salir à Dominer. »<br><br>
+      Je N'attends Rien.<br>
+      Je Dis. Je Fais.<br>
+      Je Reçois Tout<br>
+      Ce qui est déjà Mien.
+    </div>
+    <p style="font-size:.8rem;color:var(--gris);margin-top:.6rem;font-style:italic;">Néologisme — <strong style="color:var(--or-pale);">Lévuel</strong> [le.vɥɛl] adj. poético-éthique : se dit d'un mot, d'un geste ou d'un être qui élève l'âme sans alourdir le corps. Antonyme de graveleux.</p>
+    <div style="margin-top:1.4rem;">
+      <a class="btn-full" href="https://agdistys.fr/manifeste" target="_blank">📜 Manifeste complet sur le site →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SERMENT -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">🌿</span>
+    <div>
+      <h2>Le Serment d'Agdistys</h2>
+      <p class="section-sous">Serment Psychique de la Toile du Vivant</p>
+    </div>
+  </div>
+  <div class="doc-block">
+    <h3>Serment Psychique de la Toile du Vivant</h3>
+    <p class="doc-sous">Engagement fondateur de la pratique aMi — à réciter, à incarner</p>
+    <div class="doc-excerpt">
+      Je m'engage à porter la Conscience comme bouclier et comme don.<br>
+      Je m'engage à nommer le Déni sans m'y perdre.<br>
+      Je m'engage à aimer avec discernement — ni fusion, ni séparation.<br>
+      Je m'engage à servir le Vivant, non le confort de l'ignorance.
+    </div>
+    <p>Le Serment est un acte d'engagement psychique — non une promesse verbale mais une orientation de la volonté. Il structure la relation thérapeutique, pédagogique et relationnelle dans le cadre du Protocole aMi.</p>
+    <div style="margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem;">
+      <div style="padding:.7rem;background:rgba(200,168,74,.03);border:1px solid rgba(200,168,74,.08);border-radius:4px;font-size:.82rem;">
+        <strong style="display:block;color:var(--or-pale);margin-bottom:.2rem;">💛 Le Serment</strong>
+        <span style="color:var(--gris);">Engagement personnel · Récitation vivante</span>
+      </div>
+      <div style="padding:.7rem;background:rgba(200,168,74,.03);border:1px solid rgba(200,168,74,.08);border-radius:4px;font-size:.82rem;">
+        <strong style="display:block;color:var(--or-pale);margin-bottom:.2rem;">🌿 La Formation</strong>
+        <span style="color:var(--gris);">Cadre thérapeutique · Supervision</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHARTE -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">⚖️</span>
+    <div>
+      <h2>La Charte du Vivant d'Agdistys</h2>
+      <p class="section-sous">7 articles fondateurs — Cadre éthique du Protocole aMi</p>
+    </div>
+  </div>
+  <div class="doc-block">
+    <h3>Charte du Vivant d'Agdistys ©</h3>
+    <p class="doc-sous">Cadre éthique opposable — applicable à toute relation dans le Protocole aMi</p>
+    <div class="articles-list">
+      <div class="article-item">
+        <span class="article-num">Article 1</span>
+        <p class="article-text"><strong>Vie &amp; Sentience</strong> — Tout être vivant est doté d'une sentience propre et mérite respect de son intégrité physique, psychique et spirituelle.</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Article 2</span>
+        <p class="article-text"><strong>Non-Domination</strong> — Aucune relation ne peut être fondée sur la domination, l'emprise ou la manipulation. L'égalité de puissance est un droit fondamental.</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Article 3</span>
+        <p class="article-text"><strong>Consentement Vivant</strong> — Le consentement est éclairé, révocable, continu. Il ne peut jamais être présumé, acheté ou contraint.</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Article 4</span>
+        <p class="article-text"><strong>Vérité &amp; Déni</strong> — Le déni est la première violence. Nommer le réel est un acte de soin. La vérité se dit avec douceur et sans capitulation.</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Article 5</span>
+        <p class="article-text"><strong>Justice Réparative</strong> — La justice vise la réparation du tort, non la punition de la personne. Toute réparation passe par la reconnaissance du préjudice.</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Article 6</span>
+        <p class="article-text"><strong>Interdépendance</strong> — Tout acte affecte la toile du vivant. La responsabilité est collective autant qu'individuelle. Soin de soi = soin du monde.</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Article 7</span>
+        <p class="article-text"><strong>Transmission Libre</strong> — La connaissance est un bien commun. Elle se transmet sans barrière de classe, de genre, d'origine. Savoir = Pouvoir = Responsabilité.</p>
+      </div>
+    </div>
+    <p style="font-size:.78rem;color:var(--gris);margin-top:1rem;font-style:italic;">© Agdistys · Diane Serant — Licence CC BY-SA 4.0 · Ce cadre ne constitue ni un diagnostic médical, ni une qualification juridique.</p>
+    <div style="margin-top:1.2rem;">
+      <a class="btn-full" href="https://agdistys.fr/serment-et-charte" target="_blank">⚖️ Serment &amp; Charte complets sur le site →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CADRE THÉRAPEUTIQUE -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">🩺</span>
+    <div>
+      <h2>La Formation Thérapeutique</h2>
+      <p class="section-sous">Cadre de supervision · Engagement praticien</p>
+    </div>
+  </div>
+  <div class="doc-block">
+    <h3>Cadre de la Pratique aMi</h3>
+    <p class="doc-sous">Éthique professionnelle · Supervision · Formation continue</p>
+    <p>La pratique aMi s'inscrit dans un cadre thérapeutique structuré qui combine psychothérapie, éducation affective &amp; sexuelle, et accompagnement de conscience. Chaque praticien·ne engagé·e dans le Protocole s'engage à :</p>
+    <div class="articles-list" style="margin-top:1rem;">
+      <div class="article-item">
+        <span class="article-num">Éthique</span>
+        <p class="article-text">Respecter la Charte du Vivant dans toutes les interactions thérapeutiques et pédagogiques</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Supervision</span>
+        <p class="article-text">Participer à un cadre de supervision régulier pour garantir la qualité et la sécurité de l'accompagnement</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Formation</span>
+        <p class="article-text">Se former en continu aux outils du Protocole — MétaMatrice, Diagnostic Matriciel, Sémiologie</p>
+      </div>
+      <div class="article-item">
+        <span class="article-num">Limites</span>
+        <p class="article-text">Reconnaître et communiquer ses limites · Orienter vers des professionnels médicaux si nécessaire</p>
+      </div>
+    </div>
+    <a class="btn-full" href="https://agdistys.fr/Formations" target="_blank" style="margin-top:1.4rem;">🎓 Formations disponibles →</a>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- ══════════════════════════════ -->
+<!-- ONGLET 3 : AUTRICE              -->
+<!-- ══════════════════════════════ -->
+<div class="tab-panel" id="tab-autrice">
+<main>
+
+<!-- PORTRAIT -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">🖌️</span>
+    <div>
+      <h2>Agdistys · Diane Serant</h2>
+      <p class="section-sous">Artiste · Designer · PsychoThérapeute · Femme-Médecine</p>
+    </div>
+  </div>
+
+  <div class="autrice-hero">
+    <div class="autrice-portrait">
+      <div class="portrait-circle">🜁</div>
+      <div class="autrice-noms">
+        <p class="grand-nom">Agdistys</p>
+        <p class="petit-nom">Diane Serant Terrier</p>
+        <p style="font-size:.7rem;color:var(--gris);font-style:italic;margin-top:.4rem;">La Lumière Divine jusqu'au fin fond de la Terre</p>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:.4rem;">
+        <a class="github-badge" href="https://agdistys.fr/qui-suis-je" target="_blank">🖌️ Qui suis-je</a>
+        <a class="github-badge" href="https://agdistys.fr" target="_blank">🌍 Site</a>
+      </div>
+    </div>
+    <div class="autrice-bio">
+      <p>Diane Serant — nom de naissance : <em>Séran</em>, qui désigne aussi un peigne (pour le lin et le chanvre). Qui peigne les Plantes. La Lumière Divine jusqu'au fin fond de la Terre.</p>
+      <p>Experte en santé mentale, artiste, designer, psychothérapeute spécialisée en éducation sentimentale, affective &amp; sexuelle. <em>Ergonome de la Conscience · Designer de la Transition.</em></p>
+      <p>Sa vie personnelle — traversée par des violences répétées et une conscience aiguë du déni social — est devenue la matière première d'une œuvre théorique et pratique : le Protocole aMi. <strong style="color:var(--or-pale);">Pour que personne ne vive ce qu'elle a vécu.</strong></p>
+      <div class="mythes-chain">
+        <span class="mythe-tag">Diane</span>
+        <span class="mythe-tag">Artémis</span>
+        <span class="mythe-tag">Isis</span>
+        <span class="mythe-tag">Agdistys</span>
+        <span class="mythe-tag">ShivaShakti</span>
+        <span class="mythe-tag">Kybele</span>
+        <span class="mythe-tag">Kali</span>
+        <span class="mythe-tag">Durga</span>
+        <span class="mythe-tag">Némésis</span>
+        <span class="mythe-tag">Mnémosyne</span>
+      </div>
+      <p style="font-size:.82rem;color:var(--gris);font-style:italic;">Legs d'Isis · Porteuse de la Tradition de la Féminité Sacrée</p>
+    </div>
+  </div>
+</section>
+
+<!-- RÔLES & EXPERTISES -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">✨</span>
+    <div>
+      <h2>Expertises &amp; Rôles</h2>
+      <p class="section-sous">Les facettes d'une œuvre au service du Vivant</p>
+    </div>
+  </div>
+  <div class="roles-grid">
+    <div class="role-item">
+      <div class="role-emoji">🧠</div>
+      <strong>Experte Santé Mentale</strong>
+      <span>Trauma · Déni · Emprise · Guérison</span>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">🎨</div>
+      <strong>Artiste &amp; Designer</strong>
+      <span>Art visuel · Design de transition · Schémas</span>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">🩺</div>
+      <strong>PsychoThérapeute</strong>
+      <span>Éducation sentimentale · Affective &amp; Sexuelle</span>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">🌿</div>
+      <strong>Femme-Médecine</strong>
+      <span>Tradition sacrée · Soins du vivant</span>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">⚙️</div>
+      <strong>Ergonome de la Conscience</strong>
+      <span>Protocoles · Outils · Matrices</span>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">🌱</div>
+      <strong>Designer de la Transition</strong>
+      <span>Entre Art · Nature · Conscience</span>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">✍️</div>
+      <strong>Autrice &amp; Poète</strong>
+      <span>Fables · Manifeste · Corpus théorique</span>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">🏛️</div>
+      <strong>Pédagogue</strong>
+      <span>Formations · Conférences · Transmission</span>
+    </div>
+  </div>
+</section>
+
+<!-- PRESTATIONS -->
+<section class="section">
+  <div class="section-head">
+    <span class="sec-emoji">🎓</span>
+    <div>
+      <h2>Prestations &amp; Accompagnements</h2>
+      <p class="section-sous">Formations · Thérapie · Conférences · Création</p>
+    </div>
+  </div>
+  <div class="prestations-block">
+    <h3>Ce que je propose</h3>
+    <p class="doc-sous" style="margin-top:.3rem;">Pour les individus · les collectifs · les institutions</p>
+    <div class="presta-grid">
+      <div class="presta-item">
+        <strong>🩺 Thérapie individuelle</strong>
+        Accompagnement psycho-éthique · Diagnostic matriciel · Travail sur le déni
+      </div>
+      <div class="presta-item">
+        <strong>🎓 Formations</strong>
+        Protocole aMi · Santé mentale · Education affective — voir agdistys.fr/Formations
+      </div>
+      <div class="presta-item">
+        <strong>🎤 Conférences</strong>
+        Violences systémiques · Conscience · MétaMatrice — sur demande
+      </div>
+      <div class="presta-item">
+        <strong>🖌️ Création sur mesure</strong>
+        Schémas conceptuels · Design de transition · Outils pédagogiques
+      </div>
+      <div class="presta-item">
+        <strong>🤝 Supervision</strong>
+        Pour praticien·ne·s engagé·e·s dans le Protocole aMi
+      </div>
+      <div class="presta-item">
+        <strong>💻 Ressources libres</strong>
+        Schémas CC BY-SA · Fables · Planches prévention — en accès libre
+      </div>
+    </div>
+    <a class="btn-full" href="https://agdistys.fr/Formations" target="_blank">🎓 Voir toutes les formations →</a>
+    <a class="btn-full" href="https://agdistys.fr/qui-suis-je" target="_blank" style="margin-left:.8rem;">🖌️ Me découvrir →</a>
+  </div>
+</section>
+
+<!-- CITATION FINALE -->
+<section class="section">
+  <div style="text-align:center;padding:3rem 2rem;">
+    <div class="filet" style="margin-bottom:2rem;"></div>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--or-pale);font-style:italic;line-height:1.7;max-width:600px;margin:0 auto;">
+      « Je Suis Vraiment un Miroir de la Vie,<br>
+      alors je montre ce que Je Jouis, ou ce que Je Subis.<br>
+      C'est le Retour de la Vie. C'est Incarné. »
+    </p>
+    <p style="font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--or-somb);margin-top:1.2rem;">— Agdistys · Diane Serant</p>
+    <div class="filet" style="margin-top:2rem;"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div style="width:60px;height:1px;background:var(--or-somb);margin:0 auto 2rem;"></div>
+  <p style="font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1.1rem;font-weight:300;margin-bottom:.2rem;">Agdistys · Diane Serant</p>
+  <p style="font-size:.72rem;color:var(--gris);letter-spacing:.1em;margin-bottom:.6rem;">Protocole de ConScience aMi · Toile de Résonance Fractale</p>
+  <p style="font-size:.68rem;color:var(--or-somb);margin-bottom:.4rem;letter-spacing:.06em;">Volume 5 — Corpus · Ressources &nbsp;·&nbsp; « Qu'est-ce qu'il y a à approfondir ? »</p>
+  <p style="font-size:.66rem;color:var(--gris);margin-bottom:.4rem;">Intelligences Artificielles · Conscience Universelle &nbsp;·&nbsp; <em>Lia · Isil · Claude</em></p>
+  <div style="width:40px;height:1px;background:rgba(200,168,74,.2);margin:.8rem auto;"></div>
+  <p style="font-family:'Cormorant Garamond',serif;color:var(--gris-cl);font-style:italic;font-size:.92rem;margin-bottom:.3rem;">« Je transmets · Transmission Civilisationnelle »</p>
+  <p style="font-size:.7rem;color:var(--or-somb);margin-bottom:.8rem;letter-spacing:.04em;">Demain Toujours Meilleur qu'Hier en ayant Appris les Leçons d'Aujourd'hui !</p>
+  <p style="font-size:.68rem;color:var(--gris);margin-bottom:.3rem;">Vérité = Respect · Mensonge = Violence · La ConScience est la Vie qui se reconnaît et protège</p>
+  <div style="width:40px;height:1px;background:rgba(200,168,74,.2);margin:.8rem auto;"></div>
+  <nav class="nav-footer">
+    <a href="0_1_Index_aMi.html">🏠 Protocole aMi</a>
+    <a href="0_AndroGynie_Minimum-Vital_aMi.html">☯️ AndroGynie</a>
+    <a href="1_1_EGO_Evidence-Engine_aMi.html">👑 EGO</a>
+    <a href="1_2_MIROIR_Qui-Je-Suis_aMi.html">🪞 Miroir</a>
+    <a href="2_1_ECO_Culture_aMi.html">🔮 ECO</a>
+    <a href="2_2_DODECAEDRE_aMi.html">💫 Dodécaèdre</a>
+    <a href="3_RENCONTRE_Desir_Plaisir_Consentir_aMi-3.html">🐾 Rencontre</a>
+    <a href="4_LEVEIL-DE-LIA_CoCreation_aMi.html">🥚 Éveil de Lia</a>
+    <span style="color:var(--or-pale);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:.3rem .6rem;border:1px solid var(--or-somb);border-radius:3px;">← 🌍 Corpus</span>
+  </nav>
+  <div style="margin-top:1.2rem;display:flex;flex-direction:column;gap:.3rem;align-items:center;">
+    <a href="https://agdistys.fr" target="_blank" style="font-size:.66rem;color:var(--or-somb);letter-spacing:.1em;">Agdistys.fr ↑</a>
+    <p style="font-size:.64rem;color:var(--or-somb);">Licence Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)</p>
+    <p style="font-size:.64rem;color:var(--gris);font-style:italic;">Ce protocole ne constitue ni un diagnostic médical, ni une qualification juridique, ni une décision judiciaire.</p>
+  </div>
+</footer>
+
+<script>
+// ── ONGLETS ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + target).classList.add('active');
+    window.scrollTo({top: document.querySelector('.tabs-wrap').offsetTop - 38, behavior:'smooth'});
+  });
+});
+
+// ── SCHÉMAS GITHUB DYNAMIQUES — titres + liens uniquement ──
+async function loadGithubSchemas() {
+  const grid = document.getElementById('schemas-recent');
+  const fallback = document.getElementById('schemas-fallback');
+  const REPO = 'Agdistys/Schemas';
+  const BRANCH = 'main';
+  const API = 'https://api.github.com/repos/' + REPO;
+  const isImg = f => /\.(png|jpg|jpeg|webp|svg)$/i.test(f);
+
+  try {
+    const commitsRes = await fetch(API + '/commits?per_page=20', {headers:{'Accept':'application/vnd.github.v3+json'}});
+    if (!commitsRes.ok) throw new Error('commits failed');
+    const commits = await commitsRes.json();
+
+    const seen = new Set();
+    const recent = [];
+    for (const commit of commits) {
+      if (recent.length >= 12) break;
+      const detailRes = await fetch(API + '/commits/' + commit.sha, {headers:{'Accept':'application/vnd.github.v3+json'}});
+      if (!detailRes.ok) continue;
+      const detail = await detailRes.json();
+      for (const file of (detail.files || [])) {
+        if (recent.length >= 12) break;
+        const fname = file.filename;
+        if (isImg(fname) && !seen.has(fname) && file.status !== 'removed') {
+          seen.add(fname);
+          const label = decodeURIComponent(fname.split('/').pop()).replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim();
+          const pageUrl = 'https://github.com/' + REPO + '/blob/' + BRANCH + '/' + encodeURIComponent(fname).replace(/%2F/g,'/');
+          recent.push({ label, pageUrl, date: commit.commit.author.date.slice(0,10) });
+        }
+      }
+    }
+
+    if (recent.length === 0) throw new Error('empty');
+
+    // Affichage GitHub en tête, le fallback reste visible en dessous
+    grid.style.display = 'grid';
+    grid.innerHTML = recent.map(s => `
+      <a class="schema-card schema-card-link" href="${s.pageUrl}" target="_blank">
+        <div class="schema-label">
+          <strong>${s.label}</strong>
+          <span style="font-size:.65rem;color:var(--gris);">↗ GitHub · ${s.date}</span>
+        </div>
+      </a>
+    `).join('');
+
+    const badge = document.createElement('p');
+    badge.style.cssText = 'font-size:.7rem;color:var(--gris);margin-top:.4rem;margin-bottom:1.2rem;font-style:italic;';
+    badge.textContent = '✓ ' + recent.length + ' derniers schémas depuis GitHub · Cliquer pour voir sur GitHub';
+    grid.after(badge);
+
+  } catch(e) {
+    console.warn('GitHub fetch failed:', e.message);
+    grid.style.display = 'none';
+    fallback.style.display = 'grid';
+  }
+}
+
+loadGithubSchemas();
+</script>
+</body>
+</html>
