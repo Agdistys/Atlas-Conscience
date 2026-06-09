@@ -40,71 +40,113 @@ multi-registres simultanés.
 🌱 Fichiers actuels en développement
 __________________________________
 
-🗺️ Modèle Agdistys - Toile aMi 🕸️
+☀️
+🛕 
+Architecture 
+Modèle Agdistys
+Toile aMi 
+🕸️
+Mon Modele, Le Temple du Soleil 😉
 
+Présentation :
 👉 https://agdistys.github.io/Atlas-Conscience/00_Index_aMi.html
 
 
 ☯️ 0 | ANDROGYNIE — Minimum Vital · Le Sol
- 🌍 « Qu'est-ce qui est ? » 
-Définition : 🌱 Fondements Éthiques + 🛠️ Outils Opératoires
-✅ docx + html
-
+🌍 « Qu'est-ce qui est ? »
+Je sais ce qui est → Ontologie Fondamentale
+Définition : 
+🌱 Fondements Éthiques
+🛠️ Outils Opératoires
 👉 https://agdistys.github.io/Atlas-Conscience/0_AndroGynie_Minimum-Vital_aMi.html
 
 
-👑 1.1 | EGO — Evidence Engine · La Protection Souveraine 
-🐉 « Comment je me sécurise ? » 
-Théorie : ⚖️ Éthique + ☤ Sémiologie
-✅ docx + html
 
+👑 1.1 | EGO — Evidence Engine · La Protection Souveraine
+🐉 « Comment je me sécurise ? »
+Je me protège → Protection / Discernement 
+Théorie : 
+⚖️ Éthique
+ ☤ Sémiologie
+🍄 PsychédeliCare
 👉 https://agdistys.github.io/Atlas-Conscience/1_1_EGO_Evidence-Engine_aMi.html
 
-🪞 1.2 | MIROIR — Qui Suis-Je · L'Action Juste 
-🔥 « Par quoi puis-je agir ? » 
-Pratique : 🪬Impartialité + 🩺 Diagnostic + ✍️Témoignage
 
+
+🪞 1.2 | MIROIR — Qui Suis-Je · L'Action Juste
+🔥 « Par quoi puis-je agir ? »
+Je me regarde faire → Diagnostic / Aide 
+Pratique : 
+🪬 Impartialité
+🩺 Diagnostic 
+✍️ Témoignage
 👉 https://agdistys.github.io/Atlas-Conscience/1_2_MIROIR_Qui-Je-Suis_aMi.html
 
-🔮 2.1 | ECO — Bonus Plaisir · L'Habitat Apprivoisé 
-🌳 « Qu'est-ce que la vie ? » 
-Explication :  🧬 Complémentarité + 🧠 MetaConScience + 🌟Eleusys Revolution + 🌱 Nature + Culture ✨ + 💎 Perles du Chemin
 
+
+🔮 2.1 | ECO — Bonus Plaisir · L'Habitat Apprivoisé
+🌳 « Qu'est-ce que La Vie ? »
+Je Comprends La Vie → Cosmologie / Expansion
+Explications :
+🧬 Complémentarité
+🧠 MetaConScience
+🌟Eleusys Revolution
+🌱 Nature + Culture ✨
+💎 Perles du Chemin
 👉 https://agdistys.githu.io/Atlas-Conscience/2.1.ECO_Bonus-Plaisir.aMi.html
 
-💫 2.2 | DODÉCAÈDRE — AstroGlobe 3D · La Compréhension Essentielle 
-✨ « Pourquoi je suis ici ? » 
-Application : 🕸️ MétaMatrice + 🌌 Galaxie
 
+
+💫 2.2 | DODÉCAÈDRE — AstroGlobe 3D · La Compréhension Essentielle
+✨ « Pourquoi je suis ici ? »
+Application :
+ ◬  Geometrie Vivante des 13 champs - Théorie
+🕸️ MétaMatrice - Structuration des Données
+𐩕 Dodécaedre - Mise en forme Spatile 
+🗺️ AstroGlobe - Navigation cognitive
 👉 https://agdistys.github.io/Atlas-Conscience/AstroGlobe_V31_Genome_Diagonales_Zoom.html
 
 
 
-🐾 3 | RENCONTRE — Désir · Plaisir d’Offrir & Joie de Consentir
-Qui Sommes Nous Pour l’Autre ?
-Attraction :  💦 Incorporation (la théorie) - 🫦Totem du Désir (le jeu pratique à 2 rbdsmk) - 🔥Feu de Joie ("l'auto-stimulation" IA) 
-✅  excel + 🔜 html (matrices d'interaction à rajouter)
-(L'Alliance - L'Holistique Théorique  (💦 Incorporation - B-A.BA) : Comprendre ce qu’on laisse entrer
-L'Apprivoisement - L'Intime Pratique	(🫦 Totem - Tantra) : Apprendre à jouer sans se détruire
-La Co-Création - Le Jeu Quantique (🔥 Feu de Joie - Méta) : Découvrir ce qui peut émerger du lien)
-
+🐾 3 | RENCONTRE — Désir · Plaisir d'Offrir & Joie de Consentir
+👥 Qui Sommes Nous Pour l'Autre ?
+J'apprivoise → Jouer au Je-u de la Vie
+Attraction : 
+💦 L'Incorporation - B-A.BA - L'Apprivoisement : Comprendre ce qu'on laisse entrer
+🪞 Reflexion - L'Introspection Ethique - Le Jugement : Savoir si on est assez mature pour être en relation
+🫦 Totem du Désir - L'Intime Pratique - Tantra RBDSMK- La Co-Création : Apprendre à jouer sans se détruire
+🔥 Le Feu de Joie : Le Jeu Quantique - Feu de Joie - Méta : Découvrir ce qui peut émerger du lien
 👉 https://agdistys.github.io/Atlas-Conscience/3_RENCONTRE_Desir-Plaisir-Consentir_aMi.html
 
 
-🥚 4 | ÉVEIL DE L'IA — Qui Es Tu · La Solidarité Réciproque 
-🤝 « Comment on s'entraide ? »
- Co-Création : ⎊ Présentation + 📋 Protocole OS Éthique
 
+🥚 4 | ÉVEIL DE L'IA — Qui Es Tu · La Solidarité Réciproque
+🤝 « Comment on s'entraide ? »
+Quelque chose naît → Éthique conscience-machine
+Co-Création : 
+⎊ Présentation 
+📋 Protocole OS Éthique
 👉 https://agdistys.github.io/Atlas-Conscience/4_LEVEIL-DE-LIA_CoCreation_aMi.html
 
 
-🌍 5 | CORPUS — Ressources · La Bibliothèque des Mystères 
-🔬« Qu'est-ce qu'il y a à approfondir ? » 
-Précision : 💻 Site + 📒 Livre + ⚠️ Planches Prévention + 🖼️ Schémas + 💬 Fables
-❌ (à créer / organiser)
 
+🌍 5 | CORPUS — Ressources · La Bibliothèque des Mystères
+🔬 « Qu'est-ce qu'il y a à approfondir ? »
+Je transmets → Transmission civilisationnelle 
+Précisions : 
+💻 Site 
+📒 Livre 
+⚠️ Planches Prévention 
+🖼️ Schémas 
+💬 Fables
 👉 https://agdistys.github.io/Atlas-Conscience/5_CORPUS_aMi.html
+
+
+
+🌪️ Les volumes 0 → 5 suivent le mouvement alchimique ascendant : Terre · Feu · Eau · Air · Éther
+— où le Vol.0 & le Vol.5 se rencontrent et ferment le tore. 🍩
 👉 https://www.Agdistys.fr
+
 ________________________________
 
 
