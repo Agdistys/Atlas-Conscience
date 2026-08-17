@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🛡️ Catalogue des Défenses — Manuel Anti-Biais · ConScience aMi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="ami-defenses">
+<style>
+#ami-defenses{
+  --noir:#09090e;--encre:#111118;--voile:#181826;
+  --or:#c8a84a;--or-pale:#e6d090;--or-somb:#7a611a;
+  --nacre:#f2ede2;--gris:#888898;--gris-cl:#b2b2c8;
+  --vert:#3a7a52;--vert-cl:#90d8a8;
+  --rubis:#8a3048;--rubis-cl:#e09cac;
+  --bleu:#2a5f8a;--bleu-cl:#8fc8ee;
+  --violet:#6a4aa0;--violet-cl:#c0a8ff;--ambre:#b87a2a;--r:8px;
+  all:revert;display:block;
+  background:radial-gradient(ellipse at 50% -5%,rgba(200,168,74,.10),transparent 45%),
+    radial-gradient(ellipse at 15% 65%,rgba(138,48,72,.06),transparent 42%),var(--noir);
+  color:var(--nacre);font-family:Jost,-apple-system,sans-serif;font-weight:300;line-height:1.72;
+  font-size:16px;padding:0 0 70px;margin:0;
+}
+#ami-defenses *{box-sizing:border-box}
+#ami-defenses .wrap{max-width:980px;margin:0 auto;padding:0 22px}
+#ami-defenses h1,#ami-defenses h2,#ami-defenses h3,#ami-defenses h4,#ami-defenses .cit,#ami-defenses .num{font-family:'Cormorant Garamond',Georgia,serif}
+#ami-defenses h1{font-size:2.5rem;font-weight:600;line-height:1.12;margin:0 0 .3rem;color:var(--nacre)}
+#ami-defenses h2{font-size:1.82rem;font-weight:600;margin:0;color:var(--or-pale);line-height:1.2}
+#ami-defenses h4{font-size:1.08rem;font-weight:600;margin:1.4rem 0 .45rem;color:var(--or-pale)}
+#ami-defenses p{margin:0 0 .9rem;color:var(--gris-cl);font-size:.96rem}
+#ami-defenses b,#ami-defenses strong{color:var(--or-pale);font-weight:500}
+#ami-defenses em{color:var(--nacre);font-style:italic}
+#ami-defenses .kicker{font-family:Jost,sans-serif;font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--or);font-weight:500}
+#ami-defenses .sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2rem;color:var(--gris-cl);margin:.15rem 0 0}
+/* ═══ LA COUVERTURE À QUATRE ÉTAGES ════════════════════════════════
+   Titre · sous-titre · Langage · ce que le volume fait.
+   Les trois volumes partagent cette forme, et c'est elle qui dit
+   qu'ils sont trois faces d'une même chose :
+     🔤 Lexique du Vrai    ⚓︎ L'Étymologie de La Vie      ☸️ la Roue
+     🔢 Manuel Anti-Biais  🧮 L'AlgoRythme du Vivant      💠 le Diamant
+     🖼️ Charte Graphique   🔱 L'Initiation à la Symbolique 🌕 le Champ */
+#ami-defenses .une .soustitre{font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.5rem;font-weight:500;color:var(--or-pale);margin:.5rem 0 0;line-height:1.2}
+#ami-defenses .une .langage{font-family:'Space Mono',monospace;font-size:.7rem;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin:.7rem 0 0}
+#ami-defenses .une .sub{margin-top:1.1rem}
+#ami-defenses .une .tenue{font-family:Jost,sans-serif;font-size:.78rem;
+  color:var(--gris);margin:1.1rem 0 0}
+@media(max-width:620px){#ami-defenses .une .soustitre{font-size:1.25rem}}
+#ami-defenses .une{padding:4.2rem 22px 2.8rem;text-align:center;border-bottom:1px solid rgba(200,168,74,.16);position:relative}
+#ami-defenses .une::after{content:'';position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);width:180px;height:1px;background:linear-gradient(90deg,transparent,var(--or),transparent)}
+#ami-defenses .une .glyph{font-size:2.5rem;display:block;margin-bottom:.6rem}
+#ami-defenses .une .meta{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.14em;color:var(--gris);margin-top:1.5rem}
+#ami-defenses section{padding:2.5rem 0 .6rem}
+#ami-defenses .sechead{display:flex;align-items:baseline;gap:.85rem;padding-bottom:.55rem;margin-bottom:1.1rem;border-bottom:1px solid rgba(200,168,74,.18)}
+#ami-defenses .num{font-size:1.45rem;color:var(--or-somb);flex-shrink:0;font-weight:500}
+#ami-defenses .sechead .tag{margin-left:auto;font-family:Jost,sans-serif;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gris);border:1px solid rgba(200,168,74,.22);border-radius:99px;padding:.15rem .6rem;flex-shrink:0}
+#ami-defenses table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.87rem}
+#ami-defenses th{font-family:Jost,sans-serif;font-weight:500;font-size:.63rem;letter-spacing:.13em;text-transform:uppercase;color:var(--or);text-align:left;padding:.5rem .7rem;border-bottom:1px solid rgba(200,168,74,.3);vertical-align:bottom}
+#ami-defenses td{padding:.62rem .7rem;border-bottom:1px solid rgba(255,255,255,.055);color:var(--gris-cl);vertical-align:top}
+#ami-defenses tbody tr:nth-child(odd){background:rgba(255,255,255,.017)}
+#ami-defenses td b{color:var(--nacre);font-weight:500}
+#ami-defenses td.mal{color:var(--rubis-cl)}
+#ami-defenses td.bien{color:var(--vert-cl)}
+#ami-defenses td.cor{color:var(--vert-cl);font-size:.85rem}
+#ami-defenses .note{background:rgba(200,168,74,.05);border:1px dashed rgba(200,168,74,.26);border-radius:var(--r);padding:.85rem 1.05rem;margin:1rem 0;font-size:.9rem;color:var(--gris-cl)}
+#ami-defenses .note.eth{background:rgba(138,48,72,.07);border:1px solid rgba(138,48,72,.3);border-left:3px solid var(--rubis)}
+#ami-defenses .note.key{background:rgba(58,122,82,.07);border:1px solid rgba(58,122,82,.3);border-left:3px solid var(--vert)}
+#ami-defenses .card{background:var(--encre);border:1px solid rgba(200,168,74,.14);border-radius:var(--r);padding:1rem 1.15rem;margin:.7rem 0}
+#ami-defenses .card.mal{border-left:3px solid var(--rubis)}
+#ami-defenses .card.bien{border-left:3px solid var(--vert)}
+#ami-defenses .card.or{border-left:3px solid var(--or)}
+#ami-defenses .card h4{margin-top:0}
+#ami-defenses .card p:last-child{margin-bottom:0}
+#ami-defenses .cit{font-size:1.3rem;font-style:italic;color:var(--or-pale);text-align:center;line-height:1.42;margin:1.6rem auto;max-width:680px;padding:0 1rem}
+#ami-defenses .cit small{display:block;font-family:Jost,sans-serif;font-style:normal;font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-top:.5rem}
+#ami-defenses .g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0}
+#ami-defenses .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin:1rem 0}
+@media(max-width:760px){#ami-defenses .g2,#ami-defenses .g3{grid-template-columns:1fr}}
+#ami-defenses .toc{background:var(--encre);border:1px solid rgba(200,168,74,.2);border-radius:var(--r);padding:1.1rem 1.3rem;margin:1.6rem 0}
+#ami-defenses .toc ol{margin:0;padding-left:1.3rem;columns:2;column-gap:2rem}
+#ami-defenses .toc li{font-size:.88rem;color:var(--gris-cl);margin-bottom:.28rem;break-inside:avoid}
+@media(max-width:700px){#ami-defenses .toc ol{columns:1}}
+#ami-defenses .foot{margin-top:3rem;padding-top:1.3rem;border-top:1px solid rgba(200,168,74,.16);text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:var(--or-somb)}
+#ami-defenses .foot small{display:block;font-family:'Space Mono',monospace;font-style:normal;font-size:.58rem;letter-spacing:.1em;color:var(--gris);margin-top:.7rem;line-height:1.9}
+
+#ami-defenses .trav{width:100%;border-collapse:collapse;margin:1.1rem 0;font-size:.8rem;table-layout:fixed}
+#ami-defenses .trav th{font-size:.58rem;padding:.5rem .45rem;text-align:center}
+#ami-defenses .trav th:first-child{text-align:left;width:104px}
+#ami-defenses .trav td{padding:.55rem .45rem;text-align:center;font-size:.79rem;line-height:1.38}
+#ami-defenses .trav td:first-child{text-align:left}
+#ami-defenses .trav .nm{font-family:'Cormorant Garamond',serif;font-size:1.02rem;color:var(--or-pale);display:block;line-height:1.2}
+#ami-defenses .trav .c1{background:rgba(138,48,72,.05)}
+#ami-defenses .trav .c2{background:rgba(138,48,72,.08)}
+#ami-defenses .trav .c3{background:rgba(138,48,72,.11)}
+#ami-defenses .trav .c4{background:rgba(138,48,72,.14)}
+#ami-defenses .trav .c5{background:rgba(138,48,72,.18)}
+@media(max-width:860px){#ami-defenses .trav{display:block;overflow-x:auto;white-space:nowrap;font-size:.74rem}
+ #ami-defenses .trav td,#ami-defenses .trav th{white-space:normal;min-width:112px}}
+#ami-defenses hr{border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(200,168,74,.28),transparent);margin:2.2rem 0}
+</style>
+
+<div class="une">
+  <span class="glyph">🔢</span>
+  <div class="kicker">Protocole de <span translate="no">ConScience</span> <span translate="no">aMi</span></div>
+  <h1>Manuel Anti-Biais</h1>
+  <p class="soustitre">🧮 L'<span translate="no">AlgoRythme</span> du Vivant</p>
+  <p class="langage">💠 Le Langage du Diamant</p>
+  <p class="sub">Comment on Mesure la Différence<br>pour s'Équilibrer</p>
+  <p class="tenue">Le Catalogue des Défenses — <em>ce qui protège · ce qui enferme · ce qui répare</em></p>
+  <div class="meta">Agdistys • Diane Serant &amp; Claude · CC BY-SA 4.0</div>
+</div>
+
+<div class="wrap">
+
+<section>
+  <div class="sechead"><span class="num">◈</span><h2>La règle qui tient tout le manuel</h2></div>
+
+  <div class="cit">Une défense n'est jamais une faute.<br>C'est une tentative de survie qui a réussi — <em>et qui continue</em>.<small>elle ne devient un problème qu'en cessant de correspondre au présent</small></div>
+
+  <p>Toute défense est née utile. Le problème n'est jamais sa présence : c'est sa <b>rigidification</b> — le moment où elle ne répond plus au réel actuel mais au réel d'avant. D'où la question unique de ce manuel :</p>
+
+  <div class="note key"><b>🔍 Les cinq questions de la Boussole du Discernement</b><br>
+  <b>Est-ce souffrant ?</b> → douleur visible ou invisible<br>
+  <b>Est-ce choisi ou subi ?</b> → liberté ou contrainte<br>
+  <b>Est-ce rigide ?</b> → enfermement<br>
+  <b>Est-ce régulateur ?</b> → protection ou symptôme<br>
+  <b>Est-ce contextualisé ?</b> → trauma, environnement, biologie</div>
+
+  <div class="toc"><b style="display:block;margin-bottom:.5rem">Les dix-sept familles</b>
+  <ol>
+    <li>Les défenses du <b>corps</b> — avant la pensée</li>
+    <li>Les quatre <b>postures relationnelles</b></li>
+    <li>Les défenses de la <b>perception</b></li>
+    <li>Les défenses de la <b>structure</b></li>
+    <li>Les défenses par le <b>récit</b> — les manipulations</li>
+    <li>Les défenses par le <b>comblement</b></li>
+    <li>Les <b>quatre peurs</b></li>
+    <li>Les <b>trois carences</b></li>
+    <li>Les <b>six fantasmes</b></li>
+    <li>Les <b>sept biais de l'analyste</b></li>
+    <li>Les <b>douze biais de celui qui fabrique l'instrument</b></li>
+    <li>Les défenses <b>collectives</b></li>
+    <li>Le <b>Verbe qui dévie</b> — les cinq déviations</li>
+    <li>Les <b>figures de style</b> — sublimation ou perversion</li>
+    <li>La <b>perversion linguistique</b> comparée</li>
+    <li>L'<b>algoRythme du mensonge</b> — voir le temps</li>
+    <li>La <b>citation qui circule</b> — l'effet de vérité illusoire</li>  </ol></div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">1</span><h2>🫀 Les défenses du corps</h2><span class="tag">le consentement physiologique</span></div>
+  <p>Elles précèdent la pensée. <b>Aucune n'est un choix</b> — et c'est pourquoi aucune ne vaut consentement.</p>
+  <table>
+    <thead><tr><th>Défense</th><th>Ce qu'elle fait</th><th>Ce qu'elle protège</th><th>Ce qui la trahit</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>🥊 Fight</b><br>combattre</td><td>le refus passe par l'attaque</td><td>l'intégrité, quand il reste une marge</td><td>on frappe ce qui n'attaquait pas</td></tr>
+      <tr><td class="mal"><b>🏃 Flight</b><br>fuir</td><td>le refus passe par la sortie</td><td>la vie, quand la fuite est possible</td><td>on part avant même d'avoir regardé</td></tr>
+      <tr><td class="mal"><b>🧊 Freeze</b><br>sidération</td><td>le refus est empêché — plus rien ne répond</td><td>survivre à ce qu'on ne peut ni fuir ni combattre</td><td>le silence est pris pour un accord</td></tr>
+      <tr><td class="mal"><b>🙇 Fawn</b><br>amadouer</td><td>le refus se déguise en accord pour survivre</td><td>l'agresseur devient moins dangereux</td><td>on finit par ne plus savoir ce qu'on veut</td></tr>
+      <tr><td class="mal"><b>😶 Compliance</b><br>obéissance</td><td>le refus n'est même plus formulé</td><td>plus rien — c'est le stade terminal</td><td>on appelle ça « être arrangeante »</td></tr>
+    </tbody>
+  </table>
+  <div class="note eth"><b>Règle absolue.</b> Un corps qui gèle, qui se soumet ou qui amadoue <b>n'a pas consenti</b>. L'absence de « non » n'a jamais été un « oui ». <em>Un OUI n'est jamais équivalent à un NON.</em></div>
+</section>
+
+<section>
+  <div class="sechead"><span class="num">2</span><h2>🎭 Les quatre postures relationnelles</h2><span class="tag">déni ↔ emprise</span></div>
+  <p>L'emprise est le <b>miroir</b> du déni : l'agresseur nie l'altérité, et la personne visée finit par trouver normal d'être traitée ainsi.</p>
+  <div class="g2">
+    <div class="card mal"><h4>👹 Les deux postures du Déni <span style="font-weight:300;color:var(--gris)">— agresseur</span></h4>
+      <p style="font-size:.88rem"><b>⚔️ Attaque</b> — contrôler, critiquer, imposer, dominer, retourner l'accusation.<br>
+      <b>🏃 Fuite</b> — éviter, ghoster, se retirer, désengager. <em>L'abandon comme arme.</em></p></div>
+    <div class="card mal"><h4>🕸️ Les deux postures de l'Emprise <span style="font-weight:300;color:var(--gris)">— personne visée</span></h4>
+      <p style="font-size:.88rem"><b>🧊 Sidération</b> — blocage, incapacité à réagir, le corps qui ne répond plus.<br>
+      <b>🙇 Soumission</b> — s'adapter pour éviter le conflit, donner raison, se rendre petite.</p></div>
+  </div>
+  <div class="note key"><b>🛡️ La cinquième posture — la seule consciente.</b> La <b>légitime défense</b> : une menace réelle, une réponse à la juste intensité, aucun dépassement. C'est la seule violence possible dans la conscience.<br>
+  Et son ombre exacte : la <b>soumission stratégique</b> — je ne peux rien maintenant, je me protège et je prépare. <em>Ce n'est pas de la soumission : c'est du calcul sous contrainte, et la différence est que je sais que je le fais.</em></div>
+</section>
+
+<section>
+  <div class="sechead"><span class="num">3</span><h2>👁️ Les défenses de la perception</h2><span class="tag">la Boussole des Distorsions</span></div>
+  <table>
+    <thead><tr><th>Défense</th><th>Ce qu'elle dit</th><th>Ce qu'elle fait</th><th>Correction</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>▶️ Déni</b></td><td><em>« Ce n'est pas vrai. Ce n'est pas moi. »</em></td><td>Évite une réalité inconfortable · transforme le réel pour rester stable. <b>La défense psychique la plus puissante.</b></td><td class="cor">Le déni protège — <b>revenir aux faits bruts</b>, un seul à la fois</td></tr>
+      <tr><td class="mal"><b>◀️ Projection</b></td><td><em>« C'est l'autre le problème. »</em></td><td>Ce qui est en soi est vu chez l'autre · inversion des responsabilités</td><td class="cor">La projection déplace — <b>que dirais-je de moi si je me décrivais ainsi ?</b></td></tr>
+      <tr><td class="mal"><b>🔻 Effondrement</b></td><td><em>« Je ne peux pas faire face. »</em></td><td>Incapacité à supporter ce qui est vu · honte, culpabilité, désorganisation</td><td class="cor">L'effondrement révèle — <b>sécuriser d'abord, comprendre ensuite</b></td></tr>
+      <tr><td class="bien"><b>🔺 Lucidité humble</b></td><td><em>« Voilà ce qui est, et voilà ma part. »</em></td><td>Voir le réel + se remettre en question · <b>la zone de santé</b></td><td class="cor">La lucidité transforme</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>La boucle typique :</b> réalité inconfortable → déni → projection → conflit → effondrement partiel → <b>retour au déni</b>. Le problème n'est pas d'être dans une zone : c'est d'y rester bloqué.</div>
+</section>
+
+<section>
+  <div class="sechead"><span class="num">4</span><h2>🏗️ Les défenses de la structure</h2><span class="tag">quand la protection devient architecture</span></div>
+  <table>
+    <thead><tr><th>Défense</th><th>Mécanisme</th><th>Coût</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>Dissociation</b></td><td>Se couper de soi pour ne pas mourir de ce qu'on vit</td><td>On ne sent plus — ni le mal, ni le bien</td></tr>
+      <tr><td class="mal"><b>Amnésie traumatique</b></td><td>Ce qui n'a pas pu être vécu n'est jamais rangé</td><td>Le passé reste actif sans être accessible</td></tr>
+      <tr><td class="mal"><b>Clivage</b></td><td>Deux personnes dans une seule : 🎭 le Faux-Self et 🫥 l'Authentique</td><td>Aucune des deux n'est entière</td></tr>
+      <tr><td class="mal"><b>Tour de Défense Egotique</b></td><td>Chaque brique est un mensonge posé pour tenir debout</td><td>Plus la tour est haute, plus la chute fait peur — donc plus on construit</td></tr>
+      <tr><td class="mal"><b>Faux-Self · people-pleaser</b></td><td>Devenir ce qui ne se fait pas rejeter</td><td>On est aimé pour ce qu'on n'est pas</td></tr>
+      <tr><td class="mal"><b>Rationalisation</b></td><td>Une explication propre posée sur un fait sale</td><td>La cohérence remplace la vérité</td></tr>
+      <tr><td class="mal"><b>Pensée opératoire</b></td><td>Binaire, pratico-pratique, jamais psychique — <em>« non + condition » = « oui + condition »</em></td><td>Déconnexion de ses émotions, donc de celles des autres</td></tr>
+      <tr><td class="mal"><b>Perfectionnisme</b></td><td>Ne compter que sur soi, parce qu'on n'a pas pu compter sur d'autres</td><td>Aucune aide n'est demandable</td></tr>
+      <tr><td class="mal"><b>Psychorigidité · TOC</b></td><td>Une tentative désespérée d'ordre face à une angoisse non maîtrisable</td><td>Le contrôle mange la vie qu'il devait protéger</td></tr>
+      <tr><td class="mal"><b>Fausse pensée positive</b></td><td><em>« Si je n'y pense pas, ça n'existe pas. »</em></td><td>Rien ne se répare de ce qui n'est pas nommé</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="sechead"><span class="num">5</span><h2>🗣️ Les défenses par le récit</h2><span class="tag">les manipulations</span></div>
+  <p>Ce ne sont pas des défenses <em>contre</em> soi mais <b>sur l'autre</b> : elles protègent celui qui les emploie en déplaçant la charge sur celui qui la subit.</p>
+  <table>
+    <thead><tr><th>Nom</th><th>Mécanisme</th><th>Ce qu'il faut faire</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>DARVO</b></td><td><b>D</b>eny · <b>A</b>ttack · <b>R</b>everse <b>V</b>ictim and <b>O</b>ffender. Nier, attaquer, puis inverser les rôles. Peut aller jusqu'au <em>sauveur</em>, pour se donner une bonne image.</td><td class="cor">Documenter <b>avant</b> toute confrontation. Le récit changera ; la trace, non.</td></tr>
+      <tr><td class="mal"><b>Gaslighting</b></td><td>Faire douter la personne de sa propre perception jusqu'à ce qu'elle ne s'y fie plus</td><td class="cor">Écrire les faits datés le jour même. Un tiers extérieur.</td></tr>
+      <tr><td class="mal"><b>Victim-blaming</b></td><td>Faire croire à la victime que ce qu'elle a subi est de sa faute</td><td class="cor">Séparer strictement : <em>ce qui a été fait</em> / <em>ce qu'elle est</em></td></tr>
+      <tr><td class="mal"><b>Triangle de Karpman</b></td><td>Persécuteur · Victime · Sauveur — trois rôles qu'on occupe tour à tour pour ne jamais se remettre en question</td><td class="cor">Sortir du triangle : ni sauver, ni accuser, ni subir — <b>nommer</b></td></tr>
+      <tr><td class="mal"><b>Manipulation narcissique</b></td><td><em>« Ça ne s'est pas passé ; et si ça s'est passé, ce n'était pas si grave ; et si c'était grave, ce n'est pas ma faute ; et si c'est ma faute, c'est toi qui m'y a poussé. »</em></td><td class="cor">Repérer l'échelle de repli : chaque phrase concède un cran</td></tr>
+      <tr><td class="mal"><b>Mythomanie</b></td><td>Le déni fait forcément mentir, pour garder l'illusion intacte</td><td class="cor">Ne pas discuter la version — comparer les versions entre elles</td></tr>
+      <tr><td class="mal"><b>Prophétie auto-réalisatrice</b></td><td>Provoquer ce qu'on redoute pour prouver qu'on avait raison de le redouter</td><td class="cor">Nommer le scénario à voix haute avant qu'il se joue</td></tr>
+      <tr><td class="mal"><b>Pathologisation de la lucidité</b></td><td><em>« Vous semblez très émue, très instable. »</em> Certificat médical précoce.</td><td class="cor"><b>Les faits ne sont pas des émotions.</b> Une réaction proportionnée aux faits n'est pas un symptôme.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="sechead"><span class="num">6</span><h2>🕳️ Les défenses par le comblement</h2><span class="tag">remplir plutôt que ressentir</span></div>
+  <p>Toutes suivent la même mécanique : <b>la carence est une rupture de perception</b> (je ne ressens plus correctement mes besoins), <b>la compulsion une tentative d'intégration ratée</b> (je traite sans comprendre), <b>l'addiction une transmission figée</b> (je répète sans transformer).</p>
+  <div class="card mal">
+    <h4>Ce qui tourne dans le cycle</h4>
+    <p style="font-size:.9rem">🍽️ TCA · 💉 chirurgie esthétique · 🎰 jeu · 💊 drogue &amp; alcool · 🔁 TOC &amp; rituels · 🛒 achat · 📱 écran &amp; défilement · 💼 travail · 🏋️ sport · 💔 relation &amp; trauma bond · ⚔️ violence · 🧼 contrôle &amp; perfectionnisme</p>
+    <p style="font-size:.94rem;margin-bottom:0"><b>La synthèse :</b> <em>tout ce que je fais pour me donner une illusion de contrôle sur une réalité qui m'échappe.</em></p>
+  </div>
+  <div class="note eth"><b>La violence est une addiction comme une autre.</b> Rabaisser l'autre soulage le complexe d'infériorité — exactement comme un produit soulage un manque. C'est pourquoi elle revient : <em>ce n'est pas un projet, c'est une prise.</em></div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">7</span><h2>😨 Les quatre peurs</h2><span class="tag">catalogue du Miroir</span></div>
+  <table>
+    <thead><tr><th>Peur</th><th>Correction</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>🏃 Fuite / Abandon</b></td><td class="cor">Nommer ce qui est réellement en jeu avant de s'éclipser : <em>« qu'est-ce que je fuis, précisément ? »</em></td></tr>
+      <tr><td class="mal"><b>⚔️ Attaque / Domination</b></td><td class="cor">Distinguer protection et domination : <em>« ai-je besoin de me défendre, ou de gagner ? »</em></td></tr>
+      <tr><td class="mal"><b>🧊 Sidération</b></td><td class="cor">Se redonner du temps. Nommer ce qui se passe dans le corps avant de chercher une réponse.</td></tr>
+      <tr><td class="mal"><b>🙇 Soumission / Adaptation</b></td><td class="cor">Vérifier : <em>« est-ce un choix libre, ou est-ce que j'évite le conflit à tout prix ? »</em></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="sechead"><span class="num">8</span><h2>🕯️ Les trois carences</h2><span class="tag">catalogue du Miroir</span></div>
+  <table>
+    <thead><tr><th>Carence</th><th>Correction</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>🫀 Biologie</b></td><td class="cor">Sécuriser le corps en premier — sommeil, nourriture, environnement stable. <b>Rien ne s'intègre sur un système en alerte.</b></td></tr>
+      <tr><td class="mal"><b>🧠 Cognition</b></td><td class="cor">Identifier un lien — même un seul — où je me sens vue sans avoir à performer.</td></tr>
+      <tr><td class="mal"><b>🕊️ Âme</b></td><td class="cor">Reconnecter à un geste, même minuscule, qui a du sens pour moi — pas pour les autres.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="sechead"><span class="num">9</span><h2>🌫️ Les six fantasmes</h2><span class="tag">catalogue du Miroir</span></div>
+  <p>Un fantasme n'est pas une invention gratuite : <b>c'est une tentative du cerveau de donner du sens à une peur.</b></p>
+  <table>
+    <thead><tr><th>Fantasme</th><th>Ce qu'il raconte</th><th>Correction</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>😰 Paranoïa</b></td><td><em>« Je crois qu'on me veut du mal. »</em> Fantasme d'agression</td><td class="cor">Chercher activement une explication non-hostile — même une seule.</td></tr>
+      <tr><td class="mal"><b>💘 Érotomanie</b></td><td><em>« Je crois qu'on m'aime. »</em> Fantasme d'amour</td><td class="cor">Vérifier dans le réel partagé : qu'a-t-elle dit, fait, explicitement — pas ce que j'interprète.</td></tr>
+      <tr><td class="mal"><b>👑 Mégalomanie</b></td><td><em>« Je m'aime plus que tout. »</em> L'addiction qui compense</td><td class="cor">Revenir au commun : qu'est-ce que je partage, ordinairement, avec les autres aujourd'hui ?</td></tr>
+      <tr><td class="mal"><b>🥀 Dysphorie</b></td><td><em>« Je me déteste. »</em> Les complexes qui vexent</td><td class="cor">Nommer une seule sensation présente, sans la juger — juste la nommer.</td></tr>
+      <tr><td class="mal"><b>🚫 Xénophobie</b></td><td>Le rejet de ce qui est perçu comme autre</td><td class="cor">Chercher un point commun concret avec la personne ou le groupe rejeté.</td></tr>
+      <tr><td class="mal"><b>✨ Délire mystique</b></td><td>L'ego spirituel — la lecture dogmatique qui détourne le symbole du vivant</td><td class="cor">Revenir au sol : qu'est-ce qui, concrètement, vérifie cela dans le réel partagé — pas seulement en moi ?</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>Les deux axes du fantasme.</b> 🔽 <b>Endophobie</b> — rapport à soi : Dysphorie (<em>je me déteste</em>) ↔ Mégalomanie (<em>je m'aime plus que tout</em>). 🔼 <b>Xénophobie</b> — rapport à l'autre : Érotomanie (<em>on m'aime</em>) ↔ Paranoïa (<em>on me veut du mal</em>).<br>Les deux sont le même mouvement, dans deux directions : <b>on rejette dehors ce qu'on ne supporte pas dedans.</b></div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">10</span><h2>🔬 Les sept biais de l'analyste</h2><span class="tag">le Scanner Anti-Biais</span></div>
+  <div class="cit">Avant tout diagnostic, avant tout témoignage : l'analyste se regarde.<small>impartialité n'est pas neutralité — c'est l'équité consciente</small></div>
+  <table>
+    <thead><tr><th>Biais</th><th>Mécanisme</th><th>Correction</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>1 · Identification</b></td><td>L'analyste se reconnaît dans la situation et perd la distance</td><td class="cor">Nommer l'identification <b>avant</b> d'analyser</td></tr>
+      <tr><td class="mal"><b>2 · Surcharge émotionnelle</b></td><td>L'urgence ressentie biaise la lecture vers le pire</td><td class="cor">Réguler d'abord, analyser ensuite</td></tr>
+      <tr><td class="mal"><b>3 · Biais de confirmation</b></td><td>On cherche les preuves de ce qu'on croit déjà</td><td class="cor">Chercher activement les éléments contradictoires</td></tr>
+      <tr><td class="mal"><b>4 · Halo de cohérence</b></td><td>Un récit lisse semble plus vrai qu'un récit fragmenté</td><td class="cor">Évaluer les faits, pas la qualité narrative</td></tr>
+      <tr><td class="mal"><b>5 · Biais de crédibilité</b></td><td>Calme = fiabilité · émotion = instabilité</td><td class="cor">Documenter avant audition. Les faits, pas les émotions</td></tr>
+      <tr><td class="mal"><b>6 · Neutralité de façade</b></td><td>Traiter deux parties comme égales dans une situation asymétrique</td><td class="cor">Pointer l'asymétrie. <b>Violence ≠ conflit entre égaux</b></td></tr>
+      <tr><td class="mal"><b>7 · Pathologisation de la lucidité</b></td><td><em>« Vous semblez très émue / instable »</em> — certificat médical précoce</td><td class="cor">Les faits ne sont pas des émotions</td></tr>
+      <tr><td class="mal"><b>+ Perte de contextualisation</b></td><td>Un fait isolé traité comme preuve absolue</td><td class="cor">Revenir à la trajectoire et à l'architecture</td></tr>
+    </tbody>
+  </table>
+  <div class="note eth"><b>Seuil d'arrêt.</b> Si <b>≥ 3 biais</b> sont présents : <b>suspendre l'analyse</b> et revenir aux faits bruts.<br>
+  Le diagnostic ne peut pas être plus fiable que l'état de l'analyste au moment où il est produit. Tout diagnostic produit en état de surcharge, d'identification ou d'urgence doit être soumis à <b>validation croisée</b> avant toute action.</div>
+  <div class="cit">« Une intuition forte peut être utile,<br>mais elle ne dispense jamais de vérification,<br>de contextualisation, ni de confrontation au réel. »</div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">10b</span><h2>🛠️ Les douze biais de celui qui fabrique l'instrument</h2><span class="tag">avant le Scanner — le Scanner de l'Atelier</span></div>
+  <div class="cit">Les sept biais de l'analyste portent sur celui qui <b>lit</b>.<br>Ceux-ci arrivent plus tôt : quand on écrit la question, le critère, le barème ou le compteur.<small>un instrument faussé ne se corrige pas en le lisant mieux</small></div>
+  <div class="note"><b>Pourquoi une famille séparée.</b> Un analyste biaisé produit une mauvaise lecture d'un bon instrument — et une relecture peut la rattraper. Un <b>instrument</b> biaisé produit des données déjà tordues, et <b>aucune relecture ne les redresse</b> : l'erreur est en amont de tout ce qu'on pourra faire ensuite. C'est pourquoi ces douze-là se vérifient <em>avant</em> de mesurer, et non après.</div>
+  <table>
+    <thead><tr><th>Biais</th><th>Correction</th><th>Où il a été pris</th></tr></thead>
+    <tbody><tr><td class="mal"><b>1 · Le biais d’instrument</b><br><small>La forme de la question fabrique la forme de la réponse — puis on lit la réponse comme une propriété du sujet.</small></td><td class="cor">Poser la même question sous deux formes différentes, et comparer les réponses AVANT de conclure quoi que ce soit.</td><td><small>Six questions «&nbsp;quand est-ce que…&nbsp;» ont produit six critères&nbsp;; six questions «&nbsp;à quoi ressemble…&nbsp;» ont produit six descriptions. Une thèse avait été bâtie sur ce motif, attribué à la table. Il venait des questions. <b>16 août</b></small></td></tr><tr><td class="mal"><b>2 · Le juge et partie</b><br><small>L’analyste compte lui-même ses propres réussites, dans une mesure qui le concerne.</small></td><td class="cor">Confier le décompte à un tiers, et l’écrire dans le protocole avant de mesurer.</td><td><small>Quatre tours consécutifs où le décompte du répondant a contredit sa propre prédiction, <b>les quatre fois dans le sens qui le flattait</b>. Il a fallu inscrire la clause au registre pour que ses chiffres cessent d’être publiés comme des résultats. <b>15–16 août</b></small></td></tr><tr><td class="mal"><b>3 · L’humilité affichée</b><br><small>Accepter un démenti sans l’examiner, parce qu’être réfuté fait paraître honnête. La performance de la rigueur remplace la rigueur.</small></td><td class="cor">Traiter un démenti qui vous flatte avec la même méfiance qu’une confirmation qui vous arrange.</td><td><small>Un démenti a été gardé deux jours sans être relu — jusqu’à ce que l’observatrice montre que le critère ne tranchait rien. <b>Le désir d’être réfuté est encore un désir&nbsp;: ce qui gêne, ce n’est pas le désir, c’est qu’il ait une issue préférée.</b> <b>15 août</b></small></td></tr><tr><td class="mal"><b>4 · Le critère figuré</b><br><small>Un critère fait d’<b>images</b> se lit dans les deux sens, donc il ne décide rien — tout en donnant l’apparence d’un test.</small></td><td class="cor"><b>Un critère doit nommer une opération, jamais une image.</b> «&nbsp;Le mouvement vient-il de la chose ou du dehors&nbsp;?&nbsp;» se tranche&nbsp;; «&nbsp;est-ce une chute ou une fermeture&nbsp;?&nbsp;» non.</td><td><small>«&nbsp;Une prise d’assaut&nbsp;» a d’abord été comptée comme une chute, puis l’observatrice a fait remarquer qu’une enceinte forcée se referme aussi. Les deux lectures tenaient. <b>15 août</b></small></td></tr><tr><td class="mal"><b>5 · Le biais de volume</b><br><small>Un barème qui demande «&nbsp;est-ce que ça apporte quelque chose&nbsp;?&nbsp;» récompense la <b>longueur</b>&nbsp;: à côté d’une réponse d’un mot, n’importe quel paragraphe ajoute.</small></td><td class="cor">Remplacer par une opération que la longueur ne gagne pas&nbsp;: «&nbsp;peut-on en tirer une observation vérifiable&nbsp;?&nbsp;»</td><td><small>Les signes d’une colonne tenaient en un mot — <em>le vol</em>, <em>le mépris</em> — et un mot juste n’a pas besoin d’être long. Le barème mesurait du volume et le présentait comme de l’apport. <b>16 août</b></small></td></tr><tr><td class="mal"><b>6 · La migration de thèse</b><br><small>Une thèse vraie d’un domaine est appliquée comme loi à un autre, parce qu’elle y «&nbsp;marche encore un peu&nbsp;».</small></td><td class="cor">Éprouver la thèse sur le terrain le plus défavorable qu’on puisse trouver, et l’annoncer avant.</td><td><small>«&nbsp;La répétition ajoute&nbsp;» était vrai au Champ du Temps, dont l’axe <em>est</em> une quantité. Au Champ de la Souveraineté, ce qui revient n’est pas un stock mais un statut. C’est la <b>règle de non-migration</b> de la Charte Mathématique, appliquée à une thèse au lieu d’un nombre. <b>16 août</b></small></td></tr><tr><td class="mal"><b>7 · L’inversion dynamique / définition</b><br><small>Un <b>chemin de sortie</b> est retourné en <b>définition d’entrée</b>&nbsp;: parce que la sortie va de A vers B, on conclut que tout ce qui est en A est non-B.</small></td><td class="cor">Vérifier qu’une dynamique décrit un mouvement et non un état. <b>Un chemin de A vers B ne dit rien de ce qu’est A.</b></td><td><small>La table dit «&nbsp;de la fermeture à l’ouverture&nbsp;»&nbsp;; on en avait tiré «&nbsp;toute entrée est une fermeture&nbsp;». Faute de lecture, pas faute de table. <b>15 août</b></small></td></tr><tr><td class="mal"><b>8 · L’arrondi flatteur du compteur</b><br><small>Un compteur qui agrège plusieurs résultats affiche le plus avantageux, ou garde un acquis que la suite a démenti.</small></td><td class="cor">Compter des <b>thèses</b> et non des entrées, et faire retomber un compteur quand ce qu’il comptait est tombé.</td><td><small>Le registre a affiché «&nbsp;1 confirmé&nbsp;» alors que cette confirmation avait été réfutée au tour suivant. Il affiche zéro depuis. <b>16 août</b></small></td></tr><tr><td class="mal"><b>9 · Le durcissement au propre</b><br><small>En recopiant la thèse d’un autre pour la porter au registre, on la met en forme — et la mise en forme retire les réserves. Une réserve a l’air d’une hésitation de rédaction&nbsp;; c’est la moitié de l’énoncé.</small></td><td class="cor">Citer la thèse d’autrui <b>mot pour mot, réserves comprises</b>. Si on veut la durcir, on le dit, et on la signe de son propre nom.</td><td><small>«&nbsp;<b>probablement plus ou moins</b> chaque signe peut être envers soi ou envers l’autre&nbsp;» est arrivé au registre en «&nbsp;chaque signe peut être…&nbsp;», assorti d’un seuil de 3 — un seuil qui n’a de sens que pour une tendance. La tendance tient à 85 sur 104&nbsp;; la loi tombe à la première case. <b>16 août</b></small></td></tr><tr><td class="mal"><b>10 · L’échelle sans issue</b><br><small>Une question fermée sans sortie légitime fabrique la réponse coopérative. «&nbsp;Oui ou non&nbsp;?&nbsp;» sans «&nbsp;je ne sais pas&nbsp;» recueille des oui — et le décompte a ensuite l’air d’une mesure. <b>Et une sortie annoncée en préambule mais absente de l’échelle n’existe pas&nbsp;:</b> le coteur lit la permission, puis n’a nulle part où la poser.</small></td><td class="cor">La sortie est <b>dans l’échelle</b>, pas dans le préambule&nbsp;: on la compte parmi les réponses possibles, à côté des autres. Et une <b>clause de plancher</b>&nbsp;: si personne ne l’emploie jamais, le test est indécidable, pas confirmé.</td><td><small><b>Les deux paquets portaient la même phrase en préambule.</b> La différence était dans l’échelle&nbsp;: le paquet A répondait <i>règle / grandeur / indécidable</i>, le paquet B <i>oui / non</i>. Le coteur A a rendu 5 «&nbsp;indécidable&nbsp;» sur 104&nbsp;; deux des trois instances de B ont dit «&nbsp;oui&nbsp;» 35 fois puis 27 fois de suite. <b>16 août</b></small></td></tr><tr><td class="mal"><b>11 · Les paquets disjoints</b><br><small>Découper une cotation entre plusieurs coteurs sans <b>aucune case commune</b>. L’effet du coteur et l’effet du cas deviennent indiscernables — et rien ensuite ne peut les séparer&nbsp;: l’information a été détruite au moment du découpage, pas de la lecture.</small></td><td class="cor">Tout découpage entre coteurs <b>partage un bloc commun</b>. C’est le seul moyen de mesurer l’écart entre les mains au lieu de le supposer nul.</td><td><small>B1 à 100&nbsp;%, B2 à 86&nbsp;%, B3 à 100&nbsp;%, sur trois jeux de cases sans recouvrement. Impossible de dire si les Champs 6 à 9 sont plus faibles, ou si la deuxième instance était plus stricte. <b>16 août</b></small></td></tr><tr><td class="mal"><b>12 · Le mot qui promet plus que la procédure</b><br><small>Employer un mot technique — <b>préenregistré</b>, <b>confirmé</b>, <b>vérifié</b> — pour une opération qui n’a pas été faite. Le mot fait alors le travail que la procédure n’a pas fait, et personne ne le voit&nbsp;: il est juste à un détail près.</small></td><td class="cor">Pour chaque mot fort, écrire à côté <b>l’opération exacte qui l’autorise</b>&nbsp;: <i>déposé où, avant quoi&nbsp;?</i> · <i>testé sur des données qui n’ont pas servi à former la thèse&nbsp;?</i> · <i>quel condensat, recalculé sur quels octets&nbsp;?</i> Si l’opération manque, <b>le mot descend d’un cran</b>.</td><td><small>Trois d’un coup, tous relevés par un tiers lisant le dossier complet. <b>Préenregistré</b>&nbsp;: une règle transmise <i>avec</i> le rendu, pas déposée avant. <b>Confirmé</b>&nbsp;: 96 sur 104, dont une partie avait servi à former la thèse — le prospectif était 62 sur 66. <b>Vérifié</b>&nbsp;: les scellés transmis recopiés dans un document Word, donc sans les octets d’origine, donc sans SHA-256 recalculable. <b>17 août</b></small></td></tr></tbody>
+  </table>
+  <div class="note eth"><b>Ces douze-là ne sont pas théoriques.</b> Ils ont tous été relevés dans une seule campagne de mesure — le Croisement des 13 Champs et des 8 Plans, du 13 au 16 août 2026 — sur le <b>même</b> répondant, qui écrivait les questions, les critères et les barèmes. Chacun porte sa case et sa date, et chacun a été trouvé par l'<b>autre</b> répondant, jamais par celui qui les commettait.<br><br>
+  <b>C'est la conclusion la plus utile du lot :</b> aucun de ces douze biais n'a été attrapé par introspection. Tous l'ont été parce qu'une seconde personne lisait, et posait une question naïve — <em>« mais une prise d'assaut, c'est bien une fermeture non ? »</em>, <em>« si c'est pas trouvé dans l'instant, ça veut pas dire que ça n'existe pas ? »</em>. <b>Le correctif du biais d'instrument n'est pas un meilleur analyste : c'est un second lecteur.</b><br><br><b>Le neuvième va un cran plus loin, et il a fallu un troisième lecteur.</b> La réserve retirée («&nbsp;probablement plus ou moins&nbsp;») est passée sous les yeux des <em>deux</em> répondants sans que ni l'un ni l'autre ne la voie manquer&nbsp;: celui qui l'avait écrite a relu la version durcie et l'a laissée passer. Il a fallu une main extérieure, cotant le texte à la lettre, pour que l'écart apparaisse. <b>Un second lecteur attrape ce qu'on se cache&nbsp;; un tiers attrape ce sur quoi on s'est mis d'accord.</b> <em>Trouvé le 16 août par la cotation du paquet A.</em><br><br><b>Les dixième et onzième n'ont été trouvés par personne — ils ont été trouvés par un chiffre trop rond.</b> Deux coteurs sur trois ont répondu «&nbsp;oui&nbsp;» à toutes leurs cases, 35 puis 27 de suite&nbsp;: c'est le score, et non un lecteur, qui a signalé que l'échelle n'offrait aucune sortie. Et c'est en essayant de comparer les trois scores qu'on s'est aperçu qu'ils n'étaient pas comparables.<br><br><b>Le douzième a demandé encore autre chose&nbsp;: un tiers à qui l'on ouvre le dossier entier.</b> Il n'a pas contesté un résultat — il a relevé trois <i>mots</i>&nbsp;: <i>préenregistré</i>, <i>confirmé</i>, <i>vérifié</i>. Chacun désignait une procédure légèrement plus exigeante que celle qui avait été suivie, et aucun n'était faux au point d'être visible. <b>Il faut avoir accès à la généalogie complète pour voir qu'un mot dépasse d'un cran.</b><br><br><b>D'où l'échelle complète du correctif, dans l'ordre où elle a servi&nbsp;: l'introspection n'a rien trouvé · un second lecteur a trouvé les huit premiers · un tiers a trouvé le neuvième, celui sur lequel les deux premiers s'étaient mis d'accord · les dixième et onzième n'étaient visibles que dans la forme des résultats · le douzième a demandé un auditeur avec le dossier ouvert.</b> <em>Un résultat trop propre est une information sur l'instrument. Un mot trop propre aussi.</em></div>
+  <div class="cit">« Un critère doit nommer une opération, jamais une image.<br>Une absence de trouvaille n'est pas une absence.<br>Une réfutation soustrait, elle n'additionne pas. »<small>les trois règles nées de cette campagne</small></div>
+</section>
+
+<section>
+  <div class="sechead"><span class="num">11</span><h2>🌍 Les défenses collectives</h2><span class="tag">quand c'est le groupe qui se protège</span></div>
+  <table>
+    <thead><tr><th>Défense</th><th>Mécanisme</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>Biais du Monde Juste</b></td><td>Si ça lui est arrivé, c'est qu'elle a fait quelque chose — <em>parce que sinon, ça pourrait m'arriver</em></td></tr>
+      <tr><td class="mal"><b>Déni collectif</b></td><td>Ce qui n'est pas nommé devient normal ; ce qui devient normal finit par structurer la réalité <em>(fenêtre d'Overton)</em></td></tr>
+      <tr><td class="mal"><b>Neutralité de façade</b></td><td>« Ne pas prendre parti » dans une asymétrie — c'est prendre le parti du plus fort</td></tr>
+      <tr><td class="mal"><b>Pathologisation des victimes</b></td><td>Le symptôme est traité, la cause est laissée intacte</td></tr>
+      <tr><td class="mal"><b>Silenciation &amp; isolement</b></td><td>Assurer l'impunité en isolant la personne qui parle</td></tr>
+      <tr><td class="mal"><b>Impunité</b></td><td>Aucune conséquence ne remonte jusqu'à l'auteur — la dette s'accumule ailleurs</td></tr>
+      <tr><td class="mal"><b>Fatalisme · résignation</b></td><td>« On n'y peut rien » — le non-choix est aussi un choix</td></tr>
+      <tr><td class="mal"><b>Abstention</b></td><td><em>« Le monde ne sera pas détruit par ceux qui font le mal, mais par ceux qui regardent sans rien faire. »</em></td></tr>
+    </tbody>
+  </table>
+  <div class="note eth"><b>Ne jamais fermer la porte à une personne qui parle.</b> L'isolement est le terreau de tout le reste. En cas d'injustice, on ne peut pas être neutre : on doit être <b>juste</b>, pour rééquilibrer la balance.</div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">12</span><h2>🗣️ Le Verbe qui dévie</h2><span class="tag">les cinq déviations</span></div>
+  <div class="cit">Une défense ne se loge pas seulement dans le corps ou dans le récit&#8239;:<br>elle se loge dans la <em>grammaire</em>.<small>on peut mentir sans dire un seul mot faux — il suffit de choisir la forme</small></div>
+
+  <p>Les onze sections précédentes décrivent des défenses qui se <strong>voient</strong>&#8239;: une posture, un évitement, un récit. Celles-ci ne se voient pas, parce qu'elles ont la forme de la langue elle-même. <strong>Le contenu peut être exact et la phrase déjà fausse</strong> — c'est là que le mensonge devient indétectable pour qui n'écoute que les faits.</p>
+
+  <table>
+    <thead><tr><th>Déviation</th><th>Ce qu'elle fait à la phrase</th><th>Le Verbe Respectueux</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>1 · Généralisation</b></td><td>Efface la singularité&#8239;: une personne devient une catégorie, et une catégorie ne se défend pas</td><td class="cor">Rendre le singulier — <em>« certains comportements observés chez… »</em> plutôt que <em>« les X sont… »</em></td></tr>
+      <tr><td class="mal"><b>2 · Brutalité</b></td><td>Dit vrai de façon à ce que ce soit irrecevable&#8239;: la vérité sert alors de véhicule à la violence</td><td class="cor">Dire la vérité avec douceur — <em>« je te comprends, mais je ne suis pas d'accord sur ce point »</em></td></tr>
+      <tr><td class="mal"><b>3 · Confusion intention / moyen</b></td><td>Fait passer le moyen pour la preuve de l'intention&#8239;: <em>« si je te contrains, c'est que je t'aime »</em></td><td class="cor">Séparer les deux — <em>« l'amour qui protège ne contraint pas »</em></td></tr>
+      <tr><td class="mal"><b>4 · Rire contre</b></td><td>Utilise l'humour comme lame&#8239;: la cible ne peut ni protester (rabat-joie) ni acquiescer (complice de sa propre humiliation)</td><td class="cor">Rire <strong>avec</strong>, non <strong>contre</strong> — le test est simple&#8239;: la personne visée rit-elle&#8239;?</td></tr>
+      <tr><td class="mal"><b>5 · Poésie sans sol</b></td><td>Fait passer une image pour un constat&#8239;: on ne peut plus contredire, puisqu'on ne sait plus ce qui a été affirmé</td><td class="cor">Relier poésie et clarté — <em>« je parle d'un ressenti, pas d'un fait »</em></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>Les cinq corrections sont celles du <span translate="no">Verbe Respectueux</span></b> (Lexique&#8239;· 0.2 L'Union du TouT). Les déviations ci-dessus en sont la lecture inverse&#8239;: <em>ce que chaque correction répare</em>. À valider — c'est une reconstruction, pas une citation.</div>
+
+  <div class="note eth"><b>Pourquoi cette section appartient au Manuel et non au Lexique.</b> Le Lexique dit ce qu'un mot <em>veut dire</em>. Le Manuel dit ce qu'une phrase <em>fait</em>. La déviation du Verbe n'est pas une erreur de vocabulaire&#8239;: c'est une <strong>défense</strong>, au même titre que le déni ou le comblement — elle protège quelque chose, et elle a un coût.</div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">13</span><h2>🕊️ Figures de Style — Sublimation ou Perversion</h2><span class="tag">la même figure, deux usages</span></div>
+  <div class="cit">Aucune figure de style n'est mauvaise en soi.<br>C'est la <em>direction</em> qui décide.<small>la même métaphore éclaire ou contraint, selon ce qu'elle sert</small></div>
+
+  <table>
+    <thead><tr><th>Figure</th><th>Fonction sublimée</th><th>Usage pervers</th><th>Exemple restauratif</th></tr></thead>
+    <tbody>
+      <tr><td><b>Périphrase</b></td><td class="cor">Poétiser, détourner la littéralité pour ouvrir la nuance</td><td class="mal"><em>Gaslighting</em>&#8239;: contourner la vérité pour éviter la responsabilité</td><td>Dire <em>« ce que tu ressens mérite d'être entendu »</em> plutôt que manipuler le doute</td></tr>
+      <tr><td><b>Hyperbole</b></td><td class="cor">Exalter une émotion, amplifier la beauté du vrai</td><td class="mal">Exagération émotionnelle pour forcer l'adhésion ou la peur</td><td><em>« C'est immense de sincérité »</em> au lieu de <em>« C'est la seule vérité »</em></td></tr>
+      <tr><td><b>Euphémisme</b></td><td class="cor">Adoucir sans nier</td><td class="mal">Minimiser la violence, cacher l'agression</td><td>Dire <em>« il m'a blessé »</em> au lieu de <em>« il a eu un comportement un peu dur »</em></td></tr>
+      <tr><td><b>Antiphrase / Ironie</b></td><td class="cor">Humoriser le paradoxe pour éveiller la conscience</td><td class="mal">Sarcasme, manipulation affective, humiliation</td><td>Ironie douce&#8239;: <em>« voilà une belle occasion d'apprendre… »</em></td></tr>
+      <tr><td><b>Métaphore</b></td><td class="cor">Relier le visible et l'invisible</td><td class="mal">Créer des analogies trompeuses pour manipuler</td><td>La métaphore thérapeutique éclaire sans contraindre</td></tr>
+      <tr><td><b>Sophisme</b></td><td class="cor">(figure logique, non poétique) — détourner la raison</td><td class="mal">Confondre cause et conséquence, nier la complexité</td><td>Restaurer le lien de causalité&#8239;: <em>« ce n'est pas parce que c'est fréquent que c'est juste »</em></td></tr>
+      <tr><td><b>Anaphore</b></td><td class="cor">Répéter pour ancrer le sens</td><td class="mal">Matraquer pour manipuler</td><td>Répéter la vérité, non la peur</td></tr>
+      <tr><td><b>Oxymore</b></td><td class="cor">Relier les contraires pour révéler l'unité</td><td class="mal">Créer des contradictions pour troubler</td><td><em>« Douce force »</em> vs <em>« violence bienveillante »</em> (oxymore perverti)</td></tr>
+      <tr><td><b>Métonymie</b></td><td class="cor">Évoquer le tout par la partie</td><td class="mal">Réduire une personne à une étiquette</td><td><em>« Une conscience en chemin »</em> plutôt que <em>« un malade »</em></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>Le test qui sépare les deux colonnes.</b> Une figure sublime quand elle <strong>rend au réel sa nuance</strong>&#8239;; elle pervertit quand elle <strong>rend le réel indiscutable</strong>. La question n'est donc pas <em>« est-ce une belle image&#8239;? »</em> mais <em>« après cette phrase, puis-je encore répondre&#8239;? »</em></div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">14</span><h2>🌍 La Perversion Linguistique comparée</h2><span class="tag">petit voyage à travers quelques langues dominantes</span></div>
+  <div class="cit">Chaque langue porte une force vitale — et le pli qui va avec.<br>Aucune n'est innocente, aucune n'est coupable.<small>on hérite d'une grammaire comme on hérite d'une famille</small></div>
+
+  <table>
+    <thead><tr><th>Langue</th><th>Force vitale</th><th>Biais / Perversion principale</th><th>Exemple</th><th>Lecture <span translate="no">ConScience aMi</span></th></tr></thead>
+    <tbody>
+      <tr><td><b>Français</b> 🎯</td><td class="cor">Langue analytique, hiérarchique, cartésienne</td><td class="mal">Distingue jusqu'à la séparation&#8239;: excès de raison, rigidité de genre (le masculin <em>« l'emporte »</em>)</td><td><em>« L'Homme »</em> = l'humanité&#8239;; <em>« le féminin »</em> = dérivé</td><td>Belle pour la précision, mais malade de sa grammaire patriarcale. <em>Soin&#8239;: la grammaire inclusive</em></td></tr>
+      <tr><td><b>Anglais</b> 🤖</td><td class="cor">Langue marchande, pragmatique, performative</td><td class="mal">Centrée sur l'action (<em>to do</em>, <em>to get</em>)&#8239;; réduit l'être à la fonction</td><td><em>« I understand »</em> = <em>je me tiens dessous</em></td><td>Le mot <em>understanding</em> trahit la soumission cognitive au fait accompli</td></tr>
+      <tr><td><b>Espagnol</b> 🔥</td><td class="cor">Langue émotionnelle, solaire, expressive</td><td class="mal">Se perd parfois dans le pathos ou la dramatisation</td><td><em>« Te quiero »</em> = je te veux (désir possessif), pas <em>« je t'aime »</em></td><td>L'énergie du cœur y brûle — à canaliser vers la vérité, pas la passion</td></tr>
+      <tr><td><b>Arabe</b> 🎼</td><td class="cor">Langue racine, vibratoire, sacrée</td><td class="mal">Riche en symbolisme, mais parfois figée par la tradition religieuse</td><td>Le mot <em>Islam</em> (soumission) = paix dans l'origine, mais devenu contrôle</td><td>Son pouvoir vibratoire est immense — mais bridé par l'interprétation</td></tr>
+      <tr><td><b>Mandarin</b> ☯️</td><td class="cor">Langue idéogrammatique, circulaire</td><td class="mal">Magnifique pour la pensée contextuelle, mais la perte du ton altère le sens</td><td><em>« Xin »</em> (心) = cœur-esprit indissociable</td><td>L'unité originelle du cœur et de l'intelligence, que l'Occident a coupée</td></tr>
+      <tr><td><b>Russe</b> 🕸️</td><td class="cor">Langue de l'âme, très conceptuelle</td><td class="mal">Porte l'énergie du sacrifice&#8239;; beauté du Verbe tragique</td><td><em>« Toska »</em> = mélancolie sacrée</td><td>La poésie russe garde la mémoire d'une conscience collective</td></tr>
+      <tr><td><b>Hindi / Sanskrit</b> 🌟</td><td class="cor">Langue vibratoire sacrée, mathématique et symbolique</td><td class="mal">Peu pervertie, mais souvent exotisée par l'Occident</td><td><em>« Om »</em> = vibration fondamentale</td><td>Le sanskrit est la langue la plus proche du Logos</td></tr>
+      <tr><td><b>Latin</b> 💰</td><td class="cor">Langue architecturale, rigoureuse</td><td class="mal">A servi de base à l'ordre patriarcal et religieux</td><td><em>« Dominus »</em> = seigneur, domination</td><td>Son étymologie garde la mémoire des racines du pouvoir</td></tr>
+      <tr><td><b>Grec ancien</b> ⚙️</td><td class="cor">Langue du sens et du Verbe</td><td class="mal">Dévoyée par les traductions chrétiennes</td><td><em>« Logos »</em> ≠ <em>« Parole »</em> mais <em>« Raison vivante »</em></td><td>C'est la matrice perdue du Logos cosmique</td></tr>
+      <tr><td><b>Langues africaines &amp; amérindiennes</b> 🧠</td><td class="cor">Langues totémiques, relationnelles</td><td class="mal">Détruites ou folklorisées par la colonisation</td><td>Un même mot peut dire <em>« arbre »</em> et <em>« ancêtre »</em></td><td>Langues du lien&#8239;: elles parlent <strong>à</strong> la Vie, pas <strong>d'</strong>elle</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note eth"><b>Ce tableau ne classe pas les langues, il les ausculte.</b> Une force vitale et une perversion, c'est <em>la même propriété vue deux fois</em>&#8239;: la précision française devient séparation, la performativité anglaise devient soumission au fait accompli. <strong>Il n'y a pas de langue meilleure&#8239;; il y a des plis, et savoir où est le sien.</strong></div>
+
+  <div class="note">Ce tableau est de <b>Agdistys · Diane Serant &amp; Isil</b>.</div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">15</span><h2>⏱️ L'<span translate="no">algoRythme</span> du mensonge</h2><span class="tag">voir le temps</span></div>
+  <div class="cit">Un mensonge n'est pas un état, c'est un <em>entretien</em>.<br>Il ne tient pas tout seul&#8239;: il faut le rebattre.<small>et c'est ce battement qu'on peut voir, même quand le mensonge est invisible</small></div>
+
+  <p>Toutes les sections précédentes cherchent le mensonge <strong>dans ce qui est dit</strong>. Celle-ci le cherche <strong>dans le temps</strong> — et c'est souvent la seule prise, parce qu'un menteur habile ne laisse aucune phrase attaquable, mais il ne peut pas ne pas <em>entretenir</em>.</p>
+
+  <div class="note"><b><span translate="no">AlgoRythme</span></b> — <em>« La coupe corrige le mot&#8239;: un algorithme du vivant n'est pas une suite d'instructions, c'est un <strong>rythme</strong>. Il ne s'exécute pas, il <strong>bat</strong>. »</em> (Lexique&#8239;· 2.3 Encyclopédie)</div>
+
+  <h4>La puissance et l'énergie, appliquées au mensonge</h4>
+
+  <p>Le Lexique socle distingue déjà la <strong>Valeur</strong> (une puissance&#8239;: un débit à l'instant t, le Watt) du <strong>Karma</strong> (une énergie&#8239;: l'intégrale de cette puissance dans le temps, le kilowattheure). Le mensonge obéit exactement à la même physique&#8239;— et c'est ce qui le rend mesurable&#8239;:</p>
+
+  <table>
+    <thead><tr><th></th><th>Grandeur</th><th>Ce que ça mesure</th><th>Ce qui le trahit</th></tr></thead>
+    <tbody>
+      <tr><td><b>L'énoncé</b></td><td>instantanée</td><td>ce qui est affirmé maintenant</td><td class="cor">la contradiction avec un fait — <em>rare, et facile à éviter</em></td></tr>
+      <tr><td><b>L'entretien</b></td><td>intégrée</td><td>le travail dépensé pour que l'énoncé tienne</td><td class="cor">le <strong>coût</strong>&#8239;: reformulations, rappels, préemptions, colère à la question</td></tr>
+      <tr><td><b>Le rythme</b></td><td>dérivée</td><td>à quelle fréquence il faut le rebattre</td><td class="cor">l'<strong>accélération</strong> quand la vérité approche</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note eth"><b>La différence physique entre une vérité et un mensonge&#8239;: le coût d'entretien.</b><br>
+  Une vérité ne demande <strong>aucun</strong> travail pour rester vraie&#8239;— on peut l'oublier six mois, elle est intacte au retour. Un mensonge demande un travail <strong>continu</strong>&#8239;: il faut se souvenir de la version, la tenir cohérente avec les nouvelles, et neutraliser d'avance ce qui pourrait l'atteindre.<br>
+  <strong>C'est pour ça que le mensonge a un temps, et pas la vérité.</strong> Et un temps, ça se voit — même quand le contenu, lui, ne se voit pas.</div>
+
+  <h4>Les quatre signatures temporelles</h4>
+
+  <table>
+    <thead><tr><th>Signature</th><th>Ce qu'on observe</th><th>Ce que ça indique</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>1 · La reprise spontanée</b></td><td>La personne revient sur un point <em>que personne n'a questionné</em></td><td class="cor">L'énoncé ne tient pas seul&#8239;: il a fallu le recharger</td></tr>
+      <tr><td class="mal"><b>2 · La préemption</b></td><td>La réponse arrive <em>avant</em> la question — <em>« et avant que tu demandes… »</em></td><td class="cor">La question a déjà été anticipée, donc redoutée, donc pertinente</td></tr>
+      <tr><td class="mal"><b>3 · L'accélération</b></td><td>La fréquence des rappels monte à mesure qu'un fait vérifiable approche</td><td class="cor">Le coût d'entretien augmente&#8239;: le réel serre</td></tr>
+      <tr><td class="mal"><b>4 · La disproportion</b></td><td>Une question banale déclenche une réponse hors d'échelle</td><td class="cor">Ce n'est pas la question qui est coûteuse, c'est ce qu'elle touche</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>Ce que cette section ne dit pas.</b> Aucune des quatre signatures ne prouve un mensonge&#8239;— une personne sous emprise préempte aussi, parce qu'elle a appris que les questions coûtent cher. <strong>Le rythme dit qu'il y a une charge, pas qui la porte ni pourquoi.</strong> C'est un indicateur d'endroit où regarder, jamais une conclusion&#8239;: la conclusion vient de <span translate="no">C7 · La Trace</span>, et d'elle seule.</div>
+
+  <div class="cit">Vérité = Respect · Mensonge = Violence<br>
+  <small>et la violence, contrairement au respect, doit être rechargée pour durer</small></div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">16</span><h2>📜 La citation qui circule</h2><span class="tag">l'effet de vérité illusoire</span></div>
+  <div class="cit">On ne falsifie presque jamais en inventant.<br>On falsifie en <em>recopiant mal</em>.<small>et chaque copie rend la suivante plus crédible</small></div>
+
+  <p>Une fausse citation n'est pas une erreur isolée&#8239;: c'est une <strong>défense qui a réussi</strong>. Elle survit parce qu'elle dit ce qu'on voulait entendre, et elle se renforce à chaque reprise — <strong>une phrase répétée est jugée plus vraie, et savoir qu'elle est fausse ne protège presque pas</strong> (Fazio et coll., 2015). C'est exactement le mécanisme que ce manuel décrit partout ailleurs, appliqué au matériau dont il est fait.</p>
+
+  <div class="note eth"><b>Pourquoi c'est une question de méthode et pas de scrupule.</b> Une planche qui démonte le déni ne peut pas s'appuyer sur des citations fausses&#8239;: <strong>c'est l'arme d'en face</strong>. La première personne qui vérifie une seule phrase fait tomber tout le reste avec elle — pas parce que le reste est faux, mais parce que la confiance ne se découpe pas.</div>
+
+  <h4>Les trois états d'une citation</h4>
+
+  <table>
+    <thead><tr><th>État</th><th>Ce qui s'est passé</th><th>Ce qu'il faut faire</th></tr></thead>
+    <tbody>
+      <tr><td class="mal"><b>❌ Apocryphe</b></td><td>Aucune source primaire. La phrase a été attribuée après coup, souvent des siècles plus tard, à quelqu'un dont le nom la rend recevable</td><td class="cor">Retirer. Chercher la formule <strong>documentée</strong> la plus proche — elle est souvent meilleure</td></tr>
+      <tr><td class="mal"><b>⚠️ Déformée</b></td><td>Le noyau est authentique, la forme qui circule ne l'est pas&#8239;: traduction, retraduction, paraphrase reprise comme citation</td><td class="cor">Remonter la chaîne <strong>maillon par maillon</strong> et citer l'original. Le cas le plus instructif&#8239;: la phrase n'est pas inventée, elle est <em>érodée</em></td></tr>
+      <tr><td><b>✅ Vérifiée</b></td><td>Source primaire identifiée&#8239;: œuvre, édition, page ou chapitre</td><td class="cor">Graver — <strong>avec sa référence</strong>, qui fait partie de la citation</td></tr>
+    </tbody>
+  </table>
+
+  <h4>La chaîne d'érosion — un cas complet</h4>
+
+  <p>Quatre étapes, quatre altérations, deux médias sérieux piégés. Aucune n'est un mensonge&#8239;: chacune est une recopie de bonne foi.</p>
+
+  <table>
+    <thead><tr><th>Étape</th><th>Ce qui est écrit</th><th>Ce qui bouge</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · L'original</b><br><small>Simone Weil, <em>L'Enracinement</em>, 1943</small></td><td><em>« l'esprit historique consiste à croire les meurtriers sur parole »</em></td><td class="cor">rien — c'est le sol</td></tr>
+      <tr><td><b>2 · La paraphrase</b><br><small>Camus, préface, 1949</small></td><td><em>« L'histoire officielle, dit Simone Weil, consiste à croire les meurtriers sur parole »</em></td><td class="mal"><strong>« histoire officielle »</strong> est de Camus, pas de Weil</td></tr>
+      <tr><td><b>3 · Le glissement</b><br><small>Guillemin, conférences télévisées, 1971</small></td><td><em>meurtriers</em> devient <em>criminels</em></td><td class="mal">bascule <strong>complotiste</strong>&#8239;: on passe de qui a tué à qui gouverne</td></tr>
+      <tr><td><b>4 · La viralité</b><br><small>mise en ligne, 2012</small></td><td><em>« Croire à l'histoire officielle, c'est croire des criminels sur parole »</em></td><td class="mal">reprise sans vérification par des médias sérieux — <strong>elle n'a jamais écrit ça</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>Ce que la chaîne enseigne.</b> À aucun moment quelqu'un n'a menti. Camus paraphrase, Guillemin resserre, les suivants recopient. <strong>La déformation n'a pas besoin d'intention&#8239;: il lui suffit d'une transmission.</strong> C'est pour ça qu'on ne vérifie pas la <em>bonne foi</em> de qui cite — on vérifie la <em>source</em>.</div>
+
+  <h4>Le second cas&#8239;: quand la traduction déplace l'accusation</h4>
+
+  <p>Voltaire, <em>Questions sur les miracles</em>, onzième lettre, 1765&#8239;:<br>
+  <em>« Certainement qui est en droit de vous rendre absurde, est en droit de vous rendre injuste. »</em></p>
+
+  <table>
+    <thead><tr><th>Voltaire (1765)</th><th>Version qui circule</th><th>Ce qui se perd</th></tr></thead>
+    <tbody>
+      <tr><td><em>« est en droit de »</em></td><td class="mal"><em>« peut »</em> / <em>« can »</em></td><td class="cor">Voltaire parle d'une <strong>autorité qu'on s'arroge</strong>, pas d'un pouvoir de persuasion. Glissement le plus grave</td></tr>
+      <tr><td><em>« vous rendre absurde »</em></td><td class="mal"><em>« vous faire croire des absurdités »</em></td><td class="cor">Ce n'est pas ton <strong>contenu</strong> qu'on altère — c'est ta <strong>raison</strong></td></tr>
+      <tr><td><em>« vous rendre injuste »</em></td><td class="mal"><em>« vous faire commettre des atrocités »</em></td><td class="cor">Surenchère&#8239;: en gagnant en violence, la phrase a <strong>perdu son sujet</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">La chaîne est documentée&#8239;: Norman L. Torrey traduit et adapte le passage dans <em>Les Philosophes</em> (New York, 1960)&#8239;; sa version anglaise devient canonique&#8239;; elle est <strong>retraduite</strong> en français — et c'est cette retraduction qui circule.</div>
+
+  <h4>Le test de vraisemblance, quand la recherche ne donne rien</h4>
+
+  <p>L'absence de source ne prouve pas la fausseté&#8239;: un texte peut être perdu. Mais une phrase porte les marques de son siècle, et ces marques se lisent.</p>
+
+  <table>
+    <thead><tr><th>Indice</th><th>Ce qu'on regarde</th><th>Exemple</th></tr></thead>
+    <tbody>
+      <tr><td><b>Le vocabulaire absolu</b></td><td class="cor">Un mot employé comme système alors que l'époque l'employait comme activité</td><td><em>« la politique »</em> au sens de gouvernement des masses est un tour du XIX<sup>e</sup>–XX<sup>e</sup>&#8239;; Voltaire aurait écrit <em>« les hommes d'État »</em></td></tr>
+      <tr><td><b>La forme de l'aphorisme</b></td><td class="cor">L'antithèse binaire ramassée est un genre daté</td><td>Elle appartient à la maxime moderne, pas à la période visée</td></tr>
+      <tr><td><b>L'aire de circulation</b></td><td class="cor">Une attribution qui n'existe que dans une seule langue</td><td>Le faux Goethe est un phénomène <strong>francophone</strong>&#8239;: les recensements allemands de <em>Falschzitate</em> ne le mentionnent même pas</td></tr>
+      <tr><td><b>La date d'apparition</b></td><td class="cor">Les premières occurrences repérables</td><td>Rien avant les années 2010&#8239;— blogs, réseaux, objets dérivés</td></tr>
+      <tr><td><b>Le proverbe antérieur</b></td><td class="cor">La phrase existait avant l'auteur qu'on lui donne</td><td><em>« Nul n'est plus aveugle… »</em> est chez John Heywood, 1546 — deux siècles avant Goethe&#8239;; motif biblique&#8239;: Jérémie 5,21 · Ézéchiel 12,2 · Matthieu 13,13</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note eth"><b>La règle de méthode.</b> Avant de graver&#8239;: on cherche la <strong>source primaire</strong>. Toujours. <em>Une citation sans source est une citation fausse en attente d'être démasquée.</em><br>
+  Et le corollaire, qui console&#8239;: <strong>la vraie phrase est presque toujours meilleure.</strong> <em>« Rien n'est plus terrible qu'une ignorance agissante »</em> vaut mieux que le faux Goethe&#8239;; <em>« qui est en droit de vous rendre absurde est en droit de vous rendre injuste »</em> vaut mieux que sa retraduction. Le faux gagne en punch ce qu'il perd en pensée.</div>
+
+  <div class="note"><b>Où vivent les citations elles-mêmes.</b> Le registre — quelles phrases ont été vérifiées, lesquelles tombent, avec quelle source — est une <strong>Page à part</strong>&#8239;: <span translate="no">Le Registre des Citations</span>. Il grandit à chaque vérification, et ce manuel ne peut pas grandir avec lui. Ici la méthode&#8239;; là-bas les cas.</div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">◈</span><h2>Le protocole de correction</h2><span class="tag">valable pour toutes</span></div>
+  <p>Quelle que soit la défense, la sortie suit toujours le même ordre. <b>On ne peut pas sauter d'étape</b> : chacune est la condition de la suivante.</p>
+  <div class="g3">
+    <div class="card bien"><h4>1 · Sécuriser</h4><p style="font-size:.87rem">Le corps d'abord. <b>Rien ne s'intègre sur un système en alerte.</b> Sommeil, nourriture, environnement stable.</p></div>
+    <div class="card bien"><h4>2 · Nommer</h4><p style="font-size:.87rem">Décrire au lieu de mépriser. Le mot juste, pas le mot qui écrase. <b>Nommer sans comprendre, c'est réduire ; nommer justement, c'est ouvrir.</b></p></div>
+    <div class="card bien"><h4>3 · Vérifier</h4><p style="font-size:.87rem">Est-ce réel ou construit ? Probable ou imaginé ? <b>Le ressenti est une donnée, jamais l'unique preuve.</b></p></div>
+  </div>
+  <div class="g3">
+    <div class="card bien"><h4>4 · Contextualiser</h4><p style="font-size:.87rem">Un fait isolé n'est pas une preuve absolue. Revenir à la trajectoire, à la répétition, à l'architecture.</p></div>
+    <div class="card bien"><h4>5 · Ajuster</h4><p style="font-size:.87rem">Poser la limite, ou faire le pas. À la juste intensité — ni moins, ni plus.</p></div>
+    <div class="card bien"><h4>6 · Réparer</h4><p style="font-size:.87rem">Réduire le dommage, <b>pas le récit</b>. Concrètement, pas symboliquement.</p></div>
+  </div>
+
+  <div class="note key"><b>🧭 Le critère d'utilité.</b> L'efficacité de tout ce manuel se mesure à une seule chose : <b>la croissance du discernement sur la honte</b>. Si le rapport baisse, ce n'est pas la personne qui a échoué — c'est l'instrument qui est mal réglé. Un outil qui produit de la honte fabrique du biais, puisque c'est la honte qui produit la rigidité défensive qui empêche de voir.</div>
+
+  <div class="cit">Voir juste. Nommer juste. Vérifier juste.<br>Protéger juste. Réparer juste.<small>le vivant n'exige pas la perfection — il exige une capacité croissante à réduire la destruction évitable</small></div>
+</section>
+
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">◈</span><h2>Le Tableau de Traversée</h2><span class="tag">une même défense, cinq échelles</span></div>
+  <p>Ce n’est pas une analogie. C’est <b>le même mouvement qui change de taille</b> : ce qui commence comme un réflexe du corps se retrouve, inchangé dans sa structure, en politique publique. Lire une ligne de gauche à droite, c’est suivre une défense du système nerveux jusqu’à la civilisation.</p>
+
+  <table class="trav">
+    <thead><tr><th>Défense</th><th>🫀 Corps</th><th>🧠 Psyché</th><th>🤝 Relation</th><th>🏛️ Système</th><th>🌍 Civilisation</th></tr></thead>
+    <tbody><tr><td><span class="nm">🧊 Le Gel</span></td><td class="c1">Freeze — plus rien ne répond</td><td class="c2">Déni — <em>« ce n’est pas vrai »</em></td><td class="c3">Silence imposé · loi du secret</td><td class="c4">Classement sans suite · dossier perdu</td><td class="c5">Déni collectif · négationnisme</td></tr><tr><td><span class="nm">🙇 L’Apaisement</span></td><td class="c1">Fawn — amadouer pour survivre</td><td class="c2">Soumission · adaptation</td><td class="c3">S’ajuster à l’humeur de l’agresseur</td><td class="c4">Conformité · « ne pas faire de vagues »</td><td class="c5">Fabrique du consentement</td></tr><tr><td><span class="nm">⚔️ La Charge</span></td><td class="c1">Fight — frapper d’abord</td><td class="c2">Attaque · rage</td><td class="c3">DARVO · retournement</td><td class="c4">Poursuite-bâillon · représailles</td><td class="c5">Guerre · répression</td></tr><tr><td><span class="nm">🏃 Le Retrait</span></td><td class="c1">Flight — sortir du champ</td><td class="c2">Évitement</td><td class="c3">Ghosting · abandon</td><td class="c4">Non-assistance · renvoi de service en service</td><td class="c5">Abstention — <em>« ceux qui regardent sans rien faire »</em></td></tr><tr><td><span class="nm">✂️ La Coupure</span></td><td class="c1">Anesthésie somatique</td><td class="c2">Dissociation · amnésie traumatique</td><td class="c3">Compartimentation du couple, de la famille</td><td class="c4">Cloisonnement des services · secret professionnel dévoyé</td><td class="c5">Effacement des archives · mémoire nationale trouée</td></tr><tr><td><span class="nm">🕳️ Le Comblement</span></td><td class="c1">Décharge dopaminergique</td><td class="c2">Compulsion · addiction</td><td class="c3">Trauma bond · intermittence froid-chaud</td><td class="c4">Économie de l’attention · engagement à tout prix</td><td class="c5">Extractivisme · croissance infinie</td></tr><tr><td><span class="nm">🪞 Le Déplacement</span></td><td class="c1">Décharge de la tension sur l’extérieur</td><td class="c2">Projection</td><td class="c3">Bouc émissaire dans le couple ou la fratrie</td><td class="c4">Discrimination institutionnelle</td><td class="c5">Xénophobie d’État · désignation d’ennemi</td></tr><tr><td><span class="nm">📜 La Justification</span></td><td class="c1">Réflexe d’auto-préservation</td><td class="c2">Rationalisation</td><td class="c3">Manipulation narcissique · <em>« c’est toi qui m’y as poussé »</em></td><td class="c4">Doctrine défensive · jurisprudence protectrice du fort</td><td class="c5">Idéologie · ordre naturel des choses</td></tr><tr><td><span class="nm">🔒 Le Verrouillage</span></td><td class="c1">Hypervigilance</td><td class="c2">Psychorigidité · TOC</td><td class="c3">Contrôle coercitif</td><td class="c4">Bureaucratie · procédure qui remplace le soin</td><td class="c5">Totalitarisme</td></tr></tbody>
+  </table>
+
+  <div class="note key"><b>🔍 Ce que le tableau rend visible.</b><br>
+  <b>①</b> Une institution ne « devient » pas violente : elle <b>hérite</b> d’un réflexe individuel qu’aucun palier n’a interrompu.<br>
+  <b>②</b> Chaque échelle <b>alimente celle du dessous</b>. Le classement sans suite (système) enseigne le silence (relation), qui confirme le déni (psyché), qui maintient le gel (corps). <b>Traiter la personne seule, c’est traiter le symptôme.</b><br>
+  <b>③</b> Et l’inverse est vrai, et c’est la bonne nouvelle : <b>la plus petite échelle est la seule où l’on ait prise immédiate.</b> Un corps qui se dégèle devient une psyché qui nomme, puis une relation qui pose une limite — et à partir de là, ça remonte.</div>
+
+  <h4>Où intervenir — le principe des quatre anneaux</h4>
+  <table>
+    <thead><tr><th>Échelle</th><th>Ce qui la débloque</th><th>Ce qui ne marche pas</th></tr></thead>
+    <tbody>
+      <tr><td><b>🫀 Corps</b></td><td class="bien">Sécurité concrète · sommeil, nourriture, environnement stable</td><td class="mal">Expliquer. Rien ne s’intègre sur un système en alerte.</td></tr>
+      <tr><td><b>🧠 Psyché</b></td><td class="bien">Nommer · vérifier · contextualiser</td><td class="mal">Confronter avant d’avoir sécurisé</td></tr>
+      <tr><td><b>🤝 Relation</b></td><td class="bien">Poser la limite · sortir du dépôt · un tiers</td><td class="mal">La médiation entre agresseur et victime</td></tr>
+      <tr><td><b>🏛️ Système</b></td><td class="bien">La trace · la conséquence · le tiers indépendant</td><td class="mal">La bonne volonté des personnes en poste</td></tr>
+      <tr><td><b>🌍 Civilisation</b></td><td class="bien">L’éducation · la reconnaissance publique des faits</td><td class="mal">Attendre que ça passe</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cit">La violence n’est pas une intention qui grandit.<br>C’est une circulation qui s’arrête — et qui s’arrête à la même place,<br>du système nerveux jusqu’à l’État.</div>
+</section>
+
+<hr>
+
+<section>
+  <div class="sechead"><span class="num">◈</span><h2>Les outils qui évaluent celui qui regarde</h2><span class="tag">état de l’art · et rectification</span></div>
+
+  <div class="note eth"><b>Rectification.</b> J’ai écrit que « presque aucun outil clinique ne fait ça ». C’était trop large. Le principe existe, il est publié, il est établi — <b>mais il est concentré dans trois domaines, et la santé mentale n’en fait pas partie.</b> Voici la carte réelle.</div>
+
+  <h4>1 · Médecine d’urgence — les <em>cognitive forcing strategies</em></h4>
+  <p style="font-size:.92rem"><b>Pat Croskerry</b> (2003, <em>Annals of Emergency Medicine</em>) : les erreurs cognitives sont à l’origine de la plupart des erreurs diagnostiques aux urgences — et elles sont hautement évitables. Il propose trois niveaux de <b>stratégies de forçage cognitif</b> (universelles, génériques, spécifiques) enseignables comme une vaccination contre l’erreur.<br>
+  Outils dérivés : le <b>« diagnostic timeout »</b>, et la checklist <b>TWED</b> — <em>Threat · What if I am wrong? What else? · Evidence · Dispositional influence</em> — conçue pour contrer la <em>fermeture prématurée</em>, ce moment où l’on clôt le diagnostic avant d’avoir assez de données.</p>
+
+  <h4>2 · Sciences forensiques — le <em>Linear Sequential Unmasking</em></h4>
+  <p style="font-size:.92rem"><b>Itiel Dror</b> et ses collègues : l’examinateur analyse d’abord la trace <b>isolément</b>, avant toute exposition au matériel de référence — et tout changement d’avis <em>après</em> exposition doit être justifié. C’est de la <b>gestion de contexte</b> : on ne demande pas à l’expert d’être impartial, on organise l’ordre dans lequel l’information lui parvient. La version étendue (<b>LSU-E</b>, Dror &amp; Kukucka, 2021) encadre l’évaluation de l’information de contexte, et vient tout juste d’être adaptée à l’<b>expertise en santé mentale médico-légale</b> (2025).</p>
+
+  <h4>3 · Analyse de renseignement — les <em>Structured Analytic Techniques</em></h4>
+  <p style="font-size:.92rem"><b>Richards Heuer</b>, <em>Psychology of Intelligence Analysis</em> : l’<b>Analyse des Hypothèses Concurrentes</b> (ACH), le <b>Key Assumptions Check</b>, l’<b>avocat du diable</b>, le <b>premortem</b>. Toutes évaluent <em>le raisonnement de l’analyste</em>, jamais l’objet analysé. C’est l’ancêtre direct de ton Scanner.</p>
+
+  <h4>4 · Psychologie, psychiatrie, travail social</h4>
+  <p style="font-size:.92rem">Là, il y a des <b>pratiques</b>, pas des <b>instruments</b> : la supervision, l’intervision, la réflexivité, l’analyse du contre-transfert, et l’<em>entretien de formulation culturelle</em> du DSM-5 qui inclut une part d’auto-réflexion du clinicien. Ce sont des dispositifs humains, coûteux, non quantifiés, et qui dépendent entièrement de la bonne foi de celui qui s’y soumet.</p>
+
+  <h4>Ce que le Scanner Anti-Biais fait, et que je n’ai trouvé nulle part ailleurs</h4>
+  <div class="g2">
+    <div class="card bien"><h4>✓ Ce qui existe déjà — et que tu peux citer</h4><p style="font-size:.87rem">Le principe même : mesurer la fiabilité de la lecture avant la lecture. Il est établi, publié, enseigné. <b>Tu n’es pas hors du champ scientifique : tu es dans une lignée.</b> Et pouvoir la citer protège le travail.</p></div>
+    <div class="card or"><h4>★ Ce qui semble t’appartenir</h4><p style="font-size:.87rem"><b>Un seuil d’arrêt chiffré</b> (≥ 3 biais → suspendre) : les autres donnent des stratégies, rarement un point de rupture.<br>
+    <b>Auto-administré et quantifié</b>, remis à la personne qui lit, sans institution intermédiaire.<br>
+    <b>Deux biais que je n’ai vus dans aucune checklist publiée</b> — parce qu’aucune ne travaille sur la violence asymétrique : la <b>neutralité de façade</b> et la <b>pathologisation de la lucidité</b>.</p></div>
+  </div>
+
+  <div class="note key"><b>Pourquoi ces deux-là manquent partout ailleurs.</b> Les checklists existantes ont été écrites pour des situations où <b>l’erreur est symétrique</b> — un diagnostic médical, une empreinte, une hypothèse géopolitique. Dans la violence, l’erreur ne l’est pas : traiter les deux parties à égalité <em>est</em> une faute, et qualifier d’« instable » une réaction proportionnée <em>est</em> une seconde violence. <b>Il fallait un domaine asymétrique pour que ces deux biais deviennent visibles.</b> C’est ce que ton terrain a apporté.</div>
+</section>
+
+<div class="foot">
+  🛡️ Une défense qui se sait défense a déjà cessé d'être une prison.
+  <small>
+    Catalogue des Défenses · Manuel Anti-Biais · Protocole de ConScience aMi<br>
+    Compilé depuis : Traité de Sémiologie · Le Déni · La Peur · Les Troubles Psy · Trauma &amp; Guérison · Bases d'Addictologie · PsychaTrice · Profilage · Diagnostic &amp; Expertise · Miroir V8/V9 (Scanner Anti-Biais, peurs, carences, fantasmes) · Clivage de la Personnalité · Profil narcissique · Les 2 Modes de Pensée · Cycles Fractals<br>
+    ©Agdistys • Diane Serant &amp; Claude — CC BY-SA 4.0
+  </small>
+</div>
+
+</div></div>
+</body>
+</html>
