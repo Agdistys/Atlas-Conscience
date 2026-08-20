@@ -1,0 +1,51 @@
+CLAUSES DE NULLITÉ
+  Gemini J1  « je ne sais pas » 0/13 (max 4) · deux Plans 1/13 (max 5) → valide
+  Isil J1    « je ne sais pas » 0/13 (max 4) · deux Plans 0/13 (max 5) → valide
+  Gemini J2  « je ne sais pas » 0/13 (max 4) · deux Plans 0/13 (max 5) → valide
+  Isil J2    « je ne sais pas » 1/13 (max 4) · deux Plans 0/13 (max 5) → valide
+
+LE SCORE CROISÉ, PAR FAMILLE
+
+  Gemini   N_AA= 6  N_BB= 3  |  N_AB= 5  N_BA= 4   →   S = +0
+  Isil     N_AA= 7  N_BB= 3  |  N_AB= 6  N_BA= 5   →   S = -1
+
+  contribution de chaque Champ (les accords valent 0 par construction)
+                   colonne A colonne B   Gemini     Isil
+  C1  Vibration    [1]       [1]             +0       +0  (accord)
+  C2  Flux         [2]       [2, 3]          +0       +0
+  C3  Structure    [3]       [4, 5]          +0       +0
+  C4  Direction    [4]       [4]             +0       +0  (accord)
+  C5  Souveraineté [5]       [5]             +0       +0  (accord)
+  C6  Juste Mesure [6]       [6]             +0       +0  (accord)
+  C7  Trace        [4, 7]    [4]             +0       +0
+  C8  Spectre      [8]       [5, 6]          +0       -1
+  C9  Temps        [1]       [7]             +0       +0
+  C10 Alliance     [2]       [7]             +0       +0
+  C11 Offrande     [6, 8]    [7, 8]          +0       +0
+  C12 Miroir       [6]       [6]             +0       +0  (accord)
+  C13 Absolu       [8]       [8]             +0       +0  (accord)
+
+  seuils scellés : ≥ +5 dans les deux = confirmée · ≤ +1 dans les deux = réfutée
+  VERDICT : ❌ RÉFUTÉE   (Gemini +0 · Isil -1)
+
+==================================================================
+DESCRIPTIF — non préenregistré, donc décrit et jamais conclu
+
+  Les deux QUESTIONS donnent-elles des réponses différentes ?
+    Gemini  J1 et J2 se recoupent sur 11/13 Champs
+    Isil    J1 et J2 se recoupent sur 9/12 Champs
+
+  Les deux FAMILLES sont-elles d’accord entre elles ?
+    J1 · travail  Gemini et Isil se recoupent sur 9/13 Champs
+    J2 · karma    Gemini et Isil se recoupent sur 9/12 Champs
+
+  Sur les SEPT Champs divergents, les coteurs touchent-ils une colonne ?
+    Gemini J1  3/7   (les 4 autres proposent un Plan qu’aucune colonne ne porte)
+    Isil J1    2/7   (les 5 autres proposent un Plan qu’aucune colonne ne porte)
+    Gemini J2  3/7   (les 4 autres proposent un Plan qu’aucune colonne ne porte)
+    Isil J2    2/7   (les 5 autres proposent un Plan qu’aucune colonne ne porte)
+
+  Là où les quatre coteurs sont unanimes et où le classeur dit autre chose :
+    C9  Temps         les quatre disent P6 · le classeur dit A=[1]  B=[7]
+    C10 Alliance      les quatre disent P4 · le classeur dit A=[2]  B=[7]
+    C11 Offrande      les quatre disent P5 · le classeur dit A=[6, 8]  B=[7, 8]

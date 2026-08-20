@@ -1,0 +1,104 @@
+CLAUSES DE NULLITÉ
+  Gemini K1  « je ne sais pas » 1/13 (max 4) · deux Plans 0/13 (max 5) → valide
+  Isil K1    « je ne sais pas » 0/13 (max 4) · deux Plans 2/13 (max 5) → valide
+  Gemini K2  « je ne sais pas » 0/13 (max 4) · deux Plans 1/13 (max 5) → valide
+  Isil K2    « je ne sais pas » 1/13 (max 4) · deux Plans 0/13 (max 5) → valide
+
+LE SCORE CROISÉ, PAR FAMILLE
+
+  Gemini   N_AA= 6  N_BB= 4  |  N_AB= 6  N_BA= 6   →   S = -2
+  Isil     N_AA= 7  N_BB= 4  |  N_AB= 5  N_BA= 6   →   S = +0
+
+  contribution de chaque Champ (les accords valent 0 par construction)
+                   colonne A colonne B   Gemini     Isil
+  C1  Vibration    [1]       [1]             +0       +0  (accord)
+  C2  Flux         [2]       [2, 3]          -1       +0
+  C3  Structure    [3]       [4, 5]          +0       +0
+  C4  Direction    [4]       [4]             +0       +0  (accord)
+  C5  Souveraineté [5]       [5]             +0       +0  (accord)
+  C6  Juste Mesure [6]       [6]             +0       +0  (accord)
+  C7  Trace        [4, 7]    [4, 5]          -1       +0
+  C8  Spectre      [8]       [5, 6]          +0       +0
+  C9  Temps        [1]       [7]             +0       +0
+  C10 Alliance     [2]       [7]             +0       +0
+  C11 Offrande     [6, 8]    [7, 8]          +0       +0
+  C12 Miroir       [6]       [6, 7]          +0       +0
+  C13 Absolu       [8]       [8]             +0       +0  (accord)
+
+  seuils scellés : ≥ +5 dans les deux = confirmée · ≤ +1 dans les deux = réfutée
+  VERDICT : ❌ RÉFUTÉE   (Gemini -2 · Isil +0)
+
+==================================================================
+DESCRIPTIF — non préenregistré, donc décrit et jamais conclu
+
+  Les deux QUESTIONS donnent-elles des réponses différentes ?
+    Gemini  J1 et J2 se recoupent sur 10/12 Champs
+    Isil    J1 et J2 se recoupent sur 11/12 Champs
+
+  Les deux FAMILLES sont-elles d’accord entre elles ?
+    J1 · travail  Gemini et Isil se recoupent sur 9/12 Champs
+    J2 · karma    Gemini et Isil se recoupent sur 8/12 Champs
+
+  Sur les SEPT Champs divergents, les coteurs touchent-ils une colonne ?
+    Gemini J1  3/7   (les 4 autres proposent un Plan qu’aucune colonne ne porte)
+    Isil J1    3/7   (les 4 autres proposent un Plan qu’aucune colonne ne porte)
+    Gemini J2  2/7   (les 5 autres proposent un Plan qu’aucune colonne ne porte)
+    Isil J2    3/7   (les 4 autres proposent un Plan qu’aucune colonne ne porte)
+
+  Là où les quatre coteurs sont unanimes et où le classeur dit autre chose :
+    C3  Structure     les quatre disent P8 · le classeur dit A=[3]  B=[4, 5]
+    C10 Alliance      les quatre disent P4 · le classeur dit A=[2]  B=[7]
+    C11 Offrande      les quatre disent P5 · le classeur dit A=[6, 8]  B=[7, 8]
+
+==================================================================
+LA SOUS-PRÉDICTION DE CLAUDE — C10 · Alliance, en K2
+
+  prédit : Plan 7  (la colonne Karma dit « Plan 7 — Amour »)
+  Gemini  rend : Plan [4]   → ❌ RÉFUTÉE
+  Isil    rend : Plan [4]   → ❌ RÉFUTÉE
+
+  VERDICT DE LA SOUS-PRÉDICTION : ❌ RÉFUTÉE — l’hypothèse de l’artefact de vocabulaire est morte
+  (écrit d’avance : « C10 → P4 de nouveau = l’écart est de fond »)
+
+  Les quatre justifications de C10, aux deux questions :
+    K1 Isil    « La réciprocité se travaille dans le lien »
+    K1 Gemini  « Le lien vivant exige une attention réciproque »
+    K2 Isil    « La réciprocité se règle dans le lien vivant »
+    K2 Gemini  « La réciprocité s’y valide par l’effet sur l’autre »
+
+  Le registre du Plan 4, tel qu’il figurait dans le paquet :
+    « dans le lien vivant »   ← les quatre le recopient presque mot pour mot
+13 Champs · 8 Plans · 15 rattachements (doubles : [7, 11] · manquants : —)
+rattachements : 5 Champs d’accord, 8 en écart entre les deux sources
+   C2   8 PLANS → 2        KARMA → 2,3
+   C3   8 PLANS → 3        KARMA → 4,5
+   C7   8 PLANS → 4,7      KARMA → 4,5
+   C8   8 PLANS → 8        KARMA → 5,6
+   C9   8 PLANS → 1        KARMA → 7
+   C10  8 PLANS → 2        KARMA → 7
+   C11  8 PLANS → 6,8      KARMA → 7,8
+   C12  8 PLANS → 6        KARMA → 6,7
+     Champ          le Plan qui partage le plus de mots ce que les 4 ont dit   
+C1   Vibration      Plan 1  (3 mots communs)  1 · 1 · 1 · 1          4/4
+C2   Flux           Plan 8  (0 mots communs) [ex æquo P7]  6 · 3 · 6 · 4          0/4
+C3   Structure      Plan 1  (1 mots communs)  8 · 8 · 8 · 8          0/4
+C4   Direction      Plan 4  (1 mots communs) [ex æquo P2]  2 · 4 · 4 · 4          3/4
+C5   Souveraineté   Plan 6  (1 mots communs) [ex æquo P5]  5 · 5 · 5 · 5          0/4
+C6   Juste Mesure   Plan 8  (2 mots communs)  56 · 6 · 5 · 6         0/4
+C7   Trace          Plan 7  (1 mots communs) [ex æquo P6]  7 · 7 · 78             3/3
+C8   Spectre        Plan 8  (1 mots communs) [ex æquo P6]  8 · 8 · 8 · 8          4/4
+C9   Temps          Plan 1  (1 mots communs)  6 · 2 · 6 · 2          0/4
+C10  Alliance       Plan 8  (1 mots communs) [ex æquo P7]  4 · 4 · 4 · 4          0/4
+C11  Offrande       Plan 8  (0 mots communs) [ex æquo P7]  5 · 5 · 5 · 5          0/4
+C12  Miroir         Plan 4  (2 mots communs)  6 · 6 · 6 · 3          0/4
+C13  Absolu         Plan 3  (1 mots communs)  78 · 7 · 7             0/3
+
+LE RECOUVREMENT LEXICAL PRÉDIT 14 RÉPONSES SUR 50 — soit 28 %
+(hasard, en tirant un Plan sur huit : 12,5 %%)
+
+Les mots communs, là où les quatre sont unanimes :
+  C1  Vibration     → Plan 1 : corps, mots, presence
+  C3  Structure     → Plan 1 : mele
+  C8  Spectre       → Plan 8 : terme
+  C10 Alliance      → Plan 8 : seul
+  C11 Offrande      → Plan 8 : 
