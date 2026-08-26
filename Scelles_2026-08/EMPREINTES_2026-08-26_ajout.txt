@@ -1,0 +1,44 @@
+# ─────────────────────────────────────────────────────────────
+# AJOUT — Protocole de ConScience aMi
+# Session du 26 août 2026 · 17 h 36 → 00 h 45 CEST
+# PRÉ-034 « Le Scellé du Nœud » · addenda J → R
+#
+# Les TEXTES ne sont pas publiés : notes d'atelier, plusieurs se
+# corrigent l'un l'autre. Seules les EMPREINTES sortent — elles
+# prouvent l'existence des pièces au 26 août sans en livrer une ligne.
+#
+# Méthode addenda : SHA-256 du CORPS du fichier, les 7 dernières
+# lignes retirées (le bloc d'empreinte lui-même).
+#   head -n -7 FICHIER | sha256sum
+# Méthode articles & RECAP : SHA-256 du fichier entier.
+#   sha256sum FICHIER
+# ─────────────────────────────────────────────────────────────
+
+## PRÉ-034 · addenda (corps, head -n -7)
+
+ddd306d7d0a49dc2f606a9c12ffb04e6fede3643da0b18fa0110a09c51714b68  PRE-034_Addendum_J.md   · la Règle de Priorité des Plans
+5258354d92611e6c0ef4db10892a2e5cebd77f648d60e63d35d47875d4268d40  PRE-034_Addendum_K.md   · la Chaîne, et le critère de l'organe sain
+889ac0a6e9792d122be562409de3d1ac6c3501c6e8a5241b0c45d074ffef5763  PRE-034_Addendum_L.md   · le Plancher retrouvé
+6f5d422ae6ac5e226de1cb5fc3bdf1b98652c54bb9852e08b7768928b487a431  PRE-034_Addendum_M.md   · l'Acrasie retournée
+4a4a89fcf6604b933d6fddffd2a12c2b4baefcdbc3dd42a27401a3256fe1092e  PRE-034_Addendum_N.md   · le Crible, Bettelheim, Wegener
+8cdbb6f71d6d52ca50e744b5d541b9ad6702594482c4f8a64538e95d122fd3a7  PRE-034_Addendum_O.md   · l'Éthique et le Fait, et Semmelweis
+426244986af849d994283a18f748cb1132a4f583ef6ed45642b1da263ad3317a  PRE-034_Addendum_P.md   · le Point Bloquant et le Pronostic comparé
+e294debea80fe168e4bf673da13339a4c596f49b810a974f36822b92cd21dcca  PRE-034_Addendum_Q.md   · le But énoncé, et le Fait
+b096d40f91d2d1c9601136665efcedcc1017aadff6d47331b797116ae24432d2  PRE-034_Addendum_R.md   · le Blindage, et le Verrou
+
+## Articles publiables (fichier entier)
+
+b0f97297fb0d9b1205c66c0d2b3e3c824adc6d74e0c8ad13e92bbb7cbc0c767e  La_Borne_du_Desaccord.md   · pièce ⑥ du blindage
+18039a82463ec5d19d83a42f60dab0099fab2a534411b19776e87734ad585c10  Le_Contradicteur.md        · pièce ⑤ du blindage
+
+## RECAP (fichier entier)
+
+97c708d5c1f2859e6f3544892080edb005e373dfbac65a12e1a4fe958b3c1730  RECAP_2026-08-26_soir_De_la_Regle_des_Plans_a_l_Instrument.md
+
+# ─────────────────────────────────────────────────────────────
+# PRÉ-033 · Les 36 items — NON publiés, et volontairement.
+# Quiconque a lu la grille peut la déjouer : publier avant le
+# user-test (P1) et l'épreuve adverse (P5) contaminerait toute
+# personne testée ensuite. La grille circule en test fermé.
+# Son empreinte sera versée ici le jour de la mesure.
+# ─────────────────────────────────────────────────────────────
