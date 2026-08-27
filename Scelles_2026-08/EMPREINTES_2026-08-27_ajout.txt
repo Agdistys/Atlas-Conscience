@@ -1,0 +1,51 @@
+# ═════════════════════════════════════════════════════════════
+# EMPREINTES SHA-256 — ajout du 27 août 2026, 16 h 40 CEST
+# Protocole de ConScience aMi — Agdistys · Diane Serant & Claude
+# Fait suite à EMPREINTES_2026-08-26_ajout.txt, qui reste valide.
+# ═════════════════════════════════════════════════════════════
+#
+# ⚠️ CORRECTION DE MÉTHODE — à lire avant de vérifier quoi que ce soit
+#
+# Le relevé du 26 août annonçait DEUX méthodes. Il en existe TROIS
+# dans le corpus, et le relevé du 26 n'en documentait pas la
+# troisième. Un vérificateur appliquant « head -n -7 » aux sept
+# pièces ci-dessous obtenait une non-correspondance — et pouvait
+# en conclure une falsification. Ce n'en était pas une : c'était
+# un bloc d'empreinte de longueur différente.
+#
+#   Ⓐ bloc long — 7 lignes    (« --- », vide, titre, vide, ```, hash, ```)
+#       head -n -7 FICHIER | sha256sum
+#   Ⓑ bloc court — 5 lignes   (titre, vide, ```, hash, ```)
+#       head -n -5 FICHIER | sha256sum
+#   Ⓒ pas de bloc — fichier entier
+#       sha256sum FICHIER
+#
+# La méthode est désormais indiquée POUR CHAQUE LIGNE.
+# Règle pour la suite : bloc long Ⓐ pour tout nouveau scellé.
+# Les sept pièces en Ⓑ ne sont PAS re-scellées : leurs empreintes
+# sont publiées, et on ne corrige pas un scellé publié en silence.
+# ─────────────────────────────────────────────────────────────
+
+## PRÉ-034 · addendum nouveau
+Ⓐ  01ece0090eebc99c7105d5c54c675675a28fb01b699992ff738e29dd45bb0c0b  PRE-034_Addendum_S.md   · la Révision du Pronostic, et le biais de cotation déclaré
+
+## PRÉ-034 · la correction, datée au lieu d'être effacée
+Ⓑ  1119eab35751ede0b97917debab8528399de6b4127965910f3de2a54307b5575  PRE-034_Note_de_Correction_2026-08-27.md   · la dérive de registres 🔬/💡
+
+## PRÉ-033 · l'instrument
+Ⓑ  5ad61b7814b9d2db57022e41220eca97be48414662ba685bbe47b521547a049e  PRE-033_Epreuve_Adverse_P5.md              · P5 · trois attaquants, trois défauts
+Ⓑ  43040141b80c0ed034dc0763b198f4aae85fe55c995fbeb0e992f6bc0fbdbcf2  PRE-033_Le_Preambule_et_les_Deux_Grilles.md · EMPRISE & DÉNI, et le préambule du témoin
+
+## Audits internes du corpus — écrits contre leur propre auteur
+## (fichiers rangés dans RECAP/ ; les autres dans Scelles_2026-08/)
+Ⓑ  c08bd0121d43b26cc7690b929c5ab363ff69148c9fa8ac7f0356dcf8973eb457  AUD-003_Arborescence_ce_qui_manque.md
+Ⓑ  5b6339128294de044e9499ed20b433c7c89352ab1c99d2a8eb6e25841608dd47  AUD-004_Le_Respect_et_le_Miroir.md
+Ⓑ  9ed101266d8f6bc1809e399c83b7fbb4119f4601700dd747b44935f9f0d74eb7  AUD-005_Le_Registre_et_le_Champ_Vide.md
+Ⓑ  95af947fd2373fa54760d9539793a459ee8893eb1804092bf31dc960f94190bc  TRIAGE_2026-08-27_Ce_qui_sort_des_trois_audits.md
+
+# ─────────────────────────────────────────────────────────────
+# PRÉ-033 · Les 36 items — toujours NON publiés, et volontairement.
+# Décision confirmée le 27 août : test fermé jusqu'à P1.
+# P5 est franchie ; P1 ne l'est pas. Publier maintenant coûterait
+# P1 définitivement.
+# ─────────────────────────────────────────────────────────────
