@@ -1,5 +1,5 @@
 # ═════════════════════════════════════════════════════════════
-# EMPREINTES SHA-256 — ajout du 27 août 2026, 16 h 40 CEST
+# EMPREINTES SHA-256 — ajout du 27 août 2026, 16 h 40 puis 17 h 45 CEST
 # Protocole de ConScience aMi — Agdistys · Diane Serant & Claude
 # Fait suite à EMPREINTES_2026-08-26_ajout.txt, qui reste valide.
 # ═════════════════════════════════════════════════════════════
@@ -35,6 +35,7 @@
 ## PRÉ-033 · l'instrument
 Ⓑ  5ad61b7814b9d2db57022e41220eca97be48414662ba685bbe47b521547a049e  PRE-033_Epreuve_Adverse_P5.md              · P5 · trois attaquants, trois défauts
 Ⓑ  43040141b80c0ed034dc0763b198f4aae85fe55c995fbeb0e992f6bc0fbdbcf2  PRE-033_Le_Preambule_et_les_Deux_Grilles.md · EMPRISE & DÉNI, et le préambule du témoin
+Ⓐ  4f963b3fe5a5f7e150b80bed6b6ebded7c396e981ff0de6197868755c99895e8  PRE-033_La_Metrique_et_l_Absence.md          · les deux réparations d'avant P1 (défauts trouvés par Isil)
 
 ## Audits internes du corpus — écrits contre leur propre auteur
 ## (fichiers rangés dans RECAP/ ; les autres dans Scelles_2026-08/)
