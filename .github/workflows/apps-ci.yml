@@ -1,0 +1,52 @@
+name: Applications — Inspectrice
+
+on:
+  pull_request:
+    paths:
+      - 'DragonRoute/**'
+      - 'APP_*.html'
+      - 'tests/**'
+      - 'playwright.config.mjs'
+      - 'package.json'
+      - '.github/workflows/apps-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'DragonRoute/**'
+      - 'APP_*.html'
+      - 'tests/**'
+      - 'playwright.config.mjs'
+      - 'package.json'
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Static contract
+        run: npm run test:contract
+      - name: JavaScript syntax
+        run: |
+          node --check DragonRoute/app.js
+          node --check DragonRoute/config.js
+          node --check DragonRoute/service-worker.js
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser acceptance tests
+        run: npm run test:e2e
+      - name: Archive inspection report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inspectrice-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
