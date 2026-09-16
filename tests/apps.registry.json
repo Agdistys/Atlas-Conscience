@@ -1,0 +1,14 @@
+[
+  {
+    "name": "DragonRoute",
+    "dir": "DragonRoute",
+    "entry": "index.html",
+    "pwa": true
+  },
+  {
+    "name": "Agora",
+    "dir": ".",
+    "entry": "APP_Agora-Petitions_aMi.html",
+    "pwa": false
+  }
+]
