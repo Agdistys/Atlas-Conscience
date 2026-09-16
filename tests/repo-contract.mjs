@@ -3,12 +3,13 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 
 const ROOT=process.cwd();
-const apps=[
-  {name:'DragonRoute',dir:'DragonRoute',entry:'index.html'}
-];
+const registryPath=path.join(ROOT,'tests','apps.registry.json');
+assert.ok(fs.existsSync(registryPath),'registre des applications absent');
+const apps=JSON.parse(fs.readFileSync(registryPath,'utf8'));
+assert.ok(Array.isArray(apps)&&apps.length>0,'registre des applications vide');
 
 for(const app of apps){
-  const dir=path.join(ROOT,app.dir);
+  const dir=path.resolve(ROOT,app.dir||'.');
   const entry=path.join(dir,app.entry);
   assert.ok(fs.existsSync(entry),`${app.name}: ${app.entry} absent`);
   const html=fs.readFileSync(entry,'utf8');
@@ -20,7 +21,9 @@ for(const app of apps){
   }
 
   assert.match(html,/name=["']viewport["']/i,`${app.name}: viewport absent`);
-  assert.match(html,/manifest\.webmanifest/i,`${app.name}: manifest PWA absent`);
+  if(app.pwa){
+    assert.match(html,/manifest\.webmanifest/i,`${app.name}: manifest PWA absent`);
+  }
 }
 
 console.log(`✓ contrat dépôt : ${apps.length} application(s) vérifiée(s)`);
