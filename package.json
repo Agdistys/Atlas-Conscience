@@ -1,0 +1,13 @@
+{
+  "name": "atlas-conscience-apps",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:contract": "node tests/repo-contract.mjs",
+    "test:e2e": "playwright test",
+    "test": "npm run test:contract && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}
