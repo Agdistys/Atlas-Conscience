@@ -16,12 +16,12 @@
 <div id="app">
   <header class="topbar">
     <div class="brand"><span class="dragon">🐉</span><strong>DragonRoute</strong><span class="badge">ESSAI</span></div>
-    <button id="installBtn" class="ghost tiny-btn" hidden>＋ Installer</button>
+    <div class="header-actions"><button id="profileBtn" class="ghost">Mon profil</button><button id="installBtn" class="ghost tiny-btn" hidden>＋ Installer</button></div>
   </header>
   <main class="stage">
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
       <div id="mapFallback" class="fallback-map">
-        <svg id="routeViz" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Schéma du trajet, sans fond cartographique">
+        <svg id="routeViz" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Schéma du trajet, sans fond cartographique">
           <g id="grid"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="stationDots"></g>
           <circle id="startDot" class="endpoint" r="7" cx="-50" cy="-50"></circle><circle id="endDot" class="endpoint" r="7" cx="-50" cy="-50"></circle>
         </svg>
@@ -31,6 +31,7 @@
     <section class="sheet" id="sheet" aria-label="Préparation du trajet">
       <section class="route-section">
         <h1>Mon trajet</h1>
+        <p id="activeVehicle" class="note" hidden></p>
         <div class="route-fields">
           <div><label for="start">Départ</label><div class="field-row"><input id="start" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div></div>
           <div><label for="end">Arrivée</label><input id="end" value="Valence" autocomplete="off" placeholder="Ville ou adresse"></div>
@@ -63,10 +64,37 @@
         <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM<p>Version d'essai · PR 4 · 7ec86d0 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM<p>Version d'essai · PR 4 · 9c67b91 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
+<dialog id="stationDialog" aria-labelledby="stationTitle">
+  <div class="dialog-heading"><h2 id="stationTitle">Station</h2><button class="icon-btn close-dialog" aria-label="Fermer la fiche station" title="Fermer">×</button></div>
+  <div id="stationDetails"></div>
+  <p id="stationMessage" class="note" role="status"></p>
+  <div class="dialog-actions"><button id="favoriteBtn" class="ghost" aria-pressed="false">Enregistrer la station</button><button id="detailChooseBtn" class="primary">Choisir cet arrêt</button></div>
+</dialog>
+<dialog id="profileDialog" aria-labelledby="profileTitle">
+  <div class="dialog-heading"><h2 id="profileTitle">Mon profil</h2><button class="icon-btn close-dialog" aria-label="Fermer le profil" title="Fermer">×</button></div>
+  <p class="note">Enregistré dans ce navigateur uniquement, sans compte ni synchronisation. Le profil d’essai est séparé du profil public.</p>
+  <p id="profileMessage" class="note" role="status" aria-live="polite"></p>
+  <form id="vehicleForm" class="profile-section">
+    <h3>Mon véhicule</h3>
+    <label for="vehicleName">Nom du véhicule</label><input id="vehicleName" maxlength="80" placeholder="Ma voiture, ma caravane…">
+    <label for="vehicleType">Type</label><select id="vehicleType"><option value="car">Voiture</option><option value="caravan">Voiture avec caravane</option><option value="van">Utilitaire</option><option value="truck">Camion</option></select>
+    <p class="note">Le type est mémorisé uniquement. Le calcul reste un itinéraire voiture, sans contrôle de gabarit.</p>
+    <div class="settings"><div><label for="vehicleFuel">Carburant</label><select id="vehicleFuel"><option>E10</option><option>Gazole</option><option>SP98</option><option>SP95</option><option>E85</option><option>GPLc</option></select></div><div><label for="vehicleCons">Conso. L/100 km</label><input id="vehicleCons" type="number" min="1" max="30" step="0.1" required></div><div><label for="vehicleLiters">Litres par défaut</label><input id="vehicleLiters" type="number" min="1" max="150" step="1" required></div></div>
+    <button class="primary" type="submit">Enregistrer le véhicule</button>
+  </form>
+  <section class="profile-section"><h3>Mes adresses</h3><div id="savedAddresses" class="saved-list"></div>
+    <form id="addressForm"><input id="addressId" type="hidden"><label for="addressName">Nom</label><input id="addressName" maxlength="80" required placeholder="Maison, travail…"><label for="addressValue">Adresse</label><input id="addressValue" maxlength="250" required placeholder="Rue, code postal, ville">
+      <div class="dialog-actions"><button id="copyStartBtn" class="ghost" type="button">Reprendre le départ</button><button id="copyEndBtn" class="ghost" type="button">Reprendre l’arrivée</button></div>
+      <button class="primary" type="submit">Enregistrer l’adresse</button><button id="cancelAddressEdit" class="ghost" type="button" hidden>Annuler la modification</button>
+    </form>
+  </section>
+  <section class="profile-section"><h3>Mes stations</h3><div id="savedStations" class="saved-list"></div></section>
+  <section class="profile-section"><h3>Mes données</h3><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
+</dialog>
 <script src="./config.js"></script><script src="./app.js" defer></script>
 </body>
 </html>

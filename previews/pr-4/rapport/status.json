@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-09-17T14:20:07.490Z",
-  "commit": "7ec86d074a13fe6bcb44f6b17fd10992462a684b",
+  "generatedAt": "2026-09-17T14:55:52.357Z",
+  "commit": "9c67b9172869f74f15a284a54fbb316ef9a027c0",
   "state": "inspection",
-  "passed": 48,
-  "total": 48,
+  "passed": 64,
+  "total": 64,
   "stages": {
     "contract": {
       "exitCode": 0,
@@ -108,7 +108,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -151,7 +151,7 @@
           ]
         }
       ],
-      "rulesPassed": 24
+      "rulesPassed": 23
     },
     {
       "project": "desktop-1440",
@@ -181,6 +181,56 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"504.01155790994454\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
+              "target": [
+                "text[x=\"504.01155790994454\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"510.75367204430506\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
+              "target": [
+                "text[x=\"510.75367204430506\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "8.3pt (11px)",
                     "fontWeight": "normal",
                     "messageKey": "imgNode",
@@ -194,7 +244,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -646,7 +696,7 @@
               "impact": "serious",
               "html": "<label><input type=\"radio\" name=\"stopMode\" value=\"soon\" checked=\"\" style=\"\"> Au plus tôt</label>",
               "target": [
-                "label:nth-child(2)"
+                "fieldset > label:nth-child(2)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -710,7 +760,7 @@
               "impact": "serious",
               "html": "<label><input type=\"radio\" name=\"stopMode\" value=\"around\" style=\"\"> Vers une distance choisie</label>",
               "target": [
-                "label:nth-child(4)"
+                "fieldset > label:nth-child(4)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -841,6 +891,102 @@
                 "label[for=\"cons\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"fuelStatus\" class=\"note\" role=\"status\" aria-live=\"polite\">2 stations comparées parmi 2 reçues. Distances depuis le départ choisi ; pas de suivi GPS continu.</p>",
+              "target": [
+                "#fuelStatus"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "15.0pt (20px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<b id=\"stationCount\">2</b>",
+              "target": [
+                "#stationCount"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "15.0pt (20px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<b id=\"testedCount\">2</b>",
+              "target": [
+                "#testedCount"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             }
           ]
         }
@@ -848,6 +994,20 @@
       "rulesPassed": 28
     },
     {
+      "project": "desktop-1440",
+      "state": "accessibilite-fiche-station",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 18
+    },
+    {
+      "project": "desktop-1440",
+      "state": "accessibilite-profil",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 19
+    },
+    {
       "project": "tablet-768",
       "state": "accessibilite-demarrage",
       "violations": [],
@@ -888,7 +1048,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -931,11 +1091,206 @@
           ]
         }
       ],
-      "rulesPassed": 24
+      "rulesPassed": 23
     },
     {
       "project": "tablet-768",
       "state": "accessibilite-resultats",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"504.01155790994454\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
+              "target": [
+                "text[x=\"504.01155790994454\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"510.75367204430506\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
+              "target": [
+                "text[x=\"510.75367204430506\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "imgNode",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
+                      "target": [
+                        "#fallbackLabel"
+                      ]
+                    },
+                    {
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "target": [
+                        "#routeViz"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because element contains an image node"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
+              "target": [
+                "#fallbackLabel"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
+              "target": [
+                "#gpsBtn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 27
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-fiche-station",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscuring",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Informations déclaratives, ouverture et disponibilité à confirmer sur place. Données reçues le 17/09/2026 12:00:00.</p>",
+              "target": [
+                "#stationDetails > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 18
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-profil",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 19
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-demarrage",
       "violations": [],
       "incomplete": [
         {
@@ -968,13 +1323,149 @@
                   },
                   "relatedNodes": [
                     {
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Carte externe indisponible — visualisation autonome active.</div>",
+                      "target": [
+                        "#fallbackLabel"
+                      ]
+                    },
+                    {
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "target": [
+                        "#routeViz"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because element contains an image node"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Carte externe indisponible — visualisation autonome active.</div>",
+              "target": [
+                "#fallbackLabel"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
+              "target": [
+                "#gpsBtn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 23
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-resultats",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"504.01155790994454\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
+              "target": [
+                "text[x=\"504.01155790994454\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"510.75367204430506\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
+              "target": [
+                "text[x=\"510.75367204430506\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "imgNode",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
                       "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
                       "target": [
                         "#fallbackLabel"
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -1021,7 +1512,7 @@
     },
     {
       "project": "mobile-390",
-      "state": "accessibilite-demarrage",
+      "state": "accessibilite-fiche-station",
       "violations": [],
       "incomplete": [
         {
@@ -1047,67 +1538,58 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "8.3pt (11px)",
+                    "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
-                    "messageKey": "imgNode",
+                    "messageKey": "elmPartiallyObscuring",
                     "expectedContrastRatio": "4.5:1"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Carte externe indisponible — visualisation autonome active.</div>",
-                      "target": [
-                        "#fallbackLabel"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Carte externe indisponible — visualisation autonome active.</div>",
+              "html": "<p class=\"note\">Automate 24 h/24 : Oui. Les horaires de la boutique peuvent différer.</p>",
               "target": [
-                "#fallbackLabel"
+                ".detail-section:nth-child(3) > .note"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
             },
             {
               "any": [
                 {
                   "id": "color-contrast",
                   "data": {
-                    "messageKey": "nonBmp"
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscuring",
+                    "expectedContrastRatio": "4.5:1"
                   },
                   "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element content contains only non-text characters"
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
+              "html": "<p class=\"note\">Informations déclaratives, ouverture et disponibilité à confirmer sur place. Données reçues le 17/09/2026 12:00:00.</p>",
               "target": [
-                "#gpsBtn"
+                "#stationDetails > .note"
               ],
-              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
             }
           ]
         }
       ],
-      "rulesPassed": 24
+      "rulesPassed": 18
     },
     {
       "project": "mobile-390",
-      "state": "accessibilite-resultats",
+      "state": "accessibilite-profil",
       "violations": [],
       "incomplete": [
         {
@@ -1133,63 +1615,196 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "8.3pt (11px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
+                    "fontSize": "13.5pt (18px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
                     "expectedContrastRatio": "4.5:1"
                   },
                   "relatedNodes": [
                     {
-                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
                       "target": [
-                        "#fallbackLabel"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
-                      "target": [
-                        "#routeViz"
+                        "#profileDialog"
                       ]
                     }
                   ],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
+              "html": "<h2 id=\"profileTitle\">Mon profil</h2>",
               "target": [
-                "#fallbackLabel"
+                "#profileTitle"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
             {
               "any": [
                 {
                   "id": "color-contrast",
                   "data": {
-                    "messageKey": "nonBmp"
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
                   },
-                  "relatedNodes": [],
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
                   "impact": "serious",
-                  "message": "Element content contains only non-text characters"
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
+              "html": "<p class=\"note\">Enregistré dans ce navigateur uniquement, sans compte ni synchronisation. Le profil d’essai est séparé du profil public.</p>",
               "target": [
-                "#gpsBtn"
+                "#profileDialog > .note:nth-child(2)"
               ],
-              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"profileMessage\" class=\"note\" role=\"status\" aria-live=\"polite\">Adresse enregistrée.</p>",
+              "target": [
+                "#profileMessage"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h3>Mon véhicule</h3>",
+              "target": [
+                "#vehicleForm > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"vehicleName\">Nom du véhicule</label>",
+              "target": [
+                "label[for=\"vehicleName\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"vehicleType\">Type</label>",
+              "target": [
+                "label[for=\"vehicleType\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             }
           ]
         }
       ],
-      "rulesPassed": 27
+      "rulesPassed": 19
     },
     {
       "project": "mobile-360",
@@ -1232,7 +1847,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -1275,7 +1890,7 @@
           ]
         }
       ],
-      "rulesPassed": 24
+      "rulesPassed": 23
     },
     {
       "project": "mobile-360",
@@ -1305,6 +1920,56 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"504.01155790994454\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
+              "target": [
+                "text[x=\"504.01155790994454\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"510.75367204430506\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
+              "target": [
+                "text[x=\"510.75367204430506\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "8.3pt (11px)",
                     "fontWeight": "normal",
                     "messageKey": "imgNode",
@@ -1318,7 +1983,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -1362,6 +2027,334 @@
         }
       ],
       "rulesPassed": 27
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-fiche-station",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscuring",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Informations déclaratives, ouverture et disponibilité à confirmer sur place. Données reçues le 17/09/2026 12:00:00.</p>",
+              "target": [
+                "#stationDetails > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscuring",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"detailChooseBtn\" class=\"primary\">Choisir cet arrêt</button>",
+              "target": [
+                "#detailChooseBtn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 18
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-profil",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "13.5pt (18px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 id=\"profileTitle\">Mon profil</h2>",
+              "target": [
+                "#profileTitle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Enregistré dans ce navigateur uniquement, sans compte ni synchronisation. Le profil d’essai est séparé du profil public.</p>",
+              "target": [
+                "#profileDialog > .note:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"profileMessage\" class=\"note\" role=\"status\" aria-live=\"polite\">Adresse enregistrée.</p>",
+              "target": [
+                "#profileMessage"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h3>Mon véhicule</h3>",
+              "target": [
+                "#vehicleForm > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"vehicleName\">Nom du véhicule</label>",
+              "target": [
+                "label[for=\"vehicleName\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"vehicleType\">Type</label>",
+              "target": [
+                "label[for=\"vehicleType\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"profileDialog\" aria-labelledby=\"profileTitle\" open=\"\">",
+                      "target": [
+                        "#profileDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Le type est mémorisé uniquement. Le calcul reste un itinéraire voiture, sans contrôle de gabarit.</p>",
+              "target": [
+                "#vehicleForm > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 19
     }
   ],
   "diagnostics": [],
