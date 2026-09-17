@@ -2,4 +2,6 @@ node_modules/
 playwright-report/
 test-results/
 quality/
+preview-site/
+preview-test-results/
 .DS_Store

@@ -303,6 +303,7 @@ function gps(){
   },e=>setStatus(`⚠️ GPS : ${e.message}`,"err"),{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
 }
 function initPwa(){
+  if(document.body.dataset.preview === "true") return;
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("./service-worker.js").then(()=>dbg("Service worker enregistré")).catch(e=>dbg("SW",e.message));
   }
