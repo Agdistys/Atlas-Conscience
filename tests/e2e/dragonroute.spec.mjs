@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mockDragonRoute } from '../helpers/dragonroute.mjs';
+import { mockDragonRoute, orsPattern, orsResponse, testOrsKey } from '../helpers/dragonroute.mjs';
 import { capture, checkAccessibility, checkOverflow } from '../helpers/inspection.mjs';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -7,6 +7,136 @@ const fuelPattern = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/data
 
 test.beforeEach(async ({ page }) => {
   await mockDragonRoute(page);
+});
+
+async function configureOrs(page){
+  await page.goto('/DragonRoute/');
+  await page.locator('#routingOptionsToggle').click();
+  await page.locator('#avoidTolls').check();
+  await page.locator('#avoidHighways').check();
+  await page.locator('#avoidFerries').check();
+  await page.locator('#orsKey').fill(testOrsKey);
+}
+
+test('exclusions sans cle bloquees sans retour silencieux OSRM', async ({ page }) => {
+  const requests=[];page.on('request',r=>{if(/route\/v1|openrouteservice\/v2|nominatim/.test(r.url()))requests.push(r.url())});
+  await page.goto('/DragonRoute/');
+  await page.locator('#routingOptionsToggle').click();
+  await page.locator('#avoidTolls').check();
+  await expect(page.locator('#routeProvider')).toHaveValue('ors');
+  await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Clé OpenRouteService requise');
+  await expect(page.locator('#stops')).toBeHidden();
+  await page.locator('#routeProvider').selectOption('osrm');
+  await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Aucune option ne sera ignorée');
+  expect(requests).toEqual([]);
+});
+
+test('ORS exclusions appliquees aux stations et cle privee', async ({ page },info) => {
+  const requests=[];let osrm=0;
+  page.on('request',r=>{if(r.url().includes('router.project-osrm.org'))osrm++});
+  await page.route(orsPattern,async r=>{
+    const request=r.request(),body=request.postDataJSON();
+    expect(request.method()).toBe('POST');expect(request.headers().authorization).toBe(testOrsKey);
+    expect(request.url()).not.toContain(testOrsKey);
+    expect(body.options.avoid_features).toEqual(['tollways','highways','ferries']);
+    expect(body.coordinates[0]).toEqual([4.8357,45.764]);
+    requests.push(body);
+    await r.fulfill({json:orsResponse(body)});
+  });
+  await configureOrs(page);
+  await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Trajet prêt');
+  await expect(page.locator('#orsKey')).toHaveValue('');
+  await expect(page.locator('#appliedRouting')).toContainText('péages, autoroutes, ferries');
+  await expect(page.locator('#routeAlternativesNote')).toContainText('100 km');
+  await page.locator('#stationsBtn').click();
+  await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées',{timeout:20000});
+  await expect(page.locator('.result-card').first()).toContainText('+10,0 km');
+  expect(requests.map(x=>x.coordinates.length)).toEqual([2,3,3]);expect(osrm).toBe(0);
+  page.once('dialog',dialog=>dialog.dismiss());
+  await page.locator('[data-select]').first().click();
+  await expect(page.locator('#selectedStop')).toBeHidden();
+  page.once('dialog',async dialog=>{expect(dialog.message()).toContain('peut changer de routes');await dialog.accept()});
+  await page.locator('[data-select]').first().click();
+  await expect(page.locator('#selectedStop')).toContainText('130,0 km');
+  expect(requests).toHaveLength(3);
+  await page.locator('#routingOptions').scrollIntoViewIfNeeded();
+  await capture(page,info,'options-routage');
+  await checkOverflow(page);await checkAccessibility(page,info,'options-routage');
+  const stored=await page.evaluate(()=>JSON.stringify({local:{...localStorage},session:{...sessionStorage}}));
+  expect(stored).not.toContain(testOrsKey);expect(await page.content()).not.toContain(testOrsKey);
+  await page.locator('#profileBtn').click();
+  const download=page.waitForEvent('download');await page.locator('#exportProfileBtn').click();
+  const stream=await (await download).createReadStream();let exported='';for await(const chunk of stream)exported+=chunk.toString();
+  expect(exported).not.toContain(testOrsKey);
+  await page.getByRole('button',{name:'Fermer le profil'}).click();
+  await page.locator('#avoidHighways').uncheck();await expect(page.locator('#stops')).toBeHidden();
+  await page.locator('#forgetOrsKey').click();await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Clé OpenRouteService requise');
+  await page.reload();await page.locator('#routingOptionsToggle').click();
+  await page.locator('#routeProvider').selectOption('ors');await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Clé OpenRouteService requise');
+});
+
+test('ORS refus et geometrie invalide sans fuite de cle ni repli', async ({ page }) => {
+  let status=403,invalid=false,osrm=0;
+  page.on('request',r=>{if(r.url().includes('router.project-osrm.org'))osrm++});
+  await page.route(orsPattern,r=>r.fulfill({status,json:invalid?orsResponse(r.request().postDataJSON(),{invalid:true}):{error:{message:testOrsKey}}}));
+  await configureOrs(page);
+  for(const [http,message] of [[403,'Clé refusée'],[429,'Quota OpenRouteService'],[500,'indisponible']]){
+    status=http;await page.locator('#goBtn').click();
+    await expect(page.locator('#status')).toContainText(message);
+    await expect(page.locator('#stops')).toBeHidden();expect(await page.content()).not.toContain(testOrsKey);
+  }
+  status=200;invalid=true;await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('incomplète ou incohérente');expect(osrm).toBe(0);
+});
+
+test('ORS comparaison interrompue ou incoherente conserve le trajet', async ({ page }) => {
+  let mode='shorter',calls=0;
+  await page.route(orsPattern,async r=>{
+    const body=r.request().postDataJSON();calls++;
+    if(mode==='quota'&&body.coordinates.length===3&&body.coordinates[1][1]<45.3)return r.fulfill({status:429,json:{error:{message:'quota'}}});
+    if(mode==='noRoute'&&body.coordinates.length===3&&body.coordinates[1][1]>45.3)return r.fulfill({status:404,json:{error:{code:2009}}});
+    await r.fulfill({json:orsResponse(body,{shorter:mode==='shorter'})});
+  });
+  await configureOrs(page);await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Trajet prêt');
+  await page.locator('#stationsBtn').click();
+  await expect(page.locator('#fuelStatus')).toContainText('exclus du classement',{timeout:20000});
+  await expect(page.locator('.result-card')).toHaveCount(0);await expect(page.locator('#summary')).toBeVisible();
+  mode='noRoute';await page.locator('#stationsBtn').click();
+  await expect(page.locator('#fuelStatus')).toContainText('1 station(s) sans accès calculable.',{timeout:20000});
+  await expect(page.locator('.result-card')).toHaveCount(1);
+  await page.locator('[data-details]').first().click();await page.locator('#favoriteBtn').click();
+  await page.getByRole('button',{name:'Fermer la fiche station'}).click();
+  mode='quota';await page.locator('#stationsBtn').click();
+  await expect(page.locator('#fuelStatus')).toContainText('Quota OpenRouteService');
+  await expect(page.locator('.result-card')).toHaveCount(0);
+  await page.locator('#stationsBtn').click();await page.locator('#cancelStationsBtn').click();
+  await expect(page.locator('#fuelStatus')).toContainText('Recherche interrompue');
+  await expect(page.locator('#summary')).toBeVisible();await expect(page.locator('#stationsBtn')).toBeEnabled();
+  await page.locator('#profileBtn').click();await page.locator('[data-favorite-open]').first().click();
+  await expect(page.locator('#stationMessage')).toContainText('Fiche actualisée');
+  expect(calls).toBeGreaterThan(2);
+});
+
+test('ORS alternatives courtes et indisponibilite explicite', async ({ page }) => {
+  let failAlternatives=false;
+  await page.route(orsPattern,r=>{
+    const body=r.request().postDataJSON();
+    return failAlternatives&&body.alternative_routes?r.fulfill({status:400,json:{error:{code:2004}}}):r.fulfill({json:orsResponse(body,{distance:80000})});
+  });
+  await configureOrs(page);await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Trajet prêt');
+  await expect(page.locator('#alternativeRoutes path')).toHaveCount(1);
+  failAlternatives=true;await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Trajet prêt');
+  await expect(page.locator('#alternativeRoutes path')).toHaveCount(0);
+  await expect(page.locator('#routeAlternativesNote')).toContainText('Recherche d’alternatives indisponible');
+  await expect(page.locator('#appliedRouting')).toContainText('péages, autoroutes, ferries');
 });
 
 test('demarrage accessible sans Leaflet', async ({ page }, info) => {
@@ -55,7 +185,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'goBtn']) {
+  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'goBtn']) {
     await page.keyboard.press('Tab');
     await expect(page.locator('#' + id)).toBeFocused();
     const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);

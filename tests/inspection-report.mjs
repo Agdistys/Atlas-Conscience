@@ -4,6 +4,11 @@ import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
+  'exclusions sans cle bloquees sans retour silencieux OSRM',
+  'ORS exclusions appliquees aux stations et cle privee',
+  'ORS refus et geometrie invalide sans fuite de cle ni repli',
+  'ORS comparaison interrompue ou incoherente conserve le trajet',
+  'ORS alternatives courtes et indisponibilite explicite',
   'demarrage accessible sans Leaflet',
   'Lyon vers Valence : resultats et accessibilite',
   'parcours clavier et mouvement reduit',

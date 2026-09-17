@@ -6,6 +6,8 @@ const log=[];
 let map=null, routeLayer=null, markerLayer=null, currentPos=null, activeAbort=null, deferredInstall=null;
 let trip=null, compared=[], busy=false;
 let mapView=null,currentStation=null,detailSequence=0;
+let orsKey="",orsLastRequest=-Infinity;
+const avoidLabels={tollways:"péages",highways:"autoroutes",ferries:"ferries"};
 const PROFILE_KEY="dragonroute.profile.v1."+(document.body.dataset.preview==="true"?"preview:"+new URL('.',location.href).pathname:"public");
 let profile=emptyProfile(),storageNotice="";
 try{const raw=localStorage.getItem(PROFILE_KEY);if(raw)profile=validateProfile(JSON.parse(raw))}
@@ -116,8 +118,9 @@ function valueNum(id,min,max){
 }
 function makeTimeout(ms){
   const c=new AbortController(), t=setTimeout(()=>c.abort(),ms);
-  if(activeAbort) activeAbort.signal.addEventListener("abort",()=>c.abort(),{once:true});
-  return {signal:c.signal,done:()=>clearTimeout(t)};
+  const parent=activeAbort?.signal,onAbort=()=>c.abort();
+  if(parent?.aborted)c.abort();else parent?.addEventListener("abort",onAbort,{once:true});
+  return {signal:c.signal,done:()=>{clearTimeout(t);parent?.removeEventListener("abort",onAbort)}};
 }
 async function getJSON(url,label,ms=16000){
   dbg("GET",label,url);
@@ -183,11 +186,72 @@ async function geocode(q){
   if(!d?.length) throw new Error(`Lieu introuvable : ${q}`);
   return {lat:+d[0].lat,lon:+d[0].lon,label:d[0].display_name||q};
 }
+function routingPreferences(){
+  return {provider:$("routeProvider").value,avoid:[...document.querySelectorAll('.avoid-options input:checked')].map(el=>el.value)};
+}
+function routingLabel(settings){
+  return (settings.provider==="ors"?"OpenRouteService":"OSRM")+(settings.avoid.length?" · exclusions : "+settings.avoid.map(x=>avoidLabels[x]).join(", "):" · sans exclusions");
+}
+function invalidateRouting(){
+  clearResults();$("orsConnection").hidden=$("routeProvider").value!=="ors";
+  setStatus("Options modifiées. Trajet à recalculer.");
+}
+function ensureRouting(settings){
+  if(settings.provider==="osrm"&&settings.avoid.length)throw new Error("Ces exclusions nécessitent OpenRouteService. Aucune option ne sera ignorée.");
+  if(settings.provider==="ors"){
+    const entered=$("orsKey").value.trim();
+    if(entered)orsKey=entered;
+    $("orsKey").value="";
+    if(!/^[!-~]{8,512}$/.test(orsKey)){orsKey="";$("routingOptions").open=true;throw new Error("Clé OpenRouteService requise dans les options du trajet.")}
+    $("orsKeyStatus").textContent="Clé présente pour cette page uniquement ; validation au prochain calcul.";
+  }
+}
 function hasRouteGeometry(r){
   return r?.geometry?.type==="LineString"&&Array.isArray(r.geometry.coordinates)&&r.geometry.coordinates.length>1&&r.geometry.coordinates.every(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90);
 }
-async function route(points,overview=true,alternatives=false){
+async function orsRoutes(points,settings,alternatives=false){
+  if(!orsKey)throw new Error("Clé OpenRouteService absente.");
+  await sleep(Math.max(0,1800-(performance.now()-orsLastRequest)));
+  if(activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
+  orsLastRequest=performance.now();
+  const t=makeTimeout(25000);
+  const body={coordinates:points.map(([lat,lon])=>[lon,lat]),preference:"fastest",units:"m",instructions:false,radiuses:points.map(()=>200),options:{avoid_features:[...settings.avoid]}};
+  if(alternatives)body.alternative_routes={target_count:2};
+  try{
+    // Keep credentials out of URLs, diagnostics, storage and provider error messages.
+    const response=await fetch("https://api.heigit.org/openrouteservice/v2/directions/driving-car/geojson",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/geo+json",Authorization:orsKey},body:JSON.stringify(body),signal:t.signal,cache:"no-store",credentials:"omit",redirect:"error",referrerPolicy:"no-referrer"});
+    const data=await response.json().catch(()=>null);
+    if(!response.ok||data?.error){
+      const noRoute=[2009,2010].includes(data?.error?.code);
+      const message=response.status===401||response.status===403?"Clé refusée ou accès OpenRouteService non autorisé.":response.status===429?"Quota OpenRouteService atteint. Réessayer plus tard.":noRoute?"Aucun trajet accessible avec ces options.":`OpenRouteService indisponible ou demande refusée (HTTP ${response.status}).`;
+      throw Object.assign(new Error(message),{noRoute});
+    }
+    if(!Array.isArray(data?.features)||!data.features.length)throw new Error("Réponse OpenRouteService incomplète.");
+    return data.features.map(feature=>{
+      const p=feature.properties,r={geometry:feature.geometry,distance:p?.summary?.distance,duration:p?.summary?.duration,legs:p?.segments,alternatives:[]};
+      if(!hasRouteGeometry(r)||[r.distance,r.duration].some(n=>!Number.isFinite(n)||n<0)||!Array.isArray(r.legs)||r.legs.length!==points.length-1||r.legs.some(leg=>[leg.distance,leg.duration].some(n=>!Number.isFinite(n)||n<0))||Math.abs(r.legs.reduce((s,l)=>s+l.distance,0)-r.distance)>2||Math.abs(r.legs.reduce((s,l)=>s+l.duration,0)-r.duration)>2)throw new Error("Réponse OpenRouteService incomplète ou incohérente.");
+      if(p.warnings?.length)throw new Error("OpenRouteService signale une réserve sur ce trajet. Aucun trajet non vérifié n’est affiché.");
+      return r;
+    });
+  }catch(e){
+    health("hRoute","err","routage ✕");
+    if(e.name==="AbortError")throw new Error(activeAbort?.signal.aborted?"Recherche interrompue.":"OpenRouteService : délai dépassé.");
+    if(e instanceof TypeError)throw new Error("OpenRouteService : requête réseau refusée.");
+    throw e;
+  }finally{t.done()}
+}
+async function route(points,overview=true,alternatives=false,settings=trip?.routing||routingPreferences()){
   health("hRoute","busy","routage…");
+  if(settings.provider==="ors"){
+    let base=(await orsRoutes(points,settings))[0];
+    if(alternatives&&base.distance<=100000){
+      try{const all=await orsRoutes(points,settings,true);base={...all[0],alternatives:all.slice(1)}}
+      catch{base.alternativeNotice="Recherche d’alternatives indisponible. Le trajet calculé avec les exclusions est conservé."}
+    }else if(alternatives)base.alternativeNotice="Alternatives non recherchées : limite OpenRouteService de 100 km dépassée.";
+    health("hRoute","ok","routage ✓");$("orsKeyStatus").textContent="Clé acceptée lors du dernier calcul. Conservée dans cette page uniquement.";
+    return base;
+  }
+  if(settings.avoid.length)throw new Error("OSRM ne prend pas en charge ces exclusions.");
   const coords=points.map(p=>`${p[1]},${p[0]}`).join(";");
   const u=`${C.osrm}/route/v1/driving/${coords}?overview=${overview?"full":"false"}&geometries=geojson&steps=false&alternatives=${alternatives}`;
   const d=await getJSON(u,"Routage",20000);
@@ -312,6 +376,22 @@ function scoreCandidates(cands,base,m,liters,cons){
   }
   return out;
 }
+async function scoreConstrainedCandidates(cands,liters,cons){
+  const scored=[];let unavailable=0,incomparable=0;
+  for(let i=0;i<cands.length;i++){
+    if(activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
+    $("fuelStatus").textContent=`Vérification avec exclusions : station ${i+1} sur ${cands.length}…`;
+    const station=cands[i];let via;
+    try{via=await route([trip.a,[station.lat,station.lon],trip.b],true,false,trip.routing)}
+    catch(e){if(e.noRoute){unavailable++;continue}throw e}
+    const extraKm=(via.distance-trip.base.distance)/1000,extraMin=(via.duration-trip.base.duration)/60;
+    // A shorter/faster recalculated route is not silently treated as a zero detour.
+    if(extraKm<0||extraMin<0){incomparable++;continue}
+    const purchase=liters*station.price,detourFuelCost=extraKm*cons/100*station.price;
+    scored.push({...station,via,distanceFromStart:via.legs[0].distance/1000,extraKm,extraMin,purchase,detourFuelCost,real:purchase+detourFuelCost});
+  }
+  return {scored,note:[unavailable?`${unavailable} station(s) sans accès calculable.`:"",incomparable?`${incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:""].filter(Boolean).join(" ")};
+}
 function age(iso){
   if(!iso)return "mise à jour inconnue";
   const d=new Date(iso);if(Number.isNaN(+d))return `maj ${iso}`;
@@ -366,6 +446,7 @@ function showOnMap(coords,stations,best,start,end,label){
   const alternatives=best?[]:(trip?.base.alternatives||[]).map(r=>r.geometry.coordinates.map(([lon,lat])=>[lat,lon]));
   $("routeAlternativesNote").hidden=Boolean(best);
   $("routeAlternativesNote").textContent=alternatives.length===1?"1 alternative indicative, non sélectionnable pour le moment.":alternatives.length?`${alternatives.length} alternatives indicatives, non sélectionnables pour le moment.`:"Aucun autre trajet proposé par le moteur pour cette recherche.";
+  if(!best&&trip?.base.alternativeNotice)$("routeAlternativesNote").textContent=trip.base.alternativeNotice;
   if(!map){projectSvg(coords,stations,best,label,alternatives);return}
   if(routeLayer)map.removeLayer(routeLayer);
   markerLayer.clearLayers();
@@ -397,6 +478,7 @@ function clearResults(){
   $("tripKm").textContent="—";$("tripTime").textContent="—";
   for(const id of ["routeLine","routeGlow"])$(id).setAttribute("d","");
   $("alternativeRoutes").replaceChildren();$("routeAlternativesNote").hidden=true;
+  $("appliedRouting").hidden=true;$("routingAttribution").textContent="OSRM / OpenRouteService";
   $("stationDots").replaceChildren();
   for(const id of ["startDot","endDot"]){$(id).setAttribute("cx","-50");$(id).setAttribute("cy","-50")}
   $("fallbackLabel").textContent="En attente du nouveau trajet.";
@@ -420,6 +502,7 @@ async function run(){
   clearResults();lock(true);log.length=0;
   health("hGeo","","géocodage");health("hRoute","","routage");
   try{
+    const routing=routingPreferences();ensureRouting(routing);
     const sv=$("start").value.trim(),ev=$("end").value.trim();
     if(!sv||!ev)throw new Error("Départ et arrivée requis.");
     setStatus("Recherche du départ…","busy");health("hGeo","busy","géocodage…");
@@ -429,10 +512,12 @@ async function run(){
     health("hGeo","ok","géocodage ✓");
     const a=[ga.lat,ga.lon],b=[gb.lat,gb.lon];
     setStatus("Calcul du trajet…","busy");
-    const base=await route([a,b],true,true);
+    const base=await route([a,b],true,true,routing);
     const coords=base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
     const label=`${ga.label.split(",")[0]} → ${gb.label.split(",")[0]}`;
-    trip={a,b,base,coords,label};
+    trip={a,b,base,coords,label,routing};
+    $("appliedRouting").textContent=routingLabel(routing);$("appliedRouting").hidden=false;
+    $("routingAttribution").innerHTML=routing.provider==="ors"?'<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">© openrouteservice.org by HeiGIT</a> · © OpenStreetMap contributors':"OSRM";
     showOnMap(coords,[],null,a,b,label);
     $("tripKm").textContent=`${fmt(base.distance/1000,1)} km`;
     $("tripTime").textContent=`${Math.round(base.duration/60)} min`;
@@ -447,33 +532,39 @@ async function run(){
 }
 async function searchStations(){
   if(busy||!trip)return;
+  activeAbort=new AbortController();
   clearStations();lock(true);
+  $("cancelStationsBtn").hidden=false;$("cancelStationsBtn").disabled=false;
   try{
     const fuel=$("fuel").value,liters=valueNum("liters",1,150),cons=valueNum("cons",1,30),w=stopWindow();
     $("fuelStatus").textContent="Recherche des stations…";
     const found=await collectStations(trip.coords,fuel);
+    if(activeAbort.signal.aborted)throw new Error("Recherche interrompue.");
     $("stationCount").textContent=String(found.stations.length);$("stationSummary").hidden=false;
     const cands=chooseCandidates(found.stations,trip.coords);
     if(!cands.length)throw new Error(`Aucune station ${fuel} reçue dans la zone demandée.`);
     $("fuelStatus").textContent=`Calcul des accès et détours de ${cands.length} stations…`;
-    const mat=await matrix([trip.a,...cands.map(s=>[s.lat,s.lon]),trip.b]);
-    compared=scoreCandidates(cands,trip.base,mat,liters,cons)
-      .filter(s=>s.distanceFromStart>=w.min&&s.distanceFromStart<=w.max);
+    let scored,note="";
+    if(trip.routing.provider==="ors")({scored,note}=await scoreConstrainedCandidates(cands,liters,cons));
+    else{const mat=await matrix([trip.a,...cands.map(s=>[s.lat,s.lon]),trip.b]);scored=scoreCandidates(cands,trip.base,mat,liters,cons)}
+    if(activeAbort.signal.aborted)throw new Error("Recherche interrompue.");
+    compared=scored.filter(s=>s.distanceFromStart>=w.min&&s.distanceFromStart<=w.max);
     $("testedCount").textContent=String(compared.length);
-    if(!compared.length)throw new Error("Aucune station accessible dans cette plage de distance. Modifie la distance choisie.");
+    if(!compared.length)throw new Error(`${note} Aucune station comparable dans cette plage de distance. Modifie la distance choisie.`.trim());
     compared.forEach((s,i)=>s.number=i+1);
     renderStations(compared,w.mode);
     showOnMap(trip.coords,compared,null,trip.a,trip.b,trip.label);
-    $("fuelStatus").textContent=`${compared.length} stations comparées parmi ${found.stations.length} reçues. ${found.partial?"Réponse partielle du service. ":""}Distances depuis le départ choisi ; pas de suivi GPS continu.`;
-  }catch(e){dbg(e.stack||e.message);$("fuelStatus").textContent=e.message;health("hFuel","err","carburants ✕")}
-  finally{lock(false)}
+    $("fuelStatus").textContent=`${compared.length} stations comparées parmi ${found.stations.length} reçues. ${note?note+" ":""}${found.partial?"Réponse partielle du service. ":""}Distances depuis le départ choisi ; pas de suivi GPS continu.`;
+  }catch(e){dbg(e.stack||e.message);$("fuelStatus").textContent=activeAbort.signal.aborted?"Recherche interrompue. Le trajet reste disponible.":e.message;health("hFuel","err","carburants ✕")}
+  finally{activeAbort=null;lock(false);$("cancelStationsBtn").hidden=true}
 }
 async function selectStation(id){
   if(busy||!trip)return;
   const station=compared.find(s=>s.id===id);if(!station)return;
+  if(station.via&&!confirm(`Ajouter cet arrêt ? Le trajet sera recalculé via la station et peut changer de routes. ${routingLabel(trip.routing)}. Total : ${fmt(station.via.distance/1000,1)} km, ${Math.round(station.via.duration/60)} min, hors temps du plein.`))return;
   lock(true);$("fuelStatus").textContent="Vérification du trajet avec cet arrêt…";
   try{
-    const via=await route([trip.a,[station.lat,station.lon],trip.b]);
+    const via=station.via||await route([trip.a,[station.lat,station.lon],trip.b]);
     const coords=via.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
     showOnMap(coords,compared,station,trip.a,trip.b,`${trip.label} · arrêt ${station.city}`);
     document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===id));
@@ -577,6 +668,11 @@ function bindProfile(){
   });
 }
 function bind(){
+  document.querySelectorAll('.avoid-options input').forEach(el=>el.addEventListener("change",()=>{if(busy)return;if(el.checked)$("routeProvider").value="ors";invalidateRouting()}));
+  $("routeProvider").addEventListener("change",()=>{if(!busy)invalidateRouting()});
+  $("orsKey").addEventListener("input",()=>{if(!busy){orsKey="";$("orsKeyStatus").textContent="Nouvelle clé à vérifier.";invalidateRouting()}});
+  $("forgetOrsKey").addEventListener("click",()=>{if(busy)return;orsKey="";$("orsKey").value="";$("orsKeyStatus").textContent="Clé effacée de cette page.";invalidateRouting()});
+  $("cancelStationsBtn").addEventListener("click",()=>activeAbort?.abort());
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
   ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{if(!busy){clearResults();setStatus("Trajet à recalculer.")}}));

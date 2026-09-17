@@ -35,10 +35,29 @@
           <div><label for="start">Départ</label><div class="field-row"><input id="start" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div></div>
           <div><label for="end">Arrivée</label><input id="end" value="Valence" autocomplete="off" placeholder="Ville ou adresse"></div>
         </div>
+        <details id="routingOptions" class="routing-options">
+          <summary id="routingOptionsToggle">Options du trajet</summary>
+          <fieldset class="avoid-options"><legend>Éviter</legend>
+            <label><input id="avoidTolls" type="checkbox" value="tollways"> Les péages</label>
+            <label><input id="avoidHighways" type="checkbox" value="highways"> Les autoroutes</label>
+            <label><input id="avoidFerries" type="checkbox" value="ferries"> Les ferries</label>
+          </fieldset>
+          <label for="routeProvider">Service de calcul</label>
+          <select id="routeProvider"><option value="osrm">OSRM · sans clé, sans exclusions</option><option value="ors">OpenRouteService · clé personnelle</option></select>
+          <div id="orsConnection" hidden>
+            <label for="orsKey">Clé OpenRouteService</label>
+            <input id="orsKey" type="password" autocomplete="off" spellcheck="false" maxlength="512" aria-describedby="orsPrivacy">
+            <p id="orsPrivacy" class="note">Clé conservée uniquement dans cette page, jamais dans le profil ou son export. Les coordonnées du trajet et des stations comparées sont envoyées à HeiGIT / OpenRouteService. Aucun contrôle de gabarit.</p>
+            <p class="note"><a href="https://account.heigit.org/" target="_blank" rel="noopener noreferrer">Compte et clé OpenRouteService ↗</a></p>
+            <button id="forgetOrsKey" class="ghost" type="button">Effacer la clé</button>
+            <p id="orsKeyStatus" class="note" role="status">Clé requise pour ce service.</p>
+          </div>
+        </details>
         <button id="goBtn" class="primary">Trouver mon trajet</button>
         <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
         <div id="summary" class="summary" hidden><div class="metric"><b id="tripKm">—</b><small>trajet direct</small></div><div class="metric"><b id="tripTime">—</b><small>durée estimée</small></div></div>
         <p id="routeAlternativesNote" class="note" hidden></p>
+        <p id="appliedRouting" class="note" hidden></p>
       </section>
       <section id="stops" class="stops-section" hidden aria-labelledby="stopsHeading">
         <h2 id="stopsHeading">Sur mon trajet</h2>
@@ -57,6 +76,7 @@
             <div><label for="cons">Conso. L/100 km</label><input id="cons" type="number" min="1" max="30" step="0.1" value="6.2"></div>
           </div>
           <button id="stationsBtn" class="primary">Chercher les stations</button>
+          <button id="cancelStationsBtn" class="ghost" type="button" hidden>Arrêter la recherche</button>
           <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
           <div id="stationSummary" class="summary" hidden><div class="metric"><b id="stationCount">—</b><small>stations reçues</small></div><div class="metric"><b id="testedCount">—</b><small>comparées dans la zone</small></div></div>
           <div id="stationCards" class="cards"></div><p id="selectedStop" class="selection" hidden role="status"></p>
@@ -64,7 +84,7 @@
         <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM</footer>
+      <footer>Prototype · DGCCRF · OpenStreetMap/Nominatim · <span id="routingAttribution">OSRM</span></footer>
     </section>
   </main>
 </div>
