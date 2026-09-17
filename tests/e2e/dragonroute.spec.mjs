@@ -263,6 +263,9 @@ test('vehicule et adresses persistes modifiables et reutilisables', async ({ pag
   await page.locator('#addressName').fill('Maison');
   await page.locator('#addressValue').fill('1 rue de Paris, Lyon');
   await page.getByRole('button',{name:'Enregistrer l’adresse'}).click();
+  await expect(page.getByRole('button',{name:'Fermer le profil'})).toBeInViewport();
+  const wrapped = await page.locator('#savedAddresses button').evaluateAll(buttons => buttons.some(button => {const range=document.createRange();range.selectNodeContents(button);return range.getClientRects().length>1}));
+  expect(wrapped).toBe(false);
   await capture(page, info, 'profil');
   await checkAccessibility(page, info, 'profil');
   await page.reload();
