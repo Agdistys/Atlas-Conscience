@@ -249,9 +249,25 @@ function showOnMap(coords,stations,best,start,end,label){
   map.fitBounds(routeLayer.getBounds(),{padding:[35,35]});
 }
 
+function clearResults(){
+  $("summary").hidden=true;
+  for(const id of ["tripKm","tripTime","stationCount","testedCount"])$(id).textContent="—";
+  renderCard("optimal",null,"🏆 OPTIMAL");
+  renderCard("cheap",null,"💶 POMPE");
+  renderCard("fast",null,"⚡ RAPIDE");
+  for(const id of ["routeLine","routeGlow"])$(id).setAttribute("d","");
+  $("stationDots").replaceChildren();
+  for(const id of ["startDot","endDot"]){$(id).setAttribute("cx","-50");$(id).setAttribute("cy","-50")}
+  $("fallbackLabel").textContent="En attente du nouveau trajet.";
+  if(map&&routeLayer){map.removeLayer(routeLayer);routeLayer=null}
+  if(markerLayer)markerLayer.clearLayers();
+  $("diagWrap").open=false;
+}
 async function run(){
+  if($("goBtn").disabled)return;
   if(activeAbort)activeAbort.abort();activeAbort=new AbortController();
   $("goBtn").disabled=true;log.length=0;
+  clearResults();
   health("hGeo","","géocodage");health("hRoute","","routage");health("hFuel","","carburants");
   try{
     const fuel=$("fuel").value,liters=valueNum("liters",1,150),cons=valueNum("cons",1,30),timeValue=valueNum("timeValue",0,200);
