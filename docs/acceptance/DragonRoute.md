@@ -28,8 +28,8 @@ Scénario : **Lyon → Valence · E10 · 40 L · 6,2 L/100 km**.
 
 ## Responsive
 
-- [ ] Test Chromium desktop.
-- [ ] Test Chromium mobile Pixel 7.
+- [ ] Tests Chromium sur les quatre formats definis dans `Inspectrice-v2.md`.
+- [ ] Captures demarrage et resultats, audits axe-core et parcours clavier.
 - [ ] Pas d’erreur JavaScript non gérée au démarrage.
 
 ## Décision humaine
