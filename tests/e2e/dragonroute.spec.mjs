@@ -167,10 +167,14 @@ test('stations filtrees par distance et jamais elargies silencieusement', async 
   await page.locator('#stationsBtn').click();
   await expect(page.locator('.result-card').first()).toHaveAttribute('data-station', 'A');
   await page.locator('input[value=around]').check();
-  await page.locator('#stopKm').fill('60');
+  await page.locator('#stopKm').focus();
+  await page.keyboard.press('Home');
+  for (let i = 0; i < 12; i++) await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#stopKmLabel')).toHaveText('60 km');
   await page.locator('#stationsBtn').click();
   await expect(page.locator('#testedCount')).toHaveText('2');
-  await page.locator('#stopKm').fill('100');
+  for (let i = 0; i < 8; i++) await page.locator('#stopKm').press('ArrowRight');
+  await expect(page.locator('#stopKmLabel')).toHaveText('100 km');
   await expect(page.locator('.result-card')).toHaveCount(0);
   await page.locator('#stationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('Aucune station');
