@@ -3,6 +3,15 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
+export const requiredScenarios = [
+  'demarrage accessible sans Leaflet',
+  'Lyon vers Valence : resultats et accessibilite',
+  'parcours clavier et mouvement reduit',
+  'erreur de geocodage explicite',
+  'relance apres succes puis panne du geocodage et recuperation',
+  'relance apres succes puis panne du routage et recuperation',
+  'Entree pendant une recherche ne cree pas de requetes concurrentes'
+];
 const states = ['demarrage', 'resultats'];
 const stageNames = ['contract', 'syntax', 'report-tests', 'browser'];
 
@@ -21,7 +30,8 @@ export function summarize(report, stages = {}) {
     for (const child of suite.suites || []) visit(child);
   }
   if (report) visit(report);
-  const complete = projects.every(project => tests.filter(t => t.project === project).length === 4);
+  const complete = projects.every(project => requiredScenarios.every(title =>
+    tests.filter(t => t.project === project && t.title === title).length === 1));
   const stagesOK = stageNames.every(name => stages[name]?.exitCode === 0);
   const passed = tests.filter(t => t.passed).length;
   return { ready: complete && stagesOK && passed === tests.length && !report?.errors?.length,
