@@ -8,19 +8,11 @@ on:
       - 'APP_*.html'
       - 'tests/**'
       - 'docs/acceptance/**'
-      - 'playwright.config.mjs'
+      - 'playwright*.config.mjs'
       - 'package*.json'
-      - '.github/workflows/apps-ci.yml'
+      - '.github/workflows/*.yml'
   push:
     branches: [main]
-    paths:
-      - 'DragonRoute/**'
-      - 'APP_*.html'
-      - 'tests/**'
-      - 'docs/acceptance/**'
-      - 'playwright.config.mjs'
-      - 'package*.json'
-      - '.github/workflows/apps-ci.yml'
 
 permissions:
   contents: read
@@ -44,8 +36,27 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Preview assembly tests
+        run: npm run test:preview
       - name: Inspectrice v2
         run: npm run inspect
+      - name: Build interactive preview
+        if: github.event_name == 'pull_request'
+        env:
+          PREVIEW_PR: ${{ github.event.pull_request.number }}
+        run: npm run preview:build
+      - name: Test interactive preview
+        if: github.event_name == 'pull_request'
+        run: npx playwright test --config=playwright.preview.config.mjs
+      - name: Archive interactive preview
+        if: github.event_name == 'pull_request' && success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inspectrice-preview
+          path: preview-site/
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Publish inspection summary even after failure
         if: always()
         run: node tests/inspection-report.mjs
@@ -60,3 +71,46 @@ jobs:
             test-results/
           if-no-files-found: error
           retention-days: 14
+
+  pages-dry-run:
+    name: Pages assembly without publication
+    needs: inspect
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          path: public-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./public-source
+          destination: ./built-site
+          build_revision: ${{ github.event.pull_request.base.sha || github.sha }}
+      - name: Prepare writable publication copy
+        run: cp -R built-site site
+      - uses: actions/download-artifact@v4
+        if: github.event_name == 'pull_request'
+        with:
+          name: inspectrice-preview
+          path: incoming
+      - name: Assemble preview beside unchanged public content
+        env:
+          PREVIEW_PR: ${{ github.event.pull_request.number }}
+          PREVIEW_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node --input-type=module -e 'import fs from "node:fs"; fs.mkdirSync("cache"); const pr = Number(process.env.PREVIEW_PR) || null; fs.writeFileSync("pages-plan.json", JSON.stringify({pr, commit: process.env.PREVIEW_COMMIT, openPRs: pr ? [pr] : []}));'
+          node tests/pages/preview.mjs assemble
+      - name: Archive assembled site for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-assemblage
+          path: site/
+          retention-days: 7

@@ -1,0 +1,136 @@
+name: Pages - site et apercus
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Applications — Inspectrice']
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-site-and-previews
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: vars.PAGES_PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
+      statuses: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Read trusted publisher from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Select inspected revision
+        id: plan
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const plan = require('./source/tests/pages/plan.cjs');
+            await plan({ github, context, core });
+      - name: Check out validated public content
+        if: steps.plan.outputs.publish == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.plan.outputs.main }}
+          path: public-source
+          persist-credentials: false
+      - name: Read previous published tree
+        if: steps.plan.outputs.publish == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.plan.outputs.cache == 'true' && 'gh-pages' || 'main' }}
+          path: cache
+      - name: Initialize publication branch
+        if: steps.plan.outputs.publish == 'true' && steps.plan.outputs.cache != 'true'
+        working-directory: cache
+        run: git switch --orphan gh-pages
+      - name: Read Pages settings
+        if: steps.plan.outputs.publish == 'true'
+        uses: actions/configure-pages@v5
+      - name: Build public site with GitHub Pages
+        if: steps.plan.outputs.publish == 'true'
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./public-source
+          destination: ./built-site
+          build_revision: ${{ steps.plan.outputs.main }}
+      - name: Prepare writable publication copy
+        if: steps.plan.outputs.publish == 'true'
+        run: cp -R built-site site
+      - name: Download inspected preview as static files
+        if: steps.plan.outputs.publish == 'true' && steps.plan.outputs.pr != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: inspectrice-preview
+          path: incoming
+          run-id: ${{ steps.plan.outputs.runId }}
+          github-token: ${{ github.token }}
+      - name: Assemble public site and open previews
+        if: steps.plan.outputs.publish == 'true'
+        run: node source/tests/pages/preview.mjs assemble
+      - name: Preserve publication tree
+        if: steps.plan.outputs.publish == 'true'
+        env:
+          PUBLIC_COMMIT: ${{ steps.plan.outputs.main }}
+        run: |
+          rsync -a --delete --exclude='.git/' site/ cache/
+          git -C cache config user.name 'github-actions[bot]'
+          git -C cache config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C cache add --all
+          if ! git -C cache diff --cached --quiet; then
+            git -C cache commit -m "Publish inspected site $PUBLIC_COMMIT and previews"
+            git -C cache push origin HEAD:gh-pages
+          fi
+      - name: Upload assembled Pages site
+        if: steps.plan.outputs.publish == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Publish Pages site
+        if: steps.plan.outputs.publish == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Verify and link the live preview
+        if: steps.plan.outputs.publish == 'true' && steps.plan.outputs.pr != ''
+        uses: actions/github-script@v7
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const plan = JSON.parse(fs.readFileSync('pages-plan.json', 'utf8'));
+            const base = process.env.SITE_URL.replace(/\/?$/, '/');
+            const url = `${base}previews/pr-${plan.pr}/`;
+            let verified = false;
+            for (let attempt = 0; attempt < 6; attempt++) {
+              try {
+                const response = await fetch(`${url}preview.json?commit=${plan.commit}`);
+                const data = response.ok ? await response.json() : null;
+                if (data?.commit === plan.commit && data?.pr === plan.pr) { verified = true; break; }
+              } catch {}
+              await new Promise(resolve => setTimeout(resolve, 10000));
+            }
+            if (!verified) throw new Error('Preview publiee mais sa version ne peut pas etre confirmee');
+            await github.rest.repos.createCommitStatus({ ...context.repo, sha: plan.commit,
+              state: 'success', context: 'Apercu OuQuandQui', target_url: url,
+              description: 'Version interactive inspectee, prete pour examen humain' });
+            await core.summary.addHeading('Apercu OuQuandQui').addLink('Ouvrir la version interactive', url)
+              .addRaw(`\n\nPR ${plan.pr} · commit ${plan.commit}`).write();

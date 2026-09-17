@@ -7,6 +7,8 @@
     "test:e2e": "playwright test",
     "test:inspection": "node --test tests/inspection-report.test.mjs tests/service-worker.test.mjs",
     "inspect": "node tests/inspect.mjs",
+    "preview:build": "node tests/pages/preview.mjs build",
+    "test:preview": "node --test tests/pages/preview.test.mjs",
     "test": "npm run test:contract && npm run test:e2e"
   },
   "devDependencies": {
