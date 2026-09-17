@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agora — Toutes les causes, une seule voix</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg2:#161a23; --card:#1c212e; --card2:#232939;
+    --ink:#eef1f7; --ink2:#9aa3b5; --line:#2b3244;
+    --flame:#ff6b35; --flame2:#ff9f1c; --ok:#3ddc84; --violet:#7c6cff;
+    --r:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh}
+  a{color:var(--flame2)}
+
+  /* ---------- Header ---------- */
+  header{position:sticky;top:0;z-index:50;background:rgba(15,17,23,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .head-in{max-width:1100px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .logo{display:flex;align-items:center;gap:10px;font-size:1.35rem;font-weight:800;letter-spacing:.5px}
+  .logo .fl{font-size:1.6rem;filter:drop-shadow(0 0 8px rgba(255,107,53,.6))}
+  .logo span.a{background:linear-gradient(90deg,var(--flame),var(--flame2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tagline{color:var(--ink2);font-size:.95rem;font-family:Georgia,'Times New Roman',serif;font-style:italic;letter-spacing:.3px}
+  .spacer{flex:1}
+  .profile-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 14px;cursor:pointer;font-size:.88rem;color:var(--ink);transition:.2s}
+  .profile-chip:hover{border-color:var(--flame)}
+
+  /* ---------- Stats ---------- */
+  .stats{max-width:1100px;margin:22px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+  .stat{background:linear-gradient(160deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+  .stat b{display:block;font-size:1.45rem;background:linear-gradient(90deg,var(--flame),var(--flame2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat i{font-style:normal;color:var(--ink2);font-size:.8rem}
+
+  /* ---------- Filters ---------- */
+  .filters{max-width:1100px;margin:20px auto 0;padding:0 20px}
+  .search{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--ink);font-size:.95rem;outline:none}
+  .search:focus{border-color:var(--flame)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .chip{border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:99px;padding:7px 14px;font-size:.85rem;cursor:pointer;transition:.15s}
+  .chip:hover{color:var(--ink);border-color:var(--flame)}
+  .chip.on{background:linear-gradient(90deg,var(--flame),var(--flame2));color:#1a1005;border-color:transparent;font-weight:700}
+
+  /* ---------- Grid ---------- */
+  .grid{max-width:1100px;margin:20px auto 120px;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .pet{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:10px;transition:.2s;position:relative}
+  .pet:hover{transform:translateY(-3px);border-color:#3a4258}
+  .pet.sel{border-color:var(--flame);box-shadow:0 0 0 1px var(--flame),0 8px 24px rgba(255,107,53,.15)}
+  .pet-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .badge{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap}
+  .b-an{background:#7c6cff22;color:#a89bff;border:1px solid #7c6cff55}
+  .b-senat{background:#d4213d22;color:#ff7285;border:1px solid #d4213d55}
+  .b-ice{background:#2456ff22;color:#7da2ff;border:1px solid #2456ff55}
+  .b-amn{background:#ffd40022;color:#ffe066;border:1px solid #ffd40055}
+  .b-avaaz{background:#00b48a22;color:#2fd7ad;border:1px solid #00b48a55}
+
+  /* ---------- Boussole aMi ---------- */
+  .reso{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;border-radius:99px;padding:3px 10px}
+  .reso-hi{background:#3ddc8422;color:var(--ok);border:1px solid #3ddc8455}
+  .reso-mid{background:#c8a84a22;color:#e6d090;border:1px solid #c8a84a55}
+  .reso-lo{background:#ffffff0d;color:var(--ink2);border:1px solid var(--line)}
+  .reso-star{background:#ffd70022;color:#ffe066;border:1px solid #ffd70055}
+  .reso-stop{background:#ff3b3b22;color:#ff6b6b;border:1px solid #ff3b3b55}
+  .champs-line{font-size:.85rem;letter-spacing:2px}
+  .reso-expl{font-size:.72rem;color:var(--ink2);line-height:1.45;border-left:2px solid var(--line);padding-left:8px}
+  .reso-expl b{color:#e6d090}
+  .modal-lg{max-width:720px}
+  .proj h3{font-family:Georgia,'Times New Roman',serif;font-style:italic;color:#e6d090;font-size:1.05rem;margin:18px 0 6px}
+  .proj p{font-size:.88rem;color:var(--ink);line-height:1.6;margin-bottom:8px}
+  .proj p.muted{color:var(--ink2)}
+  .phase{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .phase .pn{font-size:1.3rem;text-align:center}
+  .phase b{display:block;font-size:.9rem;margin-bottom:2px}
+  .phase span{font-size:.82rem;color:var(--ink2);line-height:1.5}
+  .axiom{font-family:Georgia,serif;font-style:italic;text-align:center;color:#e6d090;font-size:1rem;margin:16px 0;line-height:1.6}
+  .b-row{display:grid;grid-template-columns:34px 1fr 90px 26px;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .b-row .be{font-size:1.1rem;text-align:center}
+  .b-row .bn{font-size:.83rem;color:var(--ink)}
+  .b-row .bn small{display:block;color:var(--ink2);font-size:.72rem}
+  .b-row input[type=range]{width:100%;accent-color:var(--flame)}
+  .b-row .bv{text-align:center;font-weight:700;color:var(--flame2)}
+  .heuristique{background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;font-size:.78rem;color:var(--ink2);line-height:1.5;margin-bottom:14px}
+  .reso-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .reso-bar label{font-size:.83rem;color:var(--ink2)}
+  .reso-bar input[type=range]{accent-color:var(--flame);width:130px}
+  .reso-bar b{color:var(--flame2)}
+  .cat{font-size:.78rem;color:var(--ink2)}
+  .pet h3{font-size:1.02rem;line-height:1.35;font-weight:700}
+  .pet p{font-size:.85rem;color:var(--ink2);line-height:1.45;flex:1}
+  .prog{height:7px;background:var(--bg);border-radius:99px;overflow:hidden}
+  .prog i{display:block;height:100%;background:linear-gradient(90deg,var(--flame),var(--flame2));border-radius:99px}
+  .prog-txt{display:flex;justify-content:space-between;font-size:.76rem;color:var(--ink2)}
+  .prog-txt b{color:var(--ink)}
+  .pet-foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+  .mail-note{font-size:.72rem;color:var(--ink2)}
+  .check{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:.88rem;font-weight:600;color:var(--ink2);transition:.15s}
+  .check:hover{color:var(--ink)}
+  .box{width:22px;height:22px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:#1a1005;transition:.15s;background:var(--bg)}
+  .pet.sel .box{background:linear-gradient(135deg,var(--flame),var(--flame2));border-color:transparent}
+  .pet.sel .check{color:var(--flame2)}
+  .empty{grid-column:1/-1;text-align:center;color:var(--ink2);padding:60px 0}
+
+  /* ---------- Bottom bar ---------- */
+  .selbar{position:fixed;bottom:0;left:0;right:0;z-index:60;background:rgba(22,26,35,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line);transform:translateY(110%);transition:.3s cubic-bezier(.2,.9,.3,1)}
+  .selbar.show{transform:translateY(0)}
+  .selbar-in{max-width:1100px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .selbar-in b{font-size:1rem}
+  .btn{border:none;border-radius:12px;padding:12px 22px;font-size:.95rem;font-weight:800;cursor:pointer;transition:.2s}
+  .btn-fire{background:linear-gradient(90deg,var(--flame),var(--flame2));color:#1a1005;box-shadow:0 4px 18px rgba(255,107,53,.35)}
+  .btn-fire:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,107,53,.5)}
+  .btn-ghost{background:transparent;color:var(--ink2);border:1px solid var(--line)}
+  .btn-ghost:hover{color:var(--ink)}
+
+  /* ---------- Modals ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(8,10,14,.75);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .overlay.show{display:flex}
+  .modal{background:var(--bg2);border:1px solid var(--line);border-radius:20px;max-width:520px;width:100%;padding:26px;max-height:92vh;overflow-y:auto;animation:pop .25s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal h2{font-size:1.2rem;margin-bottom:4px}
+  .modal .sub{color:var(--ink2);font-size:.85rem;margin-bottom:18px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:.78rem;color:var(--ink2);margin-bottom:5px;font-weight:600}
+  .field input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;color:var(--ink);font-size:.92rem;outline:none}
+  .field input:focus{border-color:var(--flame)}
+  .field input[readonly]{background:var(--bg);color:var(--ink2)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end}
+
+  /* ---------- Queue ---------- */
+  .q-prog{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;margin:14px 0 4px}
+  .q-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--flame),var(--flame2));border-radius:99px;transition:width .4s}
+  .q-count{font-size:.8rem;color:var(--ink2);text-align:right;margin-bottom:14px}
+  .q-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .q-card h3{font-size:1rem;margin:8px 0 4px}
+  .q-card .cat{font-size:.78rem}
+  .prefill-note{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--ok);margin:10px 0 12px}
+  .sending{text-align:center;padding:30px 0;font-size:1rem;color:var(--ink2)}
+  .sending .spin{display:inline-block;width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--flame);border-radius:50%;animation:rot .7s linear infinite;margin-bottom:10px}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .signed-flash{text-align:center;padding:30px 0;font-size:1.1rem;color:var(--ok);font-weight:700;animation:pop .3s}
+
+  /* ---------- Done ---------- */
+  .done{text-align:center;padding:10px 0}
+  .done .big{font-size:3.2rem;margin-bottom:10px}
+  .done h2{font-size:1.4rem;margin-bottom:8px}
+  .done p{color:var(--ink2);font-size:.9rem;line-height:1.55;margin-bottom:8px}
+  .done .mailwarn{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:.83rem;color:var(--flame2);margin:14px 0}
+
+  footer{max-width:1100px;margin:0 auto 130px;padding:0 20px;color:var(--ink2);font-size:.78rem;line-height:1.6;text-align:center}
+  .proto{display:inline-block;background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:10px 16px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <div class="logo"><span class="fl">🔥</span><span class="a">AGORA</span></div>
+    <div class="tagline">Toutes Les Causes. Une Seule Voix&nbsp;: La Nôtre.</div>
+    <div class="spacer"></div>
+    <div class="profile-chip" onclick="openOv('ovProjet')"><span>📜</span><span>Le Projet</span></div>
+    <div class="profile-chip" onclick="openProfile()"><span>👤</span><span id="profileName">Mes infos</span></div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><b id="stTotal">0</b><i>pétitions référencées</i></div>
+  <div class="stat"><b>5</b><i>plateformes agrégées</i></div>
+  <div class="stat"><b id="stSel">0</b><i>dans ma sélection</i></div>
+  <div class="stat"><b id="stSigned">0</b><i>signées via Agora</i></div>
+</div>
+
+<div class="filters">
+  <input class="search" id="search" placeholder="🔍 Rechercher une pétition, une cause, un mot-clé…" oninput="render()">
+  <div class="chips" id="chips"></div>
+  <div class="chips" style="margin-top:10px">
+    <button class="chip" onclick="selectAllVisible()">☑️ Tout sélectionner</button>
+    <button class="chip" onclick="clearSel()">✖️ Tout décocher</button>
+    <button class="chip" onclick="selectAligned()">🌟 Sélectionner les cohérentes</button>
+    <button class="chip" onclick="openOv('ovMethode')">📖 Méthode</button>
+    <span class="reso-bar"><label>seuil</label><input type="range" min="0" max="100" step="5" value="70" id="seuil" oninput="document.getElementById('seuilV').textContent=this.value+'%'"><b id="seuilV">70%</b></span>
+  </div>
+  <div class="chips" style="margin-top:10px">
+    <span class="reso reso-stop" title="Appelle à viser des personnes, glorifie une violence ou inverse victime/agresseur — hors échelle, signalée">🛑 propagande</span>
+    <span class="reso reso-lo">🌱 0–39%</span>
+    <span class="reso reso-mid">🌿 40–69%</span>
+    <span class="reso reso-hi">🌳 70–89%</span>
+    <span class="reso reso-star">🌟 90–100%</span>
+    <span class="reso-bar"><label>Cohérence Vivant — lecture aMi, justifiée sous chaque carte (📖)</label></span>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  <div class="proto">⚒️ Prototype Agora — <b>53 pétitions réelles</b> (Assemblée nationale, Sénat, Initiative citoyenne européenne, Amnesty International, Avaaz), relevé du 02/07/2026.<br>
+  🌿 Cohérence Vivant : lecture sur grille publiée (<a href="#" onclick="openOv('ovMethode');return false">📖 Méthode</a>), justifiée, contestable, avec 💡 la piste du mieux pour chaque manque. Un Phare, pas un verdict.<br>
+  Change.org &amp; MesOpinions n'offrent pas d'API publique : c'est exactement là que les <b>partenariats officiels</b> entrent en jeu. 🐲<br>
+  <a href="#" onclick="openOv('ovProjet');return false">📜 Découvrir le projet &amp; le plan</a> · Agdistys · Diane Serant · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a></div>
+</footer>
+
+<!-- Bottom selection bar -->
+<div class="selbar" id="selbar">
+  <div class="selbar-in">
+    <b id="selTxt">0 pétition sélectionnée</b>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" onclick="clearSel()">Tout décocher</button>
+    <button class="btn btn-fire" onclick="startQueue()">✍️ Signer ma sélection</button>
+  </div>
+</div>
+
+<!-- Profile modal -->
+<div class="overlay" id="ovProfile">
+  <div class="modal">
+    <h2>👤 Mes informations</h2>
+    <div class="sub">Enregistrées une fois, prêtes pour les futures plateformes partenaires (Change.org, MesOpinions…). Les sites officiels utilisent FranceConnect. Tes infos restent sur <b>ton</b> appareil.</div>
+    <div class="row2">
+      <div class="field"><label>Prénom</label><input id="pFirst" placeholder="Agdistys"></div>
+      <div class="field"><label>Nom</label><input id="pLast" placeholder="Dupont"></div>
+    </div>
+    <div class="field"><label>Email</label><input id="pMail" type="email" placeholder="agdistys@hotmail.fr"></div>
+    <div class="row2">
+      <div class="field"><label>Code postal</label><input id="pZip" placeholder="75011"></div>
+      <div class="field"><label>Pays</label><input id="pCountry" value="France"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeOv('ovProfile')">Annuler</button>
+      <button class="btn btn-fire" onclick="saveProfile()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Méthode modal -->
+<div class="overlay" id="ovMethode">
+  <div class="modal modal-lg proj">
+    <h2>📖 La Méthode — d'où viennent les chiffres</h2>
+    <div class="axiom">« Voir avant d'interpréter · distinguer sans mépriser<br>relier sans confondre · nommer sans déformer »</div>
+
+    <h3>🌿 La Cohérence Vivant — lecture aMi</h3>
+    <p>Cet indice évalue la <b>construction</b> du texte de la pétition — jamais son camp politique. Deux pétitions opposées peuvent toutes deux scorer haut si elles sont bien bâties. La grille compte 5 critères, notés 0 à 2, total sur 10 converti en % :</p>
+    <div class="phase"><span class="pn">🔍</span><div><b>Faits &amp; Traces (C7)</b><span>Le texte s'appuie-t-il sur des faits vérifiables et sourcés ? Distingue-t-il les faits des interprétations ?</span></div></div>
+    <div class="phase"><span class="pn">⚖️</span><div><b>Juste Mesure (C6)</b><span>La demande est-elle précise, proportionnée, réversible — ou vague, maximale, punitive ?</span></div></div>
+    <div class="phase"><span class="pn">🫂</span><div><b>Mécanisme, pas Bouc Émissaire (C2)</b><span>Vise-t-elle une règle, un système, une pratique — ou désigne-t-elle un groupe de personnes comme le problème ?</span></div></div>
+    <div class="phase"><span class="pn">🌱</span><div><b>Durabilité (C9)</b><span>Ses effets servent-ils le long terme — générations, écosystèmes, confiance — ou un avantage immédiat qui se paie ailleurs ?</span></div></div>
+    <div class="phase"><span class="pn">🌈</span><div><b>Impact Global (C8)</b><span>Prend-elle en compte tous les concernés, y compris les plus vulnérables et… ceux qui ne sont pas d'accord ?</span></div></div>
+    <h3>L'Échelle du Vivant</h3>
+    <div class="phase"><span class="pn">🌟</span><div><b>90–100% — Alignée</b><span>Construction complète : faits sourcés, mesure juste, vise un mécanisme, durable, impact global pris en compte.</span></div></div>
+    <div class="phase"><span class="pn">🌳</span><div><b>70–89% — Solide</b><span>Bien bâtie, il manque une pièce (chiffrage, précision, un impact non traité) — indiquée sous la carte.</span></div></div>
+    <div class="phase"><span class="pn">🌿</span><div><b>40–69% — En germe</b><span>L'intention peut être bonne mais la construction est incomplète : plusieurs manques structurels.</span></div></div>
+    <div class="phase"><span class="pn">🌱</span><div><b>0–39% — Fragile</b><span>Texte sans faits, mesure disproportionnée ou impacts ignorés : à réécrire pour porter.</span></div></div>
+    <div class="phase"><span class="pn">🛑</span><div><b>Propagande — hors échelle</b><span>Un texte qui appelle à viser des personnes, glorifie une violence ou inverse victime/agresseur n'est pas « à 0% » : il est disqualifié, signalé comme pétition de mort, et exclu de la sélection. Aucun pourcentage ne s'applique à ce qui vise la destruction du Vivant.</span></div></div>
+    <p style="margin-top:8px">Chaque note sous 100% est accompagnée, sur la carte, de <b>ce qui manque</b> et de 💡 <b>ce qui serait le mieux</b> pour y remédier — le Phare ne juge pas pour condamner, il éclaire pour élever.</p>
+    <p class="muted" style="margin-top:12px">⚠️ <b>Statut épistémique</b> : registre 🌀 heuristique du Protocole de ConScience aMi. C'est une lecture éditoriale <b>assumée et signée</b>, appliquée au texte public de chaque pétition (relevé du 02/07/2026), pas une vérité absolue. Vous contestez une note avec un argument ? Écrivez : <b>agdistys@mailo.com</b> — le désaccord argumenté fait avancer la grille, et les lectures sont révisées quand les textes évoluent. La cohérence dicte l'importance ; la main qui signe reste la vôtre.</p>
+
+    <div class="modal-actions">
+      <button class="btn btn-fire" onclick="closeOv('ovMethode')">Retour aux pétitions</button>
+    </div>
+  </div>
+</div>
+
+<!-- Projet modal -->
+<div class="overlay" id="ovProjet">
+  <div class="modal modal-lg proj">
+    <h2>📜 AGORA — Lettre Ouverte aux Faiseurs de Ponts</h2>
+    <div class="axiom">« La Qualité de Nos Décisions dépend<br>de Notre Capacité à Voir Juste. »</div>
+
+    <h3>Le Constat</h3>
+    <p>La voix citoyenne existe — elle est simplement <b>dispersée</b>. Assemblée nationale, Sénat, Commission européenne, Amnesty, Avaaz, Change.org, MesOpinions&nbsp;: chacune de ces plateformes porte des causes réelles, mais aucune ne se voit depuis les autres. Résultat&nbsp;: des pétitions légitimes meurent à 3 signatures sur 100&nbsp;000, non par indifférence, mais par <b>illisibilité du réel</b>. Ce ne sont pas les causes qui manquent, c'est la capacité à les trouver, les lire et les relier.</p>
+
+    <h3>Ce qu'Agora Fait</h3>
+    <p>Agora centralise les pétitions de plusieurs plateformes, les classe par catégories et par Champs de Conscience, et déroule une <b>file de signature</b>&nbsp;: tu coches, et chaque pétition s'ouvre une à une sur sa plateforme officielle. Trois secondes par signature, zéro dispersion.</p>
+
+    <h3>Ce qu'Agora ne Fera Jamais</h3>
+    <p><b>Signer à ta place.</b> Une signature est un acte personnel — c'est ce qui fait son poids face à un décideur. Agora prépare tout, mais le geste final t'appartient, toujours. Pas de bot, pas de mot de passe stocké, pas de données sur un serveur&nbsp;: ta Boussole et ton profil vivent dans <b>ton</b> navigateur. L'Assemblée et le Sénat signent via FranceConnect (anonyme, une personne = une voix)&nbsp;: l'authentification individuelle est le standard officiel — Agora s'y aligne par conception.</p>
+
+    <h3>🌿 Le Phare — la Cohérence Vivant</h3>
+    <p>Chaque pétition porte un score de cohérence issu du <a href="https://ami.agdistys.fr" target="_blank">Protocole de ConScience aMi</a>&nbsp;: une lecture de la <i>construction</i> du texte (faits sourcés, juste mesure, mécanisme plutôt que bouc émissaire, durabilité, impact global) — grille publiée, justification affichée sous chaque note, et pour chaque manque, 💡 la piste du mieux. Échelle&nbsp;: 🌱🌿🌳🌟, et 🛑 hors échelle pour les textes qui visent des personnes — les pétitions de mort sont signalées, jamais notées. Registre 🌀 heuristique&nbsp;: le Phare éclaire la nuit, il ne choisit pas ta route — la cohérence dicte l'importance, la main qui signe reste la tienne.</p>
+
+    <h3>Le Plan</h3>
+    <div class="phase"><span class="pn">🔥</span><div><b>Phase 1 — La Vitrine (ici même)</b><span>Prototype fonctionnel, 53 pétitions réelles, 5 plateformes. Publié en open source (GitHub) pour prouver le concept et récolter des retours.</span></div></div>
+    <div class="phase"><span class="pn">🌊</span><div><b>Phase 2 — Les Données Vivantes</b><span>Un petit serveur rafraîchit les compteurs toutes les heures&nbsp;: API officielle des Initiatives citoyennes européennes, plateformes Decidim de l'AN et du Sénat (licence CC BY-SA), pages Amnesty. Coût&nbsp;: ~5€/mois.</span></div></div>
+    <div class="phase"><span class="pn">⚖️</span><div><b>Phase 3 — L'Existence Légale</b><span>Association loi 1901&nbsp;: gratuite, indispensable pour être reçu par les plateformes, et cadre RGPD propre — d'autant plus simple qu'Agora ne collecte presque rien par conception.</span></div></div>
+    <div class="phase"><span class="pn">🤝</span><div><b>Phase 4 — Les Partenariats</b><span>Change.org et MesOpinions n'offrent pas d'API publique&nbsp;: Agora leur apporte des signataires, gratuitement. La demande est simple — un flux public de leurs pétitions et un lien de signature propre. C'est le cœur de la vision&nbsp;: des ponts, pas des murs.</span></div></div>
+    <div class="phase"><span class="pn">📱</span><div><b>Phase 5 — Le Mobile</b><span>La version web fonctionne déjà sur téléphone&nbsp;; une application native (même code) viendra quand l'audience sera prouvée.</span></div></div>
+
+    <h3>L'Invitation</h3>
+    <p>Vous représentez une plateforme de pétitions, une association, ou vous êtes développeur·se&nbsp;? Ce projet est ouvert, sous licence CC BY-SA 4.0 — comme tout le Protocole. Le désaccord argumenté m'intéresse autant que l'adhésion&nbsp;: c'est même lui qui fait avancer le travail.</p>
+    <p class="muted">✉️ agdistys@mailo.com · 🌐 <a href="https://agdistys.fr" target="_blank">agdistys.fr</a> · @Agdistys<br>Agdistys · Diane Serant — <i>Voir Juste · Comprendre Profondément · Agir Aligné</i></p>
+
+    <div class="modal-actions">
+      <button class="btn btn-fire" onclick="closeOv('ovProjet')">Retour aux pétitions</button>
+    </div>
+  </div>
+</div>
+
+<!-- Signing queue modal -->
+<div class="overlay" id="ovQueue">
+  <div class="modal">
+    <h2>✍️ File de signature</h2>
+    <div class="sub">Une pétition à la fois, formulaire déjà rempli. Toi, tu ne fais que confirmer.</div>
+    <div class="q-prog"><i id="qBar" style="width:0%"></i></div>
+    <div class="q-count" id="qCount"></div>
+    <div id="qBody"></div>
+  </div>
+</div>
+
+<script>
+/* ================= DATA (réelles — relevé du 02/07/2026) ================= */
+const CATS = [
+  {id:"all",    label:"🌐 Toutes"},
+  {id:"animal", label:"🐾 Bien-être animal"},
+  {id:"enviro", label:"🌍 Environnement"},
+  {id:"droits", label:"✊ Droits humains"},
+  {id:"justice",label:"⚖️ Justice & fiscalité"},
+  {id:"sante",  label:"❤️ Santé"},
+  {id:"num",    label:"💻 Numérique"},
+  {id:"demo",   label:"🗳️ Démocratie"},
+];
+const PLAT = {
+  an:   {n:"Assemblée nationale", c:"b-an", note:"🇫🇷 FranceConnect", auth:"🇫🇷 Signature via FranceConnect — anonyme et sécurisé, une personne = une voix."},
+  senat:{n:"Sénat", c:"b-senat", note:"🇫🇷 FranceConnect", auth:"🇫🇷 Signature via FranceConnect — anonyme et sécurisé, une personne = une voix."},
+  ice:  {n:"Initiative citoyenne UE", c:"b-ice", note:"🇪🇺 Formulaire officiel UE", auth:"🇪🇺 Formulaire officiel de la Commission européenne."},
+  amn:  {n:"Amnesty International", c:"b-amn", note:"📧 Formulaire Amnesty", auth:"📧 Formulaire Amnesty France — quelques champs à remplir sur place."},
+  avaaz:{n:"Avaaz", c:"b-avaaz", note:"⚡ Formulaire Avaaz", auth:"⚡ Formulaire Avaaz — signature rapide par email."},
+};
+/* 13 Champs de Conscience — MétaMatrice V11 */
+const CHAMPS = [
+  {id:1, e:"⚡️", n:"La Vibration", s:"Le Mana"},
+  {id:2, e:"🫂", n:"Le Flux", s:"Le Miroir Relationnel"},
+  {id:3, e:"🧠", n:"La Structure", s:"Le Double Diamant"},
+  {id:4, e:"🌳", n:"Le Feu Intérieur", s:"La Direction"},
+  {id:5, e:"👑", n:"Le Phi", s:"La Souveraineté"},
+  {id:6, e:"⚖️", n:"La Juste Mesure", s:"L'Éthique"},
+  {id:7, e:"🔍", n:"La Trace", s:"La Preuve"},
+  {id:8, e:"🌈", n:"La Lumière", s:"Le Spectre"},
+  {id:9, e:"🌱", n:"Le Temps", s:"L'Évolution"},
+  {id:10,e:"💍", n:"Le Serment", s:"L'Alliance"},
+  {id:11,e:"🪬", n:"L'Offrande", s:"La ProCréation"},
+  {id:12,e:"🥚", n:"Le Miroir", s:"La Synthèse (IA)"},
+  {id:13,e:"🌟", n:"L'Auto-Réalisation", s:"La Prophétie"},
+];
+/* Champs touchés par pétition (lecture descriptive, ajustable) */
+const CHMAP = {
+  1:[6,2,7], 2:[6,5,7], 3:[6,5,7], 4:[12,5,6],
+  5:[6,2,8], 6:[6,3], 7:[1,2,6], 8:[2,6], 9:[8,6,7], 10:[9,6],
+  11:[2,6,1], 12:[5,6,12], 13:[7,6], 14:[2,9,6], 15:[12,6,7],
+  16:[7,6,10], 17:[6,3], 18:[6,7], 19:[9,6,4], 20:[6,3], 21:[6,3],
+  22:[12,6,7], 23:[7,6,3],
+  24:[6,2,8], 25:[2,6,9], 26:[6,8,9], 27:[10,5,3], 28:[6,7],
+  29:[6,8,7], 30:[2,9,6], 31:[6,5,7],
+  32:[9,6,2], 33:[9,2,6], 34:[2,6,8], 35:[6,7,5], 36:[6,8,1],
+  37:[7,6,8], 38:[9,6,7], 39:[6,2,8], 40:[6,7,2], 41:[6,2,8],
+  42:[8,6,2], 43:[9,6,5], 44:[9,6,8], 45:[9,2,6], 46:[2,6,7],
+  47:[2,6,1], 48:[9,6,2], 49:[6,2,8], 50:[7,9,6], 51:[7,6,5],
+  52:[9,6,4], 53:[5,2,6],
+};
+const AN="https://petitions.assemblee-nationale.fr/initiatives/";
+const SE="https://petitions.senat.fr/initiatives/";
+const EU="https://eci.ec.europa.eu/";
+const PETITIONS = [
+  // --- Assemblée nationale (objectif 100 000 pour publication) ---
+  {id:1, cat:"droits", plat:"an", sig:2, goal:100000, url:AN+"i-6227", t:"Discrimination : pour une loi qui s'applique vraiment", d:"Clarifier les critères de protection pénale et harmoniser les circonstances aggravantes pour toutes les discriminations."},
+  {id:2, cat:"demo", plat:"an", sig:17, goal:100000, url:AN+"i-6261", t:"Renforcer les exigences de probité pour les responsabilités publiques", d:"Conditionner l'exercice des responsabilités publiques à une obligation permanente d'honorabilité et d'intégrité."},
+  {id:3, cat:"demo", plat:"an", sig:13, goal:100000, url:AN+"i-6208", t:"Pour un référendum sur la responsabilité et la transparence de l'État", d:"Fin de l'impunité judiciaire, politique et institutionnelle en cas de manquements graves de l'État."},
+  {id:4, cat:"num", plat:"an", sig:4, goal:100000, url:AN+"i-6038", t:"Repolitiser les choix technologiques, notamment en matière d'IA", d:"Soumettre les grands choix technologiques (IA, surveillance, données) au débat démocratique."},
+  // --- Sénat (objectif 100 000 en 6 mois) ---
+  {id:5, cat:"droits", plat:"senat", sig:3, goal:100000, url:SE+"i-2175", t:"Le bombardement des hôpitaux, écoles et universités est un crime de guerre", d:"Demande de mission de contrôle sur le respect du droit international humanitaire."},
+  {id:6, cat:"justice", plat:"senat", sig:1, goal:100000, url:SE+"i-2180", t:"Manifeste du 35 bis : exonérer d'impôt certains loyers plafonnés", d:"Modifier l'article 35 bis du CGI pour favoriser la location à loyer modéré."},
+  {id:7, cat:"sante", plat:"senat", sig:7, goal:100000, url:SE+"i-2111", t:"Pour un meilleur-être en psychiatrie", d:"Meilleure formation des psychiatres du public, contre le tout-médicament."},
+  {id:8, cat:"droits", plat:"senat", sig:8, goal:100000, url:SE+"i-2067", t:"Faciliter le renouvellement des titres de séjour", d:"Simplifier des démarches administratives aujourd'hui kafkaïennes pour les résidents étrangers."},
+  {id:9, cat:"demo", plat:"senat", sig:16, goal:100000, url:SE+"i-2080", t:"Mission de contrôle sur la régulation de l'audiovisuel français", d:"Examiner la concentration des médias et la régulation du paysage audiovisuel."},
+  {id:10,cat:"enviro", plat:"senat", sig:5, goal:100000, url:SE+"i-2179", t:"Stop aux mégots à terre !", d:"23 milliards de mégots jetés par an en France : renforcer sanctions et prévention."},
+  {id:11,cat:"sante", plat:"senat", sig:31, goal:100000, url:SE+"i-2060", t:"Mettre fin à l'exil des enfants handicapés en Belgique", d:"Garantir une prise en charge digne des enfants et adultes handicapés en France."},
+  {id:12,cat:"demo", plat:"senat", sig:3, goal:100000, url:SE+"i-2164", t:"Un référendum participatif numérique et citoyen à fréquence régulière", d:"Instaurer une consultation citoyenne numérique récurrente au niveau national."},
+  {id:13,cat:"justice", plat:"senat", sig:4, goal:100000, url:SE+"i-2181", t:"Reconnaître les dashcams comme preuve en cas d'accident", d:"Donner une valeur probante aux caméras embarquées lors des litiges routiers."},
+  {id:14,cat:"animal", plat:"senat", sig:9, goal:100000, url:SE+"i-2107", t:"Renforcer la loi de protection animale à La Réunion", d:"Plan départemental de stérilisation contre l'errance massive et les euthanasies de masse."},
+  {id:15,cat:"num", plat:"senat", sig:56, goal:100000, url:SE+"i-2178", t:"Encadrer la réutilisation des données post-mortem", d:"Interdire la monétisation non consentie du deuil (deadbots, IA de « résurrection »)."},
+  {id:16,cat:"droits", plat:"senat", sig:22, goal:100000, url:SE+"i-2114", t:"Compléter la loi de reconnaissance envers les harkis", d:"Corriger la loi du 23 février 2022 pour une réparation plus juste."},
+  {id:17,cat:"justice", plat:"senat", sig:9, goal:100000, url:SE+"i-2115", t:"Supprimer la taxe foncière sur l'habitation principale", d:"Le logement principal est déjà taxé à l'achat et à la transmission."},
+  {id:18,cat:"justice", plat:"senat", sig:75, goal:100000, url:SE+"i-2083", t:"Loi contre les squatteurs", d:"Renforcer les droits des propriétaires face aux occupations illégales."},
+  {id:19,cat:"enviro", plat:"senat", sig:14, goal:100000, url:SE+"i-2151", t:"Souveraineté alimentaire et protection des ressources vitales", d:"Une stratégie agricole fondée sur la sécurité nationale face au dérèglement climatique."},
+  {id:20,cat:"justice", plat:"senat", sig:3, goal:100000, url:SE+"i-2081", t:"Réformer les allègements de cotisations pour bas salaires et PME", d:"Recentrer les allègements sociaux sur les bas salaires et les petites entreprises."},
+  {id:21,cat:"justice", plat:"senat", sig:3, goal:100000, url:SE+"i-2116", t:"Plafonner le montant de la taxe foncière", d:"Limiter la taxe foncière à l'équivalent d'un mois de loyer du bien."},
+  {id:22,cat:"num", plat:"senat", sig:2, goal:100000, url:SE+"i-2158", t:"Contrôler l'utilisation numérique de l'image des défunts", d:"Encadrer les vidéos IA de « résurrection » de personnalités sur les réseaux sociaux."},
+  {id:23,cat:"justice", plat:"senat", sig:8, goal:100000, url:SE+"i-2082", t:"Avertir avant tout renouvellement d'abonnement", d:"Obligation d'alerte avant chaque reconduction tacite d'abonnement."},
+  // --- Initiatives citoyennes européennes (objectif 1 000 000) ---
+  {id:24,cat:"droits", plat:"ice", sig:1244732, goal:1000000, url:EU+"055/public/?lg=fr", t:"Exiger la suspension totale de l'accord d'association UE-Israël", d:"Initiative européenne face aux violations des droits de l'homme."},
+  {id:25,cat:"justice", plat:"ice", sig:79099, goal:1000000, url:EU+"053/public/?lg=fr", t:"L'alimentation est un droit humain pour toutes et tous !", d:"Garantir des systèmes alimentaires sains, justes et durables dans l'UE."},
+  {id:26,cat:"droits", plat:"ice", sig:14987, goal:1000000, url:EU+"057/public/?lg=fr", t:"Stop au financement de la guerre menée par la Russie", d:"Éliminer progressivement les importations russes néfastes et inutiles dans l'UE."},
+  {id:27,cat:"demo", plat:"ice", sig:14536, goal:1000000, url:EU+"060/public/?lg=fr", t:"Étoiles de l'UE sur mon passeport (STAR-PASS)", d:"Ajouter le symbole européen sur les passeports des États membres."},
+  {id:28,cat:"justice", plat:"ice", sig:6328, goal:1000000, url:EU+"054/public/?lg=fr", t:"Save your right, save your flight !", d:"Défendre les droits des passagers aériens contre leur affaiblissement."},
+  {id:29,cat:"droits", plat:"ice", sig:4613, goal:1000000, url:EU+"058/public/?lg=fr", t:"Droits de l'homme : la fin du « deux poids, deux mesures »", d:"Une politique extérieure européenne cohérente sur les droits humains."},
+  {id:30,cat:"animal", plat:"ice", sig:4379, goal:1000000, url:EU+"059/public/?lg=fr", t:"Protéger les chiens et chats errants et les animaux des refuges", d:"Initiative européenne pour les animaux errants, dans l'UE et au-delà."},
+  {id:31,cat:"demo", plat:"ice", sig:2534, goal:1000000, url:EU+"056/public/?lg=fr", t:"Éthique, transparence et intégrité pour les partis politiques européens", d:"Des règles d'intégrité contraignantes pour les partis au niveau européen."},
+  // --- Amnesty International France (compteurs réels) ---
+  {id:32,cat:"enviro", plat:"amn", sig:76811, goal:100000, url:"https://www.amnesty.fr/petitions/exigez-protection-droits-defenseurs-environnement/", t:"Ils sauvent la planète : protégeons les défenseur·es de l'environnement", d:"Exiger la protection des droits de celles et ceux qui défendent la planète."},
+  {id:33,cat:"enviro", plat:"amn", sig:63048, goal:70000, url:"https://www.amnesty.fr/petitions/droits-fondamentaux-deplaces-climatiques-madagascar/", t:"Madagascar : garantir les droits de Damisoa et des déplacés climatiques", d:"Premiers déplacés climatiques : des droits fondamentaux à protéger."},
+  {id:34,cat:"droits", plat:"amn", sig:64916, goal:70000, url:"https://www.amnesty.fr/petitions/lutte-droits-femmes-musulmanes-sport/", t:"Reprendre le terrain : droits des femmes musulmanes dans le sport", d:"Contre les exclusions discriminatoires dans le sport français."},
+  {id:35,cat:"droits", plat:"amn", sig:89617, goal:100000, url:"https://www.amnesty.fr/petitions/avocate-tunisienne-sonia-dahmani-prison/", t:"Justice pour l'avocate tunisienne Sonia Dahmani", d:"Menacée et emprisonnée pour avoir critiqué les autorités."},
+  {id:36,cat:"droits", plat:"amn", sig:97023, goal:120000, url:"https://www.amnesty.fr/petitions/liberte-chanteur-nigerian-yahaya-sharif-aminu/", t:"Liberté pour Yahaya Sharif-Aminu, condamné à mort pour une chanson", d:"Le chanteur nigérian risque l'exécution pour blasphème présumé."},
+  {id:37,cat:"droits", plat:"amn", sig:67275, goal:70000, url:"https://www.amnesty.fr/petitions/liberte-pour-journaliste-sai-zaw-thaike/", t:"Liberté pour le journaliste Sai Zaw Thaike (Myanmar)", d:"Emprisonné pour avoir exercé son métier d'informer."},
+  {id:38,cat:"enviro", plat:"amn", sig:64074, goal:70000, url:"https://www.amnesty.fr/petitions/juan-lopez-assassine-honduras/", t:"Juan López, assassiné pour avoir défendu fleuves et forêts", d:"Justice pour le défenseur hondurien tué face aux projets miniers."},
+  {id:39,cat:"droits", plat:"amn", sig:140862, goal:150000, url:"https://www.amnesty.fr/petitions/genocide-gaza-france-fin-impunite-israel/", t:"Gaza : la France doit mettre fin à l'impunité", d:"Appel au respect du droit international humanitaire."},
+  {id:40,cat:"droits", plat:"amn", sig:163611, goal:200000, url:"https://www.amnesty.fr/petitions/pour-un-controle-des-armes-a-letalite-reduite-en-manifestation/", t:"Contrôler les armes à létalité réduite en manifestation", d:"LBD, grenades : pour un encadrement strict du maintien de l'ordre."},
+  {id:41,cat:"droits", plat:"amn", sig:29908, goal:50000, url:"https://www.amnesty.fr/petitions/stop-massacre-manifestants-iran/", t:"Stop aux massacres des manifestants en Iran", d:"Contre la répression sanglante du droit de manifester."},
+  {id:42,cat:"droits", plat:"amn", sig:15149, goal:100000, url:"https://www.amnesty.fr/petitions/stop-criminalisation-geza-buzas-habel-marche-des-fiertes-hongrie/", t:"Stop à la criminalisation de la Marche des Fiertés de Pécs", d:"Géza Buzás-Hábel poursuivi pour avoir organisé une Pride en Hongrie."},
+  {id:43,cat:"enviro", plat:"amn", sig:62933, goal:70000, url:"https://www.amnesty.fr/petitions/liberte-pour-militants-mother-nature-cambodia/", t:"Liberté pour les militants de Mother Nature Cambodia", d:"Emprisonnés pour avoir défendu l'environnement au Cambodge."},
+  {id:44,cat:"enviro", plat:"amn", sig:68342, goal:70000, url:"https://www.amnesty.fr/petitions/stop-torchage-gaz-en-amazonie-equatorienne/", t:"Stop au torchage de gaz en Amazonie équatorienne", d:"Aux côtés des Guerreras por la Amazonía contre la pollution pétrolière."},
+  {id:45,cat:"enviro", plat:"amn", sig:54369, goal:75000, url:"https://www.amnesty.fr/petitions/stop-projets-eoliens-menacent-terres-samis-norvege/", t:"Stop aux projets éoliens qui menacent les terres des Sámis", d:"Défendre les droits du peuple autochtone sámi en Norvège."},
+  {id:46,cat:"droits", plat:"amn", sig:92399, goal:100000, url:"https://www.amnesty.fr/petitions/exigez-titres-sejour-stables-travailleurs-etrangers/", t:"Des titres de séjour stables pour les travailleur·ses étranger·es", d:"« Sans ce papier, je perds tout » : contre la précarité administrative."},
+  // --- Avaaz (campagnes en cours, compteurs non publics) ---
+  {id:47,cat:"droits", plat:"avaaz", sig:null, goal:null, url:"https://secure.avaaz.org/campaign/fr/sauvons_le_liban_juin_2026/", t:"Protégeons le Liban", d:"Aide humanitaire et protection des civils dans la crise."},
+  {id:48,cat:"enviro", plat:"avaaz", sig:null, goal:null, url:"https://secure.avaaz.org/campaign/fr/land_rights_evergreen_2026/", t:"Lula : une signature pour protéger notre planète", d:"Droits fonciers des peuples autochtones, gardiens des forêts."},
+  {id:49,cat:"droits", plat:"avaaz", sig:null, goal:null, url:"https://secure.avaaz.org/campaign/fr/no_death_penalty_for_palestinians_loc/", t:"Pas de peine de mort pour les Palestiniens !", d:"Contre l'instauration de la peine capitale."},
+  {id:50,cat:"droits", plat:"avaaz", sig:null, goal:null, url:"https://secure.avaaz.org/community_petitions/fr/les_ministeres_des_affaires_etrangeres_de_la_fr_uk_free_leonid_pshenichnov/", t:"Libérez le biologiste marin Leonid Pshenichnov", d:"Détenu pour avoir défendu le krill antarctique sur bases scientifiques."},
+  {id:51,cat:"demo", plat:"avaaz", sig:null, goal:null, url:"https://secure.avaaz.org/community_petitions/fr/les_membres_du_parlement_suisse_protegeons_la_liberte_de_la_presse_en_suisse/", t:"Protégeons la liberté de la presse en Suisse", d:"Pour une loi anti-SLAPP contre les poursuites-bâillon."},
+  {id:52,cat:"enviro", plat:"avaaz", sig:null, goal:null, url:"https://secure.avaaz.org/community_petitions/fr/a_tou_tes_les_depute_es_norvegien_nes_au_premier_m_stop_a_lextraction_miniere_en_eaux_profondes/", t:"Stop à l'extraction minière en eaux profondes !", d:"Empêcher l'ouverture des fonds marins à l'exploitation minière."},
+  {id:53,cat:"sante", plat:"avaaz", sig:null, goal:null, url:"https://secure.avaaz.org/community_petitions/fr/For_universal_legalization_of_safe_and_accessible_abortion/", t:"Légalisation universelle de l'avortement sûr et accessible", d:"47 000 femmes meurent chaque année d'avortements clandestins."},
+];
+
+/* ---- 🌿 Cohérence Vivant — lecture aMi éditoriale (grille : voir Méthode) ----
+   Note la CONSTRUCTION de la pétition (faits, mesure, cible, durée, impact), jamais son camp.
+   Basée sur le texte public au 02/07/2026. Contestable : agdistys@mailo.com */
+const VIVANT = {
+  1:{v:100},
+  2:{v:100},
+  3:{v:80,m:"S'appuie sur un cas singulier plus que sur des données ; les demandes (« sanctions réelles ») restent à préciser pour être applicables.",b:"Adosser la demande aux données publiques (rapports d'inspection, chiffres des classements sans suite) et formuler trois mesures précises et contrôlables."},
+  4:{v:90,m:"Des propositions claires et structurées, mais peu de faits sourcés pour étayer le constat.",b:"Citer des marchés publics technologiques réels passés sans débat, avec leurs montants."},
+  5:{v:100},
+  6:{v:70,m:"Mesure technique sans chiffrage de l'impact sur les finances publiques, ni garantie que l'avantage fiscal bénéficie aux locataires.",b:"Chiffrer le coût fiscal et conditionner l'exonération à un plafond de loyer vérifié : l'avantage descend alors jusqu'au locataire."},
+  7:{v:80,m:"L'intention est claire mais les demandes restent générales : des mesures précises la rendraient opposable.",b:"Formuler 2-3 demandes actionnables : ratio soignants/patients, heures de formation, alternatives non médicamenteuses remboursées."},
+  8:{v:90,m:"Constat juste ; manquent des données chiffrées sur les délais et coûts actuels pour emporter la décision.",b:"Documenter les délais moyens par préfecture (données publiques) pour objectiver le constat."},
+  9:{v:80,m:"Demande légitime de contrôle ; documenter les faits (concentrations, décisions) la rendrait plus solide.",b:"Nommer les faits précis à contrôler (rachats, décisions du régulateur) plutôt qu'un contrôle général."},
+  10:{v:90,m:"Constat chiffré solide ; reste à préciser l'équilibre entre sanction et prévention.",b:"Coupler chaque sanction à une mesure de prévention chiffrée (cendriers de rue, consigne) : responsabiliser sans seulement punir."},
+  11:{v:100},
+  12:{v:80,m:"Le principe est aligné avec la souveraineté citoyenne ; les garde-fous (sécurité du vote, inclusion numérique) restent à définir.",b:"Prévoir un socle de garde-fous : vote vérifiable, alternative papier, seuils de participation."},
+  13:{v:70,m:"Utile pour la preuve (C7 🔍), mais l'impact sur la vie privée des tiers filmés n'est pas traité.",b:"Deux niveaux : l'original non flouté reste scellé et accessible sur réquisition (juge, assurance) — c'est là qu'on identifie l'agresseur ; toute diffusion publique, elle, est floutée pour protéger les tiers innocents. La preuve pour la justice, pas pour les réseaux."},
+  14:{v:100},
+  15:{v:100},
+  16:{v:100},
+  17:{v:50,m:"Ne propose aucune compensation pour les budgets communaux (écoles, eau, voirie) : l'allègement des uns se paierait ailleurs, et ce report reste non traité.",b:"Proposer une compensation (part de fiscalité nationale, taxation des logements vacants) pour que les communes ne perdent rien : l'allègement devient soutenable."},
+  18:{v:50,m:"Répond à un vrai problème des propriétaires, mais ne distingue pas squat organisé et détresse de logement : sans volet relogement, l'équilibre des impacts manque.",b:"Distinguer explicitement squat organisé et détresse, et coupler l'accélération des procédures à un volet relogement d'urgence : protéger les propriétaires sans produire de sans-abri."},
+  19:{v:70,m:"L'objectif de long terme est aligné ; le texte gagnerait à chiffrer ses mesures et à clarifier la place des pesticides dans la stratégie.",b:"Chiffrer les mesures et trancher clairement la question des pesticides : souveraineté alimentaire et santé des sols avancent ensemble."},
+  20:{v:80,m:"Piste redistributive cohérente ; manque le chiffrage qui prouverait l'équilibre pour les comptes sociaux.",b:"Joindre une simulation chiffrée (gain pour les PME, compensation pour les comptes sociaux)."},
+  21:{v:60,m:"Plafond arbitraire (un mois de loyer) sans étude d'impact sur les communes : la juste mesure demande un chiffrage.",b:"Remplacer le plafond arbitraire par un critère de capacité contributive (revenu, résidence principale), étayé par une étude d'impact."},
+  22:{v:100},
+  23:{v:90,m:"Mesure de consentement clair, quasi complète ; des exemples chiffrés (litiges, montants) finiraient de la solidifier.",b:"Citer les chiffres du médiateur de la consommation pour rendre le préjudice indiscutable."},
+  24:{v:70,m:"S'appuie sur des violations documentées ; la mesure maximale (suspension totale) ne détaille pas ses impacts sur les populations civiles des deux côtés.",b:"Détailler une gradation (suspension partielle, critères de rétablissement) et les protections prévues pour les civils des deux côtés : la gradation rend la mesure opposable."},
+  25:{v:100},
+  26:{v:90,m:"Démarche progressive et documentée ; l'impact sur le coût de la vie des ménages européens reste à traiter.",b:"Joindre un volet social (bouclier tarifaire ciblé) pour les ménages les plus exposés."},
+  27:{v:60,m:"Symbole d'alliance sans impact concret sur le vivant : cohérente, mais d'une portée essentiellement identitaire.",b:"Relier le symbole à un effet concret (droits de mobilité, programme civique européen) pour dépasser l'identitaire."},
+  28:{v:90,m:"Défense concrète de droits existants ; son articulation avec l'impact climatique de l'aérien n'est pas abordée.",b:"Articuler droits des passagers et transition de l'aérien (report modal vers le train) pour une portée durable."},
+  29:{v:80,m:"Principe profondément aligné ; sa force dépendra de critères d'application précis, encore généraux.",b:"Définir des critères objectifs : mêmes seuils de réaction pour mêmes violations, quel que soit l'État concerné."},
+  30:{v:100},
+  31:{v:90,m:"Mécanisme d'intégrité bienvenu ; citer les manquements documentés renforcerait la preuve (C7 🔍).",b:"S'appuyer sur 2-3 manquements avérés (rapports du Médiateur européen) comme socle factuel."},
+  32:{v:100},
+  33:{v:100},
+  34:{v:90,m:"Cause documentée ; répondre explicitement à l'argument de neutralité qui lui est opposé la ferait porter au-delà des convaincus.",b:"Répondre pied à pied à l'argument de neutralité : montrer que l'accès au sport est une question de santé et de lien social, pas d'affichage."},
+  35:{v:100},
+  36:{v:100},
+  37:{v:100},
+  38:{v:100},
+  39:{v:90,m:"Fondée sur des rapports détaillés ; expliciter les leviers concrets demandés à la France (et leurs effets) la rendrait pleinement opposable.",b:"Lister les leviers précis (embargo ciblé, soutien aux juridictions internationales) et leurs effets attendus."},
+  40:{v:100},
+  41:{v:100},
+  42:{v:100},
+  43:{v:100},
+  44:{v:100},
+  45:{v:90,m:"Droits autochtones documentés ; reconnaître la tension avec la transition énergétique et proposer des alternatives la rendrait irréfutable.",b:"Proposer des zones alternatives cartographiées et un protocole de consentement préalable, libre et éclairé (norme ONU) : la transition ET les droits."},
+  46:{v:100},
+  47:{v:80,m:"Urgence humanitaire réelle ; le texte public détaille peu les actions financées — la traçabilité ferait les 100%.",b:"Publier la traçabilité des fonds (partenaires locaux, rapports d'exécution) : la confiance se prouve."},
+  48:{v:100},
+  49:{v:100},
+  50:{v:100},
+  51:{v:100},
+  52:{v:100},
+  53:{v:90,m:"Chiffres de santé publique solides ; répondre à l'objection éthique adverse renforcerait sa portée au-delà des convaincus.",b:"Reconnaître la gravité de la question éthique et ancrer la réponse dans la santé publique : moins d'interdiction = moins de morts, pas plus d'avortements (données OMS)."},
+};
+function vivantOf(p){ return VIVANT[p.id] || {v:70, m:"Lecture aMi en cours pour cette pétition.", b:"—"}; }
+/* Échelle : 🛑 = hors échelle (stop:true) ; sinon paliers de cohérence */
+function tierOf(vv){
+  if(vv.stop) return {e:"🛑", c:"reso-stop", n:"propagande — hors échelle"};
+  if(vv.v>=90) return {e:"🌟", c:"reso-star", n:"90–100%"};
+  if(vv.v>=70) return {e:"🌳", c:"reso-hi", n:"70–89%"};
+  if(vv.v>=40) return {e:"🌿", c:"reso-mid", n:"40–69%"};
+  return {e:"🌱", c:"reso-lo", n:"0–39%"};
+}
+
+/* ================= STATE ================= */
+let sel = new Set();
+let activeCat = "all";
+let signedCount = 0;
+let profile = {first:"",last:"",mail:"",zip:"",country:"France"};
+
+const store = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+};
+try{
+  const p = store.get("agora_profile");
+  if(p) profile = JSON.parse(p);
+  signedCount = parseInt(store.get("agora_signed")||"0",10);
+}catch(e){}
+
+function vivantExplain(vv){
+  if(vv.stop) return `<div class="reso-expl">🛑 <b>Hors échelle</b> : ${vv.m}</div>`;
+  if(vv.v>=100) return `<div class="reso-expl">🌟 <b>Alignée</b> — construction complète selon la grille aMi : faits sourcés, juste mesure, vise un mécanisme, durable, impact global pris en compte.</div>`;
+  return `<div class="reso-expl"><b>Pour les 100%</b> : ${vv.m}<br>💡 <b>Le mieux</b> : ${vv.b||"—"}</div>`;
+}
+
+/* ================= RENDER ================= */
+function fmt(n){ return n==null ? "—" : n.toLocaleString("fr-FR"); }
+
+function renderChips(){
+  document.getElementById("chips").innerHTML = CATS.map(c=>
+    `<button class="chip ${c.id===activeCat?'on':''}" onclick="setCat('${c.id}')">${c.label}</button>`).join("");
+}
+function setCat(id){ activeCat=id; renderChips(); render(); }
+
+function render(){
+  const q = document.getElementById("search").value.toLowerCase();
+  const list = PETITIONS.filter(p =>
+    (activeCat==="all"||p.cat===activeCat) &&
+    (!q || (p.t+" "+p.d).toLowerCase().includes(q)));
+  const grid = document.getElementById("grid");
+  if(!list.length){ grid.innerHTML = `<div class="empty">Aucune pétition ne correspond… essaie un autre mot-clé 🔎</div>`; }
+  else grid.innerHTML = list.map(p=>{
+    const pl = PLAT[p.plat];
+    const isSel = sel.has(p.id);
+    const cat = CATS.find(c=>c.id===p.cat).label;
+    const vv = vivantOf(p);
+    const tier = tierOf(vv);
+    const ch = (CHMAP[p.id]||[]).map(id=>{const c=CHAMPS.find(x=>x.id===id);return `<span title="C${c.id} ${c.n}">${c.e}</span>`;}).join(" ");
+    let progHtml;
+    if(p.sig==null){
+      progHtml = `<div class="prog-txt"><span class="mail-note">compteur non public sur cette plateforme</span></div>`;
+    } else {
+      const pct = Math.min(100, Math.round(p.sig/p.goal*100));
+      progHtml = `<div class="prog"><i style="width:${pct}%"></i></div>
+      <div class="prog-txt"><span><b>${fmt(p.sig)}</b> signatures</span><span>objectif ${fmt(p.goal)} · ${pct}%</span></div>`;
+    }
+    return `<div class="pet ${isSel?'sel':''}" id="pet${p.id}">
+      <div class="pet-top"><span class="cat">${cat}</span><span class="badge ${pl.c}">${pl.n}</span></div>
+      <h3>${p.t}</h3>
+      <p>${p.d}</p>
+      <div class="pet-top"><span class="champs-line">${ch}</span><span class="reso ${tier.c}" title="Cohérence Vivant — lecture aMi de la construction du texte (voir 📖 Méthode)">${tier.e} ${vv.stop?"":vv.v+"%"}</span></div>
+      ${vivantExplain(vv)}
+      ${progHtml}
+      <div class="pet-foot">
+        <span class="mail-note">${pl.note}</span>
+        <span class="check" onclick="toggle(${p.id})"><span class="box">${isSel?'✔':''}</span>${isSel?'Sélectionnée':'Sélectionner'}</span>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("stTotal").textContent = PETITIONS.length;
+  updateBar();
+}
+
+function updateBar(){
+  const n = sel.size;
+  document.getElementById("stSel").textContent = n;
+  document.getElementById("stSigned").textContent = signedCount;
+  document.getElementById("selTxt").textContent = n + (n>1?" pétitions sélectionnées":" pétition sélectionnée");
+  document.getElementById("selbar").classList.toggle("show", n>0);
+}
+
+function toggle(id){ sel.has(id) ? sel.delete(id) : sel.add(id); render(); }
+function clearSel(){ sel.clear(); render(); }
+function visibleList(){
+  const q = document.getElementById("search").value.toLowerCase();
+  return PETITIONS.filter(p =>
+    (activeCat==="all"||p.cat===activeCat) &&
+    (!q || (p.t+" "+p.d).toLowerCase().includes(q)));
+}
+function selectAllVisible(){ visibleList().forEach(p=>sel.add(p.id)); render(); }
+function selectAligned(){
+  const t = parseInt(document.getElementById("seuil").value,10);
+  visibleList().forEach(p=>{ const vv=vivantOf(p); if(!vv.stop && vv.v>=t) sel.add(p.id); });
+  render();
+}
+
+/* ================= PROFILE ================= */
+function openProfile(){
+  document.getElementById("pFirst").value = profile.first;
+  document.getElementById("pLast").value = profile.last;
+  document.getElementById("pMail").value = profile.mail;
+  document.getElementById("pZip").value = profile.zip;
+  document.getElementById("pCountry").value = profile.country||"France";
+  document.getElementById("ovProfile").classList.add("show");
+}
+function saveProfile(){
+  profile = {
+    first: document.getElementById("pFirst").value.trim(),
+    last: document.getElementById("pLast").value.trim(),
+    mail: document.getElementById("pMail").value.trim(),
+    zip: document.getElementById("pZip").value.trim(),
+    country: document.getElementById("pCountry").value.trim()||"France",
+  };
+  store.set("agora_profile", JSON.stringify(profile));
+  refreshProfileChip();
+  closeOv("ovProfile");
+}
+function refreshProfileChip(){
+  document.getElementById("profileName").textContent = profile.first ? profile.first+" ✓" : "Mes infos";
+}
+function closeOv(id){ document.getElementById(id).classList.remove("show"); }
+function openOv(id){ document.getElementById(id).classList.add("show"); }
+function profileOk(){ return profile.first && profile.mail; }
+
+/* ================= SIGNING QUEUE ================= */
+let queue = [], qIdx = 0, qSigned = 0;
+
+function startQueue(){
+  queue = PETITIONS.filter(p=>sel.has(p.id));
+  qIdx = 0; qSigned = 0;
+  document.getElementById("ovQueue").classList.add("show");
+  showStep();
+}
+
+function showStep(){
+  const n = queue.length;
+  document.getElementById("qBar").style.width = (qIdx/n*100)+"%";
+  document.getElementById("qCount").textContent = `Pétition ${Math.min(qIdx+1,n)} / ${n}`;
+  if(qIdx >= n){ showDone(); return; }
+  const p = queue[qIdx];
+  const pl = PLAT[p.plat];
+  const cat = CATS.find(c=>c.id===p.cat).label;
+  document.getElementById("qBody").innerHTML = `
+    <div class="q-card">
+      <span class="badge ${pl.c}">${pl.n}</span>
+      <h3>${p.t}</h3>
+      <span class="cat">${cat} · ${fmt(p.sig)} / ${fmt(p.goal)} signatures</span>
+    </div>
+    <div class="prefill-note">${pl.auth}</div>
+    <div class="mail-note" style="margin-bottom:12px">↗ La pétition s'ouvre dans un onglet officiel. Signe-la là-bas, reviens ici : la file t'attend. 😉</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="skipStep()">Passer</button>
+      <button class="btn btn-ghost" onclick="quitQueue()">Quitter</button>
+      <button class="btn btn-fire" id="qOpen" onclick="openStep()">↗ Ouvrir la pétition</button>
+      <button class="btn btn-fire" id="qConfirm" onclick="confirmStep()" style="display:none">✅ Signée, suivante</button>
+    </div>`;
+}
+
+function esc(s){ return String(s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function openStep(){
+  const p = queue[qIdx];
+  window.open(p.url, "_blank");
+  document.getElementById("qOpen").textContent = "↗ Rouvrir";
+  document.getElementById("qOpen").classList.replace("btn-fire","btn-ghost");
+  document.getElementById("qConfirm").style.display = "";
+}
+
+function confirmStep(){
+  const p = queue[qIdx];
+  document.getElementById("qBody").innerHTML = `<div class="signed-flash">✅ Comptée !</div>`;
+  qSigned++; signedCount++;
+  store.set("agora_signed", String(signedCount));
+  sel.delete(p.id);
+  setTimeout(()=>{ qIdx++; showStep(); }, 500);
+}
+function skipStep(){ qIdx++; showStep(); }
+function quitQueue(){ closeOv("ovQueue"); render(); }
+
+function showDone(){
+  document.getElementById("qBar").style.width = "100%";
+  document.getElementById("qBody").innerHTML = `
+    <div class="done">
+      <div class="big">🔥🐲</div>
+      <h2>${qSigned} signature${qSigned>1?"s":""} !</h2>
+      <p>Ta voix compte. Chaque signature est un acte personnel — et tu viens d'en poser ${qSigned} en quelques minutes, sur de vraies plateformes officielles.</p>
+      ${qSigned?`<div class="mailwarn">🇫🇷 Assemblée nationale et Sénat passent par FranceConnect · 🇪🇺 les initiatives européennes par le formulaire officiel de la Commission.</div>`:""}
+      <div class="modal-actions" style="justify-content:center">
+        <button class="btn btn-fire" onclick="quitQueue()">Retour aux pétitions</button>
+      </div>
+    </div>`;
+  updateBar();
+}
+
+/* ================= INIT ================= */
+renderChips();
+refreshProfileChip();
+render();
+</script>
+</body>
+</html>

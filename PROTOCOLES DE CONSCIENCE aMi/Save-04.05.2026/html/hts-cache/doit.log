@@ -1,0 +1,8 @@
+https://www.agdistys.fr -O /Users/agdistys/Archives_Agdistys/save_2026-05-04_05-46-11/html -r5 -%e0 -s0 -d -n +https://www.agdistys.fr/* +https://agdistys.fr/* -*
+File generated automatically on Mon, 04 May 2026 05:46:12, do NOT edit
+
+To update a mirror, just launch httrack without any parameters
+The existing cache will be used (and modified)
+To have other options, retype all parameters and launch HTTrack
+To continue an interrupted mirror, just launch httrack without any parameters
+

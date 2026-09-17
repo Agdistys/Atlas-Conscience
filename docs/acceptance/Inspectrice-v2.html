@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Inspectrice v2 : DragonRoute, pilote de OuQuandQui | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Inspectrice v2 : DragonRoute, pilote de OuQuandQui" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/Inspectrice-v2.html" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/Inspectrice-v2.html" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Inspectrice v2 : DragonRoute, pilote de OuQuandQui" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)","headline":"Inspectrice v2 : DragonRoute, pilote de OuQuandQui","url":"https://agdistys.github.io/Atlas-Conscience/docs/acceptance/Inspectrice-v2.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=64d1d096ddeb6f07a3465d90cfb62bc588e945dc">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="inspectrice-v2--dragonroute-pilote-de-ouquandqui">Inspectrice v2 : DragonRoute, pilote de OuQuandQui</h1>
+
+<h2 id="intention">Intention</h2>
+
+<p>Chaque proposition de modification doit fournir des captures reproductibles,
+des controles d’accessibilite et un compte rendu avant inspection humaine.</p>
+
+<h2 id="acceptation-automatique">Acceptation automatique</h2>
+
+<ul>
+  <li>Contrat de fichiers existant conserve pour DragonRoute et Agora.</li>
+  <li>Syntaxe des scripts de DragonRoute et de la suite de tests verifiee.</li>
+  <li>Quatre formats Chromium : 360 x 800, 390 x 844, 768 x 1024, 1440 x 900.</li>
+  <li>Sur chaque format : demarrage, Lyon vers Valence, parcours clavier avec
+mouvement reduit, erreur HTTP 500 du geocodage. Soit 16 tests attendus.</li>
+  <li>Huit captures conservees meme quand les tests passent : demarrage et resultats.</li>
+  <li>Huit audits axe-core WCAG 2.1 A/AA, sans regle desactivee : aucune violation
+detectee. Les resultats incertains sont conserves pour examen humain.</li>
+  <li>Absence de debordement horizontal du document et du panneau de saisie.</li>
+  <li>Rapport HTML, synthese Markdown et statut JSON produits apres echec aussi.</li>
+  <li>Un test ignore, absent ou echoue, une etape non executee ou une preuve manquante
+empeche le statut <code class="language-plaintext highlighter-rouge">inspection</code>.</li>
+</ul>
+
+<h2 id="execution">Execution</h2>
+
+<p>Avec Node 22, Python 3 et Chromium Playwright :</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install
+</span>npx playwright <span class="nb">install </span>chromium
+npm run inspect
+</code></pre></div></div>
+
+<p>Sur GitHub : ouvrir le run Applications / Inspectrice, lire sa synthese,
+telecharger l’artefact <code class="language-plaintext highlighter-rouge">inspectrice-v2</code>, puis ouvrir <code class="language-plaintext highlighter-rouge">quality/inspection.html</code>.
+Le detail des tests est dans <code class="language-plaintext highlighter-rouge">playwright-report/index.html</code>.
+Les preuves sont conservees 14 jours. <code class="language-plaintext highlighter-rouge">quality/status.json</code> est un artefact
+de cette execution ; il n’est pas encore branche au Tableau de Bord public.</p>
+
+<h2 id="perimetre-et-inspection-humaine">Perimetre et inspection humaine</h2>
+
+<p>Les services de geocodage, routage et carburant sont simules. Les autres appels
+externes sont bloques. L’horloge est fixee pour les captures, sans figer les
+temporisations. La carte testee est le mode SVG de secours. Le service worker
+est bloque : cette passe ne valide pas l’installation PWA ni le hors connexion.</p>
+
+<p>Les captures sont des preuves a inspecter. Elles ne sont pas encore des
+references approuvees pour une comparaison automatique de pixels.
+La disponibilite des vraies API, Lighthouse, les performances, la carte Leaflet,
+la charte graphique complete et les autres applications restent a couvrir.</p>
+
+<p>Les audits automatiques ne remplacent pas une evaluation avec lecteur d’ecran,
+ni la validation du sens et de l’experience. Aucune fusion ni publication n’est
+declenchee par ce workflow.</p>
+
+<p>Source technique : https://playwright.dev/docs/accessibility-testing</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

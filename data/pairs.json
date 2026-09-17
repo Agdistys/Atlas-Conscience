@@ -1,0 +1,7842 @@
+[
+  {
+    "a": "conscience",
+    "b": "vivant",
+    "weight": 15
+  },
+  {
+    "a": "conscience",
+    "b": "sens",
+    "weight": 13
+  },
+  {
+    "a": "sens",
+    "b": "vivant",
+    "weight": 12
+  },
+  {
+    "a": "agdistys",
+    "b": "conscience",
+    "weight": 11
+  },
+  {
+    "a": "conscience",
+    "b": "violence",
+    "weight": 10
+  },
+  {
+    "a": "art",
+    "b": "conscience",
+    "weight": 9
+  },
+  {
+    "a": "agdistys",
+    "b": "vivant",
+    "weight": 9
+  },
+  {
+    "a": "agdistys",
+    "b": "sens",
+    "weight": 7
+  },
+  {
+    "a": "charte",
+    "b": "conscience",
+    "weight": 7
+  },
+  {
+    "a": "charte",
+    "b": "vivant",
+    "weight": 7
+  },
+  {
+    "a": "biais",
+    "b": "conscience",
+    "weight": 7
+  },
+  {
+    "a": "conscience",
+    "b": "vérité",
+    "weight": 7
+  },
+  {
+    "a": "agdistys",
+    "b": "art",
+    "weight": 6
+  },
+  {
+    "a": "agdistys",
+    "b": "charte",
+    "weight": 6
+  },
+  {
+    "a": "conscience",
+    "b": "nature",
+    "weight": 6
+  },
+  {
+    "a": "conscience",
+    "b": "système",
+    "weight": 6
+  },
+  {
+    "a": "conscience",
+    "b": "esprit",
+    "weight": 5
+  },
+  {
+    "a": "agdistys",
+    "b": "nature",
+    "weight": 5
+  },
+  {
+    "a": "système",
+    "b": "violence",
+    "weight": 5
+  },
+  {
+    "a": "cohérence",
+    "b": "conscience",
+    "weight": 5
+  },
+  {
+    "a": "cohérence",
+    "b": "sens",
+    "weight": 5
+  },
+  {
+    "a": "cohérence",
+    "b": "vivant",
+    "weight": 5
+  },
+  {
+    "a": "vivant",
+    "b": "vérité",
+    "weight": 5
+  },
+  {
+    "a": "conscience",
+    "b": "verbe",
+    "weight": 5
+  },
+  {
+    "a": "verbe",
+    "b": "vivant",
+    "weight": 5
+  },
+  {
+    "a": "conscience",
+    "b": "déni",
+    "weight": 4
+  },
+  {
+    "a": "agdistys",
+    "b": "ensemble",
+    "weight": 4
+  },
+  {
+    "a": "art",
+    "b": "charte",
+    "weight": 4
+  },
+  {
+    "a": "art",
+    "b": "nature",
+    "weight": 4
+  },
+  {
+    "a": "art",
+    "b": "partager",
+    "weight": 4
+  },
+  {
+    "a": "art",
+    "b": "sens",
+    "weight": 4
+  },
+  {
+    "a": "charte",
+    "b": "ensemble",
+    "weight": 4
+  },
+  {
+    "a": "charte",
+    "b": "nature",
+    "weight": 4
+  },
+  {
+    "a": "charte",
+    "b": "sens",
+    "weight": 4
+  },
+  {
+    "a": "conscience",
+    "b": "ensemble",
+    "weight": 4
+  },
+  {
+    "a": "conscience",
+    "b": "partager",
+    "weight": 4
+  },
+  {
+    "a": "ensemble",
+    "b": "sens",
+    "weight": 4
+  },
+  {
+    "a": "ensemble",
+    "b": "vivant",
+    "weight": 4
+  },
+  {
+    "a": "nature",
+    "b": "sens",
+    "weight": 4
+  },
+  {
+    "a": "nature",
+    "b": "vivant",
+    "weight": 4
+  },
+  {
+    "a": "biais",
+    "b": "système",
+    "weight": 4
+  },
+  {
+    "a": "biais",
+    "b": "violence",
+    "weight": 4
+  },
+  {
+    "a": "conscience",
+    "b": "monde",
+    "weight": 4
+  },
+  {
+    "a": "violence",
+    "b": "vivant",
+    "weight": 4
+  },
+  {
+    "a": "sens",
+    "b": "verbe",
+    "weight": 4
+  },
+  {
+    "a": "biais",
+    "b": "vérité",
+    "weight": 4
+  },
+  {
+    "a": "agdistys",
+    "b": "esprit",
+    "weight": 3
+  },
+  {
+    "a": "comprendre",
+    "b": "conscience",
+    "weight": 3
+  },
+  {
+    "a": "agdistys",
+    "b": "partager",
+    "weight": 3
+  },
+  {
+    "a": "art",
+    "b": "ensemble",
+    "weight": 3
+  },
+  {
+    "a": "art",
+    "b": "vivant",
+    "weight": 3
+  },
+  {
+    "a": "charte",
+    "b": "partager",
+    "weight": 3
+  },
+  {
+    "a": "ensemble",
+    "b": "nature",
+    "weight": 3
+  },
+  {
+    "a": "ensemble",
+    "b": "partager",
+    "weight": 3
+  },
+  {
+    "a": "esprit",
+    "b": "sens",
+    "weight": 3
+  },
+  {
+    "a": "esprit",
+    "b": "vivant",
+    "weight": 3
+  },
+  {
+    "a": "nature",
+    "b": "partager",
+    "weight": 3
+  },
+  {
+    "a": "partager",
+    "b": "sens",
+    "weight": 3
+  },
+  {
+    "a": "partager",
+    "b": "vivant",
+    "weight": 3
+  },
+  {
+    "a": "déni",
+    "b": "violence",
+    "weight": 3
+  },
+  {
+    "a": "biais",
+    "b": "lois",
+    "weight": 3
+  },
+  {
+    "a": "conscience",
+    "b": "lois",
+    "weight": 3
+  },
+  {
+    "a": "lois",
+    "b": "système",
+    "weight": 3
+  },
+  {
+    "a": "agdistys",
+    "b": "violence",
+    "weight": 3
+  },
+  {
+    "a": "conscience",
+    "b": "justice",
+    "weight": 3
+  },
+  {
+    "a": "justice",
+    "b": "réparation",
+    "weight": 3
+  },
+  {
+    "a": "justice",
+    "b": "vivant",
+    "weight": 3
+  },
+  {
+    "a": "réparation",
+    "b": "vivant",
+    "weight": 3
+  },
+  {
+    "a": "sens",
+    "b": "violence",
+    "weight": 3
+  },
+  {
+    "a": "agdistys",
+    "b": "vérité",
+    "weight": 3
+  },
+  {
+    "a": "agdistys",
+    "b": "verbe",
+    "weight": 3
+  },
+  {
+    "a": "verbe",
+    "b": "violence",
+    "weight": 3
+  },
+  {
+    "a": "verbe",
+    "b": "vérité",
+    "weight": 3
+  },
+  {
+    "a": "violence",
+    "b": "vérité",
+    "weight": 3
+  },
+  {
+    "a": "conscience",
+    "b": "corps",
+    "weight": 3
+  },
+  {
+    "a": "corps",
+    "b": "sens",
+    "weight": 3
+  },
+  {
+    "a": "corps",
+    "b": "vivant",
+    "weight": 3
+  },
+  {
+    "a": "conscience",
+    "b": "peur",
+    "weight": 3
+  },
+  {
+    "a": "peur",
+    "b": "violence",
+    "weight": 3
+  },
+  {
+    "a": "agdistys",
+    "b": "argent",
+    "weight": 2
+  },
+  {
+    "a": "agdistys",
+    "b": "comprendre",
+    "weight": 2
+  },
+  {
+    "a": "agdistys",
+    "b": "déni",
+    "weight": 2
+  },
+  {
+    "a": "agdistys",
+    "b": "fait",
+    "weight": 2
+  },
+  {
+    "a": "argent",
+    "b": "comprendre",
+    "weight": 2
+  },
+  {
+    "a": "argent",
+    "b": "conscience",
+    "weight": 2
+  },
+  {
+    "a": "argent",
+    "b": "esprit",
+    "weight": 2
+  },
+  {
+    "a": "art",
+    "b": "esprit",
+    "weight": 2
+  },
+  {
+    "a": "comprendre",
+    "b": "déni",
+    "weight": 2
+  },
+  {
+    "a": "comprendre",
+    "b": "esprit",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "fait",
+    "weight": 2
+  },
+  {
+    "a": "agdistys",
+    "b": "source",
+    "weight": 2
+  },
+  {
+    "a": "charte",
+    "b": "esprit",
+    "weight": 2
+  },
+  {
+    "a": "charte",
+    "b": "source",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "source",
+    "weight": 2
+  },
+  {
+    "a": "ensemble",
+    "b": "esprit",
+    "weight": 2
+  },
+  {
+    "a": "ensemble",
+    "b": "source",
+    "weight": 2
+  },
+  {
+    "a": "esprit",
+    "b": "nature",
+    "weight": 2
+  },
+  {
+    "a": "esprit",
+    "b": "source",
+    "weight": 2
+  },
+  {
+    "a": "sens",
+    "b": "source",
+    "weight": 2
+  },
+  {
+    "a": "source",
+    "b": "vivant",
+    "weight": 2
+  },
+  {
+    "a": "appelle",
+    "b": "déni",
+    "weight": 2
+  },
+  {
+    "a": "avoir",
+    "b": "conscience",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "psychique",
+    "weight": 2
+  },
+  {
+    "a": "biais",
+    "b": "déni",
+    "weight": 2
+  },
+  {
+    "a": "biais",
+    "b": "monde",
+    "weight": 2
+  },
+  {
+    "a": "biais",
+    "b": "pensée",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "pensée",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "théorie",
+    "weight": 2
+  },
+  {
+    "a": "lois",
+    "b": "monde",
+    "weight": 2
+  },
+  {
+    "a": "lois",
+    "b": "violence",
+    "weight": 2
+  },
+  {
+    "a": "monde",
+    "b": "système",
+    "weight": 2
+  },
+  {
+    "a": "monde",
+    "b": "violence",
+    "weight": 2
+  },
+  {
+    "a": "pensée",
+    "b": "système",
+    "weight": 2
+  },
+  {
+    "a": "pensée",
+    "b": "violence",
+    "weight": 2
+  },
+  {
+    "a": "système",
+    "b": "théorie",
+    "weight": 2
+  },
+  {
+    "a": "théorie",
+    "b": "violence",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "spiritualité",
+    "weight": 2
+  },
+  {
+    "a": "agdistys",
+    "b": "justice",
+    "weight": 2
+  },
+  {
+    "a": "agdistys",
+    "b": "réparation",
+    "weight": 2
+  },
+  {
+    "a": "cohérence",
+    "b": "violence",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "réparation",
+    "weight": 2
+  },
+  {
+    "a": "charte",
+    "b": "droit",
+    "weight": 2
+  },
+  {
+    "a": "charte",
+    "b": "justice",
+    "weight": 2
+  },
+  {
+    "a": "charte",
+    "b": "réparation",
+    "weight": 2
+  },
+  {
+    "a": "charte",
+    "b": "vérité",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "médecine",
+    "weight": 2
+  },
+  {
+    "a": "droit",
+    "b": "justice",
+    "weight": 2
+  },
+  {
+    "a": "droit",
+    "b": "réparation",
+    "weight": 2
+  },
+  {
+    "a": "droit",
+    "b": "vivant",
+    "weight": 2
+  },
+  {
+    "a": "justice",
+    "b": "vérité",
+    "weight": 2
+  },
+  {
+    "a": "sens",
+    "b": "vérité",
+    "weight": 2
+  },
+  {
+    "a": "corps",
+    "b": "désir",
+    "weight": 2
+  },
+  {
+    "a": "biais",
+    "b": "juste",
+    "weight": 2
+  },
+  {
+    "a": "biais",
+    "b": "peur",
+    "weight": 2
+  },
+  {
+    "a": "biais",
+    "b": "vivant",
+    "weight": 2
+  },
+  {
+    "a": "cohérence",
+    "b": "verbe",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "juste",
+    "weight": 2
+  },
+  {
+    "a": "peur",
+    "b": "vérité",
+    "weight": 2
+  },
+  {
+    "a": "cohérence",
+    "b": "corps",
+    "weight": 2
+  },
+  {
+    "a": "cohérence",
+    "b": "diamant",
+    "weight": 2
+  },
+  {
+    "a": "cohérence",
+    "b": "harmonie",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "diamant",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "harmonie",
+    "weight": 2
+  },
+  {
+    "a": "diamant",
+    "b": "harmonie",
+    "weight": 2
+  },
+  {
+    "a": "diamant",
+    "b": "sens",
+    "weight": 2
+  },
+  {
+    "a": "diamant",
+    "b": "vivant",
+    "weight": 2
+  },
+  {
+    "a": "harmonie",
+    "b": "sens",
+    "weight": 2
+  },
+  {
+    "a": "harmonie",
+    "b": "vivant",
+    "weight": 2
+  },
+  {
+    "a": "biais",
+    "b": "humain",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "humain",
+    "weight": 2
+  },
+  {
+    "a": "humain",
+    "b": "vérité",
+    "weight": 2
+  },
+  {
+    "a": "peur",
+    "b": "système",
+    "weight": 2
+  },
+  {
+    "a": "charte",
+    "b": "toute",
+    "weight": 2
+  },
+  {
+    "a": "toute",
+    "b": "vivant",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "structure",
+    "weight": 2
+  },
+  {
+    "a": "nature",
+    "b": "structure",
+    "weight": 2
+  },
+  {
+    "a": "nature",
+    "b": "violence",
+    "weight": 2
+  },
+  {
+    "a": "structure",
+    "b": "violence",
+    "weight": 2
+  },
+  {
+    "a": "art",
+    "b": "très",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "très",
+    "weight": 2
+  },
+  {
+    "a": "agdistys",
+    "b": "partagée",
+    "weight": 2
+  },
+  {
+    "a": "art",
+    "b": "chose",
+    "weight": 2
+  },
+  {
+    "a": "chose",
+    "b": "conscience",
+    "weight": 2
+  },
+  {
+    "a": "art",
+    "b": "propagande",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "propagande",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "parce",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "pourquoi",
+    "weight": 2
+  },
+  {
+    "a": "parce",
+    "b": "pourquoi",
+    "weight": 2
+  },
+  {
+    "a": "conscience",
+    "b": "onde",
+    "weight": 2
+  },
+  {
+    "a": "onde",
+    "b": "sens",
+    "weight": 2
+  },
+  {
+    "a": "onde",
+    "b": "vivant",
+    "weight": 2
+  },
+  {
+    "a": "agdistys",
+    "b": "post",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "art",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "déni",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "fait",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "post",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "comprendre",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "déni",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "fait",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "post",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "fait",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "post",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "post",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "esprit",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "fait",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "post",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "fait",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "post",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "post",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "post",
+    "b": "produits",
+    "weight": 1
+  },
+  {
+    "a": "post",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "produits",
+    "b": "transition",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "autres",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "ciel",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "condor",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "guerriers",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "nouveau",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "paix",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "aigle",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "ciel",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "condor",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "guerriers",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "nouveau",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "paix",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "autres",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "ciel",
+    "b": "condor",
+    "weight": 1
+  },
+  {
+    "a": "ciel",
+    "b": "guerriers",
+    "weight": 1
+  },
+  {
+    "a": "ciel",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "ciel",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "ciel",
+    "b": "nouveau",
+    "weight": 1
+  },
+  {
+    "a": "ciel",
+    "b": "paix",
+    "weight": 1
+  },
+  {
+    "a": "ciel",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "ciel",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "condor",
+    "b": "guerriers",
+    "weight": 1
+  },
+  {
+    "a": "condor",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "condor",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "condor",
+    "b": "nouveau",
+    "weight": 1
+  },
+  {
+    "a": "condor",
+    "b": "paix",
+    "weight": 1
+  },
+  {
+    "a": "condor",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "condor",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "guerriers",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "guerriers",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "guerriers",
+    "b": "nouveau",
+    "weight": 1
+  },
+  {
+    "a": "guerriers",
+    "b": "paix",
+    "weight": 1
+  },
+  {
+    "a": "guerriers",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "guerriers",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "nouveau",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "paix",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "nouveau",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "paix",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "nouveau",
+    "b": "paix",
+    "weight": 1
+  },
+  {
+    "a": "nouveau",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "nouveau",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "paix",
+    "b": "prophétie",
+    "weight": 1
+  },
+  {
+    "a": "paix",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "prophétie",
+    "b": "terre",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "source",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "partager",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "source",
+    "weight": 1
+  },
+  {
+    "a": "partager",
+    "b": "source",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "autre",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "avoir",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "comprendre",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "faut",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "pleine",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "avoir",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "comprendre",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "déni",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "faut",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "pleine",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "autre",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "comprendre",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "déni",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "faut",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "pleine",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "faut",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "pleine",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "faut",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "pleine",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "faut",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "pleine",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "faut",
+    "b": "pleine",
+    "weight": 1
+  },
+  {
+    "a": "faut",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "faut",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "faut",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "pleine",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "pleine",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "pleine",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "psychique",
+    "b": "savoir",
+    "weight": 1
+  },
+  {
+    "a": "psychique",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "savoir",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "physique",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "quantique",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "physique",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "quantique",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "lois",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "pensée",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "physique",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "quantique",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "pensée",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "physique",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "quantique",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "pensée",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "physique",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "quantique",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "pensée",
+    "b": "physique",
+    "weight": 1
+  },
+  {
+    "a": "pensée",
+    "b": "quantique",
+    "weight": 1
+  },
+  {
+    "a": "pensée",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "physique",
+    "b": "quantique",
+    "weight": 1
+  },
+  {
+    "a": "physique",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "physique",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "physique",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "quantique",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "quantique",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "quantique",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "charte",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "ensemble",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "source",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "argent",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "comprendre",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "ensemble",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "source",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "comprendre",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "ensemble",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "source",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "spiritualité",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "cohérence",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "version",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "réparation",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "version",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "version",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "version",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "version",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "théorie",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "version",
+    "weight": 1
+  },
+  {
+    "a": "système",
+    "b": "version",
+    "weight": 1
+  },
+  {
+    "a": "système",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "théorie",
+    "b": "version",
+    "weight": 1
+  },
+  {
+    "a": "théorie",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "version",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "version",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "meilleur",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "schémas",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "meilleur",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "schémas",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "meilleur",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "schémas",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "meilleur",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "schémas",
+    "weight": 1
+  },
+  {
+    "a": "ensemble",
+    "b": "meilleur",
+    "weight": 1
+  },
+  {
+    "a": "ensemble",
+    "b": "schémas",
+    "weight": 1
+  },
+  {
+    "a": "meilleur",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "meilleur",
+    "b": "partager",
+    "weight": 1
+  },
+  {
+    "a": "meilleur",
+    "b": "schémas",
+    "weight": 1
+  },
+  {
+    "a": "meilleur",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "meilleur",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "schémas",
+    "weight": 1
+  },
+  {
+    "a": "partager",
+    "b": "schémas",
+    "weight": 1
+  },
+  {
+    "a": "schémas",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "schémas",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "droit",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "serment",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "soin",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "serment",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "soin",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "droit",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "serment",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "soin",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "serment",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "soin",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "serment",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "soin",
+    "weight": 1
+  },
+  {
+    "a": "médecine",
+    "b": "réparation",
+    "weight": 1
+  },
+  {
+    "a": "médecine",
+    "b": "serment",
+    "weight": 1
+  },
+  {
+    "a": "médecine",
+    "b": "soin",
+    "weight": 1
+  },
+  {
+    "a": "médecine",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "médecine",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "serment",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "soin",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "serment",
+    "b": "soin",
+    "weight": 1
+  },
+  {
+    "a": "serment",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "serment",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "soin",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "soin",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "isil",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "manifeste",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "réponse",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "isil",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "manifeste",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "réponse",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "isil",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "manifeste",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "réponse",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "fait",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "isil",
+    "b": "manifeste",
+    "weight": 1
+  },
+  {
+    "a": "isil",
+    "b": "réponse",
+    "weight": 1
+  },
+  {
+    "a": "isil",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "isil",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "isil",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "isil",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "isil",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "manifeste",
+    "b": "réponse",
+    "weight": 1
+  },
+  {
+    "a": "manifeste",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "manifeste",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "manifeste",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "manifeste",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "manifeste",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "réponse",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "réponse",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "réponse",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "réponse",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "réponse",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "verbe",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "violence",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "vivant",
+    "b": "vrai",
+    "weight": 1
+  },
+  {
+    "a": "vrai",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "arbre",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "langage",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "parole",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "tamis",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "langage",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "parole",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "tamis",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "arbre",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "langage",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "parole",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "tamis",
+    "weight": 1
+  },
+  {
+    "a": "langage",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "langage",
+    "b": "parole",
+    "weight": 1
+  },
+  {
+    "a": "langage",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "langage",
+    "b": "tamis",
+    "weight": 1
+  },
+  {
+    "a": "langage",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "langage",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "langage",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "parole",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "tamis",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "parole",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "parole",
+    "b": "tamis",
+    "weight": 1
+  },
+  {
+    "a": "parole",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "parole",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "parole",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "tamis",
+    "weight": 1
+  },
+  {
+    "a": "tamis",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "tamis",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "tamis",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "conscient",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "corps",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "désir",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "mantra",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "regard",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "carte",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "conscient",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "désir",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "mantra",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "regard",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "conscient",
+    "b": "corps",
+    "weight": 1
+  },
+  {
+    "a": "conscient",
+    "b": "désir",
+    "weight": 1
+  },
+  {
+    "a": "conscient",
+    "b": "mantra",
+    "weight": 1
+  },
+  {
+    "a": "conscient",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "conscient",
+    "b": "regard",
+    "weight": 1
+  },
+  {
+    "a": "conscient",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "conscient",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "conscient",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "mantra",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "regard",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "mantra",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "regard",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "mantra",
+    "b": "psychique",
+    "weight": 1
+  },
+  {
+    "a": "mantra",
+    "b": "regard",
+    "weight": 1
+  },
+  {
+    "a": "mantra",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "mantra",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "mantra",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "psychique",
+    "b": "regard",
+    "weight": 1
+  },
+  {
+    "a": "psychique",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "psychique",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "psychique",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "regard",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "regard",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "regard",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "souffle",
+    "weight": 1
+  },
+  {
+    "a": "souffle",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "cohérence",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "déni",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "juste",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "juste",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "esprit",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "lecture",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "nombre",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "lecture",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "nombre",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "diamant",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "esprit",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "harmonie",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "lecture",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "nombre",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "esprit",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "lecture",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "nombre",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "harmonie",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "lecture",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "nombre",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "harmonie",
+    "b": "lecture",
+    "weight": 1
+  },
+  {
+    "a": "harmonie",
+    "b": "nombre",
+    "weight": 1
+  },
+  {
+    "a": "harmonie",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "lecture",
+    "b": "nombre",
+    "weight": 1
+  },
+  {
+    "a": "lecture",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "lecture",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "lecture",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "nombre",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "nombre",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "nombre",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "biais",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "humain",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "lois",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "pourrait",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "respect",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "avons",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "pourrait",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "respect",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "pourrait",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "respect",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "lois",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "pourrait",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "respect",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "pourrait",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "respect",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "pourrait",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "respect",
+    "weight": 1
+  },
+  {
+    "a": "pourrait",
+    "b": "respect",
+    "weight": 1
+  },
+  {
+    "a": "pourrait",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "pourrait",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "pourrait",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "respect",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "respect",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "respect",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "système",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "mémoire",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "oubli",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "résonance",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "souvenir",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "mémoire",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "oubli",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "résonance",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "souvenir",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "mémoire",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "oubli",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "résonance",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "souvenir",
+    "weight": 1
+  },
+  {
+    "a": "diamant",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "harmonie",
+    "b": "mémoire",
+    "weight": 1
+  },
+  {
+    "a": "harmonie",
+    "b": "oubli",
+    "weight": 1
+  },
+  {
+    "a": "harmonie",
+    "b": "résonance",
+    "weight": 1
+  },
+  {
+    "a": "harmonie",
+    "b": "souvenir",
+    "weight": 1
+  },
+  {
+    "a": "harmonie",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "mémoire",
+    "b": "oubli",
+    "weight": 1
+  },
+  {
+    "a": "mémoire",
+    "b": "résonance",
+    "weight": 1
+  },
+  {
+    "a": "mémoire",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "mémoire",
+    "b": "souvenir",
+    "weight": 1
+  },
+  {
+    "a": "mémoire",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "mémoire",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "oubli",
+    "b": "résonance",
+    "weight": 1
+  },
+  {
+    "a": "oubli",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "oubli",
+    "b": "souvenir",
+    "weight": 1
+  },
+  {
+    "a": "oubli",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "oubli",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "résonance",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "résonance",
+    "b": "souvenir",
+    "weight": 1
+  },
+  {
+    "a": "résonance",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "résonance",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "souvenir",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "souvenir",
+    "b": "temps",
+    "weight": 1
+  },
+  {
+    "a": "souvenir",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "temps",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "charte",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "consentement",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "droit",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "droits",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "enfant",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "réparation",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "consentement",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "droits",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "enfant",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "droit",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "droits",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "enfant",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "réparation",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "consentement",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "droits",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "enfant",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "droit",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "droits",
+    "b": "enfant",
+    "weight": 1
+  },
+  {
+    "a": "droits",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "droits",
+    "b": "réparation",
+    "weight": 1
+  },
+  {
+    "a": "droits",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "droits",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "droits",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "droits",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "enfant",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "enfant",
+    "b": "réparation",
+    "weight": 1
+  },
+  {
+    "a": "enfant",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "enfant",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "enfant",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "enfant",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "réparation",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "toute",
+    "b": "transmission",
+    "weight": 1
+  },
+  {
+    "a": "toute",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "transmission",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "transmission",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "violences",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "critique",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "discursive",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "esprit",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "pouvoir",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "protection",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "critique",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "discursive",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "pouvoir",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "protection",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "discursive",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "esprit",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "pensée",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "pouvoir",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "protection",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "critique",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "discursive",
+    "b": "esprit",
+    "weight": 1
+  },
+  {
+    "a": "discursive",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "discursive",
+    "b": "pensée",
+    "weight": 1
+  },
+  {
+    "a": "discursive",
+    "b": "pouvoir",
+    "weight": 1
+  },
+  {
+    "a": "discursive",
+    "b": "protection",
+    "weight": 1
+  },
+  {
+    "a": "discursive",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "discursive",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "discursive",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "pensée",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "pouvoir",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "protection",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "esprit",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "pensée",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "pouvoir",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "protection",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "pensée",
+    "b": "pouvoir",
+    "weight": 1
+  },
+  {
+    "a": "pensée",
+    "b": "protection",
+    "weight": 1
+  },
+  {
+    "a": "pensée",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "pouvoir",
+    "b": "protection",
+    "weight": 1
+  },
+  {
+    "a": "pouvoir",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "pouvoir",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "pouvoir",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "protection",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "protection",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "protection",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "structure",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "androgynie",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "art",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "charte",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "ensemble",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "partager",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "androgynie",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "ensemble",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "partager",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "turquoise",
+    "weight": 1
+  },
+  {
+    "a": "turquoise",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "beau",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "culture",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "histoire",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "netflix",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "culture",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "histoire",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "netflix",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "partager",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "beau",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "culture",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "histoire",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "netflix",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "culture",
+    "b": "histoire",
+    "weight": 1
+  },
+  {
+    "a": "culture",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "culture",
+    "b": "netflix",
+    "weight": 1
+  },
+  {
+    "a": "culture",
+    "b": "partager",
+    "weight": 1
+  },
+  {
+    "a": "culture",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "culture",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "culture",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "culture",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "histoire",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "histoire",
+    "b": "netflix",
+    "weight": 1
+  },
+  {
+    "a": "histoire",
+    "b": "partager",
+    "weight": 1
+  },
+  {
+    "a": "histoire",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "histoire",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "histoire",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "histoire",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "netflix",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "partager",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "netflix",
+    "b": "partager",
+    "weight": 1
+  },
+  {
+    "a": "netflix",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "netflix",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "netflix",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "netflix",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "partager",
+    "b": "spiritualité",
+    "weight": 1
+  },
+  {
+    "a": "partager",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "partager",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "partager",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "spiritualité",
+    "b": "tres",
+    "weight": 1
+  },
+  {
+    "a": "spiritualité",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "spiritualité",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "tres",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "tres",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "très",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "arbres",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "chasse",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "dechet",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "douchette",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "naturelle",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "odeurs",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "papier",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "toilette",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "chasse",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "dechet",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "douchette",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "naturelle",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "odeurs",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "papier",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "toilette",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "arbres",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "dechet",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "douchette",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "naturelle",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "odeurs",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "papier",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "toilette",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "chasse",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "dechet",
+    "b": "douchette",
+    "weight": 1
+  },
+  {
+    "a": "dechet",
+    "b": "naturelle",
+    "weight": 1
+  },
+  {
+    "a": "dechet",
+    "b": "odeurs",
+    "weight": 1
+  },
+  {
+    "a": "dechet",
+    "b": "papier",
+    "weight": 1
+  },
+  {
+    "a": "dechet",
+    "b": "toilette",
+    "weight": 1
+  },
+  {
+    "a": "dechet",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "dechet",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "dechet",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "douchette",
+    "b": "naturelle",
+    "weight": 1
+  },
+  {
+    "a": "douchette",
+    "b": "odeurs",
+    "weight": 1
+  },
+  {
+    "a": "douchette",
+    "b": "papier",
+    "weight": 1
+  },
+  {
+    "a": "douchette",
+    "b": "toilette",
+    "weight": 1
+  },
+  {
+    "a": "douchette",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "douchette",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "douchette",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "naturelle",
+    "b": "odeurs",
+    "weight": 1
+  },
+  {
+    "a": "naturelle",
+    "b": "papier",
+    "weight": 1
+  },
+  {
+    "a": "naturelle",
+    "b": "toilette",
+    "weight": 1
+  },
+  {
+    "a": "naturelle",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "naturelle",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "naturelle",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "odeurs",
+    "b": "papier",
+    "weight": 1
+  },
+  {
+    "a": "odeurs",
+    "b": "toilette",
+    "weight": 1
+  },
+  {
+    "a": "odeurs",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "odeurs",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "odeurs",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "papier",
+    "b": "toilette",
+    "weight": 1
+  },
+  {
+    "a": "papier",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "papier",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "papier",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "toilette",
+    "b": "toilettes",
+    "weight": 1
+  },
+  {
+    "a": "toilette",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "toilette",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "toilettes",
+    "b": "vinaigre",
+    "weight": 1
+  },
+  {
+    "a": "toilettes",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "vinaigre",
+    "b": "zero",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "bois",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "chaux",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "farine",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "huile",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "naturelles",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "peinture",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "peintures",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "bois",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "chaux",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "farine",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "huile",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "naturelles",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "peinture",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "peintures",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "bois",
+    "b": "chaux",
+    "weight": 1
+  },
+  {
+    "a": "bois",
+    "b": "farine",
+    "weight": 1
+  },
+  {
+    "a": "bois",
+    "b": "huile",
+    "weight": 1
+  },
+  {
+    "a": "bois",
+    "b": "naturelles",
+    "weight": 1
+  },
+  {
+    "a": "bois",
+    "b": "peinture",
+    "weight": 1
+  },
+  {
+    "a": "bois",
+    "b": "peintures",
+    "weight": 1
+  },
+  {
+    "a": "bois",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "bois",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "chaux",
+    "b": "farine",
+    "weight": 1
+  },
+  {
+    "a": "chaux",
+    "b": "huile",
+    "weight": 1
+  },
+  {
+    "a": "chaux",
+    "b": "naturelles",
+    "weight": 1
+  },
+  {
+    "a": "chaux",
+    "b": "peinture",
+    "weight": 1
+  },
+  {
+    "a": "chaux",
+    "b": "peintures",
+    "weight": 1
+  },
+  {
+    "a": "chaux",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "chaux",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "farine",
+    "b": "huile",
+    "weight": 1
+  },
+  {
+    "a": "farine",
+    "b": "naturelles",
+    "weight": 1
+  },
+  {
+    "a": "farine",
+    "b": "peinture",
+    "weight": 1
+  },
+  {
+    "a": "farine",
+    "b": "peintures",
+    "weight": 1
+  },
+  {
+    "a": "farine",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "farine",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "huile",
+    "b": "naturelles",
+    "weight": 1
+  },
+  {
+    "a": "huile",
+    "b": "peinture",
+    "weight": 1
+  },
+  {
+    "a": "huile",
+    "b": "peintures",
+    "weight": 1
+  },
+  {
+    "a": "huile",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "huile",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "naturelles",
+    "b": "peinture",
+    "weight": 1
+  },
+  {
+    "a": "naturelles",
+    "b": "peintures",
+    "weight": 1
+  },
+  {
+    "a": "naturelles",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "naturelles",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "peinture",
+    "b": "peintures",
+    "weight": 1
+  },
+  {
+    "a": "peinture",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "peinture",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "peintures",
+    "b": "pigments",
+    "weight": 1
+  },
+  {
+    "a": "peintures",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "pigments",
+    "b": "rouge",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "charbon",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "céramique",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "eaux",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "filtre",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "leboncoin",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "mettre",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "plantes",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "robinet",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "céramique",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "eaux",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "filtre",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "leboncoin",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "mettre",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "plantes",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "robinet",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "charbon",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "céramique",
+    "b": "eaux",
+    "weight": 1
+  },
+  {
+    "a": "céramique",
+    "b": "filtre",
+    "weight": 1
+  },
+  {
+    "a": "céramique",
+    "b": "leboncoin",
+    "weight": 1
+  },
+  {
+    "a": "céramique",
+    "b": "mettre",
+    "weight": 1
+  },
+  {
+    "a": "céramique",
+    "b": "plantes",
+    "weight": 1
+  },
+  {
+    "a": "céramique",
+    "b": "robinet",
+    "weight": 1
+  },
+  {
+    "a": "céramique",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "céramique",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "eaux",
+    "b": "filtre",
+    "weight": 1
+  },
+  {
+    "a": "eaux",
+    "b": "leboncoin",
+    "weight": 1
+  },
+  {
+    "a": "eaux",
+    "b": "mettre",
+    "weight": 1
+  },
+  {
+    "a": "eaux",
+    "b": "plantes",
+    "weight": 1
+  },
+  {
+    "a": "eaux",
+    "b": "robinet",
+    "weight": 1
+  },
+  {
+    "a": "eaux",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "eaux",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "filtre",
+    "b": "leboncoin",
+    "weight": 1
+  },
+  {
+    "a": "filtre",
+    "b": "mettre",
+    "weight": 1
+  },
+  {
+    "a": "filtre",
+    "b": "plantes",
+    "weight": 1
+  },
+  {
+    "a": "filtre",
+    "b": "robinet",
+    "weight": 1
+  },
+  {
+    "a": "filtre",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "filtre",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "leboncoin",
+    "b": "mettre",
+    "weight": 1
+  },
+  {
+    "a": "leboncoin",
+    "b": "plantes",
+    "weight": 1
+  },
+  {
+    "a": "leboncoin",
+    "b": "robinet",
+    "weight": 1
+  },
+  {
+    "a": "leboncoin",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "leboncoin",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "mettre",
+    "b": "plantes",
+    "weight": 1
+  },
+  {
+    "a": "mettre",
+    "b": "robinet",
+    "weight": 1
+  },
+  {
+    "a": "mettre",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "mettre",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "plantes",
+    "b": "robinet",
+    "weight": 1
+  },
+  {
+    "a": "plantes",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "plantes",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "robinet",
+    "b": "récupérer",
+    "weight": 1
+  },
+  {
+    "a": "robinet",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "récupérer",
+    "b": "traiter",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "aide",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "film",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "fleurs",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "art",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "charte",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "film",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "fleurs",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "aide",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "film",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "fleurs",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "film",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "fleurs",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "film",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "fleurs",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "film",
+    "b": "fleurs",
+    "weight": 1
+  },
+  {
+    "a": "film",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "film",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "film",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "film",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "fleurs",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "fleurs",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "fleurs",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "fleurs",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "partagée",
+    "b": "réutiliser",
+    "weight": 1
+  },
+  {
+    "a": "partagée",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "réutiliser",
+    "b": "upcycling",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "art",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "chose",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "exemple",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "healing",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "initiation",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "serpent",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "aller",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "exemple",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "healing",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "initiation",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "serpent",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "exemple",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "healing",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "initiation",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "serpent",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "exemple",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "healing",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "initiation",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "serpent",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "exemple",
+    "b": "healing",
+    "weight": 1
+  },
+  {
+    "a": "exemple",
+    "b": "initiation",
+    "weight": 1
+  },
+  {
+    "a": "exemple",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "exemple",
+    "b": "serpent",
+    "weight": 1
+  },
+  {
+    "a": "exemple",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "exemple",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "healing",
+    "b": "initiation",
+    "weight": 1
+  },
+  {
+    "a": "healing",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "healing",
+    "b": "serpent",
+    "weight": 1
+  },
+  {
+    "a": "healing",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "healing",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "initiation",
+    "b": "médecine",
+    "weight": 1
+  },
+  {
+    "a": "initiation",
+    "b": "serpent",
+    "weight": 1
+  },
+  {
+    "a": "initiation",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "initiation",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "médecine",
+    "b": "serpent",
+    "weight": 1
+  },
+  {
+    "a": "médecine",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "médecine",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "serpent",
+    "b": "symbole",
+    "weight": 1
+  },
+  {
+    "a": "serpent",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "symbole",
+    "b": "tantra",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "agresseur",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "appelle",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "liens",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "manipulation",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "refus",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "réalité",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "appelle",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "déni",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "liens",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "manipulation",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "refus",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "réalité",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "agresseur",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "liens",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "manipulation",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "refus",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "réalité",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "appelle",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "liens",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "manipulation",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "refus",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "réalité",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "déni",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "liens",
+    "b": "manipulation",
+    "weight": 1
+  },
+  {
+    "a": "liens",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "liens",
+    "b": "refus",
+    "weight": 1
+  },
+  {
+    "a": "liens",
+    "b": "réalité",
+    "weight": 1
+  },
+  {
+    "a": "liens",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "liens",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "manipulation",
+    "b": "partagée",
+    "weight": 1
+  },
+  {
+    "a": "manipulation",
+    "b": "refus",
+    "weight": 1
+  },
+  {
+    "a": "manipulation",
+    "b": "réalité",
+    "weight": 1
+  },
+  {
+    "a": "manipulation",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "manipulation",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "partagée",
+    "b": "refus",
+    "weight": 1
+  },
+  {
+    "a": "partagée",
+    "b": "réalité",
+    "weight": 1
+  },
+  {
+    "a": "partagée",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "partagée",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "refus",
+    "b": "réalité",
+    "weight": 1
+  },
+  {
+    "a": "refus",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "refus",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "réalité",
+    "b": "victime",
+    "weight": 1
+  },
+  {
+    "a": "réalité",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "victime",
+    "b": "violences",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "force",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "forces",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "manière",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "force",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "forces",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "manière",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "force",
+    "b": "forces",
+    "weight": 1
+  },
+  {
+    "a": "force",
+    "b": "juste",
+    "weight": 1
+  },
+  {
+    "a": "force",
+    "b": "lois",
+    "weight": 1
+  },
+  {
+    "a": "force",
+    "b": "manière",
+    "weight": 1
+  },
+  {
+    "a": "force",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "force",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "force",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "force",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "forces",
+    "b": "juste",
+    "weight": 1
+  },
+  {
+    "a": "forces",
+    "b": "lois",
+    "weight": 1
+  },
+  {
+    "a": "forces",
+    "b": "manière",
+    "weight": 1
+  },
+  {
+    "a": "forces",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "forces",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "forces",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "forces",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "lois",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "manière",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "juste",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "manière",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "lois",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "manière",
+    "b": "monde",
+    "weight": 1
+  },
+  {
+    "a": "manière",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "manière",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "manière",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "monde",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "système",
+    "b": "univers",
+    "weight": 1
+  },
+  {
+    "a": "système",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "univers",
+    "b": "équilibre",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "biais",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "charte",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "doit",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "humain",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "principe",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "protocole",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "alliance",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "charte",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "doit",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "principe",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "protocole",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "doit",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "humain",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "principe",
+    "weight": 1
+  },
+  {
+    "a": "charte",
+    "b": "protocole",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "doit",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "principe",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "protocole",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "doit",
+    "b": "humain",
+    "weight": 1
+  },
+  {
+    "a": "doit",
+    "b": "principe",
+    "weight": 1
+  },
+  {
+    "a": "doit",
+    "b": "protocole",
+    "weight": 1
+  },
+  {
+    "a": "doit",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "doit",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "doit",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "principe",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "protocole",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "humain",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "principe",
+    "b": "protocole",
+    "weight": 1
+  },
+  {
+    "a": "principe",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "principe",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "principe",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "protocole",
+    "b": "toute",
+    "weight": 1
+  },
+  {
+    "a": "protocole",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "protocole",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "toute",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "art",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "avoir",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "biais",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "modèles",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "action",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "avoir",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "biais",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "modèles",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "biais",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "modèles",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "avoir",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "justice",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "modèles",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "biais",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "modèles",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "modèles",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "justice",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "modèles",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "modèles",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "modèles",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "modèles",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "propagande",
+    "b": "vérité",
+    "weight": 1
+  },
+  {
+    "a": "propagande",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "propagande",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "vérité",
+    "b": "éthique",
+    "weight": 1
+  },
+  {
+    "a": "vérité",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "éthique",
+    "b": "éveil",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "femme",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "femmes",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "féminin",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "putain",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "sexe",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "sexualité",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "femme",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "femmes",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "féminin",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "putain",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "sexe",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "sexualité",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "désir",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "femmes",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "féminin",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "putain",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "sexe",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "sexualité",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "femme",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "femmes",
+    "b": "féminin",
+    "weight": 1
+  },
+  {
+    "a": "femmes",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "femmes",
+    "b": "putain",
+    "weight": 1
+  },
+  {
+    "a": "femmes",
+    "b": "sexe",
+    "weight": 1
+  },
+  {
+    "a": "femmes",
+    "b": "sexualité",
+    "weight": 1
+  },
+  {
+    "a": "femmes",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "femmes",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "femmes",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "féminin",
+    "b": "hommes",
+    "weight": 1
+  },
+  {
+    "a": "féminin",
+    "b": "putain",
+    "weight": 1
+  },
+  {
+    "a": "féminin",
+    "b": "sexe",
+    "weight": 1
+  },
+  {
+    "a": "féminin",
+    "b": "sexualité",
+    "weight": 1
+  },
+  {
+    "a": "féminin",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "féminin",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "féminin",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "putain",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "sexe",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "sexualité",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "hommes",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "putain",
+    "b": "sexe",
+    "weight": 1
+  },
+  {
+    "a": "putain",
+    "b": "sexualité",
+    "weight": 1
+  },
+  {
+    "a": "putain",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "putain",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "putain",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "sexe",
+    "b": "sexualité",
+    "weight": 1
+  },
+  {
+    "a": "sexe",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "sexe",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "sexe",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "sexualité",
+    "b": "symbolique",
+    "weight": 1
+  },
+  {
+    "a": "sexualité",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "sexualité",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "symbolique",
+    "b": "vierge",
+    "weight": 1
+  },
+  {
+    "a": "symbolique",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "vierge",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "erreur",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "parce",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "point",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "réel",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "société",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "civilisation",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "erreur",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "point",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "réel",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "société",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "parce",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "point",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "réel",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "société",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "erreur",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "peur",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "point",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "réel",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "société",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "point",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "réel",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "société",
+    "weight": 1
+  },
+  {
+    "a": "peur",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "point",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "point",
+    "b": "réel",
+    "weight": 1
+  },
+  {
+    "a": "point",
+    "b": "société",
+    "weight": 1
+  },
+  {
+    "a": "point",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "point",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "point",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "réel",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "société",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "réel",
+    "b": "société",
+    "weight": 1
+  },
+  {
+    "a": "réel",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "réel",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "réel",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "société",
+    "b": "spirale",
+    "weight": 1
+  },
+  {
+    "a": "société",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "société",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "spirale",
+    "b": "système",
+    "weight": 1
+  },
+  {
+    "a": "spirale",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "article",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "compréhension",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "lecteur",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "parce",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "art",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "chose",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "compréhension",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "lecteur",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "parce",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "article",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "compréhension",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "lecteur",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "parce",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "chose",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "compréhension",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "compréhension",
+    "b": "lecteur",
+    "weight": 1
+  },
+  {
+    "a": "compréhension",
+    "b": "parce",
+    "weight": 1
+  },
+  {
+    "a": "compréhension",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "compréhension",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "compréhension",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "compréhension",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "compréhension",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "lecteur",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "lecteur",
+    "b": "parce",
+    "weight": 1
+  },
+  {
+    "a": "lecteur",
+    "b": "pourquoi",
+    "weight": 1
+  },
+  {
+    "a": "lecteur",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "lecteur",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "lecteur",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "lecteur",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "parce",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "propagande",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "pourquoi",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "propagande",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "propagande",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "propagande",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "site",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "site",
+    "b": "très",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "cohérence",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "corps",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "expérience",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "musique",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "respiration",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "rythme",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "cerveau",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "expérience",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "musique",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "respiration",
+    "weight": 1
+  },
+  {
+    "a": "cohérence",
+    "b": "rythme",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "expérience",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "musique",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "respiration",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "rythme",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "expérience",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "musique",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "respiration",
+    "weight": 1
+  },
+  {
+    "a": "corps",
+    "b": "rythme",
+    "weight": 1
+  },
+  {
+    "a": "expérience",
+    "b": "musique",
+    "weight": 1
+  },
+  {
+    "a": "expérience",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "expérience",
+    "b": "respiration",
+    "weight": 1
+  },
+  {
+    "a": "expérience",
+    "b": "rythme",
+    "weight": 1
+  },
+  {
+    "a": "expérience",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "expérience",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "musique",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "musique",
+    "b": "respiration",
+    "weight": 1
+  },
+  {
+    "a": "musique",
+    "b": "rythme",
+    "weight": 1
+  },
+  {
+    "a": "musique",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "musique",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "onde",
+    "b": "respiration",
+    "weight": 1
+  },
+  {
+    "a": "onde",
+    "b": "rythme",
+    "weight": 1
+  },
+  {
+    "a": "respiration",
+    "b": "rythme",
+    "weight": 1
+  },
+  {
+    "a": "respiration",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "respiration",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "rythme",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "rythme",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "conflit",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "glossaire",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "agdistys",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "conscience",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "glossaire",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "conflit",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "conscience",
+    "b": "glossaire",
+    "weight": 1
+  },
+  {
+    "a": "glossaire",
+    "b": "nature",
+    "weight": 1
+  },
+  {
+    "a": "glossaire",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "glossaire",
+    "b": "sens",
+    "weight": 1
+  },
+  {
+    "a": "glossaire",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "glossaire",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "glossaire",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "glossaire",
+    "b": "vivant",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "onde",
+    "weight": 1
+  },
+  {
+    "a": "nature",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "onde",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "onde",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "onde",
+    "b": "violence",
+    "weight": 1
+  },
+  {
+    "a": "sens",
+    "b": "structure",
+    "weight": 1
+  },
+  {
+    "a": "structure",
+    "b": "verbe",
+    "weight": 1
+  },
+  {
+    "a": "structure",
+    "b": "vivant",
+    "weight": 1
+  }
+]

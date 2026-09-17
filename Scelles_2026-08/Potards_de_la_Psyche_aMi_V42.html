@@ -1,0 +1,1059 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🎛️ Les Potards de la Psyché · Profil de coût — Protocole aMi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+#ami-potards{--noir:#09090e;--encre:#111118;--voile:#181826;--or:#c8a84a;--or-pale:#e6d090;--or-somb:#7a611a;
+ --nacre:#f2ede2;--gris:#888898;--gris-cl:#b2b2c8;--vert:#3a7a52;--vert-cl:#90d8a8;
+ --rubis:#8a3030;--rubis-cl:#f0a0a0;--bleu:#2a4870;--bleu-cl:#80a8d8;--orange:#e0a070;--r:6px;
+ display:block;background:var(--noir);color:var(--nacre);font-family:'Jost',sans-serif;
+ font-weight:300;font-size:16px;line-height:1.7;margin:0}
+#ami-potards *{box-sizing:border-box}
+#ami-potards .pt-doc{max-width:1100px;margin:0 auto;padding:2.4rem 1.2rem 4rem}
+#ami-potards h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.5rem;
+ color:var(--nacre);margin:0 0 .25rem;text-align:center}
+#ami-potards .pt-sous{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.25rem;
+ color:var(--or-pale);text-align:center;margin:0 0 1.4rem}
+#ami-potards h3{font-family:'Jost',sans-serif;font-weight:400;font-size:.8rem;letter-spacing:.2em;
+ text-transform:uppercase;color:var(--or-pale);margin:2.4rem 0 .9rem;padding:.5rem 0 .5rem 1rem;
+ border-left:3px solid var(--or);background:linear-gradient(90deg,rgba(200,168,74,.13),transparent 72%)}
+#ami-potards h3 span{font-size:.66rem;letter-spacing:.1em;color:var(--gris);text-transform:none;font-weight:300}
+#ami-potards p{margin:0 0 .9rem;color:var(--gris-cl)}
+#ami-potards .pt-cle{border:1px solid rgba(200,168,74,.26);background:rgba(200,168,74,.06);
+ border-radius:var(--r);padding:.95rem 1.15rem;color:var(--or-pale);margin:1.2rem 0}
+#ami-potards .pt-priv{border:1px solid rgba(58,122,82,.34);background:rgba(58,122,82,.08);
+ border-radius:var(--r);padding:.8rem 1.1rem;color:var(--vert-cl);font-size:.9rem;margin:1.2rem 0}
+/* ── potards ── */
+#ami-potards .pt-liste{display:grid;gap:.5rem}
+#ami-potards .pt-item{border:1px solid rgba(200,168,74,.16);border-left:3px solid rgba(200,168,74,.2);
+ border-radius:0 var(--r) var(--r) 0;background:var(--encre);padding:.7rem .9rem;transition:all .25s}
+#ami-potards .pt-item.v1{border-left-color:#5a7a4a}
+#ami-potards .pt-item.v2{border-left-color:var(--or)}
+#ami-potards .pt-item.v3{border-left-color:var(--orange);background:rgba(200,120,60,.05)}
+#ami-potards .pt-item.v4{border-left-color:var(--rubis);background:rgba(138,48,48,.07)}
+#ami-potards .pt-tete{display:flex;flex-wrap:wrap;align-items:baseline;gap:.6rem}
+#ami-potards .pt-tete b{color:var(--nacre);font-weight:400;font-size:.98rem;flex:0 0 auto}
+#ami-potards .pt-res{font-size:.82rem;color:var(--gris);font-style:italic;flex:1}
+#ami-potards .pt-slider{display:flex;align-items:center;gap:.8rem;margin-top:.45rem}
+#ami-potards input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:4px;
+ border-radius:2px;background:linear-gradient(90deg,#3a7a52,#c8a84a 50%,#8a3030);outline:none;cursor:pointer}
+#ami-potards input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;
+ border-radius:50%;background:var(--nacre);border:2px solid var(--or-somb);cursor:pointer}
+#ami-potards input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;
+ background:var(--nacre);border:2px solid var(--or-somb);cursor:pointer}
+#ami-potards output{font-family:'Space Mono',monospace;font-size:.86rem;color:var(--or-pale);
+ min-width:1.4rem;text-align:center}
+#ami-potards .pt-ouv{max-height:0;overflow:hidden;transition:max-height .35s ease}
+#ami-potards .pt-item.actif .pt-ouv{max-height:16rem;margin-top:.5rem}
+#ami-potards .po-q{font-size:.9rem;color:var(--or-pale);margin:0 0 .25rem;
+ border-top:1px solid rgba(200,168,74,.16);padding-top:.5rem}
+#ami-potards .po-c{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;
+ color:var(--vert-cl);margin:0}
+/* ── résultat ── */
+#ami-potards .pt-res-box{position:sticky;top:0;z-index:50;background:rgba(9,9,14,.97);
+ backdrop-filter:blur(9px);border-bottom:1px solid var(--or-somb);padding:.9rem 1.2rem;margin:0 -1.2rem 1.4rem}
+#ami-potards .pt-jauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.5rem}
+#ami-potards .pj{border:1px solid rgba(200,168,74,.2);border-radius:var(--r);padding:.5rem .7rem;
+ background:var(--encre)}
+#ami-potards .pj b{display:block;font-family:'Space Mono',monospace;font-size:1.3rem;color:var(--or-pale)}
+#ami-potards .pj span{display:block;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gris)}
+#ami-potards .pj.soi b{color:var(--rubis-cl)}
+#ami-potards .pj.autrui b{color:var(--orange)}
+#ami-potards .pj.absent b{color:var(--bleu-cl)}
+#ami-potards .pj.tot b{color:var(--or)}
+#ami-potards .pt-int{display:flex;gap:.9rem;flex-wrap:wrap;margin:.55rem 0 0;
+ font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gris)}
+#ami-potards .pt-int i{font-style:normal;font-family:'Space Mono',monospace;color:var(--gris-cl)}
+#ami-potards .pt-int span.dom i{color:var(--or-pale)}
+#ami-potards .pt-lect{font-size:.9rem;color:var(--gris-cl);margin:.7rem 0 0;line-height:1.6}
+#ami-potards .pt-lect b{color:var(--or-pale)}
+#ami-potards .pt-act{display:flex;gap:.5rem;flex-wrap:wrap;margin:1.2rem 0}
+#ami-potards .pt-act button{font-family:'Jost',sans-serif;font-size:.72rem;letter-spacing:.12em;
+ text-transform:uppercase;background:var(--encre);border:1px solid rgba(200,168,74,.24);color:var(--gris);
+ border-radius:20px;padding:.45rem 1rem;cursor:pointer;transition:all .2s}
+#ami-potards .pt-act button.vb.on{color:var(--or-pale);border-color:var(--or);background:rgba(200,168,74,.1)}
+#ami-potards .pt-act button:hover{color:var(--or-pale);border-color:var(--or)}
+#ami-potards .pt-tag{font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
+ border:1px solid;border-radius:12px;padding:.1rem .55rem;white-space:nowrap;flex:0 0 auto}
+#ami-potards .pt-tag.ta{color:var(--rubis-cl);border-color:rgba(240,160,160,.32);background:rgba(138,48,48,.14)}
+#ami-potards .pt-tag.te{color:var(--orange);border-color:rgba(224,160,112,.32);background:rgba(200,120,60,.12)}
+#ami-potards h3.pa{border-left-color:var(--rubis)}
+#ami-potards h3.pe{border-left-color:var(--orange)}
+#ami-potards .pt-axe{border:1px solid rgba(200,168,74,.2);border-radius:var(--r);
+ background:var(--encre);padding:1rem;margin:1.2rem 0}
+#ami-potards .pt-axe svg{width:100%;max-width:520px;display:block;margin:0 auto;overflow:visible}
+#ami-potards .ax-ligne{stroke:#c02020;stroke-width:5}
+#ami-potards .ax-cap{fill:var(--nacre)}
+#ami-potards .ax-vert,#ami-potards .ax-fl{stroke:var(--or);fill:var(--or);stroke-width:2.5}
+#ami-potards .pt-axe text{font-family:'Jost',sans-serif;font-weight:300;text-anchor:middle}
+#ami-potards .ax-ep{fill:var(--or);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+#ami-potards .ax-sec{fill:var(--or-pale);font-size:14px}
+#ami-potards .ax-luc{fill:var(--vert-cl);font-size:9.5px}
+#ami-potards .ax-biais{fill:#e06060;font-size:9.5px}
+#ami-potards .ax-pol{fill:var(--nacre);font-size:11px}
+#ami-potards .ax-sub{fill:var(--gris);font-size:8.5px}
+#ami-potards .ax-des{fill:var(--gris);font-size:9px;font-style:italic}
+#ami-potards .ax-pt{fill:var(--nacre);stroke:var(--or);stroke-width:2}
+#ami-potards .ax-halo{fill:none;stroke:var(--or);stroke-width:1;opacity:.4}
+#ami-potards #axM{transition:opacity .3s}
+#ami-potards #axM circle{transition:cx .45s cubic-bezier(.4,0,.2,1),cy .45s cubic-bezier(.4,0,.2,1)}
+#ami-potards .ax-note{text-align:center;font-size:.92rem;color:var(--gris-cl);margin:.7rem 0 0}
+#ami-potards .ax-d{display:block;font-size:.85rem;color:var(--gris);margin-top:.3rem}
+#ami-potards .ax-h{display:block;font-size:.85rem;color:var(--vert-cl);margin-top:.35rem}
+#ami-potards .ax-note b{color:var(--or-pale)}
+#ami-potards .ax-cav{font-size:.8rem;color:var(--gris);margin:.6rem 0 0;padding-top:.55rem;
+ border-top:1px solid rgba(200,168,74,.14);text-align:center}
+#ami-potards .pt-rep{border:1px solid rgba(200,168,74,.2);border-radius:var(--r);
+ background:var(--encre);padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .pr-t{color:var(--or-pale);font-size:1.02rem;margin:0 0 .5rem}
+#ami-potards .pr-p{color:var(--gris-cl);font-size:.93rem;margin:0 0 .8rem}
+#ami-potards .pr-p b{color:var(--nacre)}
+#ami-potards .pr-tab{width:100%;border-collapse:collapse;font-size:.87rem;margin:0 0 .8rem}
+#ami-potards .pr-tab th{font-family:'Jost',sans-serif;font-weight:400;font-size:.62rem;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--or-pale);text-align:left;padding:.5rem .7rem;
+ border-bottom:1px solid var(--or-somb)}
+#ami-potards .pr-tab td{padding:.55rem .7rem;color:var(--gris-cl);vertical-align:top;
+ border-bottom:1px solid rgba(200,168,74,.12)}
+#ami-potards .pr-tab td b{color:var(--nacre);display:block}
+#ami-potards .pr-tab td span{display:block;font-size:.78rem;color:var(--gris);font-style:italic}
+#ami-potards .pr-po{white-space:nowrap}
+#ami-potards tr.ra .pr-po,#ami-potards tr.ra .pr-r b{color:var(--rubis-cl)}
+#ami-potards tr.re .pr-po,#ami-potards tr.re .pr-r b{color:var(--orange)}
+#ami-potards tr.rs td{background:rgba(200,168,74,.07);border-top:1px solid var(--or-somb)}
+#ami-potards tr.rs .pr-po,#ami-potards tr.rs .pr-r b{color:var(--or-pale)}
+#ami-potards .pr-f{font-size:.93rem;color:var(--gris-cl);margin:0 0 .7rem;padding-top:.6rem;
+ border-top:1px solid rgba(200,168,74,.16)}
+#ami-potards .pr-f b{color:var(--or-pale)}
+#ami-potards .pr-n{font-size:.83rem;color:var(--gris);margin:0}
+#ami-potards .pr-n b{color:var(--vert-cl)}
+#ami-potards .pt-div{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);
+ margin:.7rem 0 .15rem;padding:.2rem 0 .2rem .7rem;border-left:2px solid rgba(200,168,74,.3)}
+#ami-potards .pt-div i{font-style:normal;color:var(--or-somb)}
+#ami-potards .pt-div.n3{border-left-color:var(--bleu)}
+#ami-potards .pt-div.n1{border-left-color:var(--or)}
+#ami-potards .pt-div.n2{border-left-color:var(--gris)}
+#ami-potards .pt-mrk{font-size:.6rem;letter-spacing:.06em;color:var(--fuch-cl);
+ border:1px solid rgba(192,32,138,.34);background:rgba(192,32,138,.1);border-radius:12px;
+ padding:.1rem .5rem;white-space:nowrap;flex:0 0 auto}
+#ami-potards .pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+#ami-potards .pf-head{border-radius:var(--r) var(--r) 0 0;padding:.7rem .9rem;font-size:.95rem;
+ border:1px solid;border-bottom:none}
+#ami-potards .pf-head span{display:block;font-size:.78rem;color:var(--gris);font-style:italic;margin-top:.2rem}
+#ami-potards .pf-head.eco{color:var(--bleu-cl);border-color:rgba(128,168,216,.34);background:rgba(42,72,112,.16)}
+#ami-potards .pf-head.ego{color:var(--rubis-cl);border-color:rgba(240,160,160,.32);background:rgba(138,48,48,.14)}
+#ami-potards .pf-chap{border-left:3px solid var(--or);padding-left:.1rem;margin-bottom:.6rem}
+#ami-potards .pf-chap .pt-item{border-color:rgba(200,168,74,.4)}
+#ami-potards .pf-n{font-size:.85rem;color:var(--gris);margin:.8rem 0 0;text-align:center}
+#ami-potards .pf-n b{color:var(--or-pale)}
+@media(max-width:760px){#ami-potards .pf-grid{grid-template-columns:1fr}}
+#ami-potards .pt-3d{border:1px solid rgba(200,168,74,.2);border-radius:var(--r);
+ background:var(--encre);padding:1.05rem 1rem;margin:1.2rem 0}
+#ami-potards .p3-l{font-size:.8rem;color:var(--gris);margin:0 0 .6rem}
+#ami-potards .lg-s{color:var(--vert-cl)}#ami-potards .lg-n{color:var(--nacre)}#ami-potards .lg-m{color:var(--rubis-cl)}
+#ami-potards .t3-sain{fill:var(--vert-cl);font-size:12.5px}
+#ami-potards .t3-qi{fill:var(--rubis-cl);font-size:12px}
+#ami-potards .t3-mal{fill:#c88a8a;font-size:11.5px}
+#ami-potards .p3-spir{fill:none;stroke:var(--fuchsia);stroke-width:1.6;opacity:.5}
+#ami-potards .c3-st{fill:var(--fuch-cl);opacity:.9}
+#ami-potards .t3-st{fill:var(--fuch-cl);font-size:10px;opacity:.92}
+#ami-potards .pt-3d{--av:#48b070;--ar:#e05050;--ab:#5090e0;--aj:#d8b830}
+#ami-potards .av{fill:var(--av)}#ami-potards .ar{fill:var(--ar)}
+#ami-potards .ab{fill:var(--ab)}#ami-potards .aj{fill:var(--aj)}
+#ami-potards line.av{stroke:var(--av);fill:none}#ami-potards line.ar{stroke:var(--ar);fill:none}
+#ami-potards line.ab{stroke:var(--ab);fill:none}#ami-potards line.aj{stroke:var(--aj);fill:none}
+#ami-potards .t3-sain{font-size:12.5px;opacity:1}
+#ami-potards .t3-pol{font-size:14px;opacity:.95}
+#ami-potards .t3-emo{font-size:12.5px;opacity:.9}
+#ami-potards .t3-imp{font-size:11px;opacity:.68}
+#ami-potards .t3-qi{font-size:12px;opacity:.85}
+#ami-potards .t3-mal{font-size:11.5px;opacity:.62}
+#ami-potards .t3-sin{fill:var(--nacre);font-size:14px;letter-spacing:.1em;opacity:.85}
+#ami-potards .t3-ver{fill:var(--vert-cl);font-size:12.5px;letter-spacing:.04em;opacity:.92}
+#ami-potards .t3-dgc{fill:var(--bleu-cl);font-size:11px}
+#ami-potards .t3-dgi{fill:var(--rubis-cl);font-size:11px}
+#ami-potards .t3-csain{fill:var(--vert-cl);font-size:11.5px}
+#ami-potards .t3-cmal{fill:#c88a8a;font-size:11.5px}
+#ami-potards .c3-noir{fill:#000;stroke:#3a3a48;stroke-width:1.2}
+#ami-potards .c3-halo{fill:none;stroke:rgba(224,90,58,.28);stroke-width:6}
+#ami-potards .t3-ou{fill:var(--orange);font-weight:500}
+#ami-potards .l3-conn{stroke:rgba(200,168,74,.3);stroke-width:1;stroke-dasharray:3 5}
+#ami-potards .l3-ax{stroke-width:2;opacity:.8}
+#ami-potards .c3-st{fill:rgba(192,32,138,.85);stroke:var(--fuch-cl);stroke-width:1}
+#ami-potards .t3-stn{fill:#fff;font-size:10px;font-weight:500;text-anchor:middle}
+#ami-potards .p3-spir{fill:none;stroke:var(--fuchsia);stroke-width:1.6;opacity:.5}
+#ami-potards .ly-bar{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:0 0 .8rem}
+#ami-potards .ly-bar>span{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-right:.3rem}
+#ami-potards .ly-bar button{font-family:'Jost',sans-serif;font-size:.68rem;background:transparent;
+ border:1px solid rgba(200,168,74,.2);color:var(--gris);border-radius:14px;padding:.24rem .7rem;cursor:pointer;
+ transition:all .2s;opacity:.45}
+#ami-potards .ly-bar button.on{opacity:1;color:var(--or-pale);border-color:rgba(200,168,74,.5);background:rgba(200,168,74,.08)}
+#ami-potards .pt-3d.off-air .ly-air,
+#ami-potards .pt-3d.off-sc .ly-sc,
+#ami-potards .pt-3d.off-mo .ly-mo,
+#ami-potards .pt-3d.off-ver .ly-ver,
+#ami-potards .pt-3d.off-niv .ly-niv,#ami-potards .pt-3d.off-dg .ly-dg,#ami-potards .pt-3d.off-sin .ly-sin,
+#ami-potards .pt-3d.off-sp .ly-sp,#ami-potards .pt-3d.off-ter .ly-ter,#ami-potards .pt-3d.off-fac .ly-fac{display:none}
+#ami-potards .t3-scc{fill:var(--or-pale);font-size:11.5px;font-family:'Cormorant Garamond',serif}
+#ami-potards .t3-sco{fill:#a06a8a;font-size:10.5px}
+#ami-potards .p3-mont{fill:none;stroke:var(--or);stroke-width:2;opacity:.75}
+#ami-potards .c3-mo{fill:var(--or-pale);stroke:var(--or);stroke-width:1}
+#ami-potards .t3-mo{fill:var(--or-pale);font-size:10.5px;font-family:'Cormorant Garamond',serif}
+#ami-potards .pf-heads3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin:0 0 .5rem}
+#ami-potards .pf-rows3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem .7rem;align-items:start}
+#ami-potards .pf-head.imp{color:var(--rubis-cl);border-color:rgba(240,160,160,.32);background:rgba(138,48,48,.14)}
+#ami-potards .pf-head.exp{color:var(--orange);border-color:rgba(224,160,112,.32);background:rgba(200,120,60,.12)}
+#ami-potards #Q-eco{grid-column:1;grid-row:1}#ami-potards .pf-c2{grid-column:2 / span 2;grid-row:1}
+@media(max-width:900px){#ami-potards .pf-heads3,#ami-potards .pf-rows3{grid-template-columns:1fr}
+ #ami-potards .pf-rows3 .pt-item{grid-column:1!important;grid-row:auto!important}}
+#ami-potards .pf-heads{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:0 0 .5rem}
+#ami-potards .pf-rows{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .9rem;align-items:start}
+#ami-potards .pf-chap{border-left:3px solid var(--or);padding-left:.1rem}
+#ami-potards #Q-eco{grid-column:1;grid-row:1}#ami-potards #Q-ego{grid-column:2;grid-row:1}
+#ami-potards .p3-cl,#ami-potards .p3-mo{font-size:.88rem;color:var(--gris-cl);margin:.7rem 0 0;
+ padding-top:.6rem;border-top:1px solid rgba(128,168,216,.22)}
+#ami-potards .p3-cl b{color:var(--bleu-cl)}
+#ami-potards .p3-mo{border-top-color:rgba(58,122,82,.3)}
+#ami-potards .p3-mo b{color:var(--vert-cl)}
+#ami-potards .p3-sp2{font-size:.86rem;color:var(--gris-cl);margin:.5rem 0 0}
+#ami-potards .p3-sp2 b{color:var(--nacre)}
+#ami-potards .p3-n{text-align:center;font-size:.9rem;color:var(--gris-cl);margin:.6rem 0 0}
+#ami-potards .p3-n b{color:var(--or-pale)}
+#ami-potards .pt-plans{border:1px solid rgba(200,168,74,.2);border-radius:var(--r);
+ background:var(--encre);padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .pl-h{color:var(--or-pale);font-size:1.02rem;margin:0 0 .5rem}
+#ami-potards .pl-h b{color:var(--or-pale)}
+#ami-potards .pl-s,#ami-potards .pl-f{color:var(--gris-cl);font-size:.9rem;margin:0 0 .8rem}
+#ami-potards .pl-s b,#ami-potards .pl-f b{color:var(--nacre)}
+#ami-potards .pl-grid{display:flex;flex-direction:column;gap:2px;margin:0 0 .9rem}
+#ami-potards .pl-r{display:grid;grid-template-columns:4.4rem 1fr 8.5rem 13rem;gap:.6rem;align-items:center;
+ padding:.42rem .7rem;border-left:3px solid rgba(200,168,74,.14);background:rgba(255,255,255,.015);
+ opacity:.34;transition:all .35s}
+#ami-potards .pl-r.on{opacity:1;border-left-color:var(--or-somb);background:rgba(200,168,74,.05)}
+#ami-potards .pl-r.top{border-left-color:var(--or);background:rgba(200,168,74,.13)}
+#ami-potards .pl-n{font-family:'Space Mono',monospace;font-size:.95rem;color:var(--or-pale);white-space:nowrap}
+#ami-potards .pl-t b{display:block;color:var(--nacre);font-weight:400;font-size:.93rem}
+#ami-potards .pl-t i{display:block;font-size:.75rem;color:var(--gris);font-style:normal}
+#ami-potards .pl-v{font-size:.8rem;color:var(--rubis-cl)}
+#ami-potards .pl-o{font-size:.74rem;color:var(--bleu-cl);text-align:right}
+#ami-potards .pl-c{font-size:.85rem;color:var(--gris);margin:0;padding-top:.6rem;
+ border-top:1px solid rgba(200,168,74,.16)}
+#ami-potards .pl-c b{color:var(--or-pale)}
+@media(max-width:820px){#ami-potards .pl-r{grid-template-columns:3.6rem 1fr;gap:.3rem}
+ #ami-potards .pl-v,#ami-potards .pl-o{grid-column:2;text-align:left;font-size:.74rem}}
+#ami-potards .pt-clin{border:1px solid rgba(128,168,216,.28);background:rgba(42,72,112,.07);
+ border-radius:var(--r);padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .cl-h{color:var(--bleu-cl);font-size:1.02rem;margin:0 0 .5rem}
+#ami-potards .cl-w{font-size:.88rem;color:var(--gris-cl);margin:0 0 .9rem;border-left:2px solid var(--rubis);
+ background:rgba(138,48,48,.1);padding:.6rem .9rem;border-radius:0 4px 4px 0}
+#ami-potards .cl-w b{color:var(--rubis-cl)}
+#ami-potards .cl-tab{width:100%;border-collapse:collapse;font-size:.86rem;margin:0 0 .8rem}
+#ami-potards .cl-tab th{font-family:'Jost',sans-serif;font-weight:400;font-size:.6rem;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--or-pale);text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--or-somb)}
+#ami-potards .cl-tab td{padding:.55rem .7rem;vertical-align:top;color:var(--gris-cl);border-bottom:1px solid rgba(200,168,74,.12)}
+#ami-potards .cl-n{white-space:nowrap;color:var(--nacre)}
+#ami-potards .cl-n span{display:block;font-size:.68rem;color:var(--gris);font-style:italic;margin-top:.1rem}
+#ami-potards .cl-a{white-space:nowrap}
+#ami-potards .cl-a i{display:block;font-size:.76rem;color:var(--gris);font-style:italic;margin-top:.1rem}
+#ami-potards tr.ox .cl-a b{color:var(--ar)}#ami-potards tr.oy .cl-a b{color:var(--aj)}
+#ami-potards tr.ab .cl-a b{color:#5090e0}#ami-potards tr.ar .cl-a b{color:#e05050}
+#ami-potards tr.av .cl-a b{color:#48b070}#ami-potards tr.aj .cl-a b{color:#d8b830}
+#ami-potards .cl-f{font-size:.9rem;color:var(--gris-cl);margin:0 0 .6rem;padding-top:.5rem;
+ border-top:1px solid rgba(128,168,216,.2)}
+#ami-potards .cl-f b{color:var(--bleu-cl)}
+#ami-potards .pt-mir{border:1px solid rgba(200,168,74,.2);border-radius:var(--r);
+ background:var(--encre);padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .pm-t{color:var(--or-pale);font-size:1.02rem;margin:0 0 .55rem}
+#ami-potards .pm-p{color:var(--gris-cl);font-size:.92rem;margin:0 0 .8rem}
+#ami-potards .pm-p b{color:var(--nacre)}
+#ami-potards .pm-tab{width:100%;border-collapse:collapse;font-size:.85rem;margin:0 0 .8rem}
+#ami-potards .pm-tab th{font-family:'Jost',sans-serif;font-weight:400;font-size:.6rem;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--or-pale);text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--or-somb)}
+#ami-potards .pm-tab td{padding:.5rem .7rem;vertical-align:top;border-bottom:1px solid rgba(200,168,74,.12)}
+#ami-potards .pm-c{color:var(--bleu-cl);white-space:nowrap}
+#ami-potards .pm-i{color:var(--rubis-cl);white-space:nowrap}
+#ami-potards .pm-o b{color:var(--nacre);display:block;font-weight:400}
+#ami-potards .pm-o span{display:block;font-size:.78rem;color:var(--gris);font-style:italic;margin-top:.15rem}
+#ami-potards .pm-f{font-size:.92rem;color:var(--gris-cl);margin:0;padding-top:.6rem;border-top:1px solid rgba(200,168,74,.16)}
+#ami-potards .pm-f b{color:var(--or-pale)}
+#ami-potards .pt-const{border:1px solid rgba(192,32,138,.3);background:rgba(192,32,138,.05);
+ border-radius:var(--r);padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .pc-t{color:#e878c8;font-size:1.02rem;margin:0 0 .6rem}
+#ami-potards .pc-p{color:var(--gris-cl);font-size:.93rem;margin:0 0 .7rem}
+#ami-potards .pc-p b{color:var(--nacre)}
+#ami-potards .pc-k{border-left:2px solid #c0208a;padding-left:.85rem}
+#ami-potards .pc-q{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2rem;
+ color:var(--or-pale);text-align:center;margin:.8rem 0}
+#ami-potards .pc-l{list-style:none;margin:0 0 .8rem;padding:0;
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.2rem .9rem}
+#ami-potards .pc-l li{color:var(--gris-cl);font-size:.87rem;padding:.22rem 0 .22rem 1.1rem;position:relative}
+#ami-potards .pc-l li:before{content:'·';position:absolute;left:.3rem;color:#c0208a;font-weight:600}
+#ami-potards .pc-f{font-size:.92rem;color:var(--gris-cl);margin:0;padding-top:.6rem;
+ border-top:1px solid rgba(192,32,138,.22)}
+#ami-potards .pc-f b{color:#e878c8}
+#ami-potards .ps-lib{font-size:.92rem;color:var(--gris-cl);margin:0 0 .9rem;
+ border-left:2px solid var(--vert);background:rgba(58,122,82,.1);padding:.65rem .9rem;border-radius:0 4px 4px 0}
+#ami-potards .ps-lib b{color:var(--vert-cl)}
+#ami-potards .pt-scan{border:1px solid rgba(200,168,74,.26);background:rgba(200,168,74,.06);
+ border-radius:var(--r);padding:1.05rem 1.25rem;margin:1.2rem 0;color:var(--or-pale)}
+#ami-potards .ps-t{color:var(--or-pale);margin:0 0 .55rem}
+#ami-potards .ps-l{list-style:none;margin:0 0 .9rem;padding:0}
+#ami-potards .ps-l li{color:var(--gris-cl);padding:.4rem 0 .4rem 1.5rem;position:relative;line-height:1.65}
+#ami-potards .ps-l li:before{content:'◦';position:absolute;left:.35rem;color:var(--or)}
+#ami-potards .ps-l li+li{border-top:1px solid rgba(200,168,74,.13)}
+#ami-potards .ps-n{font-size:.92rem;color:var(--gris-cl);margin:0 0 .8rem;padding:.7rem 0 0;border-top:1px solid rgba(200,168,74,.16)}
+#ami-potards .ps-n b{color:var(--or-pale)}
+#ami-potards .ps-w{font-size:.88rem;color:var(--bleu-cl);margin:0 0 .9rem;border-left:2px solid var(--bleu);
+ background:rgba(42,72,112,.14);padding:.6rem .9rem;border-radius:0 4px 4px 0}
+#ami-potards .ps-w b{color:#a8c8f0}
+#ami-potards .ps-f{font-family:'Cormorant Garamond',serif;font-size:1.22rem;color:var(--nacre);
+ margin:0;padding-top:.7rem;border-top:1px solid rgba(200,168,74,.24);line-height:1.5}
+#ami-potards .ps-f i{color:var(--or-pale)}
+#ami-potards .sig{text-align:center;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;
+ color:var(--or-somb);margin-top:2.6rem}
+@media(max-width:600px){#ami-potards h1{font-size:1.85rem}#ami-potards .pt-res{flex:0 0 100%}}
+
+/* ═══ restauration + charte ═══ */
+#ami-potards .pt-3d svg{width:100%;display:block;overflow:visible}
+#ami-potards .pt-3d text{font-family:'Jost',sans-serif;font-weight:300;text-anchor:middle}
+#ami-potards .p3-t{color:var(--or-pale);font-size:1rem;margin:0 0 .5rem}
+#ami-potards .t3-sec{fill:var(--or);font-size:21px;letter-spacing:.05em}
+#ami-potards .t3-ass{fill:var(--or-pale);font-size:15px}
+#ami-potards .t3-luc{fill:var(--vert-cl);font-size:11.5px}
+#ami-potards .t3-nous{fill:var(--or);font-size:14px}
+#ami-potards .t3-conf{fill:var(--vert-cl);font-size:15px}
+#ami-potards .t3-ab{fill:var(--or-pale)}
+#ami-potards .l3-vert{stroke:var(--or);stroke-width:4;fill:none}
+#ami-potards .l3-terr{stroke:var(--nacre);stroke-width:1.6;stroke-dasharray:14 11;opacity:.42;fill:none}
+#ami-potards .t3-terr{fill:var(--gris);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+#ami-potards .p3-plan{fill:rgba(242,237,226,.055);stroke:rgba(242,237,226,.2);stroke-width:1}
+#ami-potards .t3-face{font-size:14px}
+#ami-potards .f-eco{fill:var(--bleu-cl)}
+#ami-potards .f-ego{fill:var(--rubis-cl)}
+#ami-potards .t3-sub2{fill:var(--gris);font-size:10.5px}
+#ami-potards .t3-ctr{fill:var(--orange);font-size:12.5px}
+#ami-potards .c3-pt{fill:var(--nacre);stroke:var(--or);stroke-width:2.5}
+#ami-potards .c3-omb{fill:none;stroke:var(--or-somb);stroke-width:1.4}
+#ami-potards .l3-lien{stroke:var(--or);stroke-width:1.2;stroke-dasharray:4 4;opacity:.65;fill:none}
+#ami-potards #r3M{transition:opacity .3s}
+#ami-potards #r3M circle,#ami-potards #r3M ellipse,#ami-potards #r3M line{transition:all .5s cubic-bezier(.4,0,.2,1)}
+#ami-potards .p3-n{text-align:center;font-size:.9rem;color:var(--gris-cl);margin:.6rem 0 0}
+#ami-potards .p3-n b{color:var(--or-pale)}
+/* le sain en serif — le malade et le neutre restent en Jost */
+#ami-potards .pt-3d text.t3-sain,#ami-potards .pt-3d text.t3-ver,#ami-potards .pt-3d text.t3-csain,
+#ami-potards .pt-3d text.t3-sec,#ami-potards .pt-3d text.t3-ass,#ami-potards .pt-3d text.t3-conf,
+#ami-potards .pt-3d text.t3-nous,#ami-potards .pt-3d text.t3-scc,#ami-potards .pt-3d text.t3-mo{
+ font-family:'Cormorant Garamond',serif!important;font-weight:400}
+#ami-potards .t3-sain{font-size:14.5px}
+#ami-potards .t3-ver{font-size:14.5px;fill:var(--or-pale)}
+#ami-potards .t3-csain{font-size:13.5px}
+#ami-potards .t3-sec{font-size:24px}#ami-potards .t3-ass{font-size:17px}
+#ami-potards .t3-conf{font-size:17px}#ami-potards .t3-nous{font-size:16px}
+#ami-potards .t3-sin{fill:var(--gris-cl);font-size:14px;letter-spacing:.09em;opacity:.9}
+/* la citation ne se met plus en colonne dans les vues étroites */
+#ami-potards .pt-res{flex:1 1 100%;min-width:0}
+#ami-potards .pt-tete{flex-wrap:wrap}
+/* l'échelle au repos n'est plus grisée */
+#ami-potards .pt-plans.idle .pl-r{opacity:.8;border-left-color:rgba(200,168,74,.22)}
+/* miroirs : ECO noir · EGO blanc · opération rouge */
+#ami-potards .pm-c{color:#9a9ab0;background:#000;border-radius:4px;white-space:nowrap}
+#ami-potards .pm-i{color:#fff;background:#20202c;border-radius:4px;white-space:nowrap}
+#ami-potards .pm-o b{color:var(--rubis-cl)}
+#ami-potards .pm-tab th:first-child{color:#9a9ab0}
+#ami-potards .pm-tab th:nth-child(2){color:#fff}
+#ami-potards .pm-tab th:nth-child(3){color:var(--rubis-cl)}
+
+#ami-potards input[type=range]{background:linear-gradient(90deg,#8a3030 0%,#c86a4a 25%,#888898 50%,#7ab890 75%,#3a9a5a 100%)}
+#ami-potards .pt-item.w1{border-left-color:#5a9a72}
+#ami-potards .pt-item.w2{border-left-color:#3a9a5a;background:rgba(58,122,82,.05)}
+#ami-potards .pt-item.w3{border-left-color:#48b070;background:rgba(58,122,82,.08)}
+#ami-potards .pt-item.w4{border-left-color:var(--vert-cl);background:rgba(58,122,82,.12)}
+#ami-potards .pt-pos{max-height:0;overflow:hidden;margin:0;transition:max-height .35s ease;
+ font-family:'Cormorant Garamond',serif;font-size:1.02rem;color:var(--vert-cl)}
+#ami-potards .pt-item.pos .pt-pos{max-height:6rem;margin-top:.5rem;padding-top:.5rem;
+ border-top:1px solid rgba(58,122,82,.3)}
+#ami-potards .pj.ver b{color:var(--vert-cl)}
+#ami-potards .p3-n .hh{color:var(--gris);font-size:.8rem}
+#ami-potards output{min-width:2rem}
+
+#ami-potards .pt-3d .t3-sain,#ami-potards .pt-3d .t3-ver{font-size:13.5px}
+#ami-potards .pt-3d .t3-pol{font-size:12.5px}#ami-potards .pt-3d .t3-emo{font-size:11.5px}
+#ami-potards .pt-3d .t3-imp{font-size:10px}#ami-potards .pt-3d .t3-qi{font-size:11px}
+#ami-potards .pt-3d .t3-mal{font-size:10.5px}#ami-potards .pt-3d .t3-sin{font-size:13px}
+#ami-potards .pt-3d .t3-dgc,#ami-potards .pt-3d .t3-dgi{font-size:10px}
+#ami-potards .pt-3d .t3-scc{font-size:10.5px}#ami-potards .pt-3d .t3-sco{font-size:9.5px}
+#ami-potards .pt-3d .t3-mo{font-size:10px}#ami-potards .pt-3d .t3-sub2{font-size:9.5px}
+#ami-potards .pt-3d .t3-ctr,#ami-potards .pt-3d .t3-cmal{font-size:11px}
+#ami-potards .pt-3d .t3-csain{font-size:12px}
+#ami-potards .t3-ac{fill:var(--orange)}
+#ami-potards .t3-acr{fill:var(--gris);font-size:9.5px;font-style:italic}
+#ami-potards .p3-seg{fill:none;stroke-linecap:round}
+#ami-potards .p3-zoom{font-size:.78rem;color:var(--gris);text-align:center;margin:.4rem 0 0}
+
+#ami-potards .t3-bles{fill:#f0a0a0;font-size:13px;letter-spacing:.06em}
+#ami-potards .t3-psy{fill:#b090d8;font-size:10px}
+#ami-potards .t3-plan{fill:var(--gris);font-size:11px;letter-spacing:.1em}
+#ami-potards .t3-air{font-size:10.5px;fill:var(--gris-cl);opacity:.92}
+#ami-potards .a3-b{fill:rgba(224,80,80,.10);stroke:rgba(224,80,80,.42);stroke-width:1;stroke-dasharray:6 5}
+#ami-potards .a3-y{fill:rgba(216,184,48,.10);stroke:rgba(216,184,48,.42);stroke-width:1;stroke-dasharray:6 5}
+#ami-potards .a3-d{fill:rgba(80,144,224,.12);stroke:rgba(80,144,224,.45);stroke-width:1;stroke-dasharray:6 5}
+#ami-potards .a3-s{fill:rgba(242,237,226,.03);stroke:rgba(242,237,226,.18);stroke-width:1;stroke-dasharray:3 7}
+#ami-potards .a3-t{fill:rgba(192,32,138,.16);stroke:rgba(192,32,138,.5);stroke-width:1;stroke-dasharray:6 5}
+#ami-potards .a3-e{fill:rgba(72,176,112,.12);stroke:rgba(72,176,112,.45);stroke-width:1;stroke-dasharray:6 5}
+#ami-potards .a3-h{fill:rgba(200,168,74,.07);stroke:rgba(200,168,74,.26);stroke-width:1;stroke-dasharray:2 6}
+
+#ami-potards .pt-mx{border:1px solid rgba(200,168,74,.22);border-radius:var(--r);background:var(--encre);
+ padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .mx-h{color:var(--or-pale);font-size:1.04rem;margin:0 0 .4rem}
+#ami-potards .mx-s{color:var(--gris-cl);font-size:.9rem;margin:0 0 .9rem}
+#ami-potards .mx-s b{color:var(--nacre)}
+#ami-potards .mx-d{border:1px solid rgba(200,168,74,.16);border-radius:var(--r);margin:0 0 .5rem;
+ background:rgba(255,255,255,.014)}
+#ami-potards .mx-d summary{cursor:pointer;padding:.6rem .9rem;color:var(--or-pale);font-size:.94rem;
+ list-style:none;transition:background .2s}
+#ami-potards .mx-d summary::-webkit-details-marker{display:none}
+#ami-potards .mx-d summary:before{content:'▸ ';color:var(--or-somb)}
+#ami-potards .mx-d[open] summary:before{content:'▾ '}
+#ami-potards .mx-d summary:hover{background:rgba(200,168,74,.05)}
+#ami-potards .mx-d summary i{color:var(--gris);font-size:.82rem}
+#ami-potards .mx-c{padding:.2rem .9rem .9rem;border-top:1px solid rgba(200,168,74,.12)}
+#ami-potards .mx-t{width:100%;border-collapse:collapse;font-size:.86rem;margin:.7rem 0 .3rem}
+#ami-potards .mx-t th{font-family:'Jost',sans-serif;font-weight:400;font-size:.6rem;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--or-pale);text-align:left;padding:.45rem .65rem;
+ border-bottom:1px solid var(--or-somb)}
+#ami-potards .mx-t td{padding:.5rem .65rem;vertical-align:top;color:var(--gris-cl);
+ border-bottom:1px solid rgba(200,168,74,.1)}
+#ami-potards .mx-t td b{color:var(--nacre)}
+#ami-potards .mx-t td span{display:block;font-size:.78rem;color:var(--gris);font-style:italic;margin-top:.12rem}
+#ami-potards .mx-l{color:var(--or-pale);white-space:nowrap}
+#ami-potards .mx-ok{background:rgba(58,122,82,.09)}
+#ami-potards .mx-ok b{color:var(--vert-cl)}
+#ami-potards .mx-ko b{color:var(--rubis-cl)}
+#ami-potards .mx-p{font-size:.9rem;color:var(--gris-cl);margin:.7rem 0 0;line-height:1.68}
+#ami-potards .mx-p b{color:var(--or-pale)}
+#ami-potards .mx-big{font-family:'Cormorant Garamond',serif;font-size:1.06rem;color:var(--nacre);
+ border-left:2px solid var(--or);padding-left:.9rem}
+#ami-potards .mx-big b{color:var(--or-pale)}
+#ami-potards .mx-w{font-size:.86rem;color:var(--gris-cl);margin:.7rem 0 0;border-left:2px solid var(--rubis);
+ background:rgba(138,48,48,.1);padding:.55rem .85rem;border-radius:0 4px 4px 0}
+#ami-potards .mx-w b{color:var(--rubis-cl)}
+
+#ami-potards .ly-all{background:rgba(200,168,74,.13)!important;color:var(--or-pale)!important;
+ border-color:rgba(200,168,74,.5)!important;opacity:1!important}
+#ami-potards .ly-sep{width:1px;height:1.1rem;background:rgba(200,168,74,.24);margin:0 .22rem}
+#ami-potards .p3-t2{color:var(--gris-cl);font-size:.88rem;font-weight:300}
+#ami-potards .pt-res2{border:1px solid rgba(58,122,82,.32);background:rgba(58,122,82,.06);
+ border-radius:var(--r);padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .rs-t{color:var(--vert-cl);font-size:1.04rem;margin:0 0 .5rem}
+#ami-potards .rs-t2{color:#f0a0a0;font-size:1.02rem;margin:1.2rem 0 .3rem;padding-top:.8rem;
+ border-top:1px solid rgba(200,168,74,.16)}
+#ami-potards .rs-p{color:var(--gris-cl);font-size:.92rem;margin:0 0 .7rem;line-height:1.68}
+#ami-potards .rs-p b{color:var(--nacre)}
+#ami-potards .rs-big{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--nacre);
+ border-left:2px solid var(--vert);padding-left:.9rem;margin-top:.9rem}
+#ami-potards .rs-big b{color:var(--vert-cl)}
+
+#ami-potards .tv-bar{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:.9rem 0 .4rem;
+ padding-top:.8rem;border-top:1px solid rgba(200,168,74,.18)}
+#ami-potards .tv-l{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-right:.3rem}
+#ami-potards .tv-b{font-family:'Jost',sans-serif;font-size:.7rem;background:transparent;
+ border:1px solid rgba(200,168,74,.2);color:var(--gris);border-radius:14px;padding:.26rem .72rem;cursor:pointer;
+ transition:all .2s;opacity:.55}
+#ami-potards .tv-b.on{opacity:1;color:var(--or-pale);border-color:var(--or);background:rgba(200,168,74,.12)}
+#ami-potards .tv-b:hover{opacity:1;color:var(--or-pale)}
+#ami-potards .tv-play{font-family:'Jost',sans-serif;font-size:.72rem;letter-spacing:.08em;
+ background:rgba(58,122,82,.16);border:1px solid rgba(58,122,82,.5);color:var(--vert-cl);
+ border-radius:14px;padding:.26rem .9rem;cursor:pointer;margin-left:.3rem}
+#ami-potards .tv-n{font-size:.83rem;color:var(--gris);text-align:center;margin:.35rem 0 0}
+#ami-potards .tv-n b{color:var(--or-pale)}
+#ami-potards .tv-c{text-align:center;font-size:.9rem;color:var(--gris-cl);margin:.3rem 0 0}
+#ami-potards .tv-c b{color:var(--or-pale)}
+
+#ami-potards .pt-tp{border:1px solid rgba(200,168,74,.24);background:var(--encre);border-radius:var(--r);
+ padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .tp-t{color:var(--or-pale);font-size:1.04rem;margin:0 0 .5rem}
+#ami-potards .tp-p{color:var(--gris-cl);font-size:.91rem;margin:0 0 .8rem;line-height:1.68}
+#ami-potards .tp-p b{color:var(--nacre)}
+#ami-potards .tp-num{border-left:2px solid var(--or);padding-left:.9rem}
+#ami-potards .tp-num b{color:var(--or-pale)}
+#ami-potards .tp-big{font-family:'Cormorant Garamond',serif;font-size:1.06rem;color:var(--nacre)}
+#ami-potards .tp-big b{color:var(--or-pale)}
+#ami-potards .tp-tab{width:100%;border-collapse:collapse;font-size:.83rem;margin:0 0 .8rem}
+#ami-potards .tp-tab th{font-family:'Jost',sans-serif;font-weight:400;font-size:.62rem;letter-spacing:.12em;
+ text-transform:uppercase;color:var(--or-pale);text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--or-somb)}
+#ami-potards .tp-tab th span{display:block;font-size:.56rem;color:var(--gris);letter-spacing:.08em;margin-top:.1rem}
+#ami-potards .tp-tab td{padding:.48rem .6rem;vertical-align:top;border-bottom:1px solid rgba(200,168,74,.1)}
+#ami-potards .tp-c{color:#9a9ab0;background:#000;white-space:nowrap}
+#ami-potards .tp-i{color:var(--rubis-cl);white-space:nowrap}
+#ami-potards .tp-e{color:var(--orange);white-space:nowrap}
+#ami-potards .tp-o{color:var(--gris);font-style:italic}
+#ami-potards .tp-h{background:rgba(192,32,138,.12);color:var(--fuch-cl)}
+#ami-potards .tp-h span{display:block;font-size:.76rem;color:var(--gris-cl);font-style:normal;margin-top:.2rem;white-space:normal}
+#ami-potards .tp-w{font-size:.86rem;color:var(--gris-cl);margin:0;border-left:2px solid var(--bleu);
+ background:rgba(42,72,112,.14);padding:.6rem .9rem;border-radius:0 4px 4px 0}
+#ami-potards .tp-w b{color:var(--bleu-cl)}
+
+#ami-potards .pt-jauges{grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.35rem}
+#ami-potards .pj{display:flex;align-items:baseline;gap:.45rem;padding:.34rem .6rem}
+#ami-potards .pj b{display:inline;font-size:1.12rem;line-height:1.2}
+#ami-potards .pj span{display:inline;font-size:.58rem;letter-spacing:.1em;line-height:1.2}
+#ami-potards .pt-res-box{padding:.6rem 1.2rem}
+#ami-potards .pt-int{margin:.4rem 0 0}
+#ami-potards .pt-lect{margin:.4rem 0 0;font-size:.86rem}
+
+#ami-potards .l3-sill{fill:none;stroke:var(--or-pale);stroke-width:2.4;opacity:.5;
+ stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:1 7}
+#ami-potards .c3-tr{fill:var(--or-pale);stroke:var(--or-somb);stroke-width:.8}
+#ami-potards .c3-ds{fill:rgba(242,237,226,.20);stroke:rgba(242,237,226,.4);stroke-width:1}
+#ami-potards #r3DS{transition:opacity .4s}
+#ami-potards .c3-ds.d0{animation:r3trem 2.3s ease-in-out infinite}
+#ami-potards .c3-ds.d1{animation:r3trem 2.9s ease-in-out infinite .3s}
+#ami-potards .c3-ds.d2{animation:r3trem 2.5s ease-in-out infinite .7s}
+#ami-potards .c3-ds.d3{animation:r3trem 3.1s ease-in-out infinite 1.1s}
+#ami-potards .c3-ds.d4{animation:r3trem 2.7s ease-in-out infinite .5s}
+#ami-potards .c3-ds.d5{animation:r3trem 3.3s ease-in-out infinite .9s}
+@keyframes r3trem{0%,100%{transform:translate(0,0)}25%{transform:translate(5px,-4px)}
+ 50%{transform:translate(-4px,5px)}75%{transform:translate(-5px,-3px)}}
+
+#ami-potards.bc-blind .pt-plans,#ami-potards.bc-blind .p3-n,#ami-potards.bc-blind .pt-lect,
+#ami-potards.bc-blind .pt-int,#ami-potards.bc-blind #axN{visibility:hidden}
+#ami-potards .pt-banc{border:1px solid rgba(128,168,216,.3);background:rgba(42,72,112,.07);
+ border-radius:var(--r);padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .bc-t{color:var(--bleu-cl);font-size:1.04rem;margin:0 0 .5rem}
+#ami-potards .bc-p{color:var(--gris-cl);font-size:.91rem;margin:0 0 .75rem;line-height:1.68}
+#ami-potards .bc-p b{color:var(--nacre)}
+#ami-potards .bc-eta{border-left:2px solid var(--or);padding-left:.9rem}
+#ami-potards .bc-eta b{color:var(--or-pale)}
+#ami-potards .bc-bar{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0 .8rem}
+#ami-potards .bc-bar button{font-family:'Jost',sans-serif;font-size:.72rem;letter-spacing:.06em;
+ background:var(--encre);border:1px solid rgba(128,168,216,.34);color:var(--bleu-cl);
+ border-radius:14px;padding:.3rem .9rem;cursor:pointer}
+#ami-potards .bc-grid{display:grid;gap:.3rem;margin:0 0 .8rem}
+#ami-potards .bc-r{display:grid;grid-template-columns:1fr auto 10rem;gap:.6rem;align-items:center;
+ padding:.34rem .7rem;border-left:2px solid rgba(200,168,74,.2);background:rgba(255,255,255,.015)}
+#ami-potards .bc-e{color:var(--nacre);font-size:.9rem}
+#ami-potards .bc-rec{font-family:'Jost',sans-serif;font-size:.68rem;background:transparent;
+ border:1px solid rgba(200,168,74,.3);color:var(--or-pale);border-radius:12px;padding:.22rem .7rem;cursor:pointer}
+#ami-potards .bc-s{font-size:.76rem;color:var(--gris);text-align:right}
+#ami-potards .bc-s b{color:var(--vert-cl)}
+#ami-potards .bo-tab{width:100%;border-collapse:collapse;font-size:.87rem;margin:.4rem 0}
+#ami-potards .bo-tab th{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--or-pale);
+ text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--or-somb)}
+#ami-potards .bo-tab td{padding:.45rem .6rem;color:var(--gris-cl);border-bottom:1px solid rgba(200,168,74,.1)}
+#ami-potards .bo-e{color:var(--nacre);white-space:nowrap}
+#ami-potards .bo-t b{color:var(--bleu-cl)}#ami-potards .bo-m b{color:var(--or-pale)}
+#ami-potards .bo-ok{color:var(--vert-cl)}#ami-potards .bo-ko{color:var(--rubis-cl)}
+#ami-potards .bc-verdict{border-left:2px solid var(--bleu);padding-left:.9rem;margin-top:.6rem}
+#ami-potards .bc-vide{color:var(--gris);font-style:italic;font-size:.9rem;margin:0}
+#ami-potards .bc-w{font-size:.85rem;color:var(--gris-cl);margin:0;padding-top:.6rem;
+ border-top:1px solid rgba(128,168,216,.22)}
+#ami-potards .bc-w b{color:var(--bleu-cl)}
+
+#ami-potards .l3-ds{stroke:rgba(242,237,226,.3);stroke-width:1;stroke-dasharray:2 5}
+#ami-potards #r3DL{transition:opacity .4s}
+#ami-potards .t3-bul{fill:#d8b0c8;font-size:11px;font-style:italic}
+#ami-potards #r3B{transition:opacity .5s}
+#ami-potards .t3-bul.b0{animation:r3flot 5.5s ease-in-out infinite}
+#ami-potards .t3-bul.b1{animation:r3flot 6.4s ease-in-out infinite 1.2s}
+#ami-potards .t3-bul.b2{animation:r3flot 7.1s ease-in-out infinite 2.4s}
+@keyframes r3flot{0%,100%{transform:translate(0,0);opacity:.55}50%{transform:translate(0,-7px);opacity:.95}}
+
+#ami-potards .pt-nom{border:1px solid rgba(200,168,74,.22);background:var(--encre);border-radius:var(--r);
+ padding:1.05rem 1.25rem;margin:1.2rem 0}
+#ami-potards .nm-t{color:var(--or-pale);font-size:1.04rem;margin:0 0 .5rem}
+#ami-potards .nm-p{color:var(--gris-cl);font-size:.91rem;margin:0 0 .8rem;line-height:1.68}
+#ami-potards .nm-p b{color:var(--nacre)}
+#ami-potards .nm-esc{border-left:2px solid var(--or);padding-left:.9rem}
+#ami-potards .nm-esc b{color:var(--or-pale)}
+#ami-potards .nm-big{font-family:'Cormorant Garamond',serif;font-size:1.06rem;color:var(--nacre)}
+#ami-potards .nm-big b{color:var(--vert-cl)}
+#ami-potards .nm-tab{width:100%;border-collapse:collapse;font-size:.87rem;margin:0 0 .8rem}
+#ami-potards .nm-tab th{font-family:'Jost',sans-serif;font-weight:400;font-size:.6rem;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--or-pale);text-align:left;padding:.5rem .65rem;border-bottom:1px solid var(--or-somb)}
+#ami-potards .nm-tab td{padding:.48rem .65rem;border-bottom:1px solid rgba(200,168,74,.1)}
+#ami-potards .nm-r{color:var(--gris-cl);white-space:nowrap}
+#ami-potards .nm-f{color:#9a9ab0;background:#000;white-space:nowrap}
+#ami-potards .nm-i{color:var(--rubis-cl);white-space:nowrap}
+#ami-potards .nm-e{color:var(--orange);white-space:nowrap}
+#ami-potards tr.nm-soin td{background:rgba(58,122,82,.1);border-top:1px solid var(--vert)}
+#ami-potards tr.nm-soin .nm-i b,#ami-potards tr.nm-soin .nm-e b{color:var(--vert-cl)}
+</style></head>
+<body style="margin:0;background:#09090e"><div id="ami-potards"><div class="pt-doc">
+
+<h1>🎛️ Les Potards de la Psyché</h1>
+<p class="pt-sous">· Ce n’est pas un diagnostic · C’est un profil de coût ·</p>
+
+<p class="pt-cle">◈ <b>Un potard a une position, pas une nature.</b> Il monte, il descend, on peut le tourner. <b>C’est pourquoi cet instrument ne rend jamais un nom de trouble</b> — il rend <b>ce que la configuration dépense</b>, et sur qui ça tombe.</p>
+<p class="pt-cle">◈ <b>Deux usages, un seul outil.</b> Réglé sur soi, il montre <b>où l’on paie</b> — c’est le geste de 🪞 Miroir. Réglé sur une situation, il montre <b>ce qu’on encaisse</b> — c’est le geste de 👑 EGO. <b>Dans les deux cas, on lit des effets, jamais des personnes.</b></p>
+<p class="pt-cle">◈ <b>Une défense n’est jamais une faute.</b> C’est une tentative de survie qui a réussi — et qui continue. <b>Elle devient faute lorsqu’il n’y a pas de menace, et qu’alors la défense est une attaque.</b> C’est pourquoi un potard haut ne se lit pas comme un reproche&#8239;: il se lit comme une question — <em>y a-t-il encore quelque chose contre quoi se défendre&#8239;?</em> Une défense se juge à son présent, jamais à son origine.</p>
+
+<p class="pt-cle">◈ <b>Et l’oubli est le cas où il faut être le plus précis.</b> La mémoire traumatique protège tant qu’elle travaille&#8239;; <b>bloquée, elle devient du déni — et ce déni-là agresse.</b> Ce n’est pas une symétrie, c’est une dégradation, avec une origine et un sens&#8239;: <em>la personne qui a payé devient celle qui fait payer, sans jamais avoir vu le moment où ça a basculé.</em> D’où les trois jauges ci-dessous, qui sont l’instrument de cette distinction&#8239;: <b>➡️ ce qui tombe sur soi · ⬅️ ce qui tombe sur autrui.</b> Chez celle qui a subi, <b>la douleur <em>est</em> le dégât</b>&#8239;; chez celui qui nie, <b>l’inconfort est le prix du maintien</b> — il sert à ne pas voir. <span style="opacity:.85">Et il faut le dire franchement&#8239;: «&#8239;sur qui ça tombe&#8239;» désigne la même personne que «&#8239;qui est la victime&#8239;». Ce que ce changement de langue apporte n’est pas de la neutralité — <b>c’est de la portée&#8239;: la question se repose au fait suivant.</b> Sur un fait donné, il y a bien une victime et un agresseur, et le dire est juste.</span></p>
+
+<p class="pt-priv">🔒 <b>Local et privé.</b> Rien n’est envoyé nulle part. Les réglages restent dans cette page et disparaissent quand tu la fermes.</p>
+
+<div class="pt-res-box">
+ <div class="pt-jauges">
+  <div class="pj tot"><b id="jT">0</b><span>Charge totale · /144</span></div>
+  <div class="pj soi"><b id="jS">0</b><span>➡️ tombe sur soi</span></div>
+  <div class="pj autrui"><b id="jA">0</b><span>⬅️ tombe sur autrui</span></div>
+  <div class="pj absent"><b id="jB">0</b><span>↔️ sur un absent</span></div>
+  <div class="pj ver"><b id="jV">0</b><span>☀️ vertu vivante</span></div>
+  <div class="pj niv"><b id="jN">—</b><span>niveau dominant</span></div>
+ </div>
+ <div class="pt-int"><span data-g="3">🌍 <i id="i3">0 %</i></span><span data-g="1">🪓 <i id="i1">0 %</i></span><span data-g="2">🪞 <i id="i2">0 %</i></span></div>
+ <p class="pt-lect" id="lect">Règle les potards que tu reconnais. <b>Zéro n’est pas un but</b> — un biais à 1 est une trace, pas une faute.</p>
+</div>
+
+<div class="pt-axe">
+<svg viewBox="0 -12 420 252" xmlns="http://www.w3.org/2000/svg" aria-label="Axe des positions">
+ <text x="210" y="8" class="ax-ep">épatant</text>
+ <line x1="210" y1="122" x2="210" y2="78" class="ax-vert"/>
+ <path d="M210 68 l-6 12 h12 z" class="ax-fl"/>
+ <text x="210" y="32" class="ax-sec">Sécure · X<tspan dy="-4" font-size="8">n</tspan></text>
+ <text x="210" y="50" class="ax-luc">lucidité · croissance sur la compréhension du réel</text>
+ <line x1="40" y1="150" x2="380" y2="150" class="ax-ligne"/>
+ <rect x="36" y="138" width="6" height="24" class="ax-cap"/><rect x="378" y="138" width="6" height="24" class="ax-cap"/>
+ <text x="210" y="170" class="ax-biais">biais · rejet &amp; incompréhension du réel</text>
+ <text x="42" y="196" class="ax-pol" text-anchor="start">Anxieux · −1</text>
+ <text x="42" y="210" class="ax-sub" text-anchor="start">contrôler soi · sacrifice</text>
+ <text x="42" y="223" class="ax-sub" text-anchor="start">sidération &amp; soumission</text>
+ <text x="378" y="196" class="ax-pol" text-anchor="end">Évitant · +1</text>
+ <text x="378" y="210" class="ax-sub" text-anchor="end">contrôler l’autre</text>
+ <text x="378" y="223" class="ax-sub" text-anchor="end">attaque &amp; fuite</text>
+ <g id="axM" style="opacity:0"><circle cx="210" cy="150" r="7" class="ax-pt"/><circle cx="210" cy="150" r="12" class="ax-halo"/></g>
+ <text x="210" y="188" class="ax-des" id="axL">désorganisé · mouvant</text>
+</svg>
+<p class="ax-note" id="axN">— <i>règle des potards pour situer la configuration</i></p>
+<p class="ax-cav">◈ <b>Ce que l’axe ne mesure pas.</b> La hauteur n’est pas une mesure de lucidité — <b>l’outil ne sait mesurer qu’une charge</b>. Elle dit seulement&nbsp;: <i>ce qui reste quand la charge tombe</i>. <b>Sortir de la ligne ne se lit pas ici, ça se vit ailleurs.</b></p>
+</div>
+
+
+<p class="pt-cle">◈ <b>L’intention n’a aucune valeur ici.</b> Un potard ne mesure pas ce que tu voulais faire, mais <b>ce qui a été fait et ce que ça a produit</b>. « Je ne voulais pas » n’efface rien — et réciproquement, <b>tu n’as pas à prouver la malveillance de quelqu’un pour nommer le dommage</b>. Le fait suffit.</p>
+<p class="pt-cle">🪜 <b>Si tu règles ces potards sur une situation vécue et que le total monte vite du côté ⬅️ autrui</b>, va voir <b>l’Escalier de la Perversion</b> dans le Manuel&nbsp;: six marches, dans l’ordre, chacune ne servant que lorsque la précédente a lâché. <b>Ne jamais monter avec.</b></p>
+<p class="pt-cle">⚖️ <b>Comment lire le résultat.</b> Un total élevé ne dit pas « tu vas mal » — il dit <b>combien d’énergie part à maintenir la cohérence</b> plutôt qu’à vivre. Et la répartition compte plus que le total&nbsp;: <b>un profil qui tombe sur autrui et un profil qui tombe sur soi n’appellent pas le même geste</b>. Le premier demande une limite. Le second demande une protection.</p>
+<div class="pt-act">
+ <button id="bReset">↺ Tout remettre à zéro</button>
+ <button id="bOuv">🚪 Déplier toutes les portes</button>
+ <button id="vCon" class="vb on">🧱 Construction</button><button id="vDec" class="vb">🌱 Déconstruction</button><button id="vImp" class="vb">🛑 Par impasse</button><button id="vPf" class="vb">🔺 Les Trouples</button>
+ <button id="bTxt">📋 Copier mon profil</button>
+</div>
+
+<section class="pt-grp" data-niv="3"><h3>🌍 Les Collectifs <span>ce qui vient de dehors · 11 potards</span></h3><div class="pt-liste"><div class="pt-item" data-tri="2" data-role="p" data-i="0" data-ord="0" data-imp="grp" data-pole="a" data-c="absent" data-n="3"><div class="pt-tete"><b>⚙️ La Fabrique du Consentement</b><span class="pt-mrk">🃏 ⛓️ La Loyauté Toxique</span><span class="pt-tag ta">👪 rester dans le groupe</span><span class="pt-res">« Tout le monde fait comme ça. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="⚙️ La Fabrique du Consentement"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce que ça coûte à celui qui ne le fait pas ?</p><p class="po-c">✨ Ce qui est commun n’est pas toujours communément juste.</p></div></div><div class="pt-item" data-tri="1" data-role="p" data-i="1" data-ord="1" data-imp="main" data-pole="e" data-c="autrui" data-n="3"><div class="pt-tete"><b>🩺 La Pathologisation de la Lucidité</b><span class="pt-mrk">🃏 💡 Le Gaslighting</span><span class="pt-tag te">🔗 garder la main</span><span class="pt-res">« Tu réagis de façon excessive. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🩺 La Pathologisation de la Lucidité"><output>0</output></div><p class="pt-pos">🕊️ <b>Le CouRage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Une réaction proportionnée à quoi, exactement ?</p><p class="po-c">✨ La rigidité est un biais — pas la vivacité.</p></div></div><div class="pt-item" data-tri="7" data-role="p" data-i="2" data-ord="6" data-imp="main" data-pole="e" data-c="autrui" data-n="3"><div class="pt-tete"><b>🔗 Le Biais de Coercition</b><span class="pt-mrk">🃏 🔄 L’Inversion victime / agresseur</span><span class="pt-tag te">🔗 garder la main</span><span class="pt-res">« C’est pour son bien. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🔗 Le Biais de Coercition"><output>0</output></div><p class="pt-pos">🕊️ <b>Le CouRage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 A-t-elle pu dire non — et qu’est-ce qui serait arrivé si elle l’avait dit ?</p><p class="po-c">✨ Le soin sans consentement ne se justifie que sur un <b>danger réel et constaté</b> — jamais sur une croyance ou une supposition.</p></div></div><div class="pt-item" data-tri="9" data-role="p" data-i="3" data-ord="90" data-imp="reel" data-pole="a" data-c="autrui" data-n="3"><div class="pt-tete"><b>🫀 Le Biais de Déni du Corps</b><span class="pt-mrk">🃏 🕳️ Le Déni</span><span class="pt-tag ta">🕳️ tenir le réel</span><span class="pt-res">« Le corps n’a rien à voir là-dedans. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🫀 Le Biais de Déni du Corps"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Génie Quantique</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Où est-ce que ça se sent, dans le corps ?</p><p class="po-c">✨ Réintégrer le plaisir, le ressenti, la sécurité.</p></div></div><div class="pt-item" data-tri="8" data-role="p" data-i="4" data-ord="90" data-imp="reel" data-pole="a" data-c="autrui" data-n="3"><div class="pt-tete"><b>🧠 Le Biais de Déni du Psychique</b><span class="pt-mrk">🃏 🕳️ Le Déni</span><span class="pt-tag ta">🕳️ tenir le réel</span><span class="pt-res">« C’est physiologique — ça n’a rien à voir avec ta vie. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🧠 Le Biais de Déni du Psychique"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Génie Quantique</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce qui se passait dans ta vie quand c’est apparu — et est-ce que ça dure encore ?</p><p class="po-c">✨ <b>On ne guérit pas dans un milieu qui rend malade.</b> Traiter l’organe sans traiter le milieu, c’est réparer ce qui va se recasser.</p></div></div><div class="pt-item" data-tri="10" data-role="p" data-i="5" data-ord="7" data-imp="grp" data-pole="a" data-c="autrui" data-n="3"><div class="pt-tete"><b>⚧️ Le Biais de Genre</b><span class="pt-mrk">🃏 🪞 La Projection</span><span class="pt-tag ta">👪 rester dans le groupe</span><span class="pt-res">« Elle est hystérique · il doit être fort. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="⚧️ Le Biais de Genre"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Dirais-tu la même chose si c’était l’autre ?</p><p class="po-c">✨ Lire en polarités fonctionnelles, pas en stéréotypes.</p></div></div><div class="pt-item" data-tri="6" data-role="p" data-i="6" data-ord="90" data-imp="grp" data-pole="a" data-c="absent" data-n="3"><div class="pt-tete"><b>👪 Le Biais de Groupe</b><span class="pt-mrk">🃏 🪓 Le Clivage</span><span class="pt-tag ta">👪 rester dans le groupe</span><span class="pt-res">« Nous avons raison parce que nous sommes nombreux. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="👪 Le Biais de Groupe"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Combien faudrait-il de gens pour qu’une erreur devienne vraie ?</p><p class="po-c">✨ Le respect du Vivant commence par la diversité de regard.</p></div></div><div class="pt-item" data-tri="3" data-role="p" data-i="7" data-ord="3" data-imp="image" data-pole="e" data-c="autrui" data-n="3"><div class="pt-tete"><b>📏 Le Biais de Normativité</b><span class="pt-mrk">🃏 🏵️ Le Biais de Pureté</span><span class="pt-tag ta">👪 rester dans le groupe</span><span class="pt-res">« C’est pas normal, ça. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="📏 Le Biais de Normativité"><output>0</output></div><p class="pt-pos">🕊️ <b>L’enVie</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Normal par rapport à quoi — et selon qui ?</p><p class="po-c">✨ Reconnaître la neurodiversité comme un état sain.</p></div></div><div class="pt-item" data-tri="0" data-role="p" data-i="8" data-ord="2" data-imp="reel" data-pole="a" data-c="absent" data-n="3"><div class="pt-tete"><b>🌍 Le Biais du Monde Juste</b><span class="pt-mrk">🃏 💔 L’Auto-culpabilisation</span><span class="pt-tag ta">🕳️ tenir le réel</span><span class="pt-res">« Elle a quand même fait des choix. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🌍 Le Biais du Monde Juste"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Génie Quantique</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce qui changerait pour toi si c’était arrivé sans raison ? Est-ce que la violence a des justifications ?</p><p class="po-c">✨ La justice n’est pas un état du monde, mais un acte de conscience.</p></div></div><div class="pt-item" data-tri="4" data-role="p" data-i="9" data-ord="4" data-imp="grp" data-pole="a" data-c="absent" data-n="3"><div class="pt-tete"><b>🏛️ Le Biais d’Autorité</b><span class="pt-mrk">🃏 🗿 Le Biais de Surconfiance</span><span class="pt-tag ta">👪 rester dans le groupe</span><span class="pt-res">« Si c’est dit officiellement, c’est vrai. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🏛️ Le Biais d’Autorité"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Sur quels faits cette autorité s’appuie-t-elle ?</p><p class="po-c">✨ L’autorité du Respect surpasse celle du Rang.</p></div></div><div class="pt-item" data-tri="5" data-role="p" data-i="10" data-ord="5" data-imp="eff" data-pole="e" data-c="absent" data-n="3"><div class="pt-tete"><b>👥 L’Effet Témoin</b><span class="pt-mrk">🃏 🪨 Le Biais de Résignation</span><span class="pt-tag te">⏱️ économiser l’effort</span><span class="pt-res">« Quelqu’un d’autre s’en occupe. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="👥 L’Effet Témoin"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Courage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Si tu étais seul·e à savoir, tu ferais quoi ?</p><p class="po-c">✨ Chaque acte compte. L’espoir se construit par l’action.</p></div></div></div></section><section class="pt-grp" data-niv="1"><h3>🪓 Les Fondateurs <span>ce qui s’installe en habitude · 2 potards</span></h3><div class="pt-liste"><div class="pt-item" data-i="11" data-imp="reel" data-pole="a" data-c="soi" data-n="1"><div class="pt-tete"><b>🪓 Le Clivage</b><span class="pt-tag ta">🕳️ tenir le réel</span><span class="pt-res">« Il est comme ça, c’est sa nature — ça ne changera pas. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🪓 Le Clivage"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Génie Quantique</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Est-ce que tu décris <b>un acte</b>, ou est-ce que tu décris <b>un être</b> ?</p><p class="po-c">✨ <b>Constater qui respecte et qui ne respecte pas n’est pas un clivage — c’est une observation.</b> Le clivage commence quand l’acte devient une nature, et le verdict, définitif.</p></div></div><div class="pt-item" data-i="12" data-imp="reel" data-pole="a" data-c="autrui" data-n="1"><div class="pt-tete"><b>🕳️ Le Déni</b><span class="pt-tag ta">🕳️ tenir le réel</span><span class="pt-res">« Ce n’est pas ce que tu crois. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🕳️ Le Déni"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Génie Quantique</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce que tu devrais faire, si c’était vrai ?</p><p class="po-c">✨ Refuser de voir et de nommer le réel est une violence.</p></div></div></div></section><section class="pt-grp" data-niv="2"><h3>🪞 Les Individuels <span>les dérivés · ce qui se ramifie en soi · 23 potards</span></h3><div class="pt-liste"><div class="pt-item" data-tri="11" data-role="e" data-i="13" data-imp="image" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>🏳️ La Généralisation de sa Limite</b><span class="pt-tag te">🪞 tenir une image</span><span class="pt-res">« Si je ne sais pas le faire, c’est que c’est impossible. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🏳️ La Généralisation de sa Limite"><output>0</output></div><p class="pt-pos">🕊️ <b>L’enVie</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qui, ailleurs, sait déjà le faire — et <b>si personne encore</b>, qu’est-ce qui prouve que c’est impossible plutôt que <b>jamais encore réussi</b> ?</p><p class="po-c">✨ Je nomme ma limite comme mienne. <b>Ni l’absence de précédent, ni la somme des échecs ne prouvent l’impossibilité</b> — elles ne prouvent que ce qui n’a pas encore abouti. Toute première fois a commencé par n’être crue de personne.</p></div></div><div class="pt-item" data-tri="2" data-role="i" data-i="14" data-ord="0" data-imp="lien" data-pole="a" data-c="soi" data-n="2"><div class="pt-tete"><b>⛓️ La Loyauté Toxique</b><span class="pt-mrk">🃏 ⚙️ La Fabrique du Consentement</span><span class="pt-tag ta">⛓️ garder le lien</span><span class="pt-res">« Je dois être là pour iel. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="⛓️ La Loyauté Toxique"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce qui te lie à cette personne ? Et qu’est-ce que tu trouverais juste, si tu n’avais aucune dette envers elle ?</p><p class="po-c">✨ Ma loyauté première est envers la Vie.</p></div></div><div class="pt-item" data-tri="0" data-role="e" data-i="15" data-imp="reel" data-pole="a" data-c="autrui" data-n="2"><div class="pt-tete"><b>⚖️ La Minimisation</b><span class="pt-tag ta">🕳️ tenir le réel</span><span class="pt-res">« Ce n’est pas si grave. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="⚖️ La Minimisation"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Génie Quantique</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 À partir de quel niveau ça le deviendrait ?</p><p class="po-c">✨ Minimiser la souffrance de l’autre est une violence émotionnelle.</p></div></div><div class="pt-item" data-tri="1" data-role="i" data-i="16" data-imp="reel" data-pole="a" data-c="soi" data-n="2"><div class="pt-tete"><b>🙉 La Négation du Trauma</b><span class="pt-tag ta">🕳️ tenir le réel</span><span class="pt-res">« Si j’en parle, c’est que je dramatise. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🙉 La Négation du Trauma"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Génie Quantique</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce qui aurait dû se passer pour que ça compte ?</p><p class="po-c">✨ Ce qui est nommé se répare. La vérité libère, le silence enferme.</p></div></div><div class="pt-item" data-tri="9" data-role="i" data-i="34" data-imp="reel" data-pole="a" data-c="soi" data-n="2"><div class="pt-tete"><b>🧊 Le Déni de la Sensation</b><span class="pt-tag ta">🕳️ tenir le réel</span><span class="pt-res">« je n’ai rien senti · je gère. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="Le Déni de la Sensation"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Génie Quantique</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Où est-ce que ça se sent, <b>là, maintenant</b> — et depuis quand tu ne le sens plus ?</p><p class="po-c">✨ <b>Ne pas sentir n’est pas aller bien&#160;: c’est la ligne coupée.</b> Le corps continue de compter ce que la tête refuse d’enregistrer — <b>et il présente l’addition plus tard</b>.</p></div></div><div class="pt-item" data-tri="10" data-role="i" data-i="35" data-imp="grp" data-pole="a" data-c="soi" data-n="2"><div class="pt-tete"><b>🪢 L’Intériorisation de la Norme</b><span class="pt-tag ta">👪 rester dans le groupe</span><span class="pt-res">« c’est normal, pour une femme. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="L’Intériorisation de la Norme"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qui a décidé que c’était normal — et <b>qu’est-ce que ça lui rapporte</b> ?</p><p class="po-c">✨ <b>Une norme intériorisée n’a plus besoin de gardien&#160;: on se surveille soi-même, gratuitement.</b> C’est l’exploit du système&#160;— il a fait de toi son contremaître.</p></div></div><div class="pt-item" data-tri="10" data-role="e" data-i="17" data-ord="7" data-imp="image" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>🪞 La Projection</b><span class="pt-mrk">🃏 ⚧️ Le Biais de Genre</span><span class="pt-tag te">🪞 tenir une image</span><span class="pt-res">« C’est lui qui est agressif. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🪞 La Projection"><output>0</output></div><p class="pt-pos">🕊️ <b>L’enVie</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce que <b>la violence</b>, <b>l’assertivité</b> et <b>la légitime défense</b>, pour toi — et où passe la limite entre les trois ?</p><p class="po-c">✨ Accuser l’autre de ce qu’on fait soi-même ne le fait pas disparaître.</p></div></div><div class="pt-item" data-tri="9" data-role="e" data-i="18" data-imp="image" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>🩹 Le Biais de Justification</b><span class="pt-tag te">🪞 tenir une image</span><span class="pt-res">« Il n’avait pas de mauvaise intention · je ne voulais pas le faire. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🩹 Le Biais de Justification"><output>0</output></div><p class="pt-pos">🕊️ <b>L’enVie</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce que ça change <b>pour celui qui l’a subi</b> ?</p><p class="po-c">✨ <b>L’intention explique l’acte — elle ne le répare pas.</b> Ce qui répare, c’est ce qui est fait <i>après</i>&nbsp;: reconnaître, cesser, réparer. Sans quoi «&nbsp;je ne voulais pas&nbsp;» ne demande qu’une chose — <b>le droit de recommencer</b>.</p></div></div><div class="pt-item" data-tri="3" data-role="e" data-i="19" data-imp="eff" data-pole="e" data-c="absent" data-n="2"><div class="pt-tete"><b>🏷️ La Qualification Sélective</b><span class="pt-tag te">⏱️ économiser l’effort</span><span class="pt-res">« Ce n’est pas pareil. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🏷️ La Qualification Sélective"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Courage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce que ça change sur le vivant ?</p><p class="po-c">✨ Rendre au mot sa définition, et la gravité à ce qui se démontre.</p></div></div><div class="pt-item" data-tri="2" data-role="e" data-i="20" data-imp="main" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>🪤 La Question Fermée</b><span class="pt-tag te">🔗 garder la main</span><span class="pt-res">« Tu crois vraiment que ça va changer quelque chose ? »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🪤 La Question Fermée"><output>0</output></div><p class="pt-pos">🕊️ <b>Le CouRage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce que je pourrais te répondre <b>qui te ferait changer d’avis</b> ?</p><p class="po-c">✨ <b>Le piège n’est pas dans les mots — il est dans l’ensemble des réponses admises.</b> Une question est fermée quand <b>aucune réponse ne peut faire bouger celui qui la pose</b>. Trois marqueurs se voient quand même dans la phrase&nbsp;: le <b>présupposé</b> («&nbsp;pourquoi tu exagères toujours&nbsp;?&nbsp;»), la <b>fausse alternative</b> («&nbsp;tu es avec moi ou contre moi&nbsp;?&nbsp;»), la <b>charge de preuve inversée</b> («&nbsp;prouve que ce n’est pas arrivé&nbsp;»).</p></div></div><div class="pt-item" data-tri="7" data-role="i" data-i="21" data-imp="eff" data-pole="e" data-c="soi" data-n="2"><div class="pt-tete"><b>😌 La Rationalisation</b><span class="pt-tag te">⏱️ économiser l’effort</span><span class="pt-res">« J’avais mes raisons. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="😌 La Rationalisation"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Courage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Tu les avais avant, ou tu les as trouvées après ?</p><p class="po-c">✨ Tout a une cause, mais pas toujours une excuse.</p></div></div><div class="pt-item" data-tri="8" data-role="e" data-i="22" data-imp="main" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>🔮 La Surinterprétation</b><span class="pt-tag te">🔗 garder la main</span><span class="pt-res">« Tout a une intention cachée. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🔮 La Surinterprétation"><output>0</output></div><p class="pt-pos">🕊️ <b>Le CouRage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Quelle serait l’explication la plus simple ?</p><p class="po-c">✨ Tout a une cause, mais pas toujours une faute.</p></div></div><div class="pt-item" data-tri="8" data-role="i" data-i="23" data-imp="eff" data-pole="e" data-c="absent" data-n="2"><div class="pt-tete"><b>🚮 La Séparation des Sphères</b><span class="pt-tag te">⏱️ économiser l’effort</span><span class="pt-res">« Il est violent mais c’est un bon père. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🚮 La Séparation des Sphères"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Courage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce que l’enfant voit, lui ?</p><p class="po-c">✨ On ne juge pas un acte dans son compartiment, mais à ce qu’il traverse.</p></div></div><div class="pt-item" data-tri="4" data-role="i" data-i="24" data-imp="eff" data-pole="e" data-c="soi" data-n="2"><div class="pt-tete"><b>🔎 Le Biais de Confirmation</b><span class="pt-tag te">⏱️ économiser l’effort</span><span class="pt-res">« Je ne vois que ce qui me donne raison. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🔎 Le Biais de Confirmation"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Courage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce qui te ferait changer d’avis ?</p><p class="po-c">✨ Chercher à avoir raison, c’est oublier d’apprendre.</p></div></div><div class="pt-item" data-tri="3" data-role="i" data-i="25" data-ord="3" data-imp="image" data-pole="e" data-c="soi" data-n="2"><div class="pt-tete"><b>🏵️ Le Biais de Pureté</b><span class="pt-mrk">🃏 📏 Le Biais de Normativité</span><span class="pt-tag te">🪞 tenir une image</span><span class="pt-res">« Je dois être parfait·e pour être aimé·e. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🏵️ Le Biais de Pureté"><output>0</output></div><p class="pt-pos">🕊️ <b>L’enVie</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce que <b>la perfection</b>, et qu’est-ce que <b>le respect</b> ? Aimes-tu des gens parfaits — ou des gens justes avec les faits ?</p><p class="po-c">✨ L’ombre ne salit pas la lumière — elle lui donne du relief.</p></div></div><div class="pt-item" data-tri="5" data-role="i" data-i="26" data-ord="5" data-imp="lien" data-pole="a" data-c="soi" data-n="2"><div class="pt-tete"><b>🪨 Le Biais de Résignation</b><span class="pt-mrk">🃏 👥 L’Effet Témoin</span><span class="pt-tag ta">⛓️ garder le lien</span><span class="pt-res">« De toute façon, on ne peut rien changer. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🪨 Le Biais de Résignation"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce qui serait possible si tu te trompais ?</p><p class="po-c">✨ Chaque conscience éveillée réécrit une loi du monde.</p></div></div><div class="pt-item" data-tri="4" data-role="e" data-i="27" data-ord="4" data-imp="eff" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>🗿 Le Biais de Surconfiance</b><span class="pt-mrk">🃏 🏛️ Le Biais d’Autorité</span><span class="pt-tag te">⏱️ économiser l’effort</span><span class="pt-res">« Je connais le sujet — je n’ai pas besoin de vérifier. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🗿 Le Biais de Surconfiance"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Courage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Sur <b>ce point précis</b>, qu’as-tu vérifié toi-même, et quand ?</p><p class="po-c">✨ Porte sur <b>ce qu’on sait</b> : l’humilité n’est pas faiblesse, c’est la porte du réel.</p></div></div><div class="pt-item" data-tri="5" data-role="e" data-i="28" data-imp="eff" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>⏱️ Le Biais d’Urgence</b><span class="pt-tag te">⏱️ économiser l’effort</span><span class="pt-res">« Il faut réagir vite, sinon je perds la main. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="⏱️ Le Biais d’Urgence"><output>0</output></div><p class="pt-pos">🕊️ <b>Le Courage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Que se passe-t-il si tu attends vingt-quatre heures ?</p><p class="po-c">✨ Le vrai choix commence quand le souffle revient.</p></div></div><div class="pt-item" data-tri="1" data-role="e" data-i="29" data-ord="1" data-imp="main" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>💡 Le Gaslighting</b><span class="pt-mrk">🃏 🩺 La Pathologisation de la Lucidité</span><span class="pt-tag te">🔗 garder la main</span><span class="pt-res">« Tu es folle de penser ça · je n’ai jamais dit ça. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="💡 Le Gaslighting"><output>0</output></div><p class="pt-pos">🕊️ <b>Le CouRage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’est-ce qui a été dit, exactement — et <b>qu’est-ce qui en garde la trace</b> ? un message, un témoin, un enregistrement, une date ?</p><p class="po-c">✨ La vérité se vérifie ; elle ne se décrète pas.</p></div></div><div class="pt-item" data-tri="0" data-role="i" data-i="30" data-ord="2" data-imp="lien" data-pole="a" data-c="soi" data-n="2"><div class="pt-tete"><b>💔 L’Auto-culpabilisation</b><span class="pt-mrk">🃏 🌍 Le Biais du Monde Juste</span><span class="pt-tag ta">⛓️ garder le lien</span><span class="pt-res">« C’est de ma faute. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="💔 L’Auto-culpabilisation"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qu’aurais-tu dû savoir, et comment l’aurais-tu su ?</p><p class="po-c">✨ La responsabilité de la violence appartient à celui qui agit.</p></div></div><div class="pt-item" data-tri="6" data-role="i" data-i="31" data-imp="lien" data-pole="a" data-c="soi" data-n="2"><div class="pt-tete"><b>🌅 L’Espoir Compensatoire</b><span class="pt-tag ta">⛓️ garder le lien</span><span class="pt-res">« Ça va changer. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🌅 L’Espoir Compensatoire"><output>0</output></div><p class="pt-pos">🕊️ <b>L’Amour</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Depuis combien de temps tu attends ce changement ?</p><p class="po-c">✨ L’espoir se construit par l’action, pas par l’attente.</p></div></div><div class="pt-item" data-tri="6" data-role="e" data-i="32" data-imp="image" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>🎭 L’Exemption de l’Analyste</b><span class="pt-tag te">🪞 tenir une image</span><span class="pt-res">« Les biais, c’est pour ceux qui ne les connaissent pas. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🎭 L’Exemption de l’Analyste"><output>0</output></div><p class="pt-pos">🕊️ <b>L’enVie</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Lequel des biais de cette table <b>t’a coûté quelque chose</b>, à toi, cette année ?</p><p class="po-c">✨ Porte sur <b>l’outil</b> — c’est le seul biais qui rend tous les autres invisibles.</p></div></div><div class="pt-item" data-tri="7" data-role="e" data-i="33" data-ord="6" data-imp="main" data-pole="e" data-c="autrui" data-n="2"><div class="pt-tete"><b>🔄 L’Inversion victime / agresseur</b><span class="pt-mrk">🃏 🔗 Le Biais de Coercition</span><span class="pt-tag te">🔗 garder la main</span><span class="pt-res">« C’est moi la vraie victime. »</span></div><div class="pt-slider"><input type="range" min="-4" max="4" value="0" step="1" aria-label="🔄 L’Inversion victime / agresseur"><output>0</output></div><p class="pt-pos">🕊️ <b>Le CouRage</b> — la fonction sert le vivant.</p><div class="pt-ouv"><p class="po-q">🚪 Qui a subi quoi, concrètement, à quelle date — et avec quelles conséquences pour chaque partie ?</p><p class="po-c">✨ Inverser les rôles est une violence psychologique.</p></div></div></div></section>
+<div id="pt-impwrap" style="display:none"><section class="pt-grp pt-imp" data-imp="grp"><h3 class="pa">👪 rester dans le groupe <span>pôle anxieux · le coût revient sur soi · 5 potards</span></h3><div class="pt-liste" id="L-grp"></div></section><section class="pt-grp pt-imp" data-imp="lien"><h3 class="pa">⛓️ garder le lien <span>pôle anxieux · le coût revient sur soi · 4 potards</span></h3><div class="pt-liste" id="L-lien"></div></section><section class="pt-grp pt-imp" data-imp="reel"><h3 class="pa">🕳️ tenir le réel <span>pôle anxieux · le coût revient sur soi · 8 potards</span></h3><div class="pt-liste" id="L-reel"></div></section><section class="pt-grp pt-imp" data-imp="image"><h3 class="pe">🪞 tenir une image <span>pôle évitant · le coût part sur l’autre · 6 potards</span></h3><div class="pt-liste" id="L-image"></div></section><section class="pt-grp pt-imp" data-imp="main"><h3 class="pe">🔗 garder la main <span>pôle évitant · le coût part sur l’autre · 6 potards</span></h3><div class="pt-liste" id="L-main"></div></section><section class="pt-grp pt-imp" data-imp="eff"><h3 class="pe">⏱️ économiser l’effort <span>pôle évitant · le coût part sur l’autre · 7 potards</span></h3><div class="pt-liste" id="L-eff"></div></section></div>
+<div id="pt-pf" style="display:none"><div class="pf-heads3"><div class="pf-head eco">🌍 La Pression<span>ECO · collectif — «&#160;c’est comme ça&#160;»</span></div><div class="pf-head imp">➡️ L’Implosion<span>le coût revient sur soi</span></div><div class="pf-head exp">⬅️ L’Explosion<span>le coût part sur l’autre</span></div></div><div class="pf-rows3" id="P-rows"><div class="pf-chap" id="Q-eco"></div><div class="pf-chap pf-c2" id="Q-ego"></div></div><p class="pf-n">◈ <b>Une pression, deux issues.</b> Le collectif divise&#160;: la même contrainte <b>implose</b> ou <b>explose</b>. Les chapeaux sont les fondateurs — 🪓 <b>Le Clivage</b> tient la colonne collective, 🕳️ <b>Le Déni</b> tient les deux colonnes individuelles. <b>Onze trouples complets</b>, et 🏳️ la Généralisation en douzième ligne, seule&#160;: <b>une explosion sans pression ni implosion</b>.</p></div>
+
+
+
+
+
+<div class="pt-rep">
+<p class="pr-t">🎚️ <b>Le répertoire — et pourquoi ce ne sont pas les biais.</b></p>
+<p class="pr-p">Un biais n’est pas une réponse&nbsp;: c’est <b>ce qui justifie la réponse</b>. Le répertoire, lui, ce sont <b>les gestes disponibles quand quelque chose arrive</b>. Il en tient quatre sur la ligne — deux par pôle — <b>et un cinquième qui n’est pas dessus</b>.</p>
+<div class="mb-wrap"><table class="pr-tab"><thead><tr><th>Pôle</th><th>La réponse</th><th>Les impasses qui la maintiennent</th></tr></thead><tbody>
+<tr class="ra"><td rowspan="2" class="pr-po">−1 <b>Anxieux</b><span>le coût revient sur soi</span></td><td class="pr-r">🫥 <b>Soumission</b><span>je me plie pour que ça tienne</span></td><td>⛓️ garder le lien · 👪 rester dans le groupe</td></tr>
+<tr class="ra"><td class="pr-r">🧊 <b>Sidération</b><span>je ne vois plus ce qui arrive</span></td><td>🕳️ tenir le réel</td></tr>
+<tr class="re"><td rowspan="2" class="pr-po">+1 <b>Évitant</b><span>le coût part sur l’autre</span></td><td class="pr-r">🥊 <b>Attaque</b><span>je reprends la main</span></td><td>🔗 garder la main</td></tr>
+<tr class="re"><td class="pr-r">🏃 <b>Fuite</b><span>je me retire avant d’être vu</span></td><td>🪞 tenir une image · ⏱️ économiser l’effort</td></tr>
+<tr class="rs"><td class="pr-po">↑ <b>Hors de la ligne</b><span>ni sacrifice ni prise</span></td><td class="pr-r">🕊️ <b>Légitime défense</b><span>je nomme, je pose la limite, je reste</span></td><td>aucune — <b>c’est la réponse qu’aucun biais ne protège</b></td></tr>
+</tbody></table></div>
+<p class="pr-f">◈ <b>Alors le trouble se dit simplement&nbsp;: c’est quand une seule de ces réponses répond à toutes les situations.</b> Pas la réponse elle-même — <b>la perte des trois autres</b>. Et les biais ne sont pas le répertoire&nbsp;: <b>ils sont la serrure</b>. Chacun rend une réponse obligatoire en rendant les autres impensables. <b>C’est pour ça que baisser un potard n’ajoute rien&nbsp;: ça rouvre.</b></p>
+<p class="pr-n">◈ La convergence vaut d’être notée&nbsp;: les six impasses sont sorties de la colonne <b>🛡️ ce qu’il protège</b>, les quatre réponses viennent de <b>ton schéma</b>. Personne ne les a alignées — <b>elles tombent exactement l’une sur l’autre</b>, deux réponses par pôle, trois impasses par pôle.</p>
+</div>
+
+<div class="pt-banc"><p class="bc-t">🔬 <b>Le Banc d’Essai — transformer une cohérence en preuve</b></p><p class="bc-p">Le plafond qui remonte entre 💥 et 🎭 est <b>cohérent</b>, pas <b>prouvé</b>&#160;: c’est moi qui ai posé les sept réglages, et la lecture clinique est venue après. <b>Pour que ce soit une preuve, il faut que les valeurs viennent d’ailleurs que du résultat qu’on espère.</b></p><p class="bc-p bc-eta">◈ <b>Et tu as déjà l’instrument&#160;: η, la viscosité.</b> Ton Échelle des États du Vivant donne <b>sept états ordonnés, du plasma au zéro absolu</b>, et une procédure — «&#160;<i>on situe l’état, on lit η</i>&#160;». <b>η n’est pas choisi, il se lit.</b> C’est exactement ce qu’il faut&#160;: <b>η donne la quantité</b> — combien le système est figé — <b>et tes six cartes donnent la direction</b> — quelle fonction porte la charge. Ni l’un ni l’autre n’a été inventé pour cette occasion.</p><p class="bc-p"><b>La marche à suivre&#160;:</b> allume le mode aveugle — le plafond, la hauteur et la lecture disparaissent. Pour chaque état, règle les potards d’après <b>η pour l’intensité</b> et <b>ta carte pour l’axe</b>. Enregistre. Quand les sept sont posés, révèle&#160;: <b>on compare ton plafond au mien, état par état.</b></p><div class="bc-bar"><button id="bcBlind">🙈 Mode aveugle&#160;: <b>éteint</b></button><button id="bcRev">🔓 Révéler la comparaison</button><button id="bcClr">↺ Vider le banc</button></div><div class="bc-grid"><div class="bc-r" data-k="0"><span class="bc-e">🌈 L’Innocence</span><button class="bc-rec" data-k="0">📌 Enregistrer</button><span class="bc-s" id="bcS0">— vide</span></div><div class="bc-r" data-k="1"><span class="bc-e">😮 La Surprise</span><button class="bc-rec" data-k="1">📌 Enregistrer</button><span class="bc-s" id="bcS1">— vide</span></div><div class="bc-r" data-k="2"><span class="bc-e">💥 Le Choc</span><button class="bc-rec" data-k="2">📌 Enregistrer</button><span class="bc-s" id="bcS2">— vide</span></div><div class="bc-r" data-k="3"><span class="bc-e">🎭 La Dissociation</span><button class="bc-rec" data-k="3">📌 Enregistrer</button><span class="bc-s" id="bcS3">— vide</span></div><div class="bc-r" data-k="4"><span class="bc-e">🔗 L’Aliénation</span><button class="bc-rec" data-k="4">📌 Enregistrer</button><span class="bc-s" id="bcS4">— vide</span></div><div class="bc-r" data-k="5"><span class="bc-e">🌱 La Résilience</span><button class="bc-rec" data-k="5">📌 Enregistrer</button><span class="bc-s" id="bcS5">— vide</span></div><div class="bc-r" data-k="6"><span class="bc-e">☀️ La Sérénité</span><button class="bc-rec" data-k="6">📌 Enregistrer</button><span class="bc-s" id="bcS6">— vide</span></div></div><div id="bcOut" class="bc-out"></div><p class="bc-w">⚠️ <b>Rien n’est stocké.</b> Les sept relevés vivent dans la page et disparaissent en la fermant — <b>copie la comparaison si tu veux la garder.</b> Et si nos plafonds diffèrent, <b>ce n’est pas toi qui as tort&#160;: c’est mon réglage qui parlait à ma place.</b></p></div><div class="pt-3d off-niv off-ter off-air off-fac off-sc off-sin off-ver off-sp off-mo" id="r3W">
+<p class="p3-t">🧭 <b>Découvre le Repère de la Psyché</b> <span class="p3-t2">— quatre fonctions, une blessure au centre, une sortie perpendiculaire. <b>Allume les calques un par un</b>, ou tout d’un coup.</span></p>
+<div class="ly-bar"><button id="lyAll" class="ly-all">👁️ Tout afficher</button><span class="ly-sep"></span><button data-ly="niv">💥🌱🌟 Les 3 Niveaux</button><button data-ly="ter">🗺️ Les Terrains</button><button data-ly="air">🌫️ Aires des Troubles</button><span class="ly-sep"></span><button data-ly="fac">🎭 La Dissociation</button><button data-ly="sc">🌗 Sens Clairs / Obscurs</button><span class="ly-sep"></span><button data-ly="sin">👹 Vices</button><button data-ly="ver">☀️ Vertus</button><span class="ly-sep"></span><button data-ly="sp">➿ Boucle Addictive</button><button data-ly="mo">꩜ Spirale Évolutive</button></div>
+<svg viewBox="-80 -24 1270 1035" xmlns="http://www.w3.org/2000/svg" aria-label="Repère des biais">
+ <defs><marker id="r3fl" markerWidth="10" markerHeight="10" refX="5" refY="9" orient="auto"><path d="M0 10 L5 0 L10 10 Z" fill="#c8a84a"/></marker></defs>
+ <text x="550" y="24" class="t3-sec">Sécure</text>
+ <text x="550" y="46" class="t3-ass">assertivité &amp; légitime défense</text>
+ <text x="550" y="64" class="t3-luc">fait l’effort de réfléchir · réaction exponentielle qui connecte</text>
+ <text x="550" y="85" class="t3-nous">Toi + Moi = Nous · X<tspan dy="-5" font-size="10">n</tspan></text>
+ <text x="550" y="107" class="t3-conf">🤝 La Confiance de l’Inconnue · l’Estime de Soi</text>
+ <text x="550" y="124" class="t3-sub2">ce qui rend l’effort de réfléchir <tspan class="t3-ab">abordable</tspan></text><g class="ly-ver"><text x="550" y="145" class="t3-ver">🕊️ le Legs · la Transmission · la Pédagogie vivante</text></g>
+ <line x1="550" y1="516" x2="550" y2="162" class="l3-vert" marker-end="url(#r3fl)"/>
+ <g class="ly-ter"><line x1="350" y1="688" x2="750" y2="368" class="l3-terr"/>
+  <text x="352" y="702" class="t3-terr" text-anchor="start">terrain anxieux</text><text x="550" y="-8" class="t3-plan">◈ le plan du complexe d’infériorité — <tspan class="t3-ac">tout ce qui s’y joue est une compensation</tspan></text>
+  <text x="748" y="356" class="t3-terr" text-anchor="end">terrain évitant</text></g>
+ <path d="M190 520 L390 360 L910 520 L710 680 Z" class="p3-plan"/>
+ <g class="ly-sp"><path d="M586.0,520.0 L587.4,520.9 L588.8,521.7 L590.1,522.6 L591.2,523.6 L592.3,524.5 L593.3,525.5 L594.2,526.4 L594.9,527.4 L595.5,528.4 L596.0,529.4 L596.4,530.4 L596.6,531.4 L596.7,532.4 L596.6,533.3 L596.4,534.3 L596.1,535.2 L595.5,536.1 L594.8,537.0 L594.0,537.9 L593.0,538.7 L591.8,539.5 L590.5,540.2 L589.0,540.9 L587.4,541.6 L585.6,542.2 L583.7,542.8 L581.6,543.3 L579.3,543.7 L576.9,544.1 L574.4,544.4" class="p3-seg" stroke="#c0208a" stroke-width="1.2" opacity="0.62"/><path d="M574.4,544.4 L571.7,544.6 L569.0,544.8 L566.0,544.9 L563.0,545.0 L559.9,544.9 L556.7,544.8 L553.4,544.6 L550.0,544.3 L546.5,544.0 L543.0,543.6 L539.4,543.0 L535.7,542.5 L532.1,541.8 L528.4,541.0 L524.7,540.2 L521.0,539.3 L517.4,538.4 L513.7,537.3 L510.1,536.2 L506.5,535.0 L503.0,533.7 L499.6,532.4 L496.3,531.1 L493.0,529.6 L489.9,528.1 L486.9,526.6 L484.0,525.0 L481.2,523.4 L478.6,521.7 L476.2,520.0" class="p3-seg" stroke="#a81a78" stroke-width="2.0" opacity="0.58"/><path d="M476.2,520.0 L473.9,518.3 L471.9,516.5 L470.0,514.7 L468.3,512.9 L466.8,511.1 L465.6,509.3 L464.5,507.5 L463.7,505.7 L463.2,504.0 L462.8,502.2 L462.8,500.5 L462.9,498.7 L463.3,497.1 L464.0,495.4 L465.0,493.8 L466.2,492.3 L467.6,490.8 L469.3,489.4 L471.3,488.0 L473.5,486.7 L476.0,485.5 L478.8,484.4 L481.7,483.4 L484.9,482.4 L488.4,481.6 L492.0,480.8 L495.9,480.1 L500.0,479.6 L504.3,479.1 L508.8,478.8" class="p3-seg" stroke="#8e1668" stroke-width="2.9" opacity="0.54"/><path d="M508.8,478.8 L513.5,478.6 L518.3,478.5 L523.3,478.5 L528.4,478.6 L533.7,478.9 L539.0,479.2 L544.5,479.7 L550.1,480.3 L555.7,481.0 L561.4,481.9 L567.1,482.9 L572.9,484.0 L578.6,485.2 L584.4,486.5 L590.1,487.9 L595.8,489.4 L601.4,491.1 L607.0,492.8 L612.4,494.7 L617.8,496.6 L623.0,498.6 L628.1,500.7 L633.0,502.9 L637.7,505.2 L642.3,507.5 L646.6,509.9 L650.7,512.4 L654.6,514.9 L658.2,517.4 L661.6,520.0" class="p3-seg" stroke="#761257" stroke-width="3.8" opacity="0.49"/><path d="M661.6,520.0 L664.7,522.6 L667.5,525.2 L670.0,527.9 L672.2,530.5 L674.0,533.2 L675.6,535.8 L676.8,538.5 L677.6,541.1 L678.2,543.7 L678.3,546.2 L678.1,548.7 L677.5,551.1 L676.6,553.5 L675.3,555.8 L673.6,558.0 L671.6,560.2 L669.2,562.2 L666.5,564.2 L663.4,566.1 L659.9,567.8 L656.1,569.4 L652.0,570.9 L647.5,572.3 L642.7,573.6 L637.6,574.7 L632.2,575.6 L626.6,576.5 L620.6,577.1 L614.4,577.6 L608.0,578.0" class="p3-seg" stroke="#5e0e46" stroke-width="4.6" opacity="0.45"/><path d="M608.0,578.0 L601.3,578.2 L594.5,578.2 L587.4,578.1 L580.2,577.8 L572.8,577.4 L565.3,576.8 L557.6,576.0 L549.9,575.0 L542.1,573.9 L534.3,572.7 L526.4,571.2 L518.5,569.6 L510.6,567.9 L502.8,566.0 L495.0,564.0 L487.3,561.8 L479.8,559.5 L472.3,557.1 L465.0,554.5 L457.9,551.8 L450.9,549.0 L444.2,546.1 L437.7,543.1 L431.5,540.0 L425.6,536.8 L419.9,533.6 L414.6,530.3 L409.6,526.9 L404.9,523.5 L400.6,520.0" class="p3-seg" stroke="#460a35" stroke-width="5.5" opacity="0.41"/><path d="M400.6,520.0 L396.7,516.5 L393.2,513.0 L390.1,509.5 L387.4,506.0 L385.1,502.5 L383.3,499.0 L381.9,495.5 L381.0,492.1 L380.5,488.7 L380.6,485.4 L381.0,482.2 L382.0,479.0 L383.5,475.9 L385.4,472.9 L387.8,470.1 L390.6,467.3 L393.9,464.7 L397.7,462.2 L402.0,459.9 L406.6,457.6 L411.8,455.6 L417.3,453.7 L423.3,452.0 L429.6,450.5 L436.4,449.1 L443.5,447.9 L450.9,447.0 L458.7,446.2 L466.8,445.6 L475.2,445.2" class="p3-seg" stroke="#2e0724" stroke-width="6.3" opacity="0.37"/><path d="M475.2,445.2 L483.9,445.0 L492.8,445.1 L501.9,445.3 L511.3,445.7 L520.8,446.4 L530.4,447.3 L540.2,448.3 L550.1,449.6 L560.1,451.1 L570.1,452.8 L580.1,454.7 L590.1,456.8 L600.1,459.0 L610.0,461.5 L619.8,464.1 L629.5,467.0 L639.0,469.9 L648.4,473.1 L657.6,476.4 L666.5,479.8 L675.1,483.4 L683.5,487.1 L691.5,490.9 L699.3,494.8 L706.6,498.8 L713.6,502.9 L720.1,507.1 L726.3,511.4 L732.0,515.7 L737.2,520.0" class="p3-seg" stroke="#160312" stroke-width="7.2" opacity="0.33"/><circle cx="566.0" cy="544.9" r="8" class="c3-st"/><text x="566.0" y="548.3" class="t3-stn">1</text><circle cx="470.0" cy="514.7" r="8" class="c3-st"/><text x="470.0" y="518.1" class="t3-stn">2</text><circle cx="523.3" cy="478.5" r="8" class="c3-st"/><text x="523.3" y="481.9" class="t3-stn">3</text><circle cx="670.0" cy="527.9" r="8" class="c3-st"/><text x="670.0" y="531.3" class="t3-stn">4</text><circle cx="587.4" cy="578.1" r="8" class="c3-st"/><text x="587.4" y="581.5" class="t3-stn">5</text><circle cx="390.1" cy="509.5" r="8" class="c3-st"/><text x="390.1" y="512.9" class="t3-stn">6</text><circle cx="501.9" cy="445.3" r="8" class="c3-st"/><text x="501.9" y="448.7" class="t3-stn">7</text><circle cx="749.9" cy="533.1" r="8" class="c3-st"/><text x="749.9" y="536.5" class="t3-stn">8</text></g>
+ <line x1="190" y1="520" x2="550" y2="520" class="l3-ax av"/><line x1="550" y1="520" x2="910" y2="520" class="l3-ax ar"/>
+ <line x1="390" y1="360" x2="550" y2="520" class="l3-ax ab"/><line x1="550" y1="520" x2="710" y2="680" class="l3-ax aj"/>
+ <g class="ly-fac"><text x="856" y="246" class="t3-face f-eco">🪓 FACE · Le Clivage</text>
+  <text x="856" y="265" class="t3-sub2">essentialisation · biais collectif</text>
+  <text x="856" y="282" class="t3-sub2">«&#160;c’est comme ça&#160;» · perversion ECO</text>
+  <text x="240" y="600" class="t3-face f-ego">🕳️ PILE · Le Déni</text>
+  <text x="240" y="619" class="t3-sub2">rejet du réel · biais individuel</text>
+  <text x="240" y="636" class="t3-sub2">«&#160;c’est comme moi&#160;» · perversion EGO</text></g>
+ <text x="178" y="454" class="t3-pol av" text-anchor="end">−X · Soumission</text><text x="178" y="472" class="t3-emo av" text-anchor="end">😖 dégoût</text><text x="178" y="490" class="t3-imp av" text-anchor="end">⛓️ garder le lien</text><text x="178" y="506" class="t3-imp av" text-anchor="end">👪 rester dans le groupe</text><text x="178" y="528" class="t3-psy" text-anchor="end">🧠 sympathie — je me noie dans l’autre</text><text x="178" y="542" class="t3-psy" text-anchor="end">💔 érotomanie — «&#160;on m’aime&#160;»</text><text x="922" y="454" class="t3-pol ar" text-anchor="start">+X · Attaque</text><text x="922" y="472" class="t3-emo ar" text-anchor="start">😠 colère</text><text x="922" y="490" class="t3-imp ar" text-anchor="start">🔗 garder la main</text><text x="922" y="512" class="t3-psy" text-anchor="start">🧠 antipathie — je repousse l’autre</text><text x="922" y="526" class="t3-psy" text-anchor="start">😱 paranoïa — «&#160;on me veut du mal&#160;»</text><text x="330" y="196" class="t3-pol ab" text-anchor="middle">−Y · Sidération</text><text x="330" y="214" class="t3-emo ab" text-anchor="middle">😢 tristesse</text><text x="330" y="232" class="t3-imp ab" text-anchor="middle">🕳️ tenir le réel</text><text x="790" y="764" class="t3-pol aj" text-anchor="middle">+Y · Fuite</text><text x="790" y="782" class="t3-emo aj" text-anchor="middle">🙂 joie</text><text x="790" y="800" class="t3-imp aj" text-anchor="middle">🪞 tenir une image</text><g class="ly-niv"><text x="178" y="404" class="t3-sain av" text-anchor="end">🌱 La Loyauté de l’Intégrité</text><text x="178" y="422" class="t3-sain av" text-anchor="end">Le Goût de l’Attachement</text><text x="178" y="540" class="t3-qi av" text-anchor="end">💀 Qu’importe le Coût&#160;:</text><text x="178" y="557" class="t3-mal av" text-anchor="end">La Fatalité donne la Résignation</text><text x="178" y="573" class="t3-mal av" text-anchor="end">La Fidélité de la Dépendance</text><text x="922" y="404" class="t3-sain ar" text-anchor="start">🌱 ❤️‍🔥 Le Courage · le cœur de la rage</text><text x="922" y="422" class="t3-sain ar" text-anchor="start">La Responsabilité du Pouvoir</text><text x="922" y="524" class="t3-qi ar" text-anchor="start">💀 Qu’importe la Raison&#160;:</text><text x="922" y="541" class="t3-mal ar" text-anchor="start">Le Contrôle donne l’Attaque</text><text x="922" y="557" class="t3-mal ar" text-anchor="start">La Rage de la Domination</text><text x="330" y="146" class="t3-sain ab" text-anchor="middle">🌱 La Curiosité de la Fascination</text><text x="330" y="164" class="t3-sain ab" text-anchor="middle">L’Ancrage de la Tristesse</text><text x="330" y="266" class="t3-qi ab" text-anchor="middle">💀 Qu’importe les Faits&#160;:</text><text x="330" y="283" class="t3-mal ab" text-anchor="middle">La Sidération donne l’Illusion</text><text x="330" y="299" class="t3-mal ab" text-anchor="middle">L’Illusion de ce qu’est l’autre</text><text x="790" y="714" class="t3-sain aj" text-anchor="middle">🌱 L’Humilité de sa Différence</text><text x="790" y="732" class="t3-sain aj" text-anchor="middle">La Joie de la Présence</text><text x="790" y="834" class="t3-qi aj" text-anchor="middle">💀 Qu’importe son Identité&#160;:</text><text x="790" y="851" class="t3-mal aj" text-anchor="middle">La Prétention donne la Fuite</text><text x="790" y="867" class="t3-mal aj" text-anchor="middle">La Manie de la Suffisance</text></g><text x="300" y="392" class="t3-dgc">🌍 naïveté</text><text x="300" y="407" class="t3-dgi">🪞 stupidité · avolition</text><text x="690" y="398" class="t3-dgc">🌍 mégalomanie</text><text x="690" y="413" class="t3-dgi">🪞 dysphorie</text><text x="860" y="636" class="t3-dgc">🌍 duplicité</text><text x="860" y="651" class="t3-dgi">🪞 mythomanie</text><text x="408" y="642" class="t3-dgc">🌍 addiction</text><text x="408" y="657" class="t3-dgi">🪞 indépendance</text><g class="ly-sin"><text x="300" y="368" class="t3-sin" text-anchor="middle">La Paresse</text><text x="690" y="376" class="t3-sin" text-anchor="middle">L’Orgueil</text><text x="860" y="614" class="t3-sin" text-anchor="middle">Le Gavage</text><text x="408" y="620" class="t3-sin" text-anchor="middle">L’Avarice</text><text x="178" y="606" class="t3-sin" text-anchor="end">La Luxure</text><text x="922" y="606" class="t3-sin" text-anchor="start">La Colère · La Lâcheté</text><text x="922" y="622" class="t3-acr" text-anchor="start">la rage attaque, la lâcheté fuit — <tspan class="t3-ac">deux ratés du courage</tspan></text><text x="790" y="900" class="t3-sin" text-anchor="middle">La Jalousie</text><text x="330" y="124" class="t3-sin" text-anchor="middle">Le Délire</text></g>
+ <g class="ly-ver"><text x="300" y="349" class="t3-ver" text-anchor="middle">🕊️ la Présence</text><text x="690" y="357" class="t3-ver" text-anchor="middle">🕊️ la Reconnaissance</text><text x="860" y="595" class="t3-ver" text-anchor="middle">🕊️ la Gourmandise</text><text x="408" y="601" class="t3-ver" text-anchor="middle">🕊️ la Générosité</text><text x="178" y="587" class="t3-ver" text-anchor="end">🕊️ l’Amour</text><text x="922" y="587" class="t3-ver" text-anchor="start">🕊️ le CouRage</text><text x="790" y="881" class="t3-ver" text-anchor="middle">🕊️ l’enVie</text><text x="330" y="105" class="t3-ver" text-anchor="middle">🕊️ le Génie Quantique</text><text x="500" y="813" class="t3-ver" text-anchor="middle">🕊️ le Courage de Ressentir</text></g><g class="ly-sc"><text x="275" y="452" class="t3-scc" text-anchor="middle">📚 Clair-Connaissance</text><text x="275" y="467" class="t3-sco" text-anchor="middle">🌑 Ignorance &amp; Indifférence</text><text x="690" y="432" class="t3-scc" text-anchor="middle">🌍 Clair-Unité</text><text x="690" y="447" class="t3-sco" text-anchor="middle">🌑 Dissociation mystique</text><text x="860" y="670" class="t3-scc" text-anchor="middle">🗣️ Clair-Audience</text><text x="860" y="685" class="t3-sco" text-anchor="middle">🌑 Schizophrénie</text><text x="408" y="676" class="t3-scc" text-anchor="middle">🤲 Clair-Goût &amp; Touché</text><text x="408" y="691" class="t3-sco" text-anchor="middle">🌑 Addictions &amp; Compulsions</text><text x="178" y="632" class="t3-scc" text-anchor="end">💛 Clair-Empathie</text><text x="178" y="647" class="t3-sco" text-anchor="end">🌑 Dépendance affective</text><text x="922" y="632" class="t3-scc" text-anchor="start">🌿 Clair-Présence</text><text x="922" y="647" class="t3-sco" text-anchor="start">🌑 Psychorigidité</text><text x="790" y="928" class="t3-scc" text-anchor="middle">💧 Clair-Sentience</text><text x="790" y="943" class="t3-sco" text-anchor="middle">🌑 Apathie</text><text x="330" y="96" class="t3-scc" text-anchor="middle">👁️ Clair-Voyance</text><text x="330" y="111" class="t3-sco" text-anchor="middle">🌑 Psychose &amp; Délire</text><text x="500" y="892" class="t3-scc" text-anchor="middle">🧮 Clair-Raisonnance</text><text x="500" y="907" class="t3-sco" text-anchor="middle">🌑 Binarité cognitive</text></g><g class="ly-mo"><path d="M646.0,500.0 L645.9,500.3 L645.5,500.6 L644.8,500.9 L643.9,501.1 L642.7,501.4 L641.3,501.6 L639.6,501.8 L637.7,502.0 L635.5,502.1 L633.1,502.2 L630.5,502.3 L627.7,502.3 L624.6,502.3 L621.3,502.2 L617.9,502.1 L614.2,501.9 L610.4,501.6 L606.4,501.3 L602.3,500.9 L598.0,500.5 L593.6,500.0 L589.0,499.4 L584.4,498.7 L579.7,497.9 L574.8,497.1 L570.0,496.2 L565.0,495.2 L560.0,494.1 L555.0,493.0 L550.0,491.8 L545.0,490.4 L540.0,489.0 L535.0,487.6 L530.0,486.0 L525.2,484.4 L520.3,482.6 L515.6,480.8 L511.0,479.0 L506.4,477.0 L502.0,475.0 L497.7,472.9 L493.6,470.7 L489.6,468.5 L485.8,466.2 L482.1,463.8 L478.7,461.4 L475.4,459.0 L472.3,456.4 L469.5,453.9 L466.9,451.2 L464.5,448.6 L462.3,445.9 L460.4,443.2 L458.7,440.4 L457.3,437.6 L456.1,434.8 L455.2,432.0 L454.5,429.2 L454.1,426.3 L454.0,423.5 L454.1,420.7 L454.5,417.8 L455.2,415.0 L456.1,412.2 L457.3,409.4 L458.7,406.6 L460.4,403.8 L462.3,401.1 L464.5,398.4 L466.9,395.8 L469.5,393.1 L472.3,390.6 L475.4,388.0 L478.7,385.6 L482.1,383.2 L485.8,380.8 L489.6,378.5 L493.6,376.3 L497.7,374.1 L502.0,372.0 L506.4,370.0 L511.0,368.0 L515.6,366.2 L520.3,364.4 L525.2,362.6 L530.0,361.0 L535.0,359.4 L540.0,358.0 L545.0,356.6 L550.0,355.2 L555.0,354.0 L560.0,352.9 L565.0,351.8 L570.0,350.8 L574.8,349.9 L579.7,349.1 L584.4,348.3 L589.0,347.6 L593.6,347.0 L598.0,346.5 L602.3,346.1 L606.4,345.7 L610.4,345.4 L614.2,345.1 L617.9,344.9 L621.3,344.8 L624.6,344.7 L627.7,344.7 L630.5,344.7 L633.1,344.8 L635.5,344.9 L637.7,345.0 L639.6,345.2 L641.3,345.4 L642.7,345.6 L643.9,345.9 L644.8,346.1 L645.5,346.4 L645.9,346.7 L646.0,347.0 L645.9,347.3 L645.5,347.6 L644.8,347.9 L643.9,348.1 L642.7,348.4 L641.3,348.6 L639.6,348.8 L637.7,349.0 L635.5,349.1 L633.1,349.2 L630.5,349.3 L627.7,349.3 L624.6,349.3 L621.3,349.2 L617.9,349.1 L614.2,348.9 L610.4,348.6 L606.4,348.3 L602.3,347.9 L598.0,347.5 L593.6,347.0 L589.0,346.4 L584.4,345.7 L579.7,344.9 L574.8,344.1 L570.0,343.2 L565.0,342.2 L560.0,341.1 L555.0,340.0 L550.0,338.8 L545.0,337.4 L540.0,336.0 L535.0,334.6 L530.0,333.0 L525.2,331.4 L520.3,329.6 L515.6,327.8 L511.0,326.0 L506.4,324.0 L502.0,322.0 L497.7,319.9 L493.6,317.7 L489.6,315.5 L485.8,313.2 L482.1,310.8 L478.7,308.4 L475.4,306.0 L472.3,303.4 L469.5,300.9 L466.9,298.2 L464.5,295.6 L462.3,292.9 L460.4,290.2 L458.7,287.4 L457.3,284.6 L456.1,281.8 L455.2,279.0 L454.5,276.2 L454.1,273.3 L454.0,270.5 L454.1,267.7 L454.5,264.8 L455.2,262.0 L456.1,259.2 L457.3,256.4 L458.7,253.6 L460.4,250.8 L462.3,248.1 L464.5,245.4 L466.9,242.8 L469.5,240.1 L472.3,237.6 L475.4,235.0 L478.7,232.6 L482.1,230.2 L485.8,227.8 L489.6,225.5 L493.6,223.3 L497.7,221.1 L502.0,219.0 L506.4,217.0 L511.0,215.0 L515.6,213.2 L520.3,211.4 L525.2,209.6 L530.0,208.0 L535.0,206.4 L540.0,205.0 L545.0,203.6 L550.0,202.2 L555.0,201.0 L560.0,199.9 L565.0,198.8 L570.0,197.8 L574.8,196.9 L579.7,196.1 L584.4,195.3 L589.0,194.6 L593.6,194.0 L598.0,193.5 L602.3,193.1 L606.4,192.7 L610.4,192.4 L614.2,192.1 L617.9,191.9 L621.3,191.8 L624.6,191.7 L627.7,191.7 L630.5,191.7 L633.1,191.8 L635.5,191.9 L637.7,192.0 L639.6,192.2 L641.3,192.4 L642.7,192.6 L643.9,192.9 L644.8,193.1 L645.5,193.4 L645.9,193.7 L646.0,194.0" class="p3-mont"/><circle cx="612.3" cy="501.8" r="3.4" class="c3-mo"/><text x="625.3" y="505.3" class="t3-mo" text-anchor="start">1·🌱 résilience</text><circle cx="477.0" cy="460.2" r="3.4" class="c3-mo"/><text x="464.0" y="463.7" class="t3-mo" text-anchor="end">2·🫂 comble</text><circle cx="487.7" cy="379.7" r="3.4" class="c3-mo"/><text x="474.7" y="383.2" class="t3-mo" text-anchor="end">3·🕊️ sérénité</text><circle cx="623.0" cy="344.7" r="3.4" class="c3-mo"/><text x="636.0" y="348.2" class="t3-mo" text-anchor="start">4·👩‍👧 matrilinéaire</text><circle cx="612.3" cy="348.8" r="3.4" class="c3-mo"/><text x="625.3" y="352.3" class="t3-mo" text-anchor="start">5·🎁 don</text><circle cx="477.0" cy="307.2" r="3.4" class="c3-mo"/><text x="464.0" y="310.7" class="t3-mo" text-anchor="end">6·🐲 sagesse</text><circle cx="487.7" cy="226.7" r="3.4" class="c3-mo"/><text x="474.7" y="230.2" class="t3-mo" text-anchor="end">7·🤝 partage</text><circle cx="623.0" cy="191.7" r="3.4" class="c3-mo"/><text x="636.0" y="195.2" class="t3-mo" text-anchor="start">8·🎓 boucle éducative</text></g><g class="ly-air"><ellipse cx="550" cy="520" rx="292" ry="50" class="a3-b"/><text x="262" y="496" class="t3-air ar">🌀 borderline · oscille sur X</text><ellipse cx="550" cy="520" rx="50" ry="196" transform="rotate(-45 550 520)" class="a3-y"/><text x="716" y="706" class="t3-air aj">🌗 bipolarité · oscille sur Y</text><ellipse cx="412" cy="392" rx="86" ry="44" class="a3-d"/><text x="412" y="380" class="t3-air ab">🌧️ dépression · −Y fixé</text><ellipse cx="550" cy="520" rx="332" ry="152" class="a3-s"/><text x="826" y="432" class="t3-air">🗣️ schizophrénie · ne se localise pas</text><ellipse cx="550" cy="520" rx="64" ry="32" class="a3-t"/><text x="550" y="574" class="t3-air">🪞 TDI · paranoïa</text><ellipse cx="258" cy="502" rx="64" ry="28" class="a3-e"/><text x="258" y="542" class="t3-air av">💔 érotomanie</text><circle cx="326" cy="440" r="42" class="a3-h"/><circle cx="740" cy="440" r="42" class="a3-h"/><circle cx="774" cy="600" r="42" class="a3-h"/><circle cx="440" cy="600" r="42" class="a3-h"/></g><circle cx="550" cy="520" r="34" class="c3-noir"/><circle cx="550" cy="520" r="34" class="c3-halo"/>
+ <line x1="550" y1="554" x2="500" y2="712" class="l3-conn"/>
+ <g class="ly-niv"><text x="500" y="730" class="t3-csain">🌱 La Vigilance · la peur qui informe sans commander</text></g>
+ <text x="500" y="752" class="t3-ctr">😱 La Peur de l’Inconfort&#160;: le Patriarcat</text>
+ <text x="500" y="770" class="t3-ctr">⏱️ L’Économie de l’Effort&#160;: le Capitalisme</text>
+ <text x="500" y="788" class="t3-sub2">ne pas réfléchir à ce qui est inconfortable · toi <tspan class="t3-ou">ou</tspan> moi</text>
+ <g class="ly-niv"><text x="500" y="810" class="t3-cmal">💀 La Paranoïa · la Méfiance — la peur qui <tspan class="t3-ac">commande</tspan></text><text x="500" y="826" class="t3-cmal">💀 L’Apathie · l’Émoussement — la peur qui <tspan class="t3-ac">coupe</tspan></text><text x="500" y="840" class="t3-psy">🧠 apathie = le milieu de sympathie / antipathie — <tspan class="t3-ac">l’empathie est perpendiculaire</tspan></text></g>
+ <g class="ly-sin"><text x="500" y="852" class="t3-bles">💔 L’Abandon — la blessure</text><text x="500" y="868" class="t3-acr">les huit vices sont des <tspan class="t3-ac">réponses</tspan> · l’abandon est ce à quoi ils répondent</text></g>
+ <polyline id="r3T" class="l3-sill" points=""/><g id="r3TD"></g><g id="r3DL" style="opacity:0"><line class="l3-ds"/><line class="l3-ds"/><line class="l3-ds"/><line class="l3-ds"/><line class="l3-ds"/><line class="l3-ds"/></g><g id="r3B" style="opacity:0"><text class="t3-bul b0"></text><text class="t3-bul b1"></text><text class="t3-bul b2"></text></g><g id="r3DS" style="opacity:0"><circle class="c3-ds d0" r="7"/><circle class="c3-ds d1" r="7"/><circle class="c3-ds d2" r="7"/><circle class="c3-ds d3" r="7"/><circle class="c3-ds d4" r="7"/><circle class="c3-ds d5" r="7"/></g><g id="r3M" style="opacity:0"><line id="r3L" x1="550" y1="520" x2="550" y2="520" class="l3-lien"/>
+  <ellipse id="r3S" cx="550" cy="520" rx="10" ry="5" class="c3-omb"/><circle id="r3P" cx="550" cy="520" r="10" class="c3-pt"/></g>
+</svg>
+<div class="tv-bar"><span class="tv-l">🎬 la traversée</span><button class="tv-b" data-s="0">🌈 L’Innocence</button><button class="tv-b" data-s="1">😮 La Surprise</button><button class="tv-b" data-s="2">💥 Le Choc</button><button class="tv-b" data-s="3">🎭 La Dissociation</button><button class="tv-b" data-s="4">🔗 L’Aliénation</button><button class="tv-b" data-s="5">🌱 La Résilience</button><button class="tv-b" data-s="6">☀️ La Sérénité</button><button id="tvPlay" class="tv-play">▶ Jouer</button></div><p class="tv-c" id="tvC">— <i>sept états, un seul repère. Clique un état, ou laisse défiler.</i></p><p class="tv-n">◈ <b>Les éclats sont reliés au centre par des fils</b> — c’est le faux-self&#160;: il fonctionne, il parle, il va travailler, <b>mais il tient à un point figé</b>. <b>Baisse la charge et ils refusionnent</b> — l’écart suit la peur, pas l’inverse. Et sous forte charge, <b>les phrases du déni remontent autour du point</b> — celles du pôle où il se trouve.</p><p class="tv-n">◈ <b>Le point laisse un sillage</b> — la chute, l’éclatement, puis la remontée se dessinent d’eux-mêmes. Et <b>quand les deux pôles tirent ensemble</b>, le point se disperse en éclats tremblants&#160;: <b>c’est la dissociation, et elle apparaît d’elle-même</b>, pas seulement dans l’état 🎭 — <b>dès qu’un profil réel devient mouvant sous forte charge</b>.</p><p class="p3-zoom">◈ Planche dense&#160;: <b>les calques sont faits pour ça</b> — éteins ce que tu ne regardes pas. Et un zoom navigateur (⌘/Ctrl +) reste le plus lisible pour tout voir d’un coup.</p>
+<p class="p3-n" id="r3N">— <i>règle les potards&#160;: le point se place sur le plan, et s’élève à mesure que la charge tombe</i></p>
+<p class="p3-cl">🩺 <b>Ce que l’axe dit des mouvants&#160;:</b> 🌀 <b>le borderline oscille sur X</b> (soumission ↔ attaque), en heures, autour du lien. 🌗 <b>La bipolarité oscille sur Y</b> (sidération ↔ fuite), en semaines, autour de l’énergie — <b>et pour une part biologique que rien ici ne mesure</b>. 🗣️ <b>La schizophrénie, elle, n’oscille pas&#160;: elle désorganise.</b> C’est le seul cas où le repère cesse de fonctionner, parce que le plan suppose <b>un sujet cohérent qui fait un choix coûteux</b> — et la désorganisation est précisément la perte de cette cohérence. <b>Quand l’instrument ne sait plus placer le point, il faut le dire, pas forcer le point.</b></p><p class="p3-mo">🌱 <b>La spirale montante</b> — l’inverse exact&#160;: <b>résilience › comble › sérénité › matrilinéaire › don › sagesse › partage › boucle éducative</b>. Même nombre de tours, même passage par les quatre fonctions — mais <b>elle enroule la verticale au lieu de s’étaler sur le plan</b>. Chaque tour finit plus haut que le précédent. <b>La descendante s’élargit, la montante s’élève&#160;: c’est la seule différence, et c’est toute la différence.</b></p><p class="p3-sp">➿ <b>La spirale descendante</b> &#160;<b>1</b>&#160;💥 trauma &#160;·&#160; <b>2</b>&#160;🕳️ carence &#160;·&#160; <b>3</b>&#160;😱 peur de manquer &#160;·&#160; <b>4</b>&#160;👑 patriarcat &#160;·&#160; <b>5</b>&#160;⚖️ économie &#160;·&#160; <b>6</b>&#160;🧮 rationalité &#160;·&#160; <b>7</b>&#160;💰 capitalisme &#160;·&#160; <b>8</b>&#160;🔁 boucle addictive</p>
+<p class="p3-sp2">Elle ne monte pas — <b>elle s’élargit sur le plan</b>. Chaque tour repasse par les quatre fonctions et revient au même point, un cran plus loin. <b>C’est ça, une boucle&#160;: du mouvement sans hauteur.</b> Et puisqu’une boucle commence bien quelque part, <b>la paresse peut être à la fois la racine et la diagonale</b> — ce n’est pas contradictoire, c’est le premier tour.</p>
+</div>
+<div class="pt-plans">
+<p class="pl-h">🪜 <b>L’Échelle des 8 Plans</b> — <span id="plH">règle les potards pour voir le plafond</span></p>
+<p class="pl-s">La hauteur du point ne dit pas <b>où tu es arrivé·e</b> — elle dit <b>jusqu’où l’accès reste ouvert</b>. À pleine charge, seul le plan 1 est joignable&#160;: la survie. <b>Chaque cran de charge en moins rouvre un plan.</b> C’est ton propre principe, appliqué à la verticale&#160;: <b>le trouble est un rétrécissement du répertoire.</b></p><p class="pl-s">◈ <b>Et un vice actif ferme son propre plan, quel que soit le total.</b> Une seule fonction chargée à plus de la moitié plafonne à <b>son</b> plan&#160;— ⏱️ l’économie de l’effort au <b>1</b>, −X la soumission au <b>3</b>, +X l’attaque au <b>4</b>, +Y la fuite au <b>6</b>, −Y la sidération au <b>8</b>. <b>La paresse plafonne le plus bas&#160;: qui ne veut pas réfléchir n’ouvre rien au-dessus de la survie.</b></p>
+<div class="pl-grid"><div class="pl-r" data-p="8"><span class="pl-n">⛲&#160;8</span><span class="pl-t"><b>Génie Quantique</b><i>Quantique · Créateur · Transmutation</i></span><span class="pl-v">💀 le délire mystique</span><span class="pl-o">−Y · sidération</span></div><div class="pl-r" data-p="7"><span class="pl-n">☀️&#160;7</span><span class="pl-t"><b>Amour</b><i>Mystique · Foi Consciente</i></span><span class="pl-v">💀 l’orgueil</span><span class="pl-o">↗ −Y/+X · mégalomanie &amp; dysphorie</span></div><div class="pl-r" data-p="6"><span class="pl-n">🐲&#160;6</span><span class="pl-t"><b>Sagesse</b><i>Spirituel · Harmonie</i></span><span class="pl-v">💀 la jalousie</span><span class="pl-o">+Y · fuite</span></div><div class="pl-r" data-p="5"><span class="pl-n">🪨&#160;5</span><span class="pl-t"><b>Connaissance</b><i>Cognitif · Maîtrise</i></span><span class="pl-v">💀 l’avarice</span><span class="pl-o">↘ +Y/−X · addiction &amp; indépendance</span></div><div class="pl-r" data-p="4"><span class="pl-n">❤️‍🔥&#160;4</span><span class="pl-t"><b>Dévouement au Sublime</b><i>Mental · Structure</i></span><span class="pl-v">💀 la rage</span><span class="pl-o">+X · attaque</span></div><div class="pl-r" data-p="3"><span class="pl-n">💧&#160;3</span><span class="pl-t"><b>Empathie</b><i>Psychique · Relationnel · Expression</i></span><span class="pl-v">💀 la luxure</span><span class="pl-o">−X · soumission</span></div><div class="pl-r" data-p="2"><span class="pl-n">🧭&#160;2</span><span class="pl-t"><b>Maîtrise Consciente</b><i>Émotionnel · Sensoriel · Relation</i></span><span class="pl-v">💀 le gavage</span><span class="pl-o">↗ +X/+Y · duplicité &amp; mythomanie</span></div><div class="pl-r" data-p="1"><span class="pl-n">🌿&#160;1</span><span class="pl-t"><b>Harmonie Naturelle</b><i>Physique · Somatique · Présence</i></span><span class="pl-v">💀 la paresse</span><span class="pl-o">↖ −X/−Y · naïveté &amp; stupidité</span></div></div>
+<p class="pl-f">◈ <b>Et la boucle se ferme&#160;:</b> la colonne de droite donne, pour chaque plan, <b>la position que son vice occupe sur le plan horizontal</b>. Le repère dit <b>quel vice est actif</b>, l’échelle dit <b>quel plan il ferme</b>. <b>Deux lectures du même réglage.</b></p>
+<p class="pl-c">⚠️ <b>Ce que ça ne mesure pas.</b> L’outil compte une charge, pas un accomplissement. <b>Une charge basse ne prouve pas qu’on est au plan 8</b> — elle prouve seulement que <b>rien ne barre la route</b>. Monter reste à faire, et ça ne se lit dans aucun instrument.</p>
+</div>
+<div class="pt-res2"><p class="rs-t">🌊 <b>La ReSource — ce qui empêche de vriller</b></p><p class="rs-p">Ce n’est ni une vertu ni un potard&#160;: <b>c’est un lieu du lien.</b> Un espace où le réel peut être vécu tel quel, <b>sans avoir à le tordre pour y tenir</b>. C’est la seule chose qui libère — parce que <b>c’est la seule qui ne demande rien en échange</b>.</p><p class="rs-p">Sans ReSource, il ne reste que deux issues&#160;: <b>imploser</b> — le pôle anxieux, le coût sur soi — ou <b>exploser</b> — le pôle évitant, le coût sur l’autre. <b>La ReSource est ce qui rend la troisième possible&#160;: rester.</b></p><p class="rs-p">◈ <b>Et c’est un lieu <i>vivant</i>.</b> On ne vit pas le réel devant un mur&#160;: il faut <b>quelqu’un en face</b>. Une personne — <b>ou un animal</b>, qui ne ment jamais sur ce qu’il ressent et ne demande pas de se justifier. <b>Ce n’est pas un détail&#160;: c’est souvent par là que ça tient.</b></p><p class="rs-p rs-big">Elle n’est pas sur le plan, et elle n’est pas au bout de la verticale. <b>Elle est ce qui permet de tenir debout pendant la montée — le sol de la perpendiculaire.</b></p><p class="rs-p rs-big">◈ <b>Et le centre a une suite hors de la psyché.</b> 😱 la peur, ⏱️ l’économie de l’effort — ça ne reste pas dans la tête&#160;: <b>ça passe par le cortisol, et le cortisol abîme</b>. C’est là que 🧬 <b>la BioMatrice</b> prend le relais&#160;: elle documente <b>ce que le corps fait d’un stress qui ne s’arrête pas</b>. <b>Le repère s’arrête où le corps commence — et la BioMatrice commence exactement là.</b></p><p class="rs-t2">💔 <b>Et le centre porte le nom du volume</b></p><div class="mb-wrap"><table class="mx-t"><thead><tr><th>Le mot</th><th>La langue dans laquelle il est dit</th></tr></thead><tbody><tr><td class="mx-l">la <b>blessure d’abandon</b></td><td>le langage du <b>lien</b> — ce qui a manqué</td></tr><tr><td class="mx-l">la <b>blessure originelle</b></td><td>le langage du <b>récit</b> — ce qui a commencé</td></tr><tr><td class="mx-l">la <b>blessure narcissique</b></td><td>le langage de la <b>clinique</b> — ce qui a été atteint</td></tr><tr><td class="mx-l">la <b>PsychaTrice</b></td><td>le langage <b>aMi</b> — la cicatrice de la psyché&#160;: ce qui reste <i>et</i> ce qui se referme</td></tr></tbody></table></div><p class="rs-p rs-big">◈ <b>C’est le même terme, dit dans quatre domaines différents.</b> Et le volume boucle sur lui-même&#160;: <b>💊 PsychaTrice, c’est la Blessure de l’Abandon — et la thérapie, c’est 🌱 la Culture de la Résilience.</b> Le centre du repère et le titre du livre sont le même endroit.</p><p class="rs-p rs-big">◈ <b>Et le libre arbitre s’y définit&#160;: c’est la mise en pratique de la volonté de s’éduquer à la culture de la résilience.</b> Pas un pouvoir qu’on a — <b>un geste qu’on répète.</b></p></div>
+<div class="pt-mx"><p class="mx-h">🧩 <b>La Matrice — ce que le repère ne peut pas écrire dessus</b></p><p class="mx-s">Six tiroirs. Chacun se déplie. <b>Ce sont les raisonnements derrière la planche</b> — ce qui justifie une position, ce qui la limite, ce qui reste ouvert.</p><details class="mx-d" open><summary>⚖️ Le miroir de la volonté — <i>aboulie · acrasie · encratie · volition</i></summary><div class="mx-c"><div class="mb-wrap"><table class="mx-t"><thead><tr><th></th><th>le vouloir <b>manque</b></th><th>le vouloir <b>ne tient pas</b></th><th>le vouloir <b>tient</b></th></tr></thead><tbody><tr><td class="mx-l">🧠 dans la psyché</td><td><b>l’aboulie</b><span>aucune volonté d’action</span></td><td><b>l’acrasie</b><span>vouloir le bien et faire le mal</span></td><td class="mx-ok"><b>l’encratie</b><span>vouloir le bien <i>et</i> le faire — ἐγκράτεια chez Aristote, la maîtrise de soi</span></td></tr><tr><td class="mx-l">🤲 dans la matière</td><td><b>l’inaction</b><span>rien ne sort</span></td><td><b>l’hypocrisie</b><span>dire le bien, faire le mal</span></td><td class="mx-ok"><b>la volition</b><span>l’acte qui aboutit</span></td></tr></tbody></table></div><p class="mx-p">◈ <b>Et les deux côtés de la violence sont là.</b> <b>L’hypocrisie est l’agression</b> — elle agit contre. <b>L’aboulie est l’indifférence</b> — elle n’agit pas du tout. Ce sont exactement <b>les deux malades du centre</b> : la peur qui commande et la peur qui coupe.</p></div></details><details class="mx-d"><summary>🔄 Les inverses des troubles — <i>le même mouvement, réglé</i></summary><div class="mx-c"><div class="mb-wrap"><table class="mx-t"><thead><tr><th>ce qui rate</th><th>ce qui bouge</th><th>l’inverse — <i>le même mouvement qui a retrouvé sa mesure</i></th></tr></thead><tbody><tr><td class="mx-l">🌀 borderline</td><td>mobilité relationnelle <b>subie</b></td><td class="mx-ok"><b>l’accordage</b> — passer de la proximité à la limite <b>sans que ce soit une rupture</b></td></tr><tr><td class="mx-l">🌗 bipolarité</td><td>variation d’énergie <b>subie</b></td><td class="mx-ok"><b>le rythme</b> — l’alternance élan / repos vécue comme <b>cycle</b> et non comme chute</td></tr><tr><td class="mx-l">🗣️ schizophrénie</td><td>perméabilité qui <b>désorganise</b></td><td class="mx-ok"><b>l’imagination reliée</b> — laisser entrer l’inhabituel <b>sans perdre le fil</b></td></tr><tr><td class="mx-l">🪞 TDI</td><td>des parts <b>étanches</b></td><td class="mx-ok"><b>la pluralité intégrée</b> — plusieurs registres <b>qui communiquent</b></td></tr><tr><td class="mx-l">😱 paranoïa</td><td>«&#160;on me veut du mal&#160;» ↔ 💔 <b>érotomanie</b> «&#160;on m’aime&#160;»</td><td class="mx-ok"><b>lire les intentions sans les inventer</b> — le même organe, réglé</td></tr><tr><td class="mx-l">🌧️ dépression</td><td>sidération fixée ↔ <b>la manie</b></td><td class="mx-ok"><b>l’Ancrage de la Tristesse</b> — déjà écrit sur −Y</td></tr></tbody></table></div><p class="mx-w">⚠️ <b>Ce sont des lectures de fonction, pas des prescriptions.</b> Dire que l’inverse de la bipolarité est «&#160;le rythme&#160;» <b>ne veut pas dire qu’il suffirait d’accepter un rythme</b> — la part médicale reste médicale. La colonne de droite dit <b>ce que la fonction ferait si elle tenait</b>, pas comment y arriver.</p></div></details><details class="mx-d"><summary>✂️ Les deux coupes du plan — <i>physique et psychique</i></summary><div class="mx-c"><div class="mb-wrap"><table class="mx-t"><thead><tr><th>la coupe</th><th>un bord</th><th>le milieu</th><th>l’autre bord</th><th>la sortie</th></tr></thead><tbody><tr><td class="mx-l">🫀 mécanisme <b>physique</b></td><td>anxieux</td><td>désorganisé</td><td>évitant</td><td class="mx-ok">🕊️ <b>sécure</b></td></tr><tr><td class="mx-l">🧠 mécanisme <b>psychique</b></td><td><b>sympathie</b><span>je me noie dans l’autre</span></td><td><b>apathie</b><span>je ne sens plus</span></td><td><b>antipathie</b><span>je repousse l’autre</span></td><td class="mx-ok">🕊️ <b>empathie</b></td></tr></tbody></table></div><p class="mx-p">◈ <b>L’empathie n’est pas au milieu de sympathie et d’antipathie.</b> Le milieu, c’est l’apathie — et c’est justement le centre du plan. <b>L’empathie est perpendiculaire</b>, exactement comme le sécure : elle ne se trouve pas en dosant les deux bords, <b>elle se trouve en quittant la ligne</b>.</p></div></details><details class="mx-d"><summary>🃏 Les deux faces — <i>endophobie et xénophobie</i></summary><div class="mx-c"><div class="mb-wrap"><table class="mx-t"><thead><tr><th>la face</th><th>le rapport</th><th>la peur</th><th>le fondateur</th></tr></thead><tbody><tr><td class="mx-l">🪞 <b>EGO</b> · individuel</td><td>rapport <b>à soi</b></td><td class="mx-ko"><b>l’endophobie</b></td><td>🕳️ Le Déni — «&#160;c’est comme moi&#160;»</td></tr><tr><td class="mx-l">🌍 <b>ECO</b> · collectif</td><td>rapport <b>à l’autre</b></td><td class="mx-ko"><b>la xénophobie</b></td><td>🪓 Le Clivage — «&#160;c’est comme ça&#160;»</td></tr></tbody></table></div></div></details><details class="mx-d"><summary>💔 Le centre et le nom du plan — <i>l’abandon, le complexe d’infériorité</i></summary><div class="mx-c"><p class="mx-p">◈ <b>Le centre n’est pas un vice — c’est une blessure.</b> 💔 <b>L’Abandon.</b> Les huit vices sont des <b>réponses</b>&#160;; l’abandon est <b>ce à quoi ils répondent</b>. On ne corrige pas une blessure, on la soigne — ce qui n’est pas le même geste que défaire un biais.</p><p class="mx-p">◈ <b>Et la lâcheté rejoint +X, sous la colère.</b> Puisque le CouRage est la vertu de +X, son raté doit être là aussi&#160;: <b>la rage attaque, la lâcheté fuit la confrontation — deux ratés de la même fonction.</b> Trop, et pas assez.</p><p class="mx-p mx-big">◈ <b>Et le plan tout entier a un nom&#160;: le plan du complexe d’infériorité.</b> Tout ce qui s’y joue est <b>une compensation</b> — quatre façons de répondre à «&#160;je vaux moins&#160;». C’est pour ça qu’aucune ne monte&#160;: <b>on ne s’élève pas en compensant, on s’élève en cessant d’avoir à compenser.</b></p></div></details><details class="mx-d"><summary>🔍 Les cinq précisions épistémiques — <i>ce qu’on mesure, et ce qu’on croit mesurer</i></summary><div class="mx-c"><p class="mx-p">◈ <b>«&#160;Rien&#160;» n’est presque jamais ce qu’on trouve — c’est ce qu’on n’a pas cherché.</b> Ce que mesurent les études d’issue, c’est «&#160;<b>ne remplit pas les critères d’un trouble donné</b>&#160;» — pas «&#160;n’a rien&#160;». Et elles reposent très largement sur <b>ce que les gens déclarent d’eux-mêmes</b>, c’est-à-dire exactement <b>là où le déni opère</b>. Quand on élargit le regard — santé physique, addictions, espérance de vie — <b>la relation dose-réponse réapparaît partout</b>.</p><p class="mx-p">◈ <b>Demander «&#160;d’abord le gène ou d’abord le psychique&#160;?&#160;», c’est demander quel bout d’un cercle est le début.</b> On ne peut pas dire lequel vient en premier <b>parce qu’on ne les observe jamais séparément</b>. Un corps qui vit un stress se transforme&#160;; un corps transformé vit le stress autrement.</p><p class="mx-p mx-big">◈ <b>Le psychosomatisme résout la question au lieu d’y répondre.</b> Si le corps et l’esprit sont un seul système, <b>la question était mal posée</b>&#160;: elle suppose deux choses là où il y en a une. <b>Les deux camps se disputent sur un partage qui n’existe pas.</b></p><p class="mx-p">◈ <b>Cliver le monde n’est pas encore cliver le soi.</b><br>· <b>Cliver le monde</b>&#160;: je range les gens dans deux tiroirs étanches. <b>Je reste un.</b><br>· <b>Cliver le soi</b> (TDI)&#160;: ce sont <b>mes propres états</b> qui deviennent étanches — au point que <b>ce que vit l’un n’est plus accessible à l’autre</b>. La coupure passe par la mémoire.<br>Même geste, retourné vers l’intérieur, <b>poussé jusqu’à ce que la mémoire cède</b>. <b>Le continuum tient — ceci n’en nomme que le seuil.</b></p><p class="mx-p">◈ <b>Et c’est exactement ce que dit le potard 🪓 du Clivage.</b> Constater qui respecte et qui ne respecte pas <b>n’est pas un clivage&#160;: c’est une observation</b>, et elle est nécessaire. Le clivage commence quand <b>l’acte devient une nature</b> — et quand, à force de trancher le monde, <b>on finit par se trancher soi</b>.</p></div></details></div>
+<div class="pt-nom"><p class="nm-t">🗂️ <b>La Matrice des Noms — un fait, cinq langues</b></p><p class="nm-p">La même chose se dit différemment selon le registre. <b>Ce ne sont pas des synonymes&#160;: ce sont des traductions.</b> Et savoir traduire évite deux malentendus — <b>croire qu’on parle de choses différentes</b>, ou <b>croire qu’on a expliqué en changeant de mot</b>.</p><div class="mb-wrap"><table class="nm-tab"><thead><tr><th>le registre</th><th>la force qui vient de dehors</th><th>➡️ ce qui rentre en soi</th><th>⬅️ ce qui sort sur l’autre</th></tr></thead><tbody><tr><td class="nm-r">🧮 <b>mathématique</b></td><td class="nm-f">la gravité</td><td class="nm-i">l’implosion</td><td class="nm-e">l’explosion</td></tr><tr><td class="nm-r">🌿 <b>physique</b></td><td class="nm-f">la pression</td><td class="nm-i">l’écrasement</td><td class="nm-e">la rupture</td></tr><tr><td class="nm-r">💧 <b>psychique</b></td><td class="nm-f">l’oppression</td><td class="nm-i">l’effacement</td><td class="nm-e">la captation</td></tr><tr><td class="nm-r">⚖️ <b>éthique · préventif</b></td><td class="nm-f">la violence</td><td class="nm-i">le sacrifice</td><td class="nm-e">le viol</td></tr><tr><td class="nm-r">🎭 <b>symbolique</b></td><td class="nm-f">l’emprise</td><td class="nm-i">le zombie</td><td class="nm-e">le vampire</td></tr><tr class="nm-soin"><td class="nm-r">⚕️ <b>thérapeutique</b></td><td class="nm-f">le soin</td><td class="nm-i">la <b>protection</b></td><td class="nm-e">la <b>limite</b></td></tr></tbody></table></div><p class="nm-p nm-esc">◈ <b>Et la colonne du milieu s’ordonne&#160;:</b> <b>pression › gravité › oppression › violence</b>. Ce n’est pas quatre mots pour la même chose — <b>c’est la même chose vue de plus en plus près du vivant</b>. La pression est neutre, la gravité est physique, l’oppression est humaine, <b>la violence est nommable — donc opposable</b>. <b>Nommer, c’est traduire jusqu’au registre où la chose devient contestable.</b></p><p class="nm-p nm-big">◈ <b>La dernière ligne est celle qui compte.</b> Les cinq premières décrivent&#160;; <b>la thérapeutique agit</b>. Et l’outil le disait déjà sans le nommer&#160;: <i>«&#160;un profil qui tombe sur soi demande une <b>protection</b>&#160;; un profil qui tombe sur autrui demande une <b>limite</b>.&#160;»</i> <b>Le soin n’est pas le même geste selon la direction du coût.</b></p></div>
+<div class="pt-tp"><p class="tp-t">🔺 <b>Les Trouples — une pression, deux issues</b></p><p class="tp-p">Ta correction est meilleure que ma paire. <b>L’ECO ne s’oppose pas à l’EGO&#160;: il le divise.</b> Le collectif fait pression, et cette pression <b>ne peut sortir que par deux portes</b>&#160;: <b>elle implose</b> — le coût revient sur soi — <b>ou elle explose</b> — le coût part sur l’autre. <b>Le collectif&#160;&gt;&#160;moi <i>ou</i> l’autre.</b></p><p class="tp-p tp-num">◈ <b>Et le compte le soutient.</b> 11 collectifs, 21 individuels. Si chaque pression a deux issues, il en faudrait <b>22</b> — on en a <b>21</b>. Et le décompte exact est plus parlant que l’écart&#160;: <b>20 se placent, 2 cases restent vides, 1 déborde</b>. En construisant les onze trouples, <b>deux trous apparaissent</b> — et ils sont tous les deux du côté <b>implosion</b>, ce qui n’est pas un hasard&#160;: <b>ce qui tombe sur soi est le plus dur à nommer</b>, parce que personne ne porte plainte.</p><div class="mb-wrap"><table class="tp-tab"><thead><tr><th>🌍 la pression <span>ECO · collectif</span></th><th>➡️ l’implosion <span>le coût revient sur soi</span></th><th>⬅️ l’explosion <span>le coût part sur l’autre</span></th><th>l’opération</th></tr></thead><tbody><tr><td class="tp-c">🌍 Le Biais du Monde Juste</td><td class="tp-i">💔 L’Auto-culpabilisation</td><td class="tp-e">⚖️ La Minimisation</td><td class="tp-o">faire mériter le dommage</td></tr><tr><td class="tp-c">🩺 La Pathologisation de la Lucidité</td><td class="tp-i">🙉 La Négation du Trauma</td><td class="tp-e">💡 Le Gaslighting</td><td class="tp-o">disqualifier la perception</td></tr><tr><td class="tp-c">⚙️ La Fabrique du Consentement</td><td class="tp-i">⛓️ La Loyauté Toxique</td><td class="tp-e">🪤 La Question Fermée</td><td class="tp-o">rendre le oui obligatoire</td></tr><tr><td class="tp-c">📏 Le Biais de Normativité</td><td class="tp-i">🏵️ Le Biais de Pureté</td><td class="tp-e">🏷️ La Qualification Sélective</td><td class="tp-o">la norme comme condition</td></tr><tr><td class="tp-c">🏛️ Le Biais d’Autorité</td><td class="tp-i">🔎 Le Biais de Confirmation</td><td class="tp-e">🗿 Le Biais de Surconfiance</td><td class="tp-o">dispenser de vérifier</td></tr><tr><td class="tp-c">👥 L’Effet Témoin</td><td class="tp-i">🪨 Le Biais de Résignation</td><td class="tp-e">⏱️ Le Biais d’Urgence</td><td class="tp-o">justifier l’inaction</td></tr><tr><td class="tp-c">👪 Le Biais de Groupe</td><td class="tp-i">🌅 L’Espoir Compensatoire</td><td class="tp-e">🎭 L’Exemption de l’Analyste</td><td class="tp-o">se mettre hors du lot</td></tr><tr><td class="tp-c">🔗 Le Biais de Coercition</td><td class="tp-i">😌 La Rationalisation</td><td class="tp-e">🔄 L’Inversion victime / agresseur</td><td class="tp-o">légitimer la contrainte</td></tr><tr><td class="tp-c">🧠 Le Biais de Déni du Psychique</td><td class="tp-i">🚮 La Séparation des Sphères</td><td class="tp-e">🔮 La Surinterprétation</td><td class="tp-o">retrancher le sens</td></tr><tr><td class="tp-c">🫀 Le Biais de Déni du Corps</td><td class="tp-h">✖️ <b>manquant</b><span>🧊 <b>Le Déni de la Sensation</b> — «&#160;je n’ai rien senti · je gère&#160;»</span></td><td class="tp-e">🩹 Le Biais de Justification</td><td class="tp-o">retrancher le corps</td></tr><tr><td class="tp-c">⚧️ Le Biais de Genre</td><td class="tp-h">✖️ <b>manquant</b><span>🪢 <b>L’Intériorisation de la Norme</b> — «&#160;c’est normal, pour une femme&#160;»</span></td><td class="tp-e">🪞 La Projection</td><td class="tp-o">assigner une nature</td></tr></tbody></table></div><p class="tp-p">◈ <b>Deux biais restent hors trouple&#160;:</b> 🏳️ <b>La Généralisation de sa Limite</b> et 🌍 le reliquat — ils fonctionnent comme des <b>secondes explosions</b>, pas comme des implosions. <b>Le déséquilibre est donc réel et orienté.</b></p><p class="tp-p tp-big">◈ <b>Et 🩹 la Justification retrouve sa place&#160;:</b> elle est l’explosion du 🫀 Déni du Corps — «&#160;je ne voulais pas&#160;» est exactement ce qu’on dit quand on refuse de regarder ce que le geste a fait <b>à un corps</b>.</p><p class="tp-w">⚠️ <b>Ce tableau est une hypothèse structurelle, pas un relevé.</b> Les onze trouples sont construits <b>par l’opération commune</b>, pas mesurés. Ce qu’il prouve, c’est que <b>la structure tient à deux trous près</b> — et qu’elle dit lesquels chercher. <b>C’est ce qu’on demande à un modèle&#160;: prédire ce qui manque.</b></p></div>
+<div class="pt-clin">
+<p class="cl-h">🩺 <b>Ce que le repère peut dire d’un terme clinique</b></p>
+<p class="cl-w">⚠️ <b>Ceci ne diagnostique personne, et ne peut pas le faire.</b> Le repère ne dit pas <b>qui est quoi</b> — il dit <b>où ça bouge</b>. Plusieurs de ces états ont une part <b>biologique</b> que cet outil ne mesure pas du tout&#160;; d’autres sont des <b>mots d’usage</b> et non des catégories cliniques, ce qui est signalé. <b>Un terme n’est pas une personne, et une position n’est pas un verdict.</b></p>
+<div class="mb-wrap"><table class="cl-tab"><thead><tr><th>Le terme</th><th>Ce qui bouge</th><th>Ce qui le distingue</th></tr></thead><tbody><tr class="ox"><td class="cl-n">🌀 <b>Trouble borderline</b><span>diagnostic reconnu</span></td><td class="cl-a">oscille sur <b>X</b><i>soumission ↔ attaque</i></td><td class="cl-d">Horloge <b>courte</b> — heures. Déclenché par <b>le lien</b>. Moteur&#160;: 🪓 <b>le clivage</b> (idéalisation puis dévalorisation). Noyau&#160;: <b>la terreur de l’abandon</b>. On s’accroche, puis on frappe pour ne pas être quitté·e.</td></tr><tr class="oy"><td class="cl-n">🌗 <b>Bipolarité</b><span>diagnostic reconnu</span></td><td class="cl-a">oscille sur <b>Y</b><i>sidération ↔ fuite</i></td><td class="cl-d">Horloge <b>longue</b> — semaines, mois. <b>Peu lié au déclencheur relationnel.</b> Composante <b>biologique et circadienne</b> forte. ⚠️ <b>Ce n’est pas une configuration de biais</b> et cet outil ne la mesure pas&#160;: le soin est médical.</td></tr><tr class="ab"><td class="cl-n">🌧️ <b>Dépression</b><span>diagnostic reconnu</span></td><td class="cl-a"><b>−Y fixé</b><i>plus d’oscillation</i></td><td class="cl-d">La sidération ne repart pas. Sa ligne malade est déjà écrite&#160;: <b>«&#160;la Fatalité donne la Résignation&#160;»</b>.</td></tr><tr class="ab"><td class="cl-n">💥 <b>Stress post-traumatique</b><span>diagnostic reconnu</span></td><td class="cl-a"><b>−Y</b> + centre haut<i>sidération datée</i></td><td class="cl-d">Même position que la dépression, <b>mais avec une date</b>&#160;: il y a un avant. C’est le critère qui les sépare — et c’est ton propre Scanner&#160;: <b>adaptation, pas désorganisation</b>.</td></tr><tr class="ar"><td class="cl-n">🔁 <b>Trouble obsessionnel compulsif</b><span>diagnostic reconnu</span></td><td class="cl-a">centre + <b>+X</b><i>contrôle</i></td><td class="cl-d">L’économie de l’effort retournée&#160;: <b>penser énormément pour ne pas sentir</b>. Le contrôle s’exerce sur soi avant l’autre.</td></tr><tr class="av"><td class="cl-n">⛓️ <b>Dépendance affective</b><span>terme courant, pas une catégorie</span></td><td class="cl-a"><b>−X fixé</b><i>sans retour</i></td><td class="cl-d">Sa ligne malade&#160;: <b>«&#160;la Fidélité de la Dépendance&#160;»</b>. Le potard ⛓️ garder le lien est à fond, seul.</td></tr><tr class="aj"><td class="cl-n">🎭 <b>Perversion narcissique</b><span>terme courant, pas une catégorie</span></td><td class="cl-a"><b>+X et +Y</b><i>fixés, sans oscillation</i></td><td class="cl-d">Le quadrant évitant pur — <b>duplicité &amp; mythomanie</b>. Ce qui le distingue du borderline&#160;: <b>ça n’oscille pas</b>. Pas de retour, pas de remords daté.</td></tr></tbody></table></div>
+<p class="cl-f">◈ <b>Et voilà la distinction que tu cherchais.</b> Borderline et bipolarité sont tous deux «&#160;mouvants&#160;» — mais <b>pas sur le même axe et pas à la même horloge</b>. Le borderline oscille <b>sur X</b>, en heures, <b>autour du lien</b>. La bipolarité oscille <b>sur Y</b>, en semaines, <b>autour de l’énergie et de la perception</b>. <b>Ce n’est pas l’intensité qui les sépare&#160;: c’est l’axe et l’horloge.</b></p>
+<p class="cl-f">◈ <b>Ce que la méthode gagne&#160;:</b> on n’est jamais parti d’un nom pour en déduire des signes. <b>On lit une position, on regarde ce qu’elle coûte, et le nom vient après — s’il vient.</b> C’est ta règle&#160;: <i>le diagnostic va des signes au nom, le préjugé va du nom aux signes.</i></p>
+</div>
+<div class="pt-mir">
+<p class="pm-t">🃏 <b>Les biais miroirs — pile et face de la même opération</b></p>
+<p class="pm-p">Ton plan n’a pas de profondeur&nbsp;: il a <b>un dessus et un dessous</b>. Et ce ne sont pas deux décors — <b>ce sont tes deux fondateurs</b>. 🪓 <b>Le Clivage</b> au-dessus, qui essentialise à l’échelle du groupe. 🕳️ <b>Le Déni</b> au-dessous, qui retranche à l’échelle de soi. <b>Les fondateurs ne sont pas posés sur le plan&nbsp;: ils sont le plan.</b> Tout le reste s’y inscrit d’un côté ou de l’autre.</p>
+<p class="pm-p">Alors oui — <b>dix paires tiennent</b>. Même opération, deux échelles&nbsp;: dehors elle se dit «&nbsp;<i>c’est comme ça</i>&nbsp;», dedans elle se dit «&nbsp;<i>c’est moi</i>&nbsp;».</p>
+<div class="mb-wrap"><table class="pm-tab"><thead><tr><th>🌍 Face collective</th><th>🪞 Face individuelle</th><th>L’opération commune</th></tr></thead><tbody><tr><td class="pm-c">🩺 La Pathologisation de la Lucidité</td><td class="pm-i">💡 Le Gaslighting</td><td class="pm-o"><b>disqualifier la perception</b><span>« tu réagis de façon excessive » ↔ « tu es folle de penser ça »</span></td></tr><tr><td class="pm-c">🌍 Le Biais du Monde Juste</td><td class="pm-i">💔 L’Auto-culpabilisation</td><td class="pm-o"><b>faire mériter le dommage</b><span>« elle a quand même fait des choix » ↔ « c’est ma faute »</span></td></tr><tr><td class="pm-c">⚙️ La Fabrique du Consentement</td><td class="pm-i">⛓️ La Loyauté Toxique</td><td class="pm-o"><b>rendre le oui obligatoire</b><span>« tout le monde fait comme ça » ↔ « je dois être là pour iel »</span></td></tr><tr><td class="pm-c">📏 Le Biais de Normativité</td><td class="pm-i">🏵️ Le Biais de Pureté</td><td class="pm-o"><b>la norme comme condition d’existence</b><span>« ce n’est pas normal » ↔ « je dois être parfait·e pour être aimé·e »</span></td></tr><tr><td class="pm-c">🏛️ Le Biais d’Autorité</td><td class="pm-i">🗿 Le Biais de Surconfiance</td><td class="pm-o"><b>dispenser de vérifier</b><span>« c’est un professeur » ↔ « je connais le sujet »</span></td></tr><tr><td class="pm-c">👥 L’Effet Témoin</td><td class="pm-i">🪨 Le Biais de Résignation</td><td class="pm-o"><b>justifier l’inaction</b><span>« quelqu’un d’autre le fera » ↔ « ça ne changera jamais »</span></td></tr><tr><td class="pm-c">👪 Le Biais de Groupe</td><td class="pm-i">🪓 Le Clivage</td><td class="pm-o"><b>trancher entre les bons et les autres</b><span>« les nôtres et les autres » ↔ « c’est sa nature »</span></td></tr><tr><td class="pm-c">🔗 Le Biais de Coercition</td><td class="pm-i">🔄 L’Inversion victime / agresseur</td><td class="pm-o"><b>légitimer la contrainte</b><span>« c’est pour son bien » ↔ « c’est toi qui m’y as forcé »</span></td></tr><tr><td class="pm-c">🫀🧠 Le Déni du Corps · du Psychique</td><td class="pm-i">🕳️ Le Déni</td><td class="pm-o"><b>retirer une part du réel</b><span>« ça n’a rien à voir » ↔ « ça ne s’est pas passé »</span></td></tr><tr><td class="pm-c">⚧️ Le Biais de Genre</td><td class="pm-i">🪞 La Projection</td><td class="pm-o"><b>mettre sur l’autre ce qui vient de soi</b><span>« les femmes sont… » ↔ « c’est lui qui est agressif »</span></td></tr></tbody></table></div>
+<p class="pm-f">◈ <b>Ce que la paire apprend&nbsp;:</b> on ne défait pas un biais individuel sans toucher sa face collective. <b>Dire à quelqu’un d’arrêter de se culpabiliser pendant que le monde entier lui répète qu’elle a fait des choix, c’est lui demander de porter seule ce que la société soutient.</b> Les deux faces se tiennent — <b>et c’est la face collective qui recharge l’autre.</b></p>
+</div>
+<div class="pt-const">
+<p class="pc-t">🔀 <b>Le Test de Constance</b> — l’angle mort de tout auto-questionnaire.</p>
+<p class="pc-p">Cet outil te demande <b>si</b> tu as un biais. Il ne peut pas voir <b>s’il varie selon qui est en face</b>. Or c’est là que se logent les discriminations&nbsp;: <b>on n’écoute pas de la même façon un homme et une femme, un patron et un enfant, une personne blanche et une personne racisée.</b></p>
+<p class="pc-p pc-k">◈ <b>Et un biais qui ne rencontre jamais sa variation reste invisible.</b> Quelqu’un de raciste qui ne parle qu’à des gens qui lui ressemblent obtiendra un score parfait — <b>non parce qu’il n’a pas le biais, mais parce que son milieu ne le met jamais à l’épreuve.</b> <b>L’homogénéité d’un entourage n’est pas une preuve d’équité&nbsp;: c’est une absence de test.</b></p>
+<p class="pc-p"><b>Alors reprends chaque potard levé, et pose-lui une seule question&nbsp;:</b></p>
+<p class="pc-q">« Ma réponse serait-elle <b>exactement la même</b> si la personne en face était… »</p>
+<ul class="pc-l">
+<li>mon patron · mon subordonné · un pair</li>
+<li><b>ma femme · mon homme</b> · mon enfant · mon parent</li>
+<li>un homme · une femme · une personne trans ou non binaire</li>
+<li>une personne blanche · une personne racisée</li>
+<li>un enfant · un adulte · une personne âgée</li>
+<li>une personne handicapée · une personne valide</li>
+<li>quelqu’un de riche · quelqu’un de pauvre</li>
+<li>quelqu’un que j’aime · quelqu’un que je ne supporte pas · un inconnu</li>
+<li>quelqu’un qui parle ma langue sans accent · quelqu’un qui cherche ses mots</li>
+</ul>
+<p class="pc-f">◈ <b>Chaque «&nbsp;non&nbsp;» est un biais que ton score n’a pas vu.</b> Et il ne se mesure pas par une note&nbsp;: il se mesure par <b>l’écart entre deux réponses</b> à une situation identique. <b>C’est la seule preuve qui vaille — la même question, quelqu’un d’autre en face.</b></p>
+</div>
+<div class="pt-scan"><p class="ps-t">◈ <b>Le Scanner Anti-Pathologisation</b> — la question qui reste.<br><b>La triade ne porte pas sur les biais</b>&nbsp;: elle porte sur <b>le fonctionnement qu’on observe</b>. Ce fonctionnement est-il</p><ul class="ps-l"><li><b>une variation</b> — <b>sans date d’apparition</b>, elle ne produit <b>pas de dommage par elle-même</b>&nbsp;; quand il y a un coût, il vient de <b>ce que le milieu en fait</b>. <b>Une variation n’est pas un biais&nbsp;: c’est une différence, et elle ne demande rien.</b></li><li><b>une adaptation</b> — elle a <b>une date et une cause</b>, elle <b>protège</b>, et elle <b>coûte</b>. <b>Tout biais est au moins une adaptation</b>&nbsp;: il n’existe que parce qu’il a servi.</li><li><b>ou une désorganisation</b> — elle <b>coupe l’accès au lien ou à la pensée</b>, quel que soit le milieu, et elle coûte <b>d’abord à celui qui la vit</b>.</li></ul><p class="ps-n">◈ <b>Un biais n’est donc jamais une variation.</b> Il est par définition <b>un écart au réel</b>&nbsp;: il tape à côté, il déséquilibre, il produit de l’injustice. <b>La question n’est jamais <i>s’il</i> coûte, mais <i>à qui</i></b> — c’est toute l’affaire de la colonne de droite. La première marche du Scanner ne sert pas à excuser un biais&nbsp;: elle sert à <b>ne pas en voir un là où il n’y a qu’une différence</b>.</p><p class="ps-w">⚠️ <b>À ne pas confondre.</b> «&nbsp;Désorganisation&nbsp;» ne désigne pas ici un <b>type d’attachement</b>. Les styles d’attachement — y compris celui que la clinique nomme «&nbsp;désorganisé&nbsp;» — sont tous des <b>adaptations</b>&nbsp;: ils ont une date, ils ont protégé, ils coûtent. <b>Un attachement n’est pas un trouble&nbsp;: c’est une réponse apprise à ce qui était disponible.</b></p><p class="ps-lib">◈ <b>Les faits ne sont pas une opinion — ils font de toi ce que tu es.</b> Mais <b>ton libre arbitre a le pouvoir de changer qui tu es</b>. C’est pour ça qu’un potard se tourne&nbsp;: <b>il enregistre ce qui est, il ne décrète pas ce qui sera.</b></p><p class="ps-f">Le potard donne <i>le chiffre.</i><br>Cette question donne <i>le sens.</i></p></div>
+
+<p class="sig">Agdistys · Diane Serant &amp; Claude — CC BY-SA 4.0 · Protocole de ConScience aMi</p>
+</div></div>
+<script>
+(function(){
+ var R=document.getElementById('ami-potards'); if(!R) return;
+ var IT=[].slice.call(R.querySelectorAll('.pt-item'));
+ var jT=R.querySelector('#jT'),jS=R.querySelector('#jS'),jA=R.querySelector('#jA'),
+     jB=R.querySelector('#jB'),jN=R.querySelector('#jN'),L=R.querySelector('#lect');
+ function maj(){
+  var MAXP=0, vt=0; MAXP=IT.length*4; var NS=IT.filter(function(x){return x.dataset.c==='soi'}).length,NA=IT.filter(function(x){return x.dataset.c==='autrui'}).length; var t=0,s=0,a=0,b=0,n={1:0,2:0,3:0},N={1:2,2:21,3:11},fond=0;
+  IT.forEach(function(it){
+   var v=+it.querySelector('input').value, q=Math.abs(v);
+   it.className='pt-item'+(v<0?' v'+q:(v>0?' w'+q:''))+(v<=-2?' actif':'')+(v>=2?' pos':'');
+   it.querySelector('output').textContent=(v>0?'+':'')+v;
+   if(v>0){ vt+=v; return; }
+   t+=q; n[it.dataset.n]+=q;
+   if(it.dataset.n==='1') fond+=q;
+   if(it.dataset.c==='soi') s+=q; else if(it.dataset.c==='autrui') a+=q; else b+=q;
+  });
+  var JV=R.querySelector('#jV'); if(JV) JV.textContent=vt;
+  jT.textContent=t; jS.textContent=s; jA.textContent=a; jB.textContent=b;
+  /* intensité = charge du groupe rapportée à SON maximum — sinon le groupe
+     le plus nombreux gagne toujours, ce qui est faux. */
+  var I={},best=0,bk=0;
+  [1,2,3].forEach(function(k){ I[k]=n[k]/(N[k]*4); if(I[k]>best){best=I[k];bk=k} });
+  [1,2,3].forEach(function(k){
+   var e=R.querySelector('#i'+k); if(e){ e.textContent=Math.round(I[k]*100)+' %';
+    e.parentNode.classList.toggle('dom', t>0 && k===bk); }
+  });
+  var IM={};
+  IT.forEach(function(it){ var k=it.dataset.imp, v=+it.querySelector('input').value;
+   IM[k]=IM[k]||{s:0,p:0,n:0}; if(v<0) IM[k].s+=-v; else IM[k].p+=v; IM[k].n++; });
+  [].forEach.call(R.querySelectorAll('.pt-imp'),function(sec){
+   var d=IM[sec.dataset.imp]||{s:0,p:0,n:1}, pc=Math.round(100*d.s/(d.n*4)), pv=Math.round(100*d.p/(d.n*4));
+   var e=sec.querySelector('h3 span'), b=e.getAttribute('data-b')||e.textContent;
+   e.setAttribute('data-b',b);
+   e.textContent=b+((t||vt)?' · 💀 '+pc+' % · 🕊️ '+pv+' %':'');
+  });
+  var NOM={1:'🪓 Fondateur',2:'🪞 Individuel',3:'🌍 Collectif'};
+  jN.textContent = t===0 ? '—' : NOM[bk];
+  var m;
+  if(t===0&&vt===0) m='Règle les potards que tu reconnais. <b>Zéro n’est pas un but</b> — un biais à 1 est une trace, pas une faute.';
+  else {
+   var dir = (s>a&&s>b)?'<b>Le coût tombe surtout sur toi.</b> Ce profil demande d’abord une <b>protection</b>, pas une correction.'
+          : (a>s&&a>b)?'<b>Le coût tombe surtout sur autrui.</b> Ce profil demande d’abord une <b>limite</b> — et une réparation.'
+          : '<b>Le coût tombe surtout sur un absent</b> — quelqu’un qui n’est pas là pour le dire.';
+   var f = I[1]>=.5 ? ' <b>Les fondateurs sont chargés à '+Math.round(I[1]*100)+' %</b> : c’est par là qu’il faut commencer, pas par les individuels — ils tomberont d’eux-mêmes.'
+        : fond>0 ? ' Un fondateur est allumé — <b>il portera les autres tant qu’il tient</b>.' : '';
+   m=dir+f+' <b>'+t+'</b> points de charge sur 144 : voilà l’énergie qui part à tenir la cohérence plutôt qu’à vivre.';
+  }
+  L.innerHTML=m;
+  /* ── L'AXE ────────────────────────────────────────────────────────────
+     Géométrie : la LIGNE est l'axe du biais (anxieux −1 … évitant +1).
+     Le sécure n'est PAS le milieu de la ligne — il est PERPENDICULAIRE.
+     Le milieu de deux opposés n'est pas leur inverse : c'est le désorganisé,
+     qui oscille entre les deux au lieu d'en tenir un.                     */
+  var M=R.querySelector('#axM'),AL=R.querySelector('#axL'),AN=R.querySelector('#axN');
+  var G=R.querySelector('#r3M');
+  if(G){
+   var ch=function(k){var d=IM[k]||{s:0,n:1};return d.s/(d.n*4)};
+   var so=(ch('grp')+ch('lien'))/2, at=ch('main'), si=ch('reel'), fu=ch('image');
+   var VT=vt/MAXP, C3=t/MAXP, u=at-so, v=fu-si, HH=(1-C3)*.5+VT*.5,
+       px=550+u*360+v*160, py=520+v*160, z=HH*344;
+   G.style.opacity=(t||vt)?1:0;
+   G.querySelector('#r3S').setAttribute('cx',px); G.querySelector('#r3S').setAttribute('cy',py);
+   G.querySelector('#r3P').setAttribute('cx',px); G.querySelector('#r3P').setAttribute('cy',py-z);
+   LASTP=[px,py-z];
+   /* éclatement dissociatif : les deux pôles tirent ensemble et rien ne tient */
+   var DS=R.querySelector('#r3DS'), diss=(t>0 && Math.abs(u)<.30 && C3>=.40);
+   DS.style.opacity = diss?1:0;
+   var DL=R.querySelector('#r3DL'); DL.style.opacity=diss?1:0;
+   if(diss){
+    var sp=.15+.85*Math.min(1,(C3-.40)/.50),
+        OF=[[-34,-16],[30,-22],[-22,26],[26,20],[-46,8],[44,4]];
+    [].forEach.call(DS.children,function(c,q){
+     var ax=px+OF[q][0]*sp, ay=py-z+OF[q][1]*sp;
+     c.setAttribute('cx',ax); c.setAttribute('cy',ay); c.setAttribute('r',(4+3*sp).toFixed(1));
+     var L=DL.children[q];
+     L.setAttribute('x1',px); L.setAttribute('y1',py-z); L.setAttribute('x2',ax); L.setAttribute('y2',ay);
+    });
+   }
+   var BB=R.querySelector('#r3B'),
+       PH = u>.34 ? ['\u00ab\u00a0C\u2019est toi qui m\u2019y as forc\u00e9.\u00a0\u00bb','\u00ab\u00a0Tu exag\u00e8res.\u00a0\u00bb','\u00ab\u00a0Je ne voulais pas te blesser.\u00a0\u00bb']
+          : u<-.34 ? ['\u00ab\u00a0C\u2019est de ma faute.\u00a0\u00bb','\u00ab\u00a0Je dois \u00eatre l\u00e0 pour iel.\u00a0\u00bb','\u00ab\u00a0\u00c7a ne changera jamais.\u00a0\u00bb']
+          : v<-.34 ? ['\u00ab\u00a0\u00c7a ne s\u2019est pas pass\u00e9.\u00a0\u00bb','\u00ab\u00a0Je n\u2019ai rien senti.\u00a0\u00bb','\u00ab\u00a0Ce n\u2019\u00e9tait pas si grave.\u00a0\u00bb']
+          : v>.34  ? ['\u00ab\u00a0Je g\u00e8re.\u00a0\u00bb','\u00ab\u00a0Ce n\u2019est pas si grave.\u00a0\u00bb','\u00ab\u00a0Je n\u2019ai pas le temps.\u00a0\u00bb']
+          : ['\u00ab\u00a0Tout le monde fait comme \u00e7a.\u00a0\u00bb','\u00ab\u00a0Quelqu\u2019un d\u2019autre s\u2019en occupe.\u00a0\u00bb','\u00ab\u00a0Je n\u2019ai pas besoin de v\u00e9rifier.\u00a0\u00bb'];
+   var bul=(t>0 && C3>=.55);
+   BB.style.opacity=bul?1:0;
+   if(bul){ var BO=[[0,-58],[-96,34],[96,52]];
+    [].forEach.call(BB.children,function(e,q){
+     e.setAttribute('x',px+BO[q][0]); e.setAttribute('y',py-z+BO[q][1]); e.textContent=PH[q]; }); }
+   var L3=G.querySelector('#r3L');
+   L3.setAttribute('x1',px);L3.setAttribute('y1',py);L3.setAttribute('x2',px);L3.setAttribute('y2',py-z);
+   var NIV={
+    '−X soumission':['La Loyauté de l’Intégrité · Le Goût de l’Attachement',
+                     'Qu’importe le Coût : la Fatalité donne la Résignation · la Fidélité de la Dépendance'],
+    '+X attaque'   :['❤️‍🔥 Le Courage, le cœur de la rage · La Responsabilité du Pouvoir',
+                     'Qu’importe la Raison : le Contrôle donne l’Attaque · la Rage de la Domination'],
+    '−Y sidération':['La Curiosité de la Fascination · L’Ancrage de la Tristesse',
+                     'Qu’importe les Faits : la Sidération donne l’Illusion · l’Illusion de ce qu’est l’autre'],
+    '+Y fuite'     :['L’Humilité de sa Différence · La Joie de la Présence',
+                     'Qu’importe son Identité : la Prétention donne la Fuite · la Manie de la Suffisance']};
+   var AX=[['−X soumission',so],['+X attaque',at],['−Y sidération',si],['+Y fuite',fu]]
+     .sort(function(p,q){return q[1]-p[1]});
+   var h=HH, lec = h>=.70 ? '<span class="lc-s">🌱 '+NIV[AX[0][0]][0]+'</span>'
+                : h>=.40 ? '<span class="lc-n">⚪ la fonction tient, sans pencher</span>'
+                : '<span class="lc-m">💀 '+NIV[AX[0][0]][1]+'</span>';
+   var PN={1:'🌿 Harmonie Naturelle',2:'🧭 Maîtrise Consciente',3:'💧 Empathie',4:'❤️‍🔥 Dévouement au Sublime',
+    5:'🪨 Connaissance',6:'🐲 Sagesse',7:'☀️ Amour',8:'⛲ Génie Quantique'};
+   /* Le plafond n'est pas que global : un vice actif ferme SON plan et tout au-dessus.
+      Sans ça, une seule fonction à fond se noyait dans le total et annonçait « rien ne barre
+      la route » — ce qui est faux. Chaque fonction plafonne au plan de son vice. */
+   var CAP=[[ch('eff'),1],[so,3],[at,4],[fu,6],[si,8]], plaf=8;
+   CAP.forEach(function(p){ if(p[0]>=.5 && p[1]<plaf) plaf=p[1]; });
+   var pf = (t||vt) ? Math.max(1,Math.min(8,Math.ceil(h*8),plaf)) : 0;
+   [].forEach.call(R.querySelectorAll('.pl-r'),function(r){
+    r.classList.toggle('on', pf>0 && +r.dataset.p<=pf);
+    r.classList.toggle('top', pf>0 && +r.dataset.p===pf); });
+   var PW=R.querySelector('.pt-plans'); if(PW) PW.classList.toggle('idle',!(t||vt));
+   var PH=R.querySelector('#plH');
+   if(PH) PH.innerHTML = pf ? 'plafond d’accès&nbsp;: <b>plan '+pf+' · '+PN[pf]+'</b> — '
+     +(pf<=2?'<b>la survie occupe la place</b>':pf<=4?'le lien et l’action sont joignables':
+       pf<=6?'la pensée et le discernement sont joignables':'<b>rien ne barre la route</b>')
+     : 'règle les potards pour voir le plafond';
+   R.querySelector('#r3N').innerHTML = (t||vt)
+    ? 'Fonction dominante <b>'+AX[0][0]+'</b> ('+Math.round(AX[0][1]*100)+' %) · centre 😱⏱️ <b>'
+      +Math.round(ch('eff')*100)+' %</b> · hauteur <b>'+Math.round(h*100)+' %</b>'
+      +' <span class="hh">= '+Math.round((1-C3)*50)+' % de route libre + '+Math.round(VT*50)+' % de vertu vivante</span><br>'+lec
+    : '— <i>règle les potards&nbsp;: le point se place sur le plan, et s’élève à mesure que la charge tombe</i>';
+  }
+  if(M){
+   /* Normalisé : il y a plus de biais ⬅️ autrui que ➡️ soi dans la table.
+      Sans ça, « tous les potards au même cran » pencherait vers évitant —
+      l'instrument mesurerait sa propre composition au lieu de la configuration. */
+   var ps=s/(NS*4), pa=a/(NA*4), rel=ps+pa, P=rel? (pa-ps)/rel : 0, C=t/MAXP;
+   M.style.opacity = (t||vt)? 1 : 0;
+   var cx=210+P*158, cy=150-(1-C)*104;
+   [].forEach.call(M.querySelectorAll('circle'),function(c){c.setAttribute('cx',cx);c.setAttribute('cy',cy)});
+   AL.style.opacity = (t && Math.abs(P)<.3) ? 1 : .35;
+   var nom,det;
+   if(!t){ nom=null; }
+   else if(Math.abs(P)<.3){
+    nom='mouvant · entre les deux pôles';
+    det='Les deux coûts s’équilibrent — <b>le répertoire oscille au lieu de tenir une position</b>. C’est la configuration la plus dure à lire, pour soi comme pour les autres.';
+   } else if(P<0){
+    nom='pôle anxieux · contrôler soi';
+    det='Le coût revient sur toi — <b>sacrifice, sidération, soumission</b>. La stratégie garde l’autre en payant de sa personne.';
+   } else {
+    nom='pôle évitant · contrôler l’autre';
+    det='Le coût part sur l’autre — <b>attaque et fuite</b>. La stratégie se garde soi en faisant payer le lien.';
+   }
+   AN.innerHTML = !t ? '— <i>règle les potards pour situer la configuration</i>'
+     : '<b>'+nom+'</b> — charge <b>'+Math.round(C*100)+' %</b> de la ligne.<br><span class="ax-d">'+det+'</span>'
+       + (C<.25 ? '<br><span class="ax-h">◈ La charge est basse : la configuration se tient <b>près de la sortie</b>, pas au bout d’un pôle.</span>' : '');
+  }
+ }
+ IT.forEach(function(it){it.querySelector('input').addEventListener('input',maj)});
+
+ var W3=R.querySelector('#r3W'), LYS=['niv','ter','air','fac','sc','sin','ver','sp','mo'];
+ R.querySelector('#lyAll').addEventListener('click',function(){
+  var on=W3.classList.contains('off-niv');
+  LYS.forEach(function(k){ W3.classList.toggle('off-'+k,!on); });
+  [].forEach.call(R.querySelectorAll('.ly-bar button[data-ly]'),function(x){x.classList.toggle('on',on)});
+  this.textContent = on ? '🙈 Tout masquer' : '👁️ Tout afficher';
+ });
+ [].forEach.call(R.querySelectorAll('.ly-bar button[data-ly]'),function(b){
+  b.addEventListener('click',function(){ var k=b.dataset.ly, off=W3.classList.toggle('off-'+k);
+   b.classList.toggle('on',!off); }); });
+
+
+ var TRAIL=[], LASTP=null;
+ function sillage(reset){
+  var P=R.querySelector('#r3T'), D=R.querySelector('#r3TD');
+  if(reset){ TRAIL=[]; P.setAttribute('points',''); D.innerHTML=''; return; }
+  if(!LASTP) return;
+  TRAIL.push(LASTP.slice());
+  P.setAttribute('points',TRAIL.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' '));
+  D.innerHTML=TRAIL.map(function(p,q){
+   return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(q===TRAIL.length-1?5:3.4)
+    +'" class="c3-tr" opacity="'+(0.25+0.75*q/Math.max(1,TRAIL.length-1)).toFixed(2)+'"/>';
+  }).join('');
+ }
+ var TV=[{"e": "🌈", "n": "L’Innocence", "c": "tout est ouvert, rien n’est encore plié", "v": {}, "d": 0, "l": []}, {"e": "😮", "n": "La Surprise", "c": "l’étonnement suspend — le temps de comprendre", "v": {"eff": -1}, "d": 0, "l": []}, {"e": "💥", "n": "Le Choc", "c": "le réel devient trop, et le point tombe sur le plan", "v": {"reel": -3, "eff": -3}, "d": 0, "l": ["air"]}, {"e": "🎭", "n": "La Dissociation", "c": "les deux pôles tirent ensemble — plus de position tenable", "v": {"grp": -3, "lien": -3, "main": -3, "reel": -2}, "d": 0, "l": ["fac", "air"]}, {"e": "🔗", "n": "L’Aliénation", "c": "un seul pôle prend tout, le plafond tombe à la survie", "v": {"main": -4, "image": -4, "eff": -4, "reel": -3, "grp": -2, "lien": -2}, "d": 0, "l": ["sin", "sp"]}, {"e": "🌱", "n": "La Résilience", "c": "les vices retombent, les vertus prennent la place", "v": {"lien": 2, "reel": 2, "image": 1, "main": 1, "eff": 1}, "d": 0, "l": ["ver", "mo"]}, {"e": "☀️", "n": "La Sérénité", "c": "plus rien ne barre, et quelque chose marche dessus", "v": {}, "d": 3, "l": ["ver", "mo", "niv"]}], tvI=-1, tvT=null;
+ function tvGo(k){
+  tvI=k; var s=TV[k];
+  IT.forEach(function(it){ var v=(s.v[it.dataset.imp]!==undefined)?s.v[it.dataset.imp]:s.d;
+   it.querySelector('input').value=v; });
+  LYS.forEach(function(l){ W3.classList.toggle('off-'+l, s.l.indexOf(l)<0); });
+  [].forEach.call(R.querySelectorAll('.ly-bar button[data-ly]'),function(x){x.classList.toggle('on',s.l.indexOf(x.dataset.ly)>=0)});
+  R.querySelector('#lyAll').textContent = s.l.length?'🙈 Tout masquer':'👁️ Tout afficher';
+  [].forEach.call(R.querySelectorAll('.tv-b'),function(b,i){b.classList.toggle('on',i===k)});
+  R.querySelector('#tvC').innerHTML='<b>'+s.e+' '+s.n+'</b> — '+s.c;
+  maj();
+  if(k===0) sillage(true); else sillage(false);
+ }
+ [].forEach.call(R.querySelectorAll('.tv-b'),function(b){
+  b.addEventListener('click',function(){ if(tvT){clearInterval(tvT);tvT=null;R.querySelector('#tvPlay').textContent='▶ Jouer';} tvGo(+b.dataset.s); }); });
+ R.querySelector('#tvPlay').addEventListener('click',function(){
+  var self=this;
+  if(tvT){ clearInterval(tvT); tvT=null; self.textContent='▶ Jouer'; return; }
+  self.textContent='⏸ Pause'; tvGo(0);
+  tvT=setInterval(function(){ if(tvI>=TV.length-1){ clearInterval(tvT); tvT=null; self.textContent='▶ Jouer'; return; } tvGo(tvI+1); },2600);
+ });
+
+ var BANC={}, blind=false;
+ function snap(){ return IT.map(function(x){return +x.querySelector('input').value}) }
+ function pose(v){ IT.forEach(function(x,q){ x.querySelector('input').value=v[q]||0 }); maj(); }
+ function plaf(){ var m=(R.querySelector('#plH').textContent||'').match(/plan (\d)/); return m?+m[1]:0; }
+ [].forEach.call(R.querySelectorAll('.bc-rec'),function(b){ b.addEventListener('click',function(){
+  var k=+b.dataset.k; BANC[k]=snap();
+  var n=BANC[k].filter(function(x){return x!==0}).length;
+  R.querySelector('#bcS'+k).innerHTML='<b>✓ posé</b> — '+n+' potard'+(n>1?'s':'')+' réglé'+(n>1?'s':'');
+ }); });
+ R.querySelector('#bcBlind').addEventListener('click',function(){
+  blind=!blind; R.classList.toggle('bc-blind',blind);
+  this.innerHTML='🙈 Mode aveugle&nbsp;: <b>'+(blind?'allumé':'éteint')+'</b>';
+ });
+ R.querySelector('#bcClr').addEventListener('click',function(){
+  BANC={}; [].forEach.call(R.querySelectorAll('.bc-s'),function(s){s.innerHTML='— vide'});
+  R.querySelector('#bcOut').innerHTML='';
+ });
+ R.querySelector('#bcRev').addEventListener('click',function(){
+  var ks=Object.keys(BANC), O=R.querySelector('#bcOut');
+  if(!ks.length){ O.innerHTML='<p class="bc-vide">Aucun état posé. Règle les potards, puis <b>📌 Enregistrer</b>.</p>'; return; }
+  var keep=snap(), rows='', acc=0, tot=0;
+  TV.forEach(function(s,k){
+   if(!BANC[k]) return;
+   pose(BANC[k]); var mien_t=0, toi=plaf();
+   IT.forEach(function(it){ var v=(s.v[it.dataset.imp]!==undefined)?s.v[it.dataset.imp]:s.d; it.querySelector('input').value=v; });
+   maj(); var moi=plaf();
+   tot++; if(toi===moi) acc++;
+   rows+='<tr><td class="bo-e">'+s.e+' '+s.n+'</td><td class="bo-t">plan <b>'+toi+'</b></td>'
+    +'<td class="bo-m">plan <b>'+moi+'</b></td><td class="'+(toi===moi?'bo-ok':'bo-ko')+'">'
+    +(toi===moi?'✓ identique':'écart de '+Math.abs(toi-moi))+'</td></tr>';
+  });
+  pose(keep);
+  O.innerHTML='<div class="mb-wrap"><table class="bo-tab"><thead><tr><th>l’état</th><th>ton plafond</th><th>le mien</th><th></th></tr></thead><tbody>'
+   +rows+'</tbody></table></div><p class="bc-p bc-verdict">◈ <b>'+acc+' accord'+(acc>1?'s':'')+' sur '+tot+'.</b> '
+   +(acc===tot?'<b>Les réglages ne changent rien au résultat</b> — le plafond ne vient donc pas de mes valeurs, il vient de la règle. <b>C’est une preuve.</b>'
+     :(acc>=tot*0.6?'La structure tient <b>en gros</b>, et les écarts disent exactement où ma lecture des cartes divergeait de la tienne. <b>Ce sont ces lignes-là qu’il faut discuter.</b>'
+     :'<b>Les résultats dépendent fortement des valeurs.</b> Ce qui veut dire — honnêtement — que le plafond parlait surtout de mes réglages. <b>C’est une information, pas un échec.</b>'))+'</p>';
+ });
+ R.querySelector('#bReset').addEventListener('click',function(){
+  IT.forEach(function(it){it.querySelector('input').value=0}); sillage(true); maj();
+ });
+ var ouv=false;
+ R.querySelector('#bOuv').addEventListener('click',function(){
+  ouv=!ouv; IT.forEach(function(it){it.classList.toggle('actif',ouv|| +it.querySelector('input').value>=2)});
+  this.textContent = ouv ? '🚪 Replier les portes' : '🚪 Déplier toutes les portes';
+ });
+ var W=R.querySelector('#pt-impwrap'), PF=R.querySelector('#pt-pf'),
+     NIVS=[].slice.call(R.querySelectorAll('.pt-grp:not(.pt-imp)')), ANC=null;
+ if(NIVS[0]){ ANC=document.createElement('div'); ANC.className='pt-anc';
+  NIVS[0].parentNode.insertBefore(ANC,NIVS[0]); }
+ function vue(m){
+  [].forEach.call(R.querySelectorAll('.vb'),function(b){b.classList.remove('on')});
+  R.querySelector(['#vCon','#vDec','#vImp','#vPf'][m]).classList.add('on');
+  [].forEach.call(R.querySelectorAll('.pt-div'),function(d){d.remove()});
+  IT.forEach(function(it){ it.style.gridColumn=''; it.style.gridRow=''; });
+  if(m===3){
+   var srt=function(l){return l.sort(function(x,y){
+     return (+(x.dataset.ord||99))-(+(y.dataset.ord||99)) || (+x.dataset.i)-(+y.dataset.i)})};
+   IT.forEach(function(it){ if(it.dataset.n==='1')
+     R.querySelector(it.dataset.i==='11'?'#Q-eco':'#Q-ego').appendChild(it); });
+   var G=R.querySelector('#P-rows'), COL={p:1,i:2,e:3};
+   IT.filter(function(x){return x.dataset.tri!==undefined}).forEach(function(x){
+    x.style.gridColumn=COL[x.dataset.role]; x.style.gridRow=(+x.dataset.tri)+2; G.appendChild(x); });
+  } else if(m===2){
+   var LB={'3':'🌍 collectif','1':'🪓 fondateur','2':'🪞 individuel'};
+   [].forEach.call(R.querySelectorAll('.pt-imp'),function(sec){
+    var L=sec.querySelector('.pt-liste');
+    ['3','1','2'].forEach(function(n){
+     var lot=IT.filter(function(x){return x.dataset.imp===sec.dataset.imp && x.dataset.n===n});
+     if(!lot.length) return;
+     var d=document.createElement('div'); d.className='pt-div n'+n;
+     d.innerHTML=LB[n]+' <i>'+lot.length+'</i>'; L.appendChild(d);
+     lot.forEach(function(x){L.appendChild(x)}); }); });
+  } else {
+   IT.forEach(function(it){ var s=NIVS.filter(function(x){return x.dataset.niv===it.dataset.n})[0];
+    if(s) s.querySelector('.pt-liste').appendChild(it); });
+   if(ANC) (m===0?['3','1','2']:['2','1','3']).forEach(function(n){
+    var s=NIVS.filter(function(x){return x.dataset.niv===n})[0];
+    if(s) ANC.parentNode.insertBefore(s,ANC); });
+  }
+  W.style.display = m===2?'block':'none'; PF.style.display = m===3?'block':'none';
+  NIVS.forEach(function(s){ s.style.display = m<2?'block':'none' });
+  maj();
+ }
+ ['#vCon','#vDec','#vImp','#vPf'].forEach(function(id,k){
+  R.querySelector(id).addEventListener('click',function(){vue(k)}); });
+ R.querySelector('#bTxt').addEventListener('click',function(){
+  var l=['🎛️ Profil de coût · Protocole aMi','',
+   'Charge totale : '+jT.textContent+' / 144',
+   '➡️ sur soi : '+jS.textContent+'  ⬅️ sur autrui : '+jA.textContent+'  ↔️ sur un absent : '+jB.textContent,
+   'Niveau dominant : '+jN.textContent,''];
+  IT.forEach(function(it){
+   var v=+it.querySelector('input').value;
+   if(v) l.push(v+' · '+it.querySelector('.pt-tete b').textContent
+     +'\n   🚪 '+it.querySelector('.po-q').textContent.replace('🚪 ','')
+     +'\n   ✨ '+it.querySelector('.po-c').textContent.replace('✨ ',''));
+  });
+  var t=l.join('\n');
+  if(navigator.clipboard) navigator.clipboard.writeText(t);
+  this.textContent='📋 Copié ✓'; var b=this;
+  setTimeout(function(){b.textContent='📋 Copier mon profil'},1800);
+ });
+ vue(3);
+})();
+</script></body></html>

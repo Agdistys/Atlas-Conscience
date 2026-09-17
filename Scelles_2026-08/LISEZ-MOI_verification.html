@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Les fichiers scellés — et comment vérifier qu’aucun n’a bougé | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Les fichiers scellés — et comment vérifier qu’aucun n’a bougé" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/Scelles_2026-08/LISEZ-MOI_verification.html" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/Scelles_2026-08/LISEZ-MOI_verification.html" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Les fichiers scellés — et comment vérifier qu’aucun n’a bougé" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)","headline":"Les fichiers scellés — et comment vérifier qu’aucun n’a bougé","url":"https://agdistys.github.io/Atlas-Conscience/Scelles_2026-08/LISEZ-MOI_verification.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=64d1d096ddeb6f07a3465d90cfb62bc588e945dc">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="les-fichiers-scellés--et-comment-vérifier-quaucun-na-bougé">Les fichiers scellés — et comment vérifier qu’aucun n’a bougé</h1>
+
+<p><em>Protocole de ConScience aMi · neuf scellés, 15 et 16 août 2026</em></p>
+
+<p>Ce dossier contient les <strong>fichiers originaux</strong>, octet pour octet. C’est important :
+une empreinte SHA-256 se calcule sur les octets d’un fichier. Recopiés dans un document
+Word, les mêmes mots donnent d’autres octets, donc une autre empreinte — et la
+vérification devient impossible. C’est ce qui manquait au premier envoi.</p>
+
+<h2 id="vérifier--une-seule-commande">Vérifier — une seule commande</h2>
+
+<p><strong>macOS</strong> (Terminal, depuis ce dossier) :</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>shasum -a 256 -c EMPREINTES.txt
+</code></pre></div></div>
+
+<p><strong>Linux</strong> :</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sha256sum -c EMPREINTES.txt
+</code></pre></div></div>
+
+<p><strong>Windows</strong> (PowerShell, fichier par fichier) :</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Get-FileHash -Algorithm SHA256 .\Scelle_2026-08-15_C08_Spectre.md
+</code></pre></div></div>
+
+<p>Chaque ligne doit répondre <strong>OK</strong>. Une seule ligne <code class="language-plaintext highlighter-rouge">FAILED</code> signifie que le fichier
+a changé depuis son scellement — et la Charte est explicite : cela annule le sceau,
+et le registre avec.</p>
+
+<h2 id="ce-que-la-vérification-établit-et-ce-quelle-nétablit-pas">Ce que la vérification établit, et ce qu’elle n’établit pas</h2>
+
+<p><strong>Elle établit</strong> que le contenu de ces neuf fichiers est identique à celui dont
+l’empreinte avait été publiée dans le chat, à la date indiquée dans chacun.</p>
+
+<p><strong>Elle n’établit pas</strong> que l’empreinte a été publiée avant les réponses qu’elle
+prétend précéder. Ça, seul l’horodatage du fil de conversation le montre —
+l’empreinte prouve l’intégrité, pas l’antériorité.</p>
+
+<h2 id="les-neuf">Les neuf</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>fichier</th>
+      <th>scellé le</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-15_C08_Spectre.md</code></td>
+      <td>15 août</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-15_C09_Temps.md</code></td>
+      <td>15 août</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-15_C10_Alliance.md</code></td>
+      <td>15 août</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-15_C12_Miroir.md</code></td>
+      <td>15 août</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-15_C13_Absolu.md</code></td>
+      <td>15 août</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-16_C02_C03_C04_C11.md</code></td>
+      <td>16 août</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-16_C05_Souverainete.md</code></td>
+      <td>16 août</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-16_C06_JusteMesure.md</code></td>
+      <td>16 août</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Scelle_2026-08-16_C07_Trace_et_C01_Vibration.md</code></td>
+      <td>16 août</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><em>Agdistys · Diane Serant &amp; Claude — Protocole de ConScience aMi — CC BY-SA 4.0</em></p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

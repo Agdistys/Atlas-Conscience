@@ -1,0 +1,5348 @@
+[
+  {
+    "node": "conscience",
+    "degree": 138,
+    "weighted_degree": 274.0,
+    "top_neighbors": [
+      [
+        "vivant",
+        15.0
+      ],
+      [
+        "sens",
+        13.0
+      ],
+      [
+        "agdistys",
+        11.0
+      ],
+      [
+        "violence",
+        10.0
+      ],
+      [
+        "art",
+        9.0
+      ]
+    ]
+  },
+  {
+    "node": "vivant",
+    "degree": 82,
+    "weighted_degree": 161.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        15.0
+      ],
+      [
+        "sens",
+        12.0
+      ],
+      [
+        "agdistys",
+        9.0
+      ],
+      [
+        "charte",
+        7.0
+      ],
+      [
+        "cohérence",
+        5.0
+      ]
+    ]
+  },
+  {
+    "node": "agdistys",
+    "degree": 92,
+    "weighted_degree": 151.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        11.0
+      ],
+      [
+        "vivant",
+        9.0
+      ],
+      [
+        "sens",
+        7.0
+      ],
+      [
+        "art",
+        6.0
+      ],
+      [
+        "charte",
+        6.0
+      ]
+    ]
+  },
+  {
+    "node": "sens",
+    "degree": 70,
+    "weighted_degree": 131.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        13.0
+      ],
+      [
+        "vivant",
+        12.0
+      ],
+      [
+        "agdistys",
+        7.0
+      ],
+      [
+        "cohérence",
+        5.0
+      ],
+      [
+        "art",
+        4.0
+      ]
+    ]
+  },
+  {
+    "node": "violence",
+    "degree": 76,
+    "weighted_degree": 114.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        10.0
+      ],
+      [
+        "système",
+        5.0
+      ],
+      [
+        "biais",
+        4.0
+      ],
+      [
+        "vivant",
+        4.0
+      ],
+      [
+        "déni",
+        3.0
+      ]
+    ]
+  },
+  {
+    "node": "art",
+    "degree": 69,
+    "weighted_degree": 102.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        9.0
+      ],
+      [
+        "agdistys",
+        6.0
+      ],
+      [
+        "charte",
+        4.0
+      ],
+      [
+        "nature",
+        4.0
+      ],
+      [
+        "partager",
+        4.0
+      ]
+    ]
+  },
+  {
+    "node": "charte",
+    "degree": 43,
+    "weighted_degree": 81.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        7.0
+      ],
+      [
+        "vivant",
+        7.0
+      ],
+      [
+        "agdistys",
+        6.0
+      ],
+      [
+        "art",
+        4.0
+      ],
+      [
+        "ensemble",
+        4.0
+      ]
+    ]
+  },
+  {
+    "node": "biais",
+    "degree": 47,
+    "weighted_degree": 71.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        7.0
+      ],
+      [
+        "système",
+        4.0
+      ],
+      [
+        "violence",
+        4.0
+      ],
+      [
+        "vérité",
+        4.0
+      ],
+      [
+        "lois",
+        3.0
+      ]
+    ]
+  },
+  {
+    "node": "vérité",
+    "degree": 46,
+    "weighted_degree": 70.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        7.0
+      ],
+      [
+        "vivant",
+        5.0
+      ],
+      [
+        "biais",
+        4.0
+      ],
+      [
+        "agdistys",
+        3.0
+      ],
+      [
+        "verbe",
+        3.0
+      ]
+    ]
+  },
+  {
+    "node": "système",
+    "degree": 44,
+    "weighted_degree": 62.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        6.0
+      ],
+      [
+        "violence",
+        5.0
+      ],
+      [
+        "biais",
+        4.0
+      ],
+      [
+        "lois",
+        3.0
+      ],
+      [
+        "monde",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "nature",
+    "degree": 33,
+    "weighted_degree": 61.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        6.0
+      ],
+      [
+        "agdistys",
+        5.0
+      ],
+      [
+        "art",
+        4.0
+      ],
+      [
+        "charte",
+        4.0
+      ],
+      [
+        "sens",
+        4.0
+      ]
+    ]
+  },
+  {
+    "node": "monde",
+    "degree": 44,
+    "weighted_degree": 51.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        4.0
+      ],
+      [
+        "biais",
+        2.0
+      ],
+      [
+        "lois",
+        2.0
+      ],
+      [
+        "système",
+        2.0
+      ],
+      [
+        "violence",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "esprit",
+    "degree": 34,
+    "weighted_degree": 51.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        5.0
+      ],
+      [
+        "agdistys",
+        3.0
+      ],
+      [
+        "sens",
+        3.0
+      ],
+      [
+        "vivant",
+        3.0
+      ],
+      [
+        "argent",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "déni",
+    "degree": 41,
+    "weighted_degree": 50.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        4.0
+      ],
+      [
+        "violence",
+        3.0
+      ],
+      [
+        "agdistys",
+        2.0
+      ],
+      [
+        "comprendre",
+        2.0
+      ],
+      [
+        "appelle",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "cohérence",
+    "degree": 33,
+    "weighted_degree": 50.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        5.0
+      ],
+      [
+        "sens",
+        5.0
+      ],
+      [
+        "vivant",
+        5.0
+      ],
+      [
+        "violence",
+        2.0
+      ],
+      [
+        "verbe",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "verbe",
+    "degree": 32,
+    "weighted_degree": 50.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        5.0
+      ],
+      [
+        "vivant",
+        5.0
+      ],
+      [
+        "sens",
+        4.0
+      ],
+      [
+        "agdistys",
+        3.0
+      ],
+      [
+        "violence",
+        3.0
+      ]
+    ]
+  },
+  {
+    "node": "corps",
+    "degree": 33,
+    "weighted_degree": 41.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        3.0
+      ],
+      [
+        "sens",
+        3.0
+      ],
+      [
+        "vivant",
+        3.0
+      ],
+      [
+        "désir",
+        2.0
+      ],
+      [
+        "cohérence",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "justice",
+    "degree": 31,
+    "weighted_degree": 41.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        3.0
+      ],
+      [
+        "réparation",
+        3.0
+      ],
+      [
+        "vivant",
+        3.0
+      ],
+      [
+        "agdistys",
+        2.0
+      ],
+      [
+        "charte",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "partager",
+    "degree": 23,
+    "weighted_degree": 41.0,
+    "top_neighbors": [
+      [
+        "art",
+        4.0
+      ],
+      [
+        "conscience",
+        4.0
+      ],
+      [
+        "agdistys",
+        3.0
+      ],
+      [
+        "charte",
+        3.0
+      ],
+      [
+        "ensemble",
+        3.0
+      ]
+    ]
+  },
+  {
+    "node": "ensemble",
+    "degree": 17,
+    "weighted_degree": 40.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        4.0
+      ],
+      [
+        "charte",
+        4.0
+      ],
+      [
+        "conscience",
+        4.0
+      ],
+      [
+        "sens",
+        4.0
+      ],
+      [
+        "vivant",
+        4.0
+      ]
+    ]
+  },
+  {
+    "node": "peur",
+    "degree": 24,
+    "weighted_degree": 31.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        3.0
+      ],
+      [
+        "violence",
+        3.0
+      ],
+      [
+        "biais",
+        2.0
+      ],
+      [
+        "vérité",
+        2.0
+      ],
+      [
+        "système",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "réparation",
+    "degree": 23,
+    "weighted_degree": 31.0,
+    "top_neighbors": [
+      [
+        "justice",
+        3.0
+      ],
+      [
+        "vivant",
+        3.0
+      ],
+      [
+        "agdistys",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "charte",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "comprendre",
+    "degree": 24,
+    "weighted_degree": 30.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        3.0
+      ],
+      [
+        "agdistys",
+        2.0
+      ],
+      [
+        "argent",
+        2.0
+      ],
+      [
+        "déni",
+        2.0
+      ],
+      [
+        "esprit",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "lois",
+    "degree": 22,
+    "weighted_degree": 30.0,
+    "top_neighbors": [
+      [
+        "biais",
+        3.0
+      ],
+      [
+        "conscience",
+        3.0
+      ],
+      [
+        "système",
+        3.0
+      ],
+      [
+        "monde",
+        2.0
+      ],
+      [
+        "violence",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "article",
+    "degree": 22,
+    "weighted_degree": 22.0,
+    "top_neighbors": [
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "consentement",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "droits",
+        1.0
+      ],
+      [
+        "enfant",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "très",
+    "degree": 20,
+    "weighted_degree": 22.0,
+    "top_neighbors": [
+      [
+        "art",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "beau",
+        1.0
+      ],
+      [
+        "culture",
+        1.0
+      ],
+      [
+        "histoire",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "parce",
+    "degree": 20,
+    "weighted_degree": 22.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "pourquoi",
+        2.0
+      ],
+      [
+        "civilisation",
+        1.0
+      ],
+      [
+        "erreur",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "pourquoi",
+    "degree": 20,
+    "weighted_degree": 22.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "parce",
+        2.0
+      ],
+      [
+        "civilisation",
+        1.0
+      ],
+      [
+        "erreur",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "hommes",
+    "degree": 21,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "violences",
+    "degree": 21,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "article",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "consentement",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "droits",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "spiritualité",
+    "degree": 20,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "argent",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "désir",
+    "degree": 20,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "corps",
+        2.0
+      ],
+      [
+        "carte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "conscient",
+        1.0
+      ],
+      [
+        "mantra",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "toute",
+    "degree": 19,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "charte",
+        2.0
+      ],
+      [
+        "vivant",
+        2.0
+      ],
+      [
+        "article",
+        1.0
+      ],
+      [
+        "consentement",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "chose",
+    "degree": 19,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "art",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "aller",
+        1.0
+      ],
+      [
+        "exemple",
+        1.0
+      ],
+      [
+        "healing",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "propagande",
+    "degree": 19,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "art",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "action",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "structure",
+    "degree": 18,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "nature",
+        2.0
+      ],
+      [
+        "violence",
+        2.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "critique",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "pensée",
+    "degree": 17,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "biais",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "système",
+        2.0
+      ],
+      [
+        "violence",
+        2.0
+      ],
+      [
+        "déni",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "droit",
+    "degree": 17,
+    "weighted_degree": 21.0,
+    "top_neighbors": [
+      [
+        "charte",
+        2.0
+      ],
+      [
+        "justice",
+        2.0
+      ],
+      [
+        "réparation",
+        2.0
+      ],
+      [
+        "vivant",
+        2.0
+      ],
+      [
+        "agdistys",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "appelle",
+    "degree": 19,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "déni",
+        2.0
+      ],
+      [
+        "autre",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "avoir",
+    "degree": 19,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "autre",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "psychique",
+    "degree": 19,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "autre",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "médecine",
+    "degree": 19,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "justice",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "partagée",
+    "degree": 19,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        2.0
+      ],
+      [
+        "aide",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "fait",
+    "degree": 18,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "argent",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "juste",
+    "degree": 18,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "biais",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "théorie",
+    "degree": 17,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "système",
+        2.0
+      ],
+      [
+        "violence",
+        2.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "humain",
+    "degree": 17,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "biais",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "vérité",
+        2.0
+      ],
+      [
+        "avons",
+        1.0
+      ],
+      [
+        "lois",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "onde",
+    "degree": 17,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "sens",
+        2.0
+      ],
+      [
+        "vivant",
+        2.0
+      ],
+      [
+        "cerveau",
+        1.0
+      ],
+      [
+        "cohérence",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "argent",
+    "degree": 16,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        2.0
+      ],
+      [
+        "comprendre",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "esprit",
+        2.0
+      ],
+      [
+        "art",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "diamant",
+    "degree": 15,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "harmonie",
+        2.0
+      ],
+      [
+        "sens",
+        2.0
+      ],
+      [
+        "vivant",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "harmonie",
+    "degree": 15,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "diamant",
+        2.0
+      ],
+      [
+        "sens",
+        2.0
+      ],
+      [
+        "vivant",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "source",
+    "degree": 13,
+    "weighted_degree": 20.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        2.0
+      ],
+      [
+        "charte",
+        2.0
+      ],
+      [
+        "conscience",
+        2.0
+      ],
+      [
+        "ensemble",
+        2.0
+      ],
+      [
+        "esprit",
+        2.0
+      ]
+    ]
+  },
+  {
+    "node": "consentement",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "article",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "droits",
+        1.0
+      ],
+      [
+        "enfant",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "droits",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "article",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "consentement",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "enfant",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "enfant",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "article",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "consentement",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "droits",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "transmission",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "article",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "consentement",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "droits",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "critique",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "discursive",
+        1.0
+      ],
+      [
+        "esprit",
+        1.0
+      ],
+      [
+        "nature",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "discursive",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "critique",
+        1.0
+      ],
+      [
+        "esprit",
+        1.0
+      ],
+      [
+        "nature",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "pouvoir",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "critique",
+        1.0
+      ],
+      [
+        "discursive",
+        1.0
+      ],
+      [
+        "esprit",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "protection",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "critique",
+        1.0
+      ],
+      [
+        "discursive",
+        1.0
+      ],
+      [
+        "esprit",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "beau",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "culture",
+        1.0
+      ],
+      [
+        "histoire",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "culture",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "beau",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "histoire",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "histoire",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "beau",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "culture",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "netflix",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "beau",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "culture",
+        1.0
+      ],
+      [
+        "histoire",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "tres",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "beau",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "culture",
+        1.0
+      ],
+      [
+        "histoire",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "arbres",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ],
+      [
+        "naturelle",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "chasse",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ],
+      [
+        "naturelle",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "dechet",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ],
+      [
+        "naturelle",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "douchette",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "naturelle",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "naturelle",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "odeurs",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "papier",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "toilette",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "toilettes",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "vinaigre",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "zero",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbres",
+        1.0
+      ],
+      [
+        "chasse",
+        1.0
+      ],
+      [
+        "dechet",
+        1.0
+      ],
+      [
+        "douchette",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "femme",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "femmes",
+        1.0
+      ],
+      [
+        "féminin",
+        1.0
+      ],
+      [
+        "hommes",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "femmes",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "femme",
+        1.0
+      ],
+      [
+        "féminin",
+        1.0
+      ],
+      [
+        "hommes",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "féminin",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "femme",
+        1.0
+      ],
+      [
+        "femmes",
+        1.0
+      ],
+      [
+        "hommes",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "putain",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "femme",
+        1.0
+      ],
+      [
+        "femmes",
+        1.0
+      ],
+      [
+        "féminin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "sexe",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "femme",
+        1.0
+      ],
+      [
+        "femmes",
+        1.0
+      ],
+      [
+        "féminin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "sexualité",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "femme",
+        1.0
+      ],
+      [
+        "femmes",
+        1.0
+      ],
+      [
+        "féminin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "symbolique",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "femme",
+        1.0
+      ],
+      [
+        "femmes",
+        1.0
+      ],
+      [
+        "féminin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "vierge",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "femme",
+        1.0
+      ],
+      [
+        "femmes",
+        1.0
+      ],
+      [
+        "féminin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "civilisation",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "erreur",
+        1.0
+      ],
+      [
+        "parce",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ],
+      [
+        "point",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "erreur",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "civilisation",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "parce",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ],
+      [
+        "point",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "point",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "civilisation",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "erreur",
+        1.0
+      ],
+      [
+        "parce",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "réel",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "civilisation",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "erreur",
+        1.0
+      ],
+      [
+        "parce",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "société",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "civilisation",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "erreur",
+        1.0
+      ],
+      [
+        "parce",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "spirale",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "civilisation",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "erreur",
+        1.0
+      ],
+      [
+        "parce",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "compréhension",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "article",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "lecteur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "lecteur",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "article",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "compréhension",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "site",
+    "degree": 11,
+    "weighted_degree": 11.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "article",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "compréhension",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "post",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "argent",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "produits",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "argent",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "transition",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "argent",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "aigle",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ],
+      [
+        "hommes",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "autres",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ],
+      [
+        "hommes",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "ciel",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ],
+      [
+        "hommes",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "condor",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ],
+      [
+        "hommes",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "guerriers",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "hommes",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "nouveau",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "paix",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "prophétie",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "terre",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aigle",
+        1.0
+      ],
+      [
+        "autres",
+        1.0
+      ],
+      [
+        "ciel",
+        1.0
+      ],
+      [
+        "condor",
+        1.0
+      ],
+      [
+        "guerriers",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "autre",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "faut",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "autre",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "pleine",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "autre",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "savoir",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "autre",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "comprendre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "physique",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "lois",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "quantique",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "lois",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "version",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "justice",
+        1.0
+      ],
+      [
+        "réparation",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "meilleur",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "ensemble",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "schémas",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "ensemble",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "serment",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "justice",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "soin",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "droit",
+        1.0
+      ],
+      [
+        "justice",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "isil",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "fait",
+        1.0
+      ],
+      [
+        "manifeste",
+        1.0
+      ],
+      [
+        "réponse",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "manifeste",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "fait",
+        1.0
+      ],
+      [
+        "isil",
+        1.0
+      ],
+      [
+        "réponse",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "réponse",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "fait",
+        1.0
+      ],
+      [
+        "isil",
+        1.0
+      ],
+      [
+        "manifeste",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "vrai",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "fait",
+        1.0
+      ],
+      [
+        "isil",
+        1.0
+      ],
+      [
+        "manifeste",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "arbre",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "langage",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ],
+      [
+        "parole",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "langage",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ],
+      [
+        "parole",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "parole",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "langage",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "tamis",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "arbre",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "langage",
+        1.0
+      ],
+      [
+        "monde",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "carte",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "conscient",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "mantra",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "conscient",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "carte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ],
+      [
+        "mantra",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "mantra",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "carte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "conscient",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "regard",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "carte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "conscient",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "souffle",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "carte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "conscient",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "désir",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "lecture",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "diamant",
+        1.0
+      ],
+      [
+        "esprit",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "nombre",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "diamant",
+        1.0
+      ],
+      [
+        "esprit",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "avons",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "humain",
+        1.0
+      ],
+      [
+        "lois",
+        1.0
+      ],
+      [
+        "peur",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "pourrait",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "avons",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "humain",
+        1.0
+      ],
+      [
+        "lois",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "respect",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "avons",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "humain",
+        1.0
+      ],
+      [
+        "lois",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "mémoire",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "diamant",
+        1.0
+      ],
+      [
+        "harmonie",
+        1.0
+      ],
+      [
+        "oubli",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "oubli",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "diamant",
+        1.0
+      ],
+      [
+        "harmonie",
+        1.0
+      ],
+      [
+        "mémoire",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "résonance",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "diamant",
+        1.0
+      ],
+      [
+        "harmonie",
+        1.0
+      ],
+      [
+        "mémoire",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "souvenir",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "diamant",
+        1.0
+      ],
+      [
+        "harmonie",
+        1.0
+      ],
+      [
+        "mémoire",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "temps",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "diamant",
+        1.0
+      ],
+      [
+        "harmonie",
+        1.0
+      ],
+      [
+        "mémoire",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "androgynie",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "ensemble",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "turquoise",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "androgynie",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "bois",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "chaux",
+        1.0
+      ],
+      [
+        "farine",
+        1.0
+      ],
+      [
+        "huile",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "chaux",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "bois",
+        1.0
+      ],
+      [
+        "farine",
+        1.0
+      ],
+      [
+        "huile",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "farine",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "bois",
+        1.0
+      ],
+      [
+        "chaux",
+        1.0
+      ],
+      [
+        "huile",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "huile",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "bois",
+        1.0
+      ],
+      [
+        "chaux",
+        1.0
+      ],
+      [
+        "farine",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "naturelles",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "bois",
+        1.0
+      ],
+      [
+        "chaux",
+        1.0
+      ],
+      [
+        "farine",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "peinture",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "bois",
+        1.0
+      ],
+      [
+        "chaux",
+        1.0
+      ],
+      [
+        "farine",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "peintures",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "bois",
+        1.0
+      ],
+      [
+        "chaux",
+        1.0
+      ],
+      [
+        "farine",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "pigments",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "bois",
+        1.0
+      ],
+      [
+        "chaux",
+        1.0
+      ],
+      [
+        "farine",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "rouge",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "bois",
+        1.0
+      ],
+      [
+        "chaux",
+        1.0
+      ],
+      [
+        "farine",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "charbon",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ],
+      [
+        "leboncoin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "céramique",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ],
+      [
+        "leboncoin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "eaux",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ],
+      [
+        "leboncoin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "filtre",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "leboncoin",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "leboncoin",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "mettre",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "plantes",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "robinet",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "récupérer",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "traiter",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "charbon",
+        1.0
+      ],
+      [
+        "céramique",
+        1.0
+      ],
+      [
+        "eaux",
+        1.0
+      ],
+      [
+        "filtre",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "aide",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "film",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "film",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "aide",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "fleurs",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "aide",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "réutiliser",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "aide",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "upcycling",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "aide",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "aller",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "exemple",
+        1.0
+      ],
+      [
+        "healing",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "exemple",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aller",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "healing",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "healing",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aller",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "exemple",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "initiation",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aller",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "exemple",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "serpent",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aller",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "exemple",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "symbole",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aller",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "exemple",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "tantra",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "aller",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "chose",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "exemple",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "agresseur",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "liens",
+        1.0
+      ],
+      [
+        "manipulation",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "liens",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "agresseur",
+        1.0
+      ],
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "manipulation",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "manipulation",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "agresseur",
+        1.0
+      ],
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "liens",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "refus",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "agresseur",
+        1.0
+      ],
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "liens",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "réalité",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "agresseur",
+        1.0
+      ],
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "liens",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "victime",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "agresseur",
+        1.0
+      ],
+      [
+        "appelle",
+        1.0
+      ],
+      [
+        "déni",
+        1.0
+      ],
+      [
+        "liens",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "force",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "forces",
+        1.0
+      ],
+      [
+        "juste",
+        1.0
+      ],
+      [
+        "lois",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "forces",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "force",
+        1.0
+      ],
+      [
+        "juste",
+        1.0
+      ],
+      [
+        "lois",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "manière",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "force",
+        1.0
+      ],
+      [
+        "forces",
+        1.0
+      ],
+      [
+        "juste",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "univers",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "force",
+        1.0
+      ],
+      [
+        "forces",
+        1.0
+      ],
+      [
+        "juste",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "équilibre",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "force",
+        1.0
+      ],
+      [
+        "forces",
+        1.0
+      ],
+      [
+        "juste",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "alliance",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "doit",
+        1.0
+      ],
+      [
+        "humain",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "doit",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "alliance",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "humain",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "principe",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "alliance",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "doit",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "protocole",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "alliance",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "charte",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "doit",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "action",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "art",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "justice",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "modèles",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "action",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "éthique",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "action",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "éveil",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "action",
+        1.0
+      ],
+      [
+        "art",
+        1.0
+      ],
+      [
+        "avoir",
+        1.0
+      ],
+      [
+        "biais",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "cerveau",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "expérience",
+        1.0
+      ],
+      [
+        "musique",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "expérience",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cerveau",
+        1.0
+      ],
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "musique",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "musique",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cerveau",
+        1.0
+      ],
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "expérience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "respiration",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cerveau",
+        1.0
+      ],
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "expérience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "rythme",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "cerveau",
+        1.0
+      ],
+      [
+        "cohérence",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "corps",
+        1.0
+      ],
+      [
+        "expérience",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "conflit",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "glossaire",
+        1.0
+      ],
+      [
+        "nature",
+        1.0
+      ],
+      [
+        "onde",
+        1.0
+      ]
+    ]
+  },
+  {
+    "node": "glossaire",
+    "degree": 10,
+    "weighted_degree": 10.0,
+    "top_neighbors": [
+      [
+        "agdistys",
+        1.0
+      ],
+      [
+        "conflit",
+        1.0
+      ],
+      [
+        "conscience",
+        1.0
+      ],
+      [
+        "nature",
+        1.0
+      ],
+      [
+        "onde",
+        1.0
+      ]
+    ]
+  }
+]

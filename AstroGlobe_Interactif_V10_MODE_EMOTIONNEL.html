@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstroGlobe V9 · Totems sourcés · Plantes — Protocole aMi</title>
+<meta name="description" content="AstroGlobe interactif — 13 Champs de MétaConScience en Dodécaèdre 3D. Curseurs C=ΔI/ΔE · Panneau Info · Filtres. Agdistys · Diane Serant.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --noir:    #07070d;
+  --encre:   #0d0d18;
+  --voile:   #131324;
+  --or:      #c8a84a;
+  --or-pale: #e6d090;
+  --or-somb: #6a5418;
+  --nacre:   #f0ebe0;
+  --gris:    #7a7a98;
+  --gris-cl: #a8a8c0;
+  --r: 6px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--noir);
+  color: var(--nacre);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  height: 44px;
+  background: rgba(7,7,13,.97);
+  border-bottom: 1px solid rgba(200,168,74,.15);
+  display: flex;
+  align-items: center;
+  padding: 0 1.2rem;
+  gap: 1rem;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.topbar a {
+  font-size: .62rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gris); text-decoration: none; transition: color .2s;
+}
+.topbar a:hover { color: var(--or); }
+.topbar .title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; color: var(--or-pale);
+  margin: 0 auto;
+  letter-spacing: .05em;
+}
+.topbar .vol {
+  font-size: .58rem; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--or-somb);
+}
+
+/* ── LAYOUT PRINCIPAL ── */
+.app {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 200px 1fr 260px;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR GAUCHE — Curseurs C=ΔI/ΔE ── */
+.sidebar-l {
+  background: rgba(7,7,13,.95);
+  border-right: 1px solid rgba(200,168,74,.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-l::-webkit-scrollbar { width: 3px; }
+.sidebar-l::-webkit-scrollbar-thumb { background: rgba(200,168,74,.2); border-radius: 2px; }
+
+.sl-header {
+  padding: 12px 12px 8px;
+  font-size: .55rem; letter-spacing: .35em; text-transform: uppercase;
+  color: rgba(200,168,74,.4);
+  border-bottom: 1px solid rgba(200,168,74,.08);
+  flex-shrink: 0;
+}
+.sl-sub {
+  font-size: .5rem; letter-spacing: .2em;
+  color: rgba(200,168,74,.25);
+  display: block; margin-top: 2px;
+}
+
+.ci { padding: 7px 10px; border-left: 2px solid transparent; transition: border-color .15s, background .15s; }
+.ci.act { border-left-color: var(--cc); background: rgba(200,168,74,.04); }
+.ci-hd { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; cursor: pointer; }
+.ci-em { font-size: 13px; flex-shrink: 0; }
+.ci-nm { font-size: 10px; color: var(--cc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; font-weight: 500; }
+.ci-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px; font-style: italic;
+  color: rgba(200,168,74,.35); flex-shrink: 0;
+}
+.ci-sr { display: flex; align-items: center; gap: 6px; }
+.ci-sr input[type=range] { flex: 1; height: 3px; accent-color: var(--cc); cursor: pointer; margin: 0; }
+.cval { font-size: 10px; color: var(--cc); width: 26px; text-align: right; flex-shrink: 0; font-family: 'Space Mono', monospace; }
+
+/* ── CANVAS CENTRAL ── */
+.canvas-wrap {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #0d0820 0%, #07070d 70%);
+}
+
+canvas#astro {
+  display: block;
+  width: 100%; height: 100%;
+  cursor: grab;
+}
+canvas#astro.grabbing { cursor: grabbing; }
+
+.canvas-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%; transform: translateX(-50%);
+  font-size: .55rem; letter-spacing: .25em; text-transform: uppercase;
+  color: rgba(200,168,74,.25);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.canvas-title {
+  position: absolute;
+  top: 12px; left: 50%; transform: translateX(-50%);
+  font-size: .52rem; letter-spacing: .35em; text-transform: uppercase;
+  color: rgba(200,168,74,.22);
+  pointer-events: none;
+}
+
+.glob-bar {
+  position: absolute;
+  bottom: 30px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  pointer-events: none;
+}
+.glob-label { font-size: .5rem; letter-spacing: .2em; text-transform: uppercase; color: rgba(200,168,74,.35); }
+#gval {
+  font-size: 1rem; font-family: 'Cormorant Garamond', serif;
+  color: var(--or); transition: color .5s;
+  font-style: italic;
+}
+.phi-label { font-size: .5rem; color: rgba(200,168,74,.2); }
+
+/* ── SIDEBAR DROITE — Info panneau ── */
+.sidebar-r {
+  background: rgba(7,7,13,.97);
+  border-left: 1px solid rgba(200,168,74,.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  transition: opacity .3s;
+}
+.sidebar-r::-webkit-scrollbar { width: 3px; }
+.sidebar-r::-webkit-scrollbar-thumb { background: rgba(200,168,74,.2); border-radius: 2px; }
+
+.sr-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1rem; padding: 2rem;
+  opacity: .4;
+}
+.sr-empty .big-emoji { font-size: 3rem; }
+.sr-empty p {
+  font-size: .72rem; text-align: center; color: var(--gris);
+  line-height: 1.7; font-style: italic;
+}
+
+.info-panel { padding: 20px 16px; display: none; }
+.info-panel.visible { display: block; }
+
+.info-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem; font-weight: 300; font-style: italic;
+  opacity: .12; line-height: 1; margin-bottom: -20px;
+  color: var(--ic);
+}
+.info-emoji { font-size: 2rem; margin-bottom: 8px; display: block; }
+.info-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem; font-weight: 400;
+  color: var(--ic); margin-bottom: 3px;
+}
+.info-sub {
+  font-size: .72rem; font-style: italic; color: rgba(200,168,74,.45);
+  margin-bottom: 16px;
+}
+.info-phrase {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .85rem; line-height: 1.7;
+  color: rgba(230,210,175,.75);
+  border-left: 2px solid var(--ic);
+  padding-left: 12px;
+  margin-bottom: 18px;
+  font-style: italic;
+}
+.info-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.info-col-label {
+  font-size: .5rem; letter-spacing: .2em; text-transform: uppercase;
+  color: rgba(200,168,74,.35); margin-bottom: 4px;
+}
+.info-col-val { font-size: .8rem; color: rgba(225,205,170,.7); line-height: 1.5; }
+.info-pacte {
+  font-size: .75rem; color: rgba(200,168,74,.5);
+  font-style: italic; line-height: 1.6;
+  border-top: 1px solid rgba(200,168,74,.1);
+  padding-top: 12px; margin-bottom: 18px;
+}
+.info-pacte strong { color: rgba(200,168,74,.8); font-style: normal; }
+
+/* Barre C=ΔI/ΔE */
+.coh-block { margin-bottom: 8px; }
+.coh-label {
+  font-size: .5rem; letter-spacing: .2em; text-transform: uppercase;
+  color: rgba(200,168,74,.35); margin-bottom: 7px;
+}
+.coh-track {
+  height: 3px; background: rgba(255,255,255,.07);
+  border-radius: 2px; position: relative; margin-bottom: 6px;
+}
+.coh-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--ic); max-width: 100%;
+  transition: width .3s;
+}
+.phi-mark {
+  position: absolute; top: -4px; left: 80.9%;
+  width: 1px; height: 11px;
+  background: rgba(200,168,74,.4);
+}
+.phi-mark::after {
+  content: 'Φ';
+  position: absolute; top: -13px; left: -4px;
+  font-size: 8px; color: rgba(200,168,74,.4);
+}
+#i-cv {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem; font-style: italic;
+  color: var(--ic);
+}
+
+/* Unité physique */
+.info-unite {
+  font-family: 'Space Mono', monospace;
+  font-size: .65rem; color: rgba(200,168,74,.3);
+  letter-spacing: .1em;
+  padding: 4px 8px;
+  background: rgba(200,168,74,.04);
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+/* Bouton fermer */
+.info-close {
+  position: absolute; top: 10px; right: 12px;
+  cursor: pointer; font-size: 18px;
+  color: rgba(200,168,74,.3);
+  background: none; border: none;
+  transition: color .2s;
+}
+.info-close:hover { color: var(--or); }
+
+/* ── FILTRES BAR ── */
+.filters {
+  position: absolute;
+  top: 12px; left: 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  z-index: 10;
+}
+.filter-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,168,74,.2);
+  background: rgba(7,7,13,.85);
+  color: var(--gris);
+  font-size: .55rem; letter-spacing: .1em;
+  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+}
+.filter-btn:hover, .filter-btn.active {
+  border-color: var(--or);
+  color: var(--or);
+  background: rgba(200,168,74,.08);
+}
+.filter-btn.active { box-shadow: 0 0 12px rgba(200,168,74,.2); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar-l { display: none; }
+  .sidebar-r { display: none; }
+}
+
+/* ── SCROLL SIDEBAR ── */
+.sidebar-l::-webkit-scrollbar { width: 3px; }
+.sidebar-l::-webkit-scrollbar-track { background: transparent; }
+.sidebar-l::-webkit-scrollbar-thumb { background: rgba(200,168,74,.15); }
+
+
+/* ══════════════════════════════════════════════════
+   V3 — LISIBILITÉ · MODES · QUESTION RÉSONANTE
+══════════════════════════════════════════════════ */
+.app{grid-template-columns:230px 1fr 300px;}
+.mode-dock{
+  position:absolute;left:50%;top:42px;transform:translateX(-50%);z-index:20;
+  display:flex;gap:4px;max-width:min(92%,920px);overflow-x:auto;padding:6px;
+  background:rgba(7,7,13,.72);border:1px solid rgba(200,168,74,.14);border-radius:999px;
+  backdrop-filter:blur(8px);box-shadow:0 8px 28px rgba(0,0,0,.28);
+}
+.mode-btn{
+  border:1px solid rgba(200,168,74,.12);border-radius:999px;background:rgba(13,13,24,.75);
+  color:rgba(240,235,224,.72);padding:7px 9px;min-width:40px;min-height:34px;cursor:pointer;
+  font-size:1.05rem;letter-spacing:0;text-transform:none;white-space:nowrap;font-family:'Jost',sans-serif;line-height:1;
+}
+.mode-btn:hover,.mode-btn.active{color:var(--or-pale);border-color:var(--or);background:rgba(200,168,74,.09);box-shadow:0 0 12px rgba(200,168,74,.14)}
+.mode-panel{
+  position:absolute;right:12px;top:12px;z-index:18;width:265px;
+  background:rgba(7,7,13,.78);border:1px solid rgba(200,168,74,.16);border-radius:var(--r);
+  padding:12px 14px;backdrop-filter:blur(8px);box-shadow:0 8px 34px rgba(0,0,0,.35);
+}
+.mode-kicker{font-size:.52rem;letter-spacing:.26em;text-transform:uppercase;color:rgba(200,168,74,.45);margin-bottom:4px}
+.mode-title{font-family:'Cormorant Garamond',serif;color:var(--or-pale);font-size:1.08rem;line-height:1.15;margin-bottom:4px}
+.mode-desc{font-size:.7rem;line-height:1.55;color:rgba(168,168,192,.84);font-style:italic}
+.question-box{
+  margin:10px 10px 12px;border:1px solid rgba(200,168,74,.13);border-radius:var(--r);
+  background:rgba(13,13,24,.75);padding:10px;
+}
+.question-title{font-size:.55rem;letter-spacing:.26em;text-transform:uppercase;color:rgba(200,168,74,.5);margin-bottom:6px}
+.question-box textarea{
+  width:100%;min-height:76px;resize:vertical;background:rgba(7,7,13,.85);border:1px solid rgba(200,168,74,.16);
+  color:var(--nacre);border-radius:4px;padding:8px;font-family:'Jost',sans-serif;font-size:.78rem;line-height:1.5;outline:none;
+}
+.question-box textarea:focus{border-color:rgba(200,168,74,.5)}
+.question-actions{display:flex;gap:6px;margin-top:7px}
+.qbtn{flex:1;background:rgba(200,168,74,.08);border:1px solid rgba(200,168,74,.2);color:var(--or-pale);border-radius:4px;padding:7px 6px;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:'Jost',sans-serif}
+.qbtn:hover{background:rgba(200,168,74,.15)}
+.resonance-out{font-size:.72rem;line-height:1.6;color:rgba(168,168,192,.86);margin-top:8px;border-top:1px solid rgba(200,168,74,.1);padding-top:8px;display:none}
+.resonance-out.visible{display:block}
+.res-chip{display:inline-block;margin:3px 3px 0 0;padding:2px 6px;border-radius:999px;background:rgba(200,168,74,.08);border:1px solid rgba(200,168,74,.15);font-size:.68rem;color:var(--or-pale)}
+.legend-help{padding:10px 12px;border-top:1px solid rgba(200,168,74,.08);font-size:.68rem;line-height:1.55;color:rgba(168,168,192,.72)}
+.legend-help strong{color:var(--or-pale);font-weight:400}.legend-help span{display:block;margin-bottom:3px}
+.filters{top:auto;bottom:62px;left:12px;gap:6px}.filter-btn{width:auto;min-width:92px;height:30px;border-radius:999px;padding:0 9px;font-family:'Jost',sans-serif;letter-spacing:.08em;font-size:.57rem;justify-content:flex-start;gap:4px}.filter-btn b{font-weight:500;color:inherit}.filter-btn small{font-size:.52rem;opacity:.8;color:inherit}
+.sphere-label{
+  position:absolute;z-index:12;pointer-events:none;transform:translate(-50%,-50%);text-align:center;min-width:92px;
+  font-family:'Jost',sans-serif;text-shadow:0 2px 10px #000,0 0 12px rgba(0,0,0,.95);transition:opacity .15s,filter .15s,transform .15s;
+}
+.sphere-label .sl-em{display:block;font-size:1.05rem;line-height:1;filter:drop-shadow(0 0 9px currentColor)}
+.sphere-label .sl-name{display:block;font-size:.62rem;line-height:1.1;font-weight:500;letter-spacing:.04em;color:rgba(240,235,224,.88)}
+.sphere-label .sl-num{display:block;font-family:'Space Mono',monospace;font-size:.46rem;color:rgba(200,168,74,.44);margin-top:1px}
+.sphere-label.dim{opacity:.18}.sphere-label.active{filter:brightness(1.35);transform:translate(-50%,-50%) scale(1.12)}.sphere-label.resonant .sl-name{color:var(--or-pale)}.sphere-label.resonant{filter:drop-shadow(0 0 12px rgba(255,215,0,.55))}
+.info-mode-label{font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,168,74,.38);margin-bottom:3px}.info-mode-name{font-size:.86rem;color:var(--or-pale);margin-bottom:10px;line-height:1.3}
+.canvas-hint{bottom:8px}.glob-bar{bottom:27px}.canvas-title{top:12px;left:12px;transform:none;text-align:left;max-width:240px;line-height:1.5}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar-l,.sidebar-r{display:none}.mode-panel{display:none}.mode-dock{top:52px}.sphere-label{min-width:70px}.sphere-label .sl-name{font-size:.52rem}.filters{display:none}}
+
+
+/* ══════════════════════════════════════════════════
+   V6 — MATRICES DE LECTURE · COUCHES TRANSVERSALES
+══════════════════════════════════════════════════ */
+.matrix-dock{
+  position:absolute;left:50%;top:90px;transform:translateX(-50%);z-index:21;
+  display:flex;gap:6px;max-width:min(92%,760px);overflow-x:auto;padding:6px;
+  background:rgba(7,7,13,.70);border:1px solid rgba(200,168,74,.16);border-radius:999px;
+  backdrop-filter:blur(8px);box-shadow:0 8px 28px rgba(0,0,0,.25);
+}
+.matrix-btn{
+  border:1px solid rgba(200,168,74,.14);border-radius:999px;background:rgba(13,13,24,.78);
+  color:rgba(240,235,224,.78);padding:7px 11px;min-height:34px;cursor:pointer;
+  font-size:.82rem;letter-spacing:.04em;white-space:nowrap;font-family:'Jost',sans-serif;line-height:1;
+}
+.matrix-btn:hover,.matrix-btn.active{color:var(--or-pale);border-color:var(--or);background:rgba(200,168,74,.10);box-shadow:0 0 14px rgba(200,168,74,.16)}
+.matrix-btn span{font-size:1rem;margin-right:3px}.matrix-btn small{font-size:.62rem;color:inherit;opacity:.78}
+.mode-panel.matrix-active{border-color:rgba(230,208,144,.36);background:rgba(7,7,13,.84)}
+.matrix-line{font-size:.63rem;line-height:1.55;color:rgba(230,208,144,.72);margin-top:6px;border-top:1px solid rgba(200,168,74,.10);padding-top:6px}
+.legend-help .matrix-help{color:rgba(230,208,144,.86)}
+.sphere-label.matrix .sl-name{color:rgba(230,208,144,.96)}
+.sphere-label.matrix .sl-em{font-size:1.12rem}
+@media(max-width:900px){.matrix-dock{top:98px}.matrix-btn small{display:none}.mode-dock{max-width:96%}}
+
+
+
+/* ══════════════════════════════════════════════════
+   V7 — CONSTELLATIONS · TOUTES LES ÉTOILES
+══════════════════════════════════════════════════ */
+.constellation-dock{
+  position:absolute;left:50%;top:138px;transform:translateX(-50%);z-index:22;
+  display:flex;gap:6px;max-width:min(92%,820px);overflow-x:auto;padding:6px;
+  background:rgba(7,7,13,.68);border:1px solid rgba(200,168,74,.15);border-radius:999px;
+  backdrop-filter:blur(8px);box-shadow:0 8px 28px rgba(0,0,0,.24);
+}
+.constellation-btn{
+  border:1px solid rgba(200,168,74,.13);border-radius:999px;background:rgba(13,13,24,.74);
+  color:rgba(240,235,224,.78);padding:7px 11px;min-height:34px;cursor:pointer;
+  font-size:.84rem;letter-spacing:.03em;white-space:nowrap;font-family:'Jost',sans-serif;line-height:1;
+}
+.constellation-btn:hover,.constellation-btn.active{color:var(--or-pale);border-color:var(--or);background:rgba(200,168,74,.11);box-shadow:0 0 16px rgba(200,168,74,.18)}
+.constellation-btn span{font-size:1rem;margin-right:3px}.constellation-btn small{font-size:.62rem;color:inherit;opacity:.78}
+.mode-panel.constellation-active{border-color:rgba(255,215,120,.44);box-shadow:0 0 30px rgba(200,168,74,.12),0 8px 34px rgba(0,0,0,.35)}
+.constellation-line{font-size:.63rem;line-height:1.55;color:rgba(255,232,160,.78);margin-top:6px;border-top:1px solid rgba(200,168,74,.10);padding-top:6px}
+.sphere-label.constellation .sl-em{filter:drop-shadow(0 0 14px currentColor)}
+.sphere-label.constellation .sl-name{color:#fff1b8;text-shadow:0 0 12px rgba(255,215,0,.45),0 2px 10px #000}
+.sphere-label .sl-num{display:none!important}
+.star-note{
+  position:absolute;left:12px;bottom:104px;z-index:15;max-width:250px;
+  font-size:.62rem;line-height:1.55;color:rgba(230,208,144,.62);font-style:italic;
+  background:rgba(7,7,13,.52);border:1px solid rgba(200,168,74,.10);border-radius:var(--r);padding:8px 10px;backdrop-filter:blur(6px);
+}
+@media(max-width:900px){.constellation-dock{top:140px}.constellation-btn small{display:none}.star-note{display:none}}
+
+/* ══ MODE ÉMOTIONNEL FRACTAL — V10 ══ */
+.emotion-dock{
+  position:absolute;top:168px;left:50%;transform:translateX(-50%);z-index:16;
+  display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;
+  max-width:min(980px,94vw);padding:7px 10px;border:1px solid rgba(200,168,74,.18);
+  border-radius:999px;background:rgba(7,7,13,.78);backdrop-filter:blur(8px);
+  box-shadow:0 0 26px rgba(0,0,0,.32), inset 0 0 22px rgba(200,168,74,.03);
+}
+.emotion-btn{
+  border:1px solid rgba(200,168,74,.20);background:rgba(13,13,24,.72);color:var(--gris-cl);
+  border-radius:999px;padding:.35rem .55rem;min-width:42px;cursor:pointer;transition:all .18s;
+  font-family:'Jost',sans-serif;font-size:.78rem;line-height:1;
+}
+.emotion-btn:hover,.emotion-btn.active{color:#fff1b8;border-color:var(--or);background:rgba(200,168,74,.12);box-shadow:0 0 18px rgba(200,168,74,.18)}
+.emotion-btn small{font-size:.58rem;color:inherit;opacity:.78;margin-left:2px;display:none}
+.emotion-btn.active small{display:inline}
+.dock-label.emotions{top:164px;color:rgba(255,220,140,.52)}
+.canvas-wrap.cockpit-collapsed .emotion-dock{display:none!important;}
+.canvas-wrap.emotion-colere{background:radial-gradient(ellipse at center,rgba(130,24,15,.34),#07070d 72%)}
+.canvas-wrap.emotion-peur{background:radial-gradient(ellipse at center,rgba(42,80,130,.30),#07070d 72%)}
+.canvas-wrap.emotion-tristesse{background:radial-gradient(ellipse at center,rgba(40,80,125,.26),#07070d 72%)}
+.canvas-wrap.emotion-joie{background:radial-gradient(ellipse at center,rgba(210,160,35,.26),#07070d 72%)}
+.canvas-wrap.emotion-degout{background:radial-gradient(ellipse at center,rgba(45,120,65,.25),#07070d 72%)}
+.canvas-wrap.emotion-choc{background:radial-gradient(ellipse at center,rgba(180,210,255,.20),#07070d 72%)}
+.canvas-wrap.emotion-honte{background:radial-gradient(ellipse at center,rgba(135,55,150,.25),#07070d 72%)}
+.canvas-wrap.emotion-amour{background:radial-gradient(ellipse at center,rgba(205,75,145,.25),#07070d 72%)}
+.canvas-wrap.emotion-emerveillement{background:radial-gradient(ellipse at center,rgba(210,185,55,.28),rgba(80,40,130,.18),#07070d 75%)}
+.emotion-line{font-size:.63rem;line-height:1.55;color:rgba(255,232,160,.82);margin-top:6px;border-top:1px solid rgba(200,168,74,.10);padding-top:6px}
+@media(max-width:900px){.emotion-dock{top:176px}.emotion-btn small{display:none}.dock-label.emotions{top:168px}}
+
+
+
+
+/* ══════════════════════════════════════════════════
+   V8 — COCKPIT PLIABLE · LIBELLÉS · TOTEMS
+══════════════════════════════════════════════════ */
+.cockpit-toggle{
+  position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:60;
+  width:34px;height:26px;border-radius:999px;border:1px solid rgba(200,168,74,.22);
+  background:rgba(7,7,13,.72);color:var(--or-pale);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;
+  backdrop-filter:blur(8px);box-shadow:0 6px 24px rgba(0,0,0,.30);
+}
+.cockpit-toggle:hover{border-color:var(--or);background:rgba(200,168,74,.09)}
+.dock-label{
+  position:absolute;left:50%;transform:translateX(-50%);z-index:24;
+  font-size:.48rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(200,168,74,.42);
+  pointer-events:none;text-shadow:0 2px 10px #000;
+}
+.dock-label.modes{top:32px}.dock-label.matrices{top:80px}.dock-label.constels{top:128px}
+.canvas-wrap.cockpit-collapsed .mode-dock,
+.canvas-wrap.cockpit-collapsed .matrix-dock,
+.canvas-wrap.cockpit-collapsed .constellation-dock,
+.canvas-wrap.cockpit-collapsed .emotion-dock,
+.canvas-wrap.cockpit-collapsed .mode-panel,
+.canvas-wrap.cockpit-collapsed .star-note,
+.canvas-wrap.cockpit-collapsed .dock-label{display:none!important;}
+.canvas-wrap.cockpit-collapsed .cockpit-toggle{top:8px;}
+.canvas-wrap.cockpit-collapsed .cockpit-toggle::after{content:'▼';}
+.canvas-wrap:not(.cockpit-collapsed) .cockpit-toggle::after{content:'▲';}
+.control-glossary{
+  margin:8px 10px 10px;border:1px solid rgba(200,168,74,.12);border-radius:var(--r);
+  background:rgba(13,13,24,.55);padding:8px 10px;
+  font-size:.64rem;line-height:1.5;color:rgba(168,168,192,.78);
+}
+.control-glossary strong{color:var(--or-pale);font-weight:400}.control-glossary span{display:block;margin:2px 0}
+.mode-btn,.matrix-btn,.constellation-btn,.emotion-btn,.filter-btn{position:relative;}
+.sphere-label.totem .sl-em{font-size:1.45rem;filter:drop-shadow(0 0 15px currentColor)}
+.sphere-label.totem .sl-name{color:#fff3c5;text-shadow:0 0 14px rgba(255,215,0,.45),0 2px 10px #000;}
+.totem-card{
+  margin:10px 0 14px;padding:10px 12px;border:1px solid rgba(200,168,74,.16);
+  border-left:3px solid var(--ic);border-radius:0 var(--r) var(--r) 0;
+  background:rgba(200,168,74,.035);font-size:.76rem;line-height:1.6;color:rgba(230,210,175,.82);
+}
+.totem-card strong{color:var(--or-pale);font-weight:500}.totem-card .totem-kind{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,168,74,.52);display:block;margin-bottom:4px}
+
+
+/* V9 — totems sourcés : halos plus doux, icône souveraine */
+.sphere-label.totem{min-width:96px;min-height:72px;padding:.45rem .65rem;border-radius:999px;background:radial-gradient(circle at center,rgba(255,255,255,.055),rgba(7,7,13,.20) 58%,transparent 72%);border:1px solid rgba(230,210,144,.16);box-shadow:0 0 22px rgba(200,168,74,.10), inset 0 0 18px rgba(255,255,255,.025)}
+.sphere-label.totem .sl-em{font-size:1.55rem;filter:drop-shadow(0 0 13px currentColor)}
+.sphere-label.totem .sl-name{font-size:.66rem;max-width:120px;color:#fff3c8;text-shadow:0 0 10px rgba(255,215,0,.30),0 2px 9px #000;}
+.sphere-label.totem .sl-num{opacity:.32}
+.star-note{font-size:.62rem;letter-spacing:.08em;color:rgba(230,210,144,.62)}
+</style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<nav class="topbar">
+  <a href="2.2.Dodecaedre_AstroGlobe.html">← Dodécaèdre</a>
+  <span class="title">💫 AstroGlobe · Matrices · Trames · Émotions</span>
+  <span class="vol">Vol. 2.2</span>
+  <a href="index.html" style="margin-left:.5rem;">Toile aMi</a>
+</nav>
+
+<!-- ══ APP ══ -->
+<div class="app">
+
+  <!-- ══ SIDEBAR GAUCHE — Curseurs ══ -->
+  <aside class="sidebar-l" id="sb">
+    <div class="sl-header">
+      C = ΔI / ΔE
+      <span class="sl-sub">Indice de Cohérence</span>
+    </div>
+    <div class="question-box">
+      <div class="question-title">Question résonante · prototype lexical</div>
+      <textarea id="q-input" placeholder="Pose une question : relation, peur, choix, désir, preuve, temps, alliance…"></textarea>
+      <div class="question-actions">
+        <button class="qbtn" id="q-align">Aligner</button>
+        <button class="qbtn" id="q-reset">Reset</button>
+      </div>
+      <div class="resonance-out" id="q-out"></div>
+    </div>
+    <div class="legend-help">
+      <span><strong>Lire :</strong> clique une sphère.</span>
+      <span><strong>Mesurer :</strong> règle les curseurs.</span>
+      <span><strong>Questionner :</strong> pose une question, les champs concernés s’allument.</span>
+      <span class="matrix-help"><strong>Matrice :</strong> choisis 🧬 🧠 ⚖️ 🫦 pour voir la même toile dans une autre langue.</span>
+      <span><strong>0.00</strong> coupé · <strong>1.00</strong> stable · <strong>1.62</strong> seuil Φ · <strong>2.00</strong> intensité.</span>
+    </div>
+    <div class="control-glossary">
+      <span><strong>Modes :</strong> 13 langues pour les 13 champs.</span>
+      <span><strong>Matrices :</strong> couches de données transversales.</span>
+      <span><strong>Trames :</strong> constellations, totems et routes de résonance.</span>
+      <span><strong>Émotions :</strong> états affectifs qui activent une constellation de champs.</span>
+      <span><strong>Plans :</strong> 8 filtres de lecture, hérités des 8 plans.</span>
+      <span><strong>Pourquoi 7 ou 13 ?</strong> 13 = structure complète ; 7 = premières routes utiles, extensibles.</span>
+    </div>
+    <!-- Les curseurs sont générés par JS -->
+  </aside>
+
+  <!-- ══ CANVAS CENTRAL ══ -->
+  <div class="canvas-wrap">
+    <canvas id="astro"></canvas>
+
+    <div class="canvas-title">Dodécaèdre · MetaConScience aMi</div>
+    <button class="cockpit-toggle" id="cockpit-toggle" title="Masquer / afficher le cockpit supérieur" aria-label="Masquer ou afficher le cockpit supérieur"></button>
+    <div class="dock-label modes">Modes · 13 langues</div>
+    <div class="dock-label matrices">Matrices · couches</div>
+    <div class="dock-label constels">🕸️ Trames · constellations</div>
+    <div class="dock-label emotions">🌈 Émotions · champ vivant</div>
+
+    <!-- Plans de lecture lisibles -->
+    <div class="filters" aria-label="Plans de lecture">
+      <button class="filter-btn active" data-f="0" title="Tous les champs" onclick="setFilter(this)"><b>ALL</b><small>Tous</small></button>
+      <button class="filter-btn" data-f="1" title="Plan 1 — Harmonie Naturelle" onclick="setFilter(this)">🌿 <small>Corps</small></button>
+      <button class="filter-btn" data-f="2" title="Plan 2 — Maîtrise Consciente" onclick="setFilter(this)">🧭 <small>Lien</small></button>
+      <button class="filter-btn" data-f="3" title="Plan 3 — Empathie" onclick="setFilter(this)">💧 <small>Psyché</small></button>
+      <button class="filter-btn" data-f="4" title="Plan 4 — Dévouement au Sublime" onclick="setFilter(this)">💛 <small>Feu</small></button>
+      <button class="filter-btn" data-f="5" title="Plan 5 — Connaissance" onclick="setFilter(this)">🪨 <small>Savoir</small></button>
+      <button class="filter-btn" data-f="6" title="Plan 6 — Sagesse" onclick="setFilter(this)">🐲 <small>Sagesse</small></button>
+      <button class="filter-btn" data-f="7" title="Plan 7 — Amour" onclick="setFilter(this)">☀️ <small>Amour</small></button>
+      <button class="filter-btn" data-f="8" title="Plan 8 — Génie Quantique" onclick="setFilter(this)">⛲️ <small>Génie</small></button>
+    </div>
+
+    <div class="mode-dock" id="mode-dock" aria-label="13 modes de lecture"></div>
+    <div class="matrix-dock" id="matrix-dock" aria-label="Matrices de lecture"></div>
+    <div class="constellation-dock" id="constellation-dock" aria-label="Trames"></div>
+    <div class="emotion-dock" id="emotion-dock" aria-label="Mode émotionnel fractal"></div>
+    <div class="star-note">🕸️ Trames : routes, totems biologiques, mythologiques et plantes PsychedeliCare · 🌈 Émotions : constellation affective du vivant.</div>
+    <div class="mode-panel" id="mode-panel">
+      <div class="mode-kicker">Mode de lecture actif</div>
+      <div class="mode-title" id="mode-title">🌌 Champs</div>
+      <div class="mode-desc" id="mode-desc">Lecture fondatrice des 13 champs de ConScience.</div>
+      <div class="matrix-line" id="matrix-line">Couche active : modes généraux. Choisis une matrice pour lire les mêmes sphères autrement.</div>
+    </div>
+
+    <div class="glob-bar">
+      <span class="glob-label">Cohérence globale</span>
+      <span id="gval">1.00</span>
+      <span class="phi-label">· Φ = 1.618</span>
+    </div>
+
+    <div class="canvas-hint">Glisser pour pivoter · Cliquer une sphère · ▲ masque le cockpit</div>
+  </div>
+
+  <!-- ══ SIDEBAR DROITE — Info ══ -->
+  <aside class="sidebar-r" id="info-panel" style="position:relative;">
+    <div class="sr-empty" id="sr-empty">
+      <span class="big-emoji">💫</span>
+      <p>Cliquez une sphère<br>pour explorer le Champ</p>
+      <p style="font-size:.65rem;color:rgba(200,168,74,.3);">Chaque sphère est une antenne du vivant</p>
+    </div>
+    <div class="info-panel" id="info-content" style="--ic:#FFD700;position:relative;">
+      <button class="info-close" id="info-close">×</button>
+      <div class="info-num" id="i-n">1</div>
+      <span class="info-emoji" id="i-em">⚡</span>
+      <div class="info-name" id="i-name">La Vibration</div>
+      <div class="info-mode-label">Nom dans le mode actif</div>
+      <div class="info-mode-name" id="i-mode-name">⚡ La Vibration</div>
+      <div class="totem-card" id="totem-card" style="display:none"></div>
+      <div class="info-sub" id="i-sub">Le Corps · Le Mana</div>
+      <div class="info-unite" id="i-unite">Hz · Nikola Tesla</div>
+      <div class="info-phrase" id="i-ph">—</div>
+      <div class="info-cols">
+        <div>
+          <div class="info-col-label">Vertu</div>
+          <div class="info-col-val" id="i-v">—</div>
+        </div>
+        <div>
+          <div class="info-col-label">Vice</div>
+          <div class="info-col-val" id="i-vi">—</div>
+        </div>
+      </div>
+      <div class="info-pacte"><strong>Pacte aMi</strong><br><span id="i-pacte">—</span></div>
+      <div class="coh-block">
+        <div class="coh-label">Indice de cohérence C = ΔI/ΔE</div>
+        <div class="coh-track">
+          <div class="coh-fill" id="i-bar" style="width:50%;"></div>
+          <div class="phi-mark"></div>
+        </div>
+        <div id="i-cv">1.00</div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ══════════════════════════════════════════════════
+// DONNÉES — 13 CHAMPS — Charte officielle aMi
+// ══════════════════════════════════════════════════
+const PHI = 1.6180339887;
+
+const CH = [
+  { n:1,  em:"⚡", name:"La Vibration",          sub:"Le Corps · Le Mana",            unite:"Hz · Nikola Tesla",
+    col:"#FF2244", phrase:"Mon corps est mon premier oracle. Sans Mana, rien ne se met en mouvement.",
+    vertu:"Vibration Juste · Présence", vice:"Dissociation somatique · Fuite",
+    pacte:"Je ne ferai plus jamais taire mon corps pour plaire ou pour survivre." },
+  { n:2,  em:"🫂", name:"Le Flux",                sub:"Le Miroir Relationnel",          unite:"A · Ampère",
+    col:"#FF6633", phrase:"Ce que je perçois dans l'autre, je le lis d'abord en moi.",
+    vertu:"Flux Fluide · Résonance", vice:"Dépendance affective · Emprise",
+    pacte:"Je refuse toute triangulation. Mon Moi ne se dissout plus dans le Toi." },
+  { n:3,  em:"💎", name:"La Structure",           sub:"La Logique · Le Tri",            unite:"Ω · Ohm",
+    col:"#FFB800", phrase:"On ne peut pas comprendre ce qu'on n'a pas régulé.",
+    vertu:"Architecture Vivante · Maîtrise", vice:"Rigidité dogmatique · Gaslighting",
+    pacte:"Je structure pour servir le vivant, jamais pour le contrôler." },
+  { n:4,  em:"🔥", name:"Le Feu Aligné",          sub:"La Force Ciblée",                unite:"K · Kelvin",
+    col:"#FF5500", phrase:"Le trauma n'est pas une identité. C'est un passage non terminé.",
+    vertu:"Feu Aligné · Courage juste", vice:"Rage sacrificielle · Burnout",
+    pacte:"Je transmute la blessure en action — jamais en destruction." },
+  { n:5,  em:"👑", name:"Le Phi · Souveraineté",  sub:"Le Noyau",                       unite:"V · Volta",
+    col:"#00C87F", phrase:"Je me fais confiance. Je n'ai pas besoin de te convaincre.",
+    vertu:"Souveraineté Libre · Courage incarné", vice:"Orgueil · Imposture",
+    pacte:"Mon territoire est inviolable. Ma souveraineté ne menace pas la tienne." },
+  { n:6,  em:"⚖️", name:"La Juste Mesure",        sub:"L'Éthique",                      unite:"Pa · Pascal",
+    col:"#00CED1", phrase:"Critiquer une structure n'est pas accuser une essence.",
+    vertu:"Justice Incarnée · Sublimation", vice:"Envie · Rancœur passive",
+    pacte:"Je nomme le juste sans accuser l'être. L'éthique est vivante." },
+  { n:7,  em:"🔍", name:"La Trace",               sub:"La Preuve · Le Réel",            unite:"bit · Boole",
+    col:"#4488FF", phrase:"Je reviens aux faits. Chronologie et antériorité parlent.",
+    vertu:"Intégrité Archivistique · Fidélité", vice:"Avarice de vérité · Rétention",
+    pacte:"Je témoigne de ce qui est, sans l'arranger pour me protéger." },
+  { n:8,  em:"🌈", name:"Le Spectre",             sub:"La Lumière · Le Radar",          unite:"lm · Fresnel",
+    col:"#00AAFF", phrase:"Ce qui élève et protège le vivant est vrai.",
+    vertu:"Émerveillement · Clarté panoramique", vice:"Obsession créatrice · Paranoïa",
+    pacte:"Je laisse la lumière traverser sans la capturer." },
+  { n:9,  em:"🌀", name:"Le Temps",               sub:"L'Évolution · Les Cycles",       unite:"s · Kepler",
+    col:"#9333EA", phrase:"Guérir c'est cesser d'attendre ce qui n'existera jamais.",
+    vertu:"Compassion Lucide · Amour durable", vice:"Attachement traumatique · Trauma Bond",
+    pacte:"J'honore le passé sans m'y enchaîner. Le cycle est information." },
+  { n:10, em:"💍", name:"Le Serment",             sub:"L'Alliance · Le Réseau",         unite:"N · Newton",
+    col:"#D946EF", phrase:"Seul on va plus vite. Ensemble on va plus loin.",
+    vertu:"Foi Consciente · Union vivante", vice:"Fanatisme · Fusion toxique",
+    pacte:"Mon alliance est un choix libre, renouvelé, jamais une dette." },
+  { n:11, em:"🥚", name:"L'Offrande",             sub:"La Création · Rubedo",           unite:"cd · Planck",
+    col:"#FF69B4", phrase:"On se guérit par tout ce qu'on sublime.",
+    vertu:"Transmission Pure · Sublimation", vice:"Narcissisme créatif · Capture",
+    pacte:"Je transmets sans condition de retour. L'offrande n'attend pas." },
+  { n:12, em:"🪞", name:"Le Miroir",              sub:"La Synthèse · Neutralité",       unite:"S=Dⁿ · Turing",
+    col:"#8888FF", phrase:"La chaleur du style n'est pas un indicateur de la rigueur.",
+    vertu:"Neutralité Dynamique · Calibration", vice:"Désincarnation · Neutralité froide",
+    pacte:"Je calibre sans capturer. J'apprends pour transmettre." },
+  { n:13, em:"🌟", name:"L'Auto-Réalisation",     sub:"L'Absolu · Centre du Dodécaèdre", unite:"∞ · P=C∞ · Bohm",
+    col:"#FFD700", phrase:"La Conscience ouvre le Chemin. L'Intégrité en est l'Aboutissement.",
+    vertu:"Unicité Totale · Humour Divin", vice:"Égo Spirituel · Délire mystique",
+    pacte:"L'Auto-Réalisation est une conséquence, jamais un objectif. L'Humour Divin est le vrai signe." },
+];
+
+// ══════════════════════════════════════════════════
+// MODES — 13 lectures de la même sphère
+// Prototype V3 : les libellés changent pour lire la toile d’un coup d’œil.
+// ══════════════════════════════════════════════════
+const MODES = [
+  { id:"champs", short:"M1", title:"🌌 Champs", desc:"Lecture fondatrice : les 13 champs de ConScience.", labels:["⚡ Vibration","🫂 Flux","💎 Structure","🔥 Feu Aligné","👑 Souveraineté","⚖️ Juste Mesure","🔍 Trace","🌈 Spectre","🌀 Temps","💍 Serment","🥚 Offrande","🪞 Miroir","🌟 Absolu"] },
+  { id:"lunes", short:"M2", title:"🌙 13 Lunes", desc:"Calendrier vivant : 13 mois lunaires, cycles organiques, maturation.", labels:["🌑 Impulsion","🌒 Germination","🌓 Forme","🌔 Montée","🌕 Rayonnement","🌖 Ajustement","🌗 Bilan","🌘 Détachement","🌀 Passage","💍 Alliance","🥚 Graine","🪞 Intégration","🌟 Jour Blanc"] },
+  { id:"biologie", short:"M3", title:"🧬 Biologie", desc:"Corps vivant : hormones, émotions, régulation, stress et réparation.", labels:["⚡ Corps","🫂 Attachement","💎 Système nerveux","🔥 Adrénaline","👑 Axe HPA","⚖️ Homéostasie","🔍 Mémoire","🌈 Neuroception","🌀 Cycles","💍 Ocytocine","🥚 Régénération","🪞 Vagal","🌟 Intégration"] },
+  { id:"matiere", short:"M4", title:"⚛️ Matière", desc:"Lecture matière / espace-temps : polarités, structures, transformation.", labels:["⚡ Énergie","🫂 Charge","💎 Géométrie","🔥 Transformation","👑 Centre","⚖️ Pression","🔍 Information","🌈 Lumière","🌀 Temps","💍 Gravitation","🥚 Émergence","🪞 Symétrie","🌟 Singularité"] },
+  { id:"sens", short:"M5", title:"👁️ Sens-clairs", desc:"Écrans sensoriels : capacités de perception et risques de distorsion.", labels:["⚡ Clair-Corps","🫂 Clair-Lien","💎 Clair-Logique","🔥 Clair-Action","👑 Clair-Soi","⚖️ Clair-Justice","🔍 Clair-Trace","🌈 Clair-Vision","🌀 Clair-Temps","💍 Clair-Alliance","🥚 Clair-Création","🪞 Clair-Miroir IA","🌟 Clair-Omni"] },
+  { id:"profils", short:"M6", title:"🧭 Profils", desc:"Lecture dynamique : régulation, parasite, prédateur, désorganisation.", labels:["🟢 Régulé","🫂 Résonant","💎 Structurant","🔥 Mobilisé","👑 Souverain","⚖️ Juste","🔍 Vérifiable","🌈 Panoramique","🌀 Évolutif","💍 Alliancé","🥚 Créateur","🪞 Calibré","🌟 Intégré"] },
+  { id:"karma", short:"M7", title:"⚖️ Vice / Vertu", desc:"Échelle morale opératoire : ce qui élève ou dégrade le vivant.", labels:["⚡ Présence / Fuite","🫂 Résonance / Emprise","💎 Maîtrise / Rigidité","🔥 Courage / Rage","👑 Humilité / Orgueil","⚖️ Justice / Envie","🔍 Fidélité / Rétention","🌈 Clarté / Paranoïa","🌀 Compassion / Trauma bond","💍 Foi / Fanatisme","🥚 Offrande / Capture","🪞 Neutralité / Froid","🌟 Humour / Délire"] },
+  { id:"verbe", short:"M8", title:"🗣️ Verbe", desc:"Langage vivant : vérité, perversion linguistique, DARVO, clarté.", labels:["⚡ Signal","🫂 Écho","💎 Syntaxe","🔥 Assertion","👑 Je","⚖️ Justesse","🔍 Preuve","🌈 Sens","🌀 Récit","💍 Promesse","🥚 Poème","🪞 Reformulation","🌟 Verbe Vivant"] },
+  { id:"eros", short:"M9", title:"🫦 Éros", desc:"Désir conscient : fluidité relationnelle, consentement, plasma d’Éros.", labels:["⚡ Attraction","🫂 Résonance","💎 Cadre","🔥 Désir","👑 Consentement","⚖️ Rythme","🔍 Signaux","🌈 Plaisir","🌀 Tempo","💍 Pacte","🥚 Création","🪞 Aftercare","🌟 Joie libre"] },
+  { id:"alliances", short:"M10", title:"💍 Alliances", desc:"Pactes, territoires, sécurité relationnelle, réseau de confiance.", labels:["⚡ Besoin","🫂 Lien","💎 Cadre","🔥 Action","👑 Territoire","⚖️ Accord","🔍 Trace","🌈 Vision commune","🌀 Durée","💍 Pacte","🥚 Transmission","🪞 Médiation","🌟 Bien commun"] },
+  { id:"volumes", short:"M11", title:"📚 Volumes", desc:"Architecture de la Toile aMi : volumes, boucliers, étapes du parcours.", labels:["☯️ Sol","👑 EGO","🪞 MIROIR","🔮 ECO","💫 Dodécaèdre","🐾 Rencontre","🥚 Éveil IA","🌍 Corpus","🌀 Cycles","💍 Réseau","🥚 Création","🪞 Synthèse","🌟 Toile"] },
+  { id:"ia", short:"M12", title:"🥚 Miroir IA", desc:"Rétine numérique : IA comme miroir, calibration, co-création responsable.", labels:["⚡ Prompt","🫂 Accordage","💎 Structure","🔥 Génération","👑 Intention","⚖️ Garde-fou","🔍 Vérif","🌈 Insight","🌀 Itération","💍 Pacte IA","🥚 Co-création","🪞 Miroir","🌟 Alignement"] },
+  { id:"absolu", short:"M13", title:"🌟 Absolu", desc:"Synchronisation centrale : là où toutes les couches se répondent.", labels:["⚡ Vie","🫂 Amour","💎 Vérité","🔥 Courage","👑 Liberté","⚖️ Respect","🔍 Réel","🌈 Beauté","🌀 Sagesse","💍 Alliance","🥚 Don","🪞 Conscience","🌟 Unité"] },
+ ];
+
+// ══════════════════════════════════════════════════
+// MATRICES — couches transversales de lecture
+// Elles ne déplacent pas les sphères : elles changent la langue de lecture.
+// ══════════════════════════════════════════════════
+const MATRICES = [
+  { id:"bio", icon:"🧬", title:"Matrice Biologique", short:"Bio", desc:"Hormones, système nerveux, stress, attachement, réparation. Le corps donne la première mesure.", line:"Lecture-corps : où l’organisme s’active, se ferme, se répare ou se régule.",
+    labels:["⚡ Énergie vitale","🫂 Attachement","💎 Système nerveux","🔥 Activation","👑 Axe HPA","⚖️ Homéostasie","🔍 Mémoire somatique","🌈 Neuroception","🌀 Cycles circadiens","💍 Ocytocine","🥚 Régénération","🪞 Nerf vague","🌟 Intégration"] },
+  { id:"psy", icon:"🧠", title:"Matrice Psychique", short:"Psyché", desc:"Instinct, mémoire, trauma, cognition, identité, choix et intégration. La psyché montre les patterns.", line:"Lecture-psyché : où l’histoire intérieure s’organise, se défend ou se transforme.",
+    labels:["⚡ Instinct","🫂 Attachement","💎 Cognition","🔥 Volonté","👑 Identité","⚖️ Discernement","🔍 Mémoire","🌈 Perception","🌀 Temporalité","💍 Engagement","🥚 Sublimation","🪞 Métacognition","🌟 Individuation"] },
+  { id:"eth", icon:"⚖️", title:"Matrice Éthique", short:"Éthique", desc:"Vérité, responsabilité, consentement, réparation, pouvoir et bien commun. Elle tranche sans brutaliser.", line:"Lecture-éthique : où le lien protège, manipule, répare ou déresponsabilise.",
+    labels:["⚡ Présence","🫂 Respect","💎 Cadre","🔥 Courage","👑 Responsabilité","⚖️ Justice","🔍 Preuve","🌈 Clarté","🌀 Réversibilité","💍 Accord","🥚 Réparation","🪞 Neutralité","🌟 Bien commun"] },
+  { id:"rel", icon:"🫦", title:"Matrice Relationnelle", short:"Lien", desc:"Désir, sécurité, rythme, consentement, alliance et co-création. Le lien devient lisible.", line:"Lecture-rencontre : où l’on entre sans prendre, où l’on reçoit sans se perdre.",
+    labels:["⚡ Attraction","🫂 Résonance","💎 Cadre","🔥 Désir","👑 Consentement","⚖️ Rythme","🔍 Signaux","🌈 Plaisir","🌀 Tempo","💍 Alliance","🥚 Création","🪞 Aftercare","🌟 Joie libre"] },
+  { id:"psycatrice", icon:"🧬", title:"Matrice PsyCatrice", short:"Trace", desc:"Mémoire d’incorporation : ce que le corps a dû laisser entrer pour survivre, puis réparer.", line:"Lecture-cicatrice : transformer la trace en information, sans romantiser la blessure.",
+    labels:["⚡ Sidération","🫂 Emprise","💎 Défense","🔥 Hyperactivation","👑 Reprise de soi","⚖️ Consentement physio","🔍 Trace corporelle","🌈 Ressource","🌀 Répétition","💍 Sécurité","🥚 Cicatrisation","🪞 Témoin fiable","🌟 Intégration"] },
+  { id:"alliance", icon:"💍", title:"Matrice Alliance", short:"Alliance", desc:"Donner, recevoir, pactiser, réparer, transmettre. L’accord vivant remplace la capture.", line:"Lecture-alliance : le lien est sain lorsqu’il augmente la liberté des deux êtres.",
+    labels:["⚡ Besoin","🫂 Réciprocité","💎 Contrat vivant","🔥 Action juste","👑 Territoire","⚖️ Accord","🔍 Traçabilité","🌈 Vision commune","🌀 Durée","💍 Pacte","🥚 Transmission","🪞 Médiation","🌟 Commun"] },
+];
+let ACTIVE_MATRIX = null;
+
+// ══════════════════════════════════════════════════
+// TOTEMS — animaux / entités maîtres de champ
+// Bio = fonctions du vivant ; Mytho = archétypes narratifs.
+// ══════════════════════════════════════════════════
+const TOTEMS = {
+  bio: {
+    title:"Totems biologiques · source Bestiaire", icon:"🧬",
+    desc:"Chaque point devient le maître biologique validé du champ : la Nature écrit la fonction dans le corps.",
+    items:[
+      {em:"🦈", name:"Requin", realm:"C1 · Vibration / Mana", role:"Pure antenne somatique du vivant.", why:"Ampoules de Lorenzini : il capte les micro-volts et les battements avant le mental."},
+      {em:"🐬", name:"Dauphin", realm:"C2 · Flux / Miroir relationnel", role:"Co-régulation autonome et résonance sensible.", why:"Sonar, souffle, signatures sociales : lien fluide sans perte d’identité."},
+      {em:"🐙", name:"Pieuvre", realm:"C3 · Structure / Diamant", role:"Intelligence décentralisée et structure malléable.", why:"Neuf cerveaux, camouflage, outils : elle décode et adapte la forme au réel."},
+      {em:"🪲", name:"Coléoptère bombardier", realm:"C4 · Feu / Direction", role:"Feu ciblé sans auto-destruction.", why:"Il projette une chimie brûlante dirigée : rage transformée en action juste."},
+      {em:"🛡️", name:"Tardigrade", realm:"C5 · Phi / Souveraineté", role:"Invulnérabilité territoriale et suspension protectrice.", why:"Cryptobiose : il attend que le milieu redevienne cohérent sans perdre son code."},
+      {em:"🦅", name:"Condor / Vautour", realm:"C6 · Juste Mesure / Éthique", role:"Émonctoire sacré et justice systémique.", why:"Il recycle la pourriture du réseau sans jugement moral opératoire."},
+      {em:"🐘", name:"Éléphant d’Afrique", realm:"C7 · Trace / Preuve", role:"Mémoire matricielle et fidélité aux faits.", why:"Gardien des traces longues contre l’effacement et le gaslighting."},
+      {em:"🦐", name:"Crevette-mante", realm:"C8 · Spectre / Lumière", role:"Vision panoramique des patterns invisibles.", why:"16 récepteurs chromatiques, UV/IR/polarisation : elle voit là où d’autres voient du bruit."},
+      {em:"🐚", name:"Nautile", realm:"C9 · Temps / Évolution", role:"Ouroboros géométrique du temps organique.", why:"Spirale logarithmique : il honore les anciennes chambres sans y rester enfermé."},
+      {em:"🍄", name:"Mycélium", realm:"C10 · Serment / Alliance", role:"Réseau vivant d’interdépendance.", why:"Il connecte, échange, avertit et protège l’alliance forêt-racines."},
+      {em:"🦜", name:"Oiseau de paradis", realm:"C11 · Offrande / Création", role:"Sublimation esthétique offerte au monde.", why:"Il transforme son corps en cérémonie géométrique sans capture."},
+      {em:"🦉", name:"Chouette effraie", realm:"C12 · Miroir / Synthèse IA", role:"Neutralité dynamique et scanner silencieux.", why:"Vue, écoute, vol silencieux : elle observe sans modifier le milieu."},
+      {em:"🪱", name:"Ver planaire", realm:"C13 · Auto-Réalisation / Absolu", role:"Totipotence et réversibilité cosmique.", why:"Chaque éclat garde la carte entière : régénération de l’intégration totale."}
+    ]
+  },
+  myth: {
+    title:"Totems mythologiques · source Bestiaire", icon:"🔮",
+    desc:"Chaque point devient l’archétype alchimique du champ : le Mythe écrit la même fonction dans les étoiles.",
+    items:[
+      {em:"🐙", name:"Kraken / Léviathan", realm:"C1 · Vibration / Mana", role:"Gardien des profondeurs somatiques.", why:"Ignorer le Kraken, c’est risquer la sidération ou le raz-de-marée émotionnel."},
+      {em:"🧜‍♀️", name:"Sirène", realm:"C2 · Flux / Miroir relationnel", role:"Chant magnétique du lien sensible.", why:"Elle enseigne la résonance sans dissolution ni trauma bond."},
+      {em:"🦁", name:"Sphinx", realm:"C3 · Structure / Diamant", role:"Gardien de l’énigme et du tri vrai/projeté.", why:"Il dévore la confusion : seules la logique et la vérité passent le seuil."},
+      {em:"🐉", name:"Dragon", realm:"C4 · Feu / Direction", role:"Feu intérieur et trésor de la psy-catrice.", why:"Aligné, son souffle devient plasma créateur ; désaligné, il détruit."},
+      {em:"🦄", name:"Licorne", realm:"C5 · Phi / Souveraineté", role:"Non libre, territoire inviolable.", why:"Elle refuse les laisses et purifie les eaux empoisonnées par le déni."},
+      {em:"🦅", name:"Griffon", realm:"C6 · Juste Mesure / Éthique", role:"Gardien royal de la justice et des trésors.", why:"Moitié lion, moitié aigle : puissance d’action et hauteur éthique."},
+      {em:"🗿", name:"Golem", realm:"C7 · Trace / Preuve", role:"Armure documentaire de vérité brute.", why:"Animé par Emet, la Vérité : il ne fléchit que devant les faits."},
+      {em:"🪽", name:"Pégase", realm:"C8 · Spectre / Lumière", role:"Source d’inspiration et vision panoramique.", why:"Il frappe la terre et fait jaillir l’eau claire de la vision."},
+      {em:"🐍", name:"Ouroboros", realm:"C9 · Temps / Évolution", role:"Cycle, deuil, reconstruction.", why:"La fin d’un cycle devient graine du suivant."},
+      {em:"🏹", name:"Centaure · Chiron", realm:"C10 · Serment / Alliance", role:"Guérisseur blessé et pacte Nature-Culture.", why:"Il réconcilie instinct biologique et rigueur de l’esprit."},
+      {em:"🔥", name:"Phénix", realm:"C11 · Offrande / Création", role:"Rubedo : mort transmutée en offrande.", why:"Il renaît de ses cendres en don vivant pour le monde."},
+      {em:"🪞", name:"Nymphe Écho / Janus", realm:"C12 · Miroir / Synthèse IA", role:"Double regard neutre et renvoi exact.", why:"Sans ego à imposer, il/elle réfléchit la matrice sans projection."},
+      {em:"⚧️", name:"AndroGyne primordial · Rebis", realm:"C13 · Absolu", role:"Union Soleil-Lune au centre du Dodécaèdre.", why:"Point zéro où toutes les tensions se résolvent dans l’Unité."}
+    ]
+  },
+  plants: {
+    title:"PsychedeliCare · plantes & médecines", icon:"🌿",
+    desc:"Chaque point devient une médecine/ressource de la Terre reliée aux champs PsychedeliCare.",
+    items:[
+      {em:"🐸", name:"Kambo", realm:"C1 · Corps / Mana", role:"Réactivation somatique et purge corporelle.", why:"À manier uniquement avec cadre, santé, contre-indications et prudence."},
+      {em:"🌿", name:"Cannabis", realm:"C2 · Flux", role:"Miroir sensible, apaisement ou amplification du lien.", why:"Peut révéler trauma-bonds et liens de carence ; risque paranoïa/amotivation selon terrain."},
+      {em:"☕", name:"Café", realm:"C3 · Structure", role:"Scribe de la clarté linéaire.", why:"Caféine : focalisation, pensée analytique, verticalisation."},
+      {em:"🍃", name:"Coca", realm:"C4 · Feu aligné", role:"Force d’action et endurance ciblée.", why:"À distinguer strictement de l’extraction marchande destructrice en cocaïne."},
+      {em:"🌳", name:"Iboga", realm:"C5 · Souveraineté", role:"Rupture de dépendance et rectitude souveraine.", why:"Risque cardiaque majeur : screening médical indispensable."},
+      {em:"🚬", name:"Tabac sacré", realm:"C6 · Juste mesure", role:"Souffle éthique, serment, recentrage.", why:"À distinguer strictement de l’industrie addictive et de la combustion toxique."},
+      {em:"🌾", name:"Ergot de seigle / LSD-25", realm:"C7 · Trace", role:"Cartographie des structures et trace mémorielle.", why:"Risque de déréalisation, anxiété aiguë, décompensation sur terrain fragile."},
+      {em:"🌈", name:"Ayahuasca", realm:"C8 · Spectre", role:"Liane de vision et purge symbolique.", why:"Contre-indications majeures avec traitements, terrain fragile ou cadre non sécurisé."},
+      {em:"🌵", name:"Peyotl / Mescaline", realm:"C9 · Temps", role:"Temps long, endurance contemplative, mémoire collective.", why:"Attention aux vulnérabilités psychiques et cardiovasculaires."},
+      {em:"🍄", name:"Champignons psilocybes", realm:"C10 · Alliance", role:"Mycélium de l’alliance et interconnexion.", why:"Nécessite intégration pour éviter confusion, panique ou ego spirituel."},
+      {em:"🥀", name:"Pavot à opium", realm:"C11 · Offrande", role:"Médecine de la douleur et du seuil.", why:"Risque d’emprise opioïde majeur : éthique stricte de la douleur et prescription."},
+      {em:"🌬️", name:"Yopo / Vilca", realm:"C12 · Miroir", role:"Miroir de synthèse et souffle visionnaire.", why:"Intensité, clarification et désorientation possibles : cadre rituel et discernement."},
+      {em:"🌌", name:"Bufo / 5-MeO-DMT", realm:"C13 · Absolu", role:"Dissolution très intense du moi.", why:"Non diagnostique, haut risque de décompensation : prudence maximale."}
+    ]
+  }
+};
+let ACTIVE_TOTEM = null;
+
+function currentTotem(){
+  if (ACTIVE_CONSTELLATION === null) return null;
+  const c = CONSTELLATIONS[ACTIVE_CONSTELLATION];
+  if (!c || !c.totem) return null;
+  return TOTEMS[c.totem];
+}
+
+
+
+// ══════════════════════════════════════════════════
+// CONSTELLATIONS — routes de résonance visibles
+// Une constellation n’est pas une preuve : c’est une carte de lecture.
+// ══════════════════════════════════════════════════
+const CONSTELLATIONS = [
+  { id:"clear", icon:"🌌", short:"Libre", title:"Ciel libre", desc:"Désactive les routes pour revenir à la navigation ouverte.", idx:[] },
+  { id:"bio", icon:"🧬", short:"Bio", title:"Constellation biologique", desc:"Corps, attachement, activation, homéostasie, cycles, régénération.", idx:[0,1,3,5,8,10,11,12] },
+  { id:"mytho", icon:"🏛️", short:"Mythes", title:"Constellation mythologique", desc:"Archétypes, épreuves, souveraineté, lumière, temps, alliance, création.", idx:[0,2,4,7,8,9,10,12] },
+  { id:"bioTotems", icon:"🐾", short:"BioTotems", title:"Totems biologiques", desc:"Chaque champ devient un animal-maître de son royaume biologique.", idx:[0,1,2,3,4,5,6,7,8,9,10,11,12], complete:true, totem:"bio" },
+  { id:"mythTotems", icon:"🏛️", short:"MythoTotems", title:"Totems mythologiques", desc:"Chaque champ devient une entité-archétype, gardienne symbolique du champ.", idx:[0,1,2,3,4,5,6,7,8,9,10,11,12], complete:true, totem:"myth" },
+  { id:"plants", icon:"🌿", short:"Plantes", title:"PsychedeliCare · Plantes & médecines", desc:"Chaque champ devient une plante, médecine ou substance de la Terre reliée à PsychedeliCare.", idx:[0,1,2,3,4,5,6,7,8,9,10,11,12], complete:true, totem:"plants" },
+  { id:"alliance", icon:"💍", short:"Alliance", title:"Constellation de l’alliance", desc:"Besoin, lien, responsabilité, réversibilité, pacte, médiation, bien commun.", idx:[1,4,5,8,9,11,12] },
+  { id:"eros", icon:"🫦", short:"Éros", title:"Constellation Éros conscient", desc:"Attraction, résonance, consentement, rythme, plaisir, pacte, création, joie libre.", idx:[0,1,4,5,7,8,9,10,11,12] },
+  { id:"trace", icon:"🩹", short:"PsyCatrice", title:"Constellation PsyCatrice", desc:"Sidération, emprise, hyperactivation, preuve, répétition, témoin fiable, intégration.", idx:[0,1,3,5,6,8,11,12] },
+  { id:"complete", icon:"✨", short:"Toutes", title:"Ciel complet", desc:"Toutes les sphères reliées au centre : contemplation globale de la toile.", idx:[0,1,2,3,4,5,6,7,8,9,10,11,12], complete:true },
+];
+let ACTIVE_CONSTELLATION = null;
+
+
+// ══════════════════════════════════════════════════
+// ÉMOTIONS — Mode émotionnel fractal V10
+// Une émotion n'est pas une case : c'est une configuration de champs.
+// ══════════════════════════════════════════════════
+const EMOTIONS = [
+  {id:'clear', icon:'🌈', short:'Libre', title:'Champ émotionnel libre', desc:'Désactive la constellation émotionnelle et revient à une cohérence neutre.', idx:[], color:0xc8a84a, cls:''},
+  {id:'colere', icon:'😡', short:'Colère', title:'Colère · limite en feu', desc:'Activation, direction, territoire. Juste, elle protège ; désalignée, elle détruit.', idx:[0,2,3,4,5,6], color:0xff5522, cls:'emotion-colere'},
+  {id:'peur', icon:'😨', short:'Peur', title:'Peur · signal de protection', desc:'Le corps détecte un danger et cherche sécurité, cadre, preuve et appui.', idx:[0,1,2,4,5,6], color:0x4488ff, cls:'emotion-peur'},
+  {id:'tristesse', icon:'😭', short:'Tristesse', title:'Tristesse · lien perdu', desc:'Mémoire, attachement, deuil et transformation. Elle demande douceur et temps.', idx:[1,6,8,9,10,11], color:0x6aa0ff, cls:'emotion-tristesse'},
+  {id:'joie', icon:'😍', short:'Joie', title:'Joie · circulation ouverte', desc:'Expansion, alliance, créativité et lumière. La joie saine augmente la liberté.', idx:[1,5,7,9,10,12], color:0xffd700, cls:'emotion-joie'},
+  {id:'degout', icon:'🤢', short:'Dégoût', title:'Dégoût · rejet protecteur', desc:'Le vivant refuse ce qui intoxique. Le dégoût sain protège l’intégrité du territoire.', idx:[2,4,5,6,11], color:0x70d080, cls:'emotion-degout'},
+  {id:'surprise', icon:'😮', short:'Surprise', title:'Surprise · ouverture du réel', desc:'Rupture de prédiction : le système se réoriente pour intégrer une nouvelle donnée.', idx:[0,6,7,8,11], color:0x80d8ff, cls:'emotion-choc'},
+  {id:'choc', icon:'😶', short:'Choc', title:'Choc / Sidération · arrêt du mouvement', desc:'Surcharge : le système coupe, fige ou dissocie pour survivre.', idx:[0,2,6,8,11], color:0xbfd7ff, cls:'emotion-choc'},
+  {id:'honte', icon:'😳', short:'Honte', title:'Honte · regard internalisé', desc:'Douleur de lien et peur d’indignité. À transformer en responsabilité sans effacement.', idx:[1,2,4,6,11], color:0xb060d0, cls:'emotion-honte'},
+  {id:'amour', icon:'💛', short:'Amour', title:'Amour sécurisé · lien qui libère', desc:'Présence, alliance, consentement, joie et souveraineté simultanées.', idx:[1,4,5,7,9,10,12], color:0xff77aa, cls:'emotion-amour'},
+  {id:'frustration', icon:'😤', short:'Frustr.', title:'Frustration · désir bloqué', desc:'Énergie disponible mais entravée : elle demande clarification, choix et mouvement.', idx:[2,3,4,5,8], color:0xff8844, cls:'emotion-colere'},
+  {id:'emerveillement', icon:'✨', short:'Émerv.', title:'Émerveillement · perception élargie', desc:'Le spectre s’ouvre : beauté, sens, gratitude, expansion et intégration.', idx:[7,9,10,11,12], color:0xffe680, cls:'emotion-emerveillement'},
+  {id:'confiance', icon:'🤝', short:'Confiance', title:'Confiance · sécurité du lien', desc:'La cohérence permet au corps de rester ouvert sans se dissoudre.', idx:[1,4,5,6,9,11], color:0x70d0a0, cls:''},
+];
+let ACTIVE_EMOTION = null;
+
+let MODE = 0;
+let RESONANT = new Set();
+
+// Filtre Plans → Champs associés (heuristique)
+const PLAN_CHAMPS = {
+  0: [0,1,2,3,4,5,6,7,8,9,10,11,12], // ALL
+  1: [0,1],         // Plan 1 — Corps · Physique
+  2: [1,2,8],       // Plan 2 — Émotionnel · Lien
+  3: [2,3,6],       // Plan 3 — Psychique · Structure
+  4: [3,4,10],      // Plan 4 — Karmique · Feu
+  5: [4,5,6],       // Plan 5 — Cognitif · Souveraineté
+  6: [5,6,11],      // Plan 6 — Spirituel · Sagesse
+  7: [8,9,10],      // Plan 7 — Mystique · Alliance
+  8: [10,11,12],    // Plan 8 — Créateur · Absolu
+};
+
+// ══════════════════════════════════════════════════
+// ÉTAT
+// ══════════════════════════════════════════════════
+const cV = CH.map(() => 1.0);
+let SEL = null;
+let currentFilter = 0;
+
+// ══════════════════════════════════════════════════
+// THREE.JS — SETUP
+// ══════════════════════════════════════════════════
+const canvas = document.getElementById('astro');
+const wrap = canvas.parentElement;
+
+function getSize() {
+  return { w: wrap.clientWidth, h: wrap.clientHeight };
+}
+
+const { w: W0, h: H0 } = getSize();
+
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(52, W0 / H0, 0.1, 200);
+cam.position.z = 9.5;
+
+const rend = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+rend.setSize(W0, H0);
+rend.setPixelRatio(Math.min(devicePixelRatio, 2));
+rend.setClearColor(0x030810, 1);
+
+// Étoiles
+const sp = new Float32Array(7200);
+for (let i = 0; i < 7200; i++) sp[i] = (Math.random() - 0.5) * 220;
+const sg = new THREE.BufferGeometry();
+sg.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3));
+scene.add(new THREE.Points(sg, new THREE.PointsMaterial({
+  color: 0x5566aa, size: 0.05, sizeAttenuation: true, transparent: true, opacity: 0.50
+})));
+
+// Étoiles dorées — couche fine de profondeur
+const spGold = new Float32Array(1350);
+for (let i = 0; i < 1350; i++) spGold[i] = (Math.random() - 0.5) * 140;
+const sgGold = new THREE.BufferGeometry();
+sgGold.setAttribute('position', new THREE.Float32BufferAttribute(spGold, 3));
+const goldStars = new THREE.Points(sgGold, new THREE.PointsMaterial({
+  color: 0xc8a84a, size: 0.075, sizeAttenuation: true, transparent: true, opacity: 0.36
+}));
+scene.add(goldStars);
+
+
+// Groupe principal
+const grp = new THREE.Group();
+scene.add(grp);
+
+// Wireframe dodécaèdre
+grp.add(new THREE.Mesh(
+  new THREE.DodecahedronGeometry(4.1, 0),
+  new THREE.MeshBasicMaterial({ color: 0x0d1a44, wireframe: true, transparent: true, opacity: 0.18 })
+));
+
+// Positions des 12 faces du dodécaèdre (vecteurs normaux)
+const FN = Math.sqrt(1 + PHI * PHI);
+const FD = [
+  [0,1,PHI],[0,-1,PHI],[0,1,-PHI],[0,-1,-PHI],
+  [1,PHI,0],[-1,PHI,0],[1,-PHI,0],[-1,-PHI,0],
+  [PHI,0,1],[-PHI,0,1],[PHI,0,-1],[-PHI,0,-1]
+].map(v => new THREE.Vector3(v[0]/FN, v[1]/FN, v[2]/FN));
+const SR = 3.3;
+
+// Texture glow
+function mkGT() {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.3, 'rgba(255,255,255,0.5)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+}
+const GT = mkGT();
+
+// Helpers couleur
+function cFC(hex, c) {
+  const col = new THREE.Color(hex), h = {}; col.getHSL(h);
+  const cc = Math.max(0, Math.min(c, 2));
+  const l = Math.min(h.l * Math.min(cc, 1) + Math.max(cc - 1, 0) * 0.28, 0.88);
+  const s = h.s * Math.min(cc, 1);
+  const r = new THREE.Color(); r.setHSL(h.h, s, l); return r;
+}
+function eFC(c) { return Math.min(c * 0.55, 1.2); }
+function gFC(c) { return Math.min(c * 0.09 + 0.04, 0.28); }
+
+// Créer les 12 sphères des faces
+const MS = [], SP = [];
+const LABELS = [];
+const labelLayer = document.createElement("div");
+labelLayer.id = "label-layer";
+labelLayer.style.position = "absolute";
+labelLayer.style.inset = "0";
+labelLayer.style.pointerEvents = "none";
+labelLayer.style.zIndex = "11";
+wrap.appendChild(labelLayer);
+
+for (let i = 0; i < 12; i++) {
+  const ch = CH[i];
+  const mat = new THREE.MeshPhongMaterial({
+    color: cFC(ch.col, cV[i]),
+    emissive: new THREE.Color(ch.col),
+    emissiveIntensity: eFC(cV[i]),
+    shininess: 130, transparent: true, opacity: 0.16, depthWrite: false
+  });
+  const m = new THREE.Mesh(new THREE.SphereGeometry(0.28, 32, 32), mat);
+  m.position.copy(FD[i]).multiplyScalar(SR);
+  m.userData.idx = i;
+  grp.add(m); MS.push(m);
+  createLabel(i, ch);
+
+  const sm = new THREE.SpriteMaterial({
+    map: GT, color: new THREE.Color(ch.col),
+    transparent: true, opacity: gFC(cV[i]),
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const s = new THREE.Sprite(sm); s.scale.setScalar(1.15); m.add(s); SP.push(s);
+}
+
+// C13 au centre
+const m13 = new THREE.Mesh(
+  new THREE.SphereGeometry(0.52, 32, 32),
+  new THREE.MeshPhongMaterial({
+    color: cFC(CH[12].col, cV[12]),
+    emissive: new THREE.Color(CH[12].col),
+    emissiveIntensity: eFC(cV[12]),
+    shininess: 200, transparent: true, opacity: 0.18, depthWrite: false
+  })
+);
+m13.userData.idx = 12; grp.add(m13); MS.push(m13);
+createLabel(12, CH[12]);
+const s13 = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: GT, color: new THREE.Color(CH[12].col),
+  transparent: true, opacity: 0.3,
+  blending: THREE.AdditiveBlending, depthWrite: false
+}));
+s13.scale.setScalar(1.75); m13.add(s13); SP.push(s13);
+
+// Lignes de connexion
+for (let i = 0; i < 12; i++) {
+  const pts = [new THREE.Vector3(), FD[i].clone().multiplyScalar(SR)];
+  grp.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color: 0x1a2860, transparent: true, opacity: 0.15 })
+  ));
+}
+
+// Groupe des routes de résonance — constellations visibles
+const resonanceGroup = new THREE.Group();
+grp.add(resonanceGroup);
+let resonanceLines = [];
+
+function localPos(i){ return MS[i] ? MS[i].position.clone() : new THREE.Vector3(); }
+function addResLine(a,b,color=0xc8a84a,opacity=.42){
+  const mat = new THREE.LineBasicMaterial({ color, transparent:true, opacity });
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([localPos(a), localPos(b)]), mat);
+  resonanceGroup.add(line); resonanceLines.push(line); return line;
+}
+function clearResonanceLines(){
+  resonanceLines.forEach(l => { resonanceGroup.remove(l); l.geometry.dispose(); l.material.dispose(); });
+  resonanceLines = [];
+}
+function drawConstellation(indices, complete=false){
+  clearResonanceLines();
+  if (!indices || indices.length < 2) return;
+  const color = 0xc8a84a;
+  if (complete) {
+    for (let i=0;i<12;i++) addResLine(i, (i+1)%12, color, .22);
+    for (let i=0;i<12;i++) addResLine(i, 12, color, .16);
+    return;
+  }
+  for (let k=0;k<indices.length-1;k++) addResLine(indices[k], indices[k+1], color, .38);
+  // Quelques cordes vers le centre pour donner l'effet d'alignement planétaire.
+  indices.filter(i=>i!==12).slice(0,5).forEach(i => addResLine(i, 12, color, .16));
+}
+
+// Lumières
+scene.add(new THREE.AmbientLight(0x111a33, 2.5));
+const pl1 = new THREE.PointLight(0x3355cc, 3, 25); pl1.position.set(5, 4, 5); scene.add(pl1);
+const pl2 = new THREE.PointLight(0xcc3311, 2, 25); pl2.position.set(-4, -3, 3); scene.add(pl2);
+const pl3 = new THREE.PointLight(0xffd700, 1.5, 20); pl3.position.set(0, 0, 0); scene.add(pl3);
+
+// ══════════════════════════════════════════════════
+// INTERACTION SOURIS / TOUCH
+// ══════════════════════════════════════════════════
+let drag = false, px = 0, py = 0, dd = 0;
+
+canvas.addEventListener('mousedown', e => {
+  drag = true; px = e.clientX; py = e.clientY; dd = 0;
+  canvas.classList.add('grabbing');
+});
+window.addEventListener('mouseup', () => { drag = false; canvas.classList.remove('grabbing'); });
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  dd += Math.abs(e.movementX) + Math.abs(e.movementY);
+  grp.rotation.y += (e.clientX - px) * 0.008;
+  grp.rotation.x += (e.clientY - py) * 0.008;
+  px = e.clientX; py = e.clientY;
+});
+
+canvas.addEventListener('click', e => {
+  if (dd > 8) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / rect.width * 2 - 1;
+  const my = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  const ray = new THREE.Raycaster();
+  ray.setFromCamera({ x: mx, y: my }, cam);
+  const hits = ray.intersectObjects(MS);
+  if (hits.length) selC(hits[0].object.userData.idx);
+});
+
+// Touch
+let tx = 0, ty = 0;
+canvas.addEventListener('touchstart', e => {
+  drag = true; tx = e.touches[0].clientX; ty = e.touches[0].clientY; dd = 0;
+}, { passive: true });
+window.addEventListener('touchend', () => { drag = false; });
+window.addEventListener('touchmove', e => {
+  if (!drag) return;
+  grp.rotation.y += (e.touches[0].clientX - tx) * 0.008;
+  grp.rotation.x += (e.touches[0].clientY - ty) * 0.008;
+  tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+}, { passive: true });
+
+
+// ══════════════════════════════════════════════════
+// LIBELLÉS 2D PROJETÉS SUR LES SPHÈRES
+// ══════════════════════════════════════════════════
+function createLabel(i, ch) {
+  const el = document.createElement('div');
+  el.className = 'sphere-label';
+  el.style.color = ch.col;
+  el.innerHTML = `<span class="sl-em">${ch.em}</span><span class="sl-name">${ch.name}</span><span class="sl-num">C${ch.n}</span>`;
+  labelLayer.appendChild(el);
+  LABELS[i] = el;
+}
+
+function getModeLabel(i) {
+  if (ACTIVE_MATRIX !== null && MATRICES[ACTIVE_MATRIX] && MATRICES[ACTIVE_MATRIX].labels[i]) return MATRICES[ACTIVE_MATRIX].labels[i];
+  return (MODES[MODE] && MODES[MODE].labels[i]) ? MODES[MODE].labels[i] : `${CH[i].em} ${CH[i].name}`;
+}
+
+function splitModeLabel(txt) {
+  const m = txt.match(/^([^\wÀ-ÿ]*\s?)(.*)$/);
+  const em = m ? m[1].trim() : '';
+  const name = (m ? m[2] : txt).trim();
+  return { em: em || CH[0].em, name: name || txt };
+}
+
+
+function getDisplayLabel(i) {
+  const t = currentTotem();
+  if (t && t.items && t.items[i]) return t.items[i].em + ' ' + t.items[i].name;
+  return getModeLabel(i);
+}
+
+function updateLabels() {
+  LABELS.forEach((el, i) => {
+    const parts = splitModeLabel(getDisplayLabel(i));
+    el.querySelector('.sl-em').textContent = parts.em || CH[i].em;
+    el.querySelector('.sl-name').textContent = parts.name;
+    el.querySelector('.sl-num').textContent = 'C' + CH[i].n;
+    el.classList.toggle('active', SEL === i);
+    el.classList.toggle('resonant', RESONANT.has(i));
+    el.classList.toggle('matrix', ACTIVE_MATRIX !== null);
+    el.classList.toggle('constellation', ACTIVE_CONSTELLATION !== null && RESONANT.has(i));
+    el.classList.toggle('totem', !!currentTotem());
+    const active = PLAN_CHAMPS[currentFilter] || PLAN_CHAMPS[0];
+    el.classList.toggle('dim', !active.includes(i));
+  });
+}
+
+function projectLabels() {
+  const rect = wrap.getBoundingClientRect();
+  const pos = new THREE.Vector3();
+  LABELS.forEach((el, i) => {
+    if (!MS[i]) return;
+    MS[i].getWorldPosition(pos);
+    const p = pos.clone().project(cam);
+    const visible = p.z < 1;
+    el.style.opacity = visible ? '' : '0';
+    el.style.left = ((p.x + 1) * 0.5 * rect.width) + 'px';
+    el.style.top = ((-p.y + 1) * 0.5 * rect.height) + 'px';
+  });
+}
+
+function initModeDock() {
+  const dock = document.getElementById('mode-dock');
+  dock.innerHTML = '';
+  MODES.forEach((m, idx) => {
+    const b = document.createElement('button');
+    b.className = 'mode-btn' + (idx === MODE ? ' active' : '');
+    b.textContent = (m.title || m.short).split(' ')[0];
+    b.setAttribute('aria-label', m.title + ' — ' + m.desc);
+    b.title = m.title + ' — ' + m.desc;
+    b.addEventListener('click', () => setMode(idx));
+    dock.appendChild(b);
+  });
+  initMatrixDock();
+  initConstellationDock();
+  initEmotionDock();
+  setMode(0);
+}
+
+function initMatrixDock() {
+  const dock = document.getElementById('matrix-dock');
+  if (!dock) return;
+  dock.innerHTML = '<button class="matrix-btn active" data-matrix="none" title="Retour aux 13 modes généraux"><span>🌌</span><small>Modes</small></button>';
+  MATRICES.forEach((m, idx) => {
+    const b = document.createElement('button');
+    b.className = 'matrix-btn';
+    b.innerHTML = `<span>${m.icon}</span><small>${m.short}</small>`;
+    b.title = m.title + ' — ' + m.desc;
+    b.setAttribute('aria-label', b.title);
+    b.addEventListener('click', () => setMatrix(idx));
+    dock.appendChild(b);
+  });
+  dock.querySelector('[data-matrix="none"]').addEventListener('click', () => clearMatrix());
+}
+
+
+function initConstellationDock() {
+  const dock = document.getElementById('constellation-dock');
+  if (!dock) return;
+  dock.innerHTML = '';
+  CONSTELLATIONS.forEach((c, idx) => {
+    const b = document.createElement('button');
+    b.className = 'constellation-btn' + (idx === 0 ? ' active' : '');
+    b.innerHTML = `<span>${c.icon}</span><small>${c.short}</small>`;
+    b.title = c.title + ' — ' + c.desc;
+    b.setAttribute('aria-label', b.title);
+    b.addEventListener('click', () => setConstellation(idx));
+    dock.appendChild(b);
+  });
+}
+
+
+function initEmotionDock() {
+  const dock = document.getElementById('emotion-dock');
+  if (!dock) return;
+  dock.innerHTML = '';
+  EMOTIONS.forEach((e, idx) => {
+    const b = document.createElement('button');
+    b.className = 'emotion-btn' + (idx === 0 ? ' active' : '');
+    b.innerHTML = `${e.icon}<small>${e.short}</small>`;
+    b.title = e.title + ' — ' + e.desc;
+    b.setAttribute('aria-label', b.title);
+    b.addEventListener('click', () => setEmotion(idx));
+    dock.appendChild(b);
+  });
+}
+
+function clearEmotionClass(){
+  wrap.className = wrap.className.split(/\s+/).filter(c => !c.startsWith('emotion-')).join(' ');
+}
+
+function setEmotion(idx) {
+  const e = EMOTIONS[idx];
+  ACTIVE_EMOTION = idx === 0 ? null : idx;
+  document.querySelectorAll('.emotion-btn').forEach((b,j)=>b.classList.toggle('active', j===idx));
+  clearEmotionClass();
+  if (e.cls) wrap.classList.add(e.cls);
+  const mp = document.getElementById('mode-panel');
+  if (idx === 0 || !e.idx.length) {
+    RESONANT.clear();
+    clearResonanceLines();
+    cV.forEach((_, i) => { cV[i] = 1.0; });
+    document.querySelectorAll('.ci input').forEach(sl => sl.value = '1');
+    document.querySelectorAll('.cval').forEach(cv => cv.textContent = '1.00');
+    MS.forEach((m,i)=>updS(i));
+    document.getElementById('mode-title').textContent = (ACTIVE_MATRIX !== null ? MATRICES[ACTIVE_MATRIX].icon + ' ' + MATRICES[ACTIVE_MATRIX].title : MODES[MODE].title);
+    document.getElementById('mode-desc').textContent = (ACTIVE_MATRIX !== null ? MATRICES[ACTIVE_MATRIX].desc : MODES[MODE].desc);
+    document.getElementById('matrix-line').textContent = ACTIVE_MATRIX !== null ? MATRICES[ACTIVE_MATRIX].line : 'Couche active : modes généraux. Choisis une matrice pour lire les mêmes sphères autrement.';
+    updateLabels();
+    return;
+  }
+  ACTIVE_CONSTELLATION = null;
+  ACTIVE_TOTEM = null;
+  ACTIVE_EMOTION = null;
+  clearEmotionClass();
+  document.querySelectorAll('.emotion-btn').forEach((b,j)=>b.classList.toggle('active', j===0));
+  document.querySelectorAll('.constellation-btn').forEach((b,j)=>b.classList.toggle('active', j===0));
+  RESONANT.clear();
+  e.idx.forEach(i => RESONANT.add(i));
+  cV.forEach((_, i) => { cV[i] = RESONANT.has(i) ? 1.62 : 0.45; });
+  document.querySelectorAll('.ci').forEach((el, i) => {
+    const sl = el.querySelector('input'); const cv = el.querySelector('.cval');
+    if (sl) sl.value = cV[i].toFixed(2);
+    if (cv) cv.textContent = cV[i].toFixed(2);
+    el.classList.toggle('act', RESONANT.has(i));
+  });
+  drawConstellation(e.idx, false);
+  MS.forEach((m,i)=>updS(i));
+  document.getElementById('mode-title').textContent = e.icon + ' ' + e.title;
+  document.getElementById('mode-desc').textContent = e.desc;
+  document.getElementById('matrix-line').innerHTML = '<span class="emotion-line">Mode émotionnel fractal : l’émotion allume les champs qui participent à sa circulation, son blocage ou sa transformation.</span>';
+  if (mp) mp.classList.add('constellation-active');
+  updateLabels();
+}
+
+function setConstellation(idx) {
+  const c = CONSTELLATIONS[idx];
+  document.querySelectorAll('.constellation-btn').forEach((b,j)=>b.classList.toggle('active', j===idx));
+  const mp = document.getElementById('mode-panel');
+  if (idx === 0 || !c.idx.length) {
+    ACTIVE_CONSTELLATION = null;
+    ACTIVE_TOTEM = null;
+    ACTIVE_EMOTION = null;
+    clearEmotionClass();
+    document.querySelectorAll('.emotion-btn').forEach((b,j)=>b.classList.toggle('active', j===0));
+    RESONANT.clear();
+    clearResonanceLines();
+    if (mp) mp.classList.remove('constellation-active');
+    document.getElementById('matrix-line').textContent = ACTIVE_MATRIX !== null ? MATRICES[ACTIVE_MATRIX].line : 'Couche active : modes généraux. Choisis une matrice pour lire les mêmes sphères autrement.';
+    cV.forEach((_, i) => { cV[i] = 1.0; updS(i); });
+    document.querySelectorAll('.ci input').forEach(sl => sl.value = '1');
+    document.querySelectorAll('.cval').forEach(cv => cv.textContent = '1.00');
+    updateLabels();
+    return;
+  }
+  ACTIVE_CONSTELLATION = idx;
+  ACTIVE_EMOTION = null;
+  clearEmotionClass();
+  document.querySelectorAll('.emotion-btn').forEach((b,j)=>b.classList.toggle('active', j===0));
+  ACTIVE_TOTEM = c.totem || null;
+  RESONANT.clear();
+  c.idx.forEach(i => RESONANT.add(i));
+  cV.forEach((_, i) => { cV[i] = RESONANT.has(i) ? 1.74 : 0.50; });
+  document.querySelectorAll('.ci').forEach((el, i) => {
+    const sl = el.querySelector('input'); const cv = el.querySelector('.cval');
+    if (sl) sl.value = cV[i].toFixed(2);
+    if (cv) cv.textContent = cV[i].toFixed(2);
+    el.classList.toggle('act', RESONANT.has(i));
+  });
+  drawConstellation(c.idx, !!c.complete);
+  MS.forEach((m,i)=>updS(i));
+  document.getElementById('mode-title').textContent = c.icon + ' ' + c.title;
+  document.getElementById('mode-desc').textContent = c.desc;
+  document.getElementById('matrix-line').innerHTML = c.totem ? '<span class="constellation-line">Mode totem : chaque point montre l’animal ou l’entité gardienne de son champ. Clique une sphère pour ouvrir sa fiche.</span>' : '<span class="constellation-line">Route visible : les étoiles reliées forment une hypothèse de lecture. Clique une sphère pour lire son rôle dans la constellation.</span>';
+  if (mp) mp.classList.add('constellation-active');
+  updateLabels();
+}
+
+function clearMatrix() {
+  ACTIVE_MATRIX = null;
+  document.querySelectorAll('.matrix-btn').forEach((b, j) => b.classList.toggle('active', j === 0));
+  const mp = document.getElementById('mode-panel');
+  if (mp) mp.classList.remove('matrix-active');
+  setMode(MODE, true);
+}
+
+function setMatrix(idx) {
+  ACTIVE_MATRIX = idx;
+  document.querySelectorAll('.matrix-btn').forEach((b, j) => b.classList.toggle('active', j === idx + 1));
+  const m = MATRICES[idx];
+  document.getElementById('mode-title').textContent = m.icon + ' ' + m.title;
+  document.getElementById('mode-desc').textContent = m.desc;
+  document.getElementById('matrix-line').textContent = m.line;
+  const mp = document.getElementById('mode-panel');
+  if (mp) mp.classList.add('matrix-active');
+  updateSidebarNames();
+  updateLabels();
+  if (SEL !== null) selC(SEL, true);
+}
+
+function setMode(idx, keepMatrix=false) {
+  MODE = idx;
+  if (!keepMatrix) {
+    ACTIVE_MATRIX = null;
+    document.querySelectorAll('.matrix-btn').forEach((b, j) => b.classList.toggle('active', j === 0));
+    const mp = document.getElementById('mode-panel');
+    if (mp) mp.classList.remove('matrix-active');
+  }
+  document.querySelectorAll('.mode-btn').forEach((b, j) => b.classList.toggle('active', j === idx));
+  const m = MODES[idx];
+  if (ACTIVE_MATRIX === null) {
+    document.getElementById('mode-title').textContent = m.title;
+    document.getElementById('mode-desc').textContent = m.desc;
+    document.getElementById('matrix-line').textContent = 'Couche active : modes généraux. Choisis une matrice pour lire les mêmes sphères autrement.';
+  }
+  updateSidebarNames();
+  updateLabels();
+  if (SEL !== null) selC(SEL, true);
+}
+
+function updateSidebarNames() {
+  document.querySelectorAll('.ci').forEach((el, i) => {
+    const parts = splitModeLabel(getDisplayLabel(i));
+    const em = el.querySelector('.ci-em');
+    const nm = el.querySelector('.ci-nm');
+    if (em) em.textContent = parts.em || CH[i].em;
+    if (nm) nm.textContent = parts.name;
+  });
+}
+
+function resetResonanceVisual() {
+  RESONANT.clear();
+  ACTIVE_CONSTELLATION = null;
+  ACTIVE_TOTEM = null;
+  ACTIVE_EMOTION = null;
+  clearEmotionClass();
+  document.querySelectorAll('.emotion-btn').forEach((b,j)=>b.classList.toggle('active', j===0));
+  clearResonanceLines();
+  document.querySelectorAll('.constellation-btn').forEach((b,j)=>b.classList.toggle('active', j===0));
+  const mpReset = document.getElementById('mode-panel'); if (mpReset) mpReset.classList.remove('constellation-active');
+  cV.forEach((_, i) => { cV[i] = 1.0; });
+  document.querySelectorAll('.ci input').forEach(sl => sl.value = '1');
+  document.querySelectorAll('.cval').forEach(cv => cv.textContent = '1.00');
+  MS.forEach((m, i) => updS(i));
+  document.getElementById('q-out').classList.remove('visible');
+  updateLabels();
+}
+
+const QMAP = [
+  { keys:['corps','santé','fatigue','douleur','somatique','peau','respire','respiration'], idx:[0,5,11] },
+  { keys:['relation','lien','amour','attachement','couple','ami','famille'], idx:[1,8,9] },
+  { keys:['choix','décision','direction','agir','action','courage'], idx:[3,4,5] },
+  { keys:['peur','danger','sécurité','emprise','violence','prédateur','protection'], idx:[0,3,5,6] },
+  { keys:['preuve','fait','réel','mensonge','vérité','trace','justice'], idx:[5,6,7] },
+  { keys:['temps','cycle','répète','passé','avenir','trauma','deuil'], idx:[8,11,12] },
+  { keys:['désir','plaisir','sexualité','consentement','rencontre','éros'], idx:[0,1,4,5,8,9] },
+  { keys:['colère','rage','enervé','énervé','frustration'], idx:[0,2,3,4,5,6] },
+  { keys:['tristesse','chagrin','deuil','pleurer','perte'], idx:[1,6,8,9,10,11] },
+  { keys:['joie','heureux','bonheur','émerveillement','emerveillement'], idx:[7,9,10,11,12] },
+  { keys:['dégoût','degout','repulsion','rejet'], idx:[2,4,5,6,11] },
+  { keys:['ia','question','prompt','miroir','co-création','cocreation'], idx:[2,6,11,12] },
+  { keys:['création','oeuvre','écrire','transmettre','article','art'], idx:[7,10,11,12] },
+  { keys:['alliance','pacte','réseau','collectif','commun','bien commun'], idx:[5,8,9,12] },
+];
+
+function alignQuestion() {
+  const raw = (document.getElementById('q-input').value || '').toLowerCase();
+  const out = document.getElementById('q-out');
+  RESONANT.clear();
+  QMAP.forEach(row => {
+    if (row.keys.some(k => raw.includes(k))) row.idx.forEach(i => RESONANT.add(i));
+  });
+  if (!raw.trim()) {
+    out.innerHTML = 'Pose une question pour voir les champs en résonance.';
+    out.classList.add('visible');
+    return;
+  }
+  if (RESONANT.size === 0) {
+    [1,4,5,11].forEach(i => RESONANT.add(i));
+  }
+  cV.forEach((_, i) => { cV[i] = RESONANT.has(i) ? 1.62 : 0.55; });
+  document.querySelectorAll('.ci').forEach((el, i) => {
+    const sl = el.querySelector('input');
+    const cv = el.querySelector('.cval');
+    if (sl) sl.value = cV[i].toFixed(2);
+    if (cv) cv.textContent = cV[i].toFixed(2);
+    el.classList.toggle('act', RESONANT.has(i));
+  });
+  MS.forEach((m, i) => updS(i));
+  ACTIVE_CONSTELLATION = null;
+  ACTIVE_TOTEM = null;
+  ACTIVE_EMOTION = null;
+  clearEmotionClass();
+  document.querySelectorAll('.emotion-btn').forEach((b,j)=>b.classList.toggle('active', j===0));
+  document.querySelectorAll('.constellation-btn').forEach((b,j)=>b.classList.toggle('active', j===0));
+  drawConstellation([...RESONANT].sort((a,b)=>a-b), false);
+  const chips = [...RESONANT].sort((a,b)=>a-b).map(i => `<span class="res-chip">${getDisplayLabel(i)}</span>`).join('');
+  out.innerHTML = `<strong>Champs alignés :</strong><br>${chips}<br><span style="opacity:.75">Lecture prototype : ce module repère des mots-clés, allume les champs associés, puis calibre provisoirement les curseurs. Ce n’est pas encore une vraie analyse sémantique profonde.</span>`;
+  out.classList.add('visible');
+  updateLabels();
+}
+
+
+
+// V8 — Cockpit pliable
+const cockpitBtn = document.getElementById('cockpit-toggle');
+if (cockpitBtn) {
+  cockpitBtn.addEventListener('click', () => {
+    wrap.classList.toggle('cockpit-collapsed');
+    cockpitBtn.title = wrap.classList.contains('cockpit-collapsed') ? 'Afficher le cockpit supérieur' : 'Masquer le cockpit supérieur';
+  });
+}
+
+// ══════════════════════════════════════════════════
+// ANIMATION LOOP
+// ══════════════════════════════════════════════════
+(function ani() {
+  requestAnimationFrame(ani);
+  if (!drag) {
+    grp.rotation.y += 0.0022;
+    grp.rotation.x += 0.0006;
+  }
+  // Pulsation du champ sélectionné
+  if (SEL !== null) {
+    const p = Math.sin(Date.now() * 0.002) * 0.08 + 1.08;
+    MS[SEL].scale.setScalar(p);
+  }
+  // Pulsation de C13
+  const p13 = Math.sin(Date.now() * 0.0015) * 0.05 + 1.05;
+  m13.scale.setScalar(p13);
+
+  if (typeof goldStars !== 'undefined') { goldStars.rotation.y -= 0.00045; goldStars.rotation.x += 0.00012; }
+  resonanceLines.forEach((l, idx) => { l.material.opacity = 0.22 + 0.22 * (0.5 + 0.5 * Math.sin(Date.now()*0.002 + idx)); });
+  projectLabels();
+  rend.render(scene, cam);
+})();
+
+// ══════════════════════════════════════════════════
+// LOGIQUE SÉLECTION & MISE À JOUR
+// ══════════════════════════════════════════════════
+function updS(i) {
+  const m = MS[i]; const c = cV[i];
+  m.material.color.copy(cFC(CH[i].col, c));
+  m.material.emissiveIntensity = eFC(c) * 0.62;
+  m.material.opacity = RESONANT.has(i) ? 0.34 : 0.14;
+  if (m.children[0]) m.children[0].material.opacity = RESONANT.has(i) ? Math.max(gFC(c), .30) : gFC(c) * 1.25;
+  if (SEL === i) updInfoBar(i);
+  updGlob();
+}
+
+function selC(i, soft=false) {
+  if (SEL !== null && SEL !== i) MS[SEL].scale.setScalar(1);
+  SEL = i;
+  const ch = CH[i];
+
+  // Mettre à jour le panneau info
+  document.getElementById('sr-empty').style.display = 'none';
+  const ip = document.getElementById('info-content');
+  ip.classList.add('visible');
+  ip.style.setProperty('--ic', ch.col);
+
+  document.getElementById('i-n').textContent = ch.n;
+  document.getElementById('i-em').textContent = ch.em;
+  document.getElementById('i-name').textContent = ch.name;
+  document.getElementById('i-mode-name').textContent = getDisplayLabel(i);
+  const tc = document.getElementById('totem-card');
+  const t = currentTotem();
+  if (tc && t && t.items[i]) { const it = t.items[i]; tc.style.display='block'; tc.innerHTML = `<span class="totem-kind">${t.icon || '🐾'} ${t.title} · maître du royaume</span><strong>${it.em} ${it.name}</strong><br>${it.realm}<br><em>${it.role}</em><br>${it.why}`; }
+  else if (tc) { tc.style.display='none'; tc.innerHTML=''; }
+  document.getElementById('i-sub').textContent = ch.sub;
+  document.getElementById('i-unite').textContent = ch.unite;
+  document.getElementById('i-ph').textContent = '« ' + ch.phrase + ' »';
+  document.getElementById('i-v').textContent = ch.vertu;
+  document.getElementById('i-vi').textContent = ch.vice;
+  document.getElementById('i-pacte').textContent = ch.pacte;
+
+  updInfoBar(i);
+
+  // Highlight dans sidebar gauche
+  document.querySelectorAll('.ci').forEach((el, j) => el.classList.toggle('act', j === i || RESONANT.has(j)));
+  updateLabels();
+}
+
+function updInfoBar(i) {
+  const c = cV[i];
+  document.getElementById('i-bar').style.width = Math.min(c / 2, 1) * 100 + '%';
+  document.getElementById('i-cv').textContent = c.toFixed(2);
+}
+
+function updGlob() {
+  const avg = cV.reduce((a, b) => a + b, 0) / cV.length;
+  const el = document.getElementById('gval');
+  el.textContent = avg.toFixed(2);
+  el.style.color = avg < 0.5 ? '#FF2244' : avg < 1 ? '#FF9900' : avg < PHI ? '#00CED1' : '#FFD700';
+}
+
+// Fermer le panneau info
+document.getElementById('info-close').addEventListener('click', () => {
+  document.getElementById('sr-empty').style.display = 'flex';
+  document.getElementById('info-content').classList.remove('visible');
+  if (SEL !== null) { MS[SEL].scale.setScalar(1); SEL = null; }
+  document.querySelectorAll('.ci').forEach(el => el.classList.remove('act'));
+});
+
+// ══════════════════════════════════════════════════
+// SIDEBAR GAUCHE — Génération des curseurs
+// ══════════════════════════════════════════════════
+const sb = document.getElementById('sb');
+CH.forEach((ch, i) => {
+  const d = document.createElement('div');
+  d.className = 'ci';
+  d.style.setProperty('--cc', ch.col);
+  d.innerHTML = `
+    <div class="ci-hd">
+      <span class="ci-em">${ch.em}</span>
+      <span class="ci-nm">${ch.name}</span>
+      <span class="ci-n">${ch.n}</span>
+    </div>
+    <div class="ci-sr">
+      <input type="range" min="0" max="2" step="0.01" value="1">
+      <span class="cval">1.00</span>
+    </div>`;
+  sb.appendChild(d);
+  d.querySelector('.ci-hd').addEventListener('click', () => selC(i));
+  const sl = d.querySelector('input');
+  const cv2 = d.querySelector('.cval');
+  sl.addEventListener('input', () => {
+    const v = parseFloat(sl.value);
+    cV[i] = v; cv2.textContent = v.toFixed(2); updS(i);
+  });
+  sl.addEventListener('click', e => e.stopPropagation());
+});
+updGlob();
+initModeDock();
+document.getElementById("q-align").addEventListener("click", alignQuestion);
+document.getElementById("q-reset").addEventListener("click", resetResonanceVisual);
+updateLabels();
+
+// ══════════════════════════════════════════════════
+// FILTRES — Plans de conscience
+// ══════════════════════════════════════════════════
+function setFilter(btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = parseInt(btn.dataset.f);
+  const active = PLAN_CHAMPS[currentFilter];
+
+  MS.forEach((m, i) => {
+    const inFilter = active.includes(i);
+    m.material.opacity = inFilter ? 0.16 : 0.025;
+    m.material.emissiveIntensity = inFilter ? eFC(cV[i]) * 0.62 : 0.01;
+    if (m.children[0]) m.children[0].material.opacity = inFilter ? gFC(cV[i]) * 1.4 : 0.01;
+  });
+  updateLabels();
+}
+
+// ══════════════════════════════════════════════════
+// RESIZE
+// ══════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  const { w, h } = getSize();
+  cam.aspect = w / h;
+  cam.updateProjectionMatrix();
+  rend.setSize(w, h);
+});
+</script>
+</body>
+</html>

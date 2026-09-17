@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>À propos de l’Atlas de ConScience</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background: #050A12;
+      color: #F4F1EA;
+      font-family: Arial, sans-serif;
+      line-height: 1.65;
+    }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+      color: #FFFFFF;
+    }
+    a {
+      color: #33D1C6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+    .legend-line {
+      margin: 8px 0;
+    }
+    .dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    code {
+      background: rgba(255,255,255,0.08);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Atlas de ConScience</h1>
+
+    <p>
+      Cette carte est une visualisation interactive d’un atlas cognitif construit à partir du corpus du site
+      <strong>agdistys.fr</strong>, dans le cadre du projet <strong>ConScience aMi</strong> et du système
+      <strong>Ouroboros</strong>.
+    </p>
+
+    <div class="card">
+      <h2>Qu’est-ce que cette carte montre ?</h2>
+      <p>
+        Chaque point représente un concept récurrent extrait du corpus.
+        Chaque ligne représente une relation entre deux concepts.
+        Plus un point est grand, plus il agit comme un <em>hub</em>, c’est-à-dire un centre de gravité relationnel.
+        Plus une ligne est épaisse, plus la relation entre les deux concepts est forte.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Lecture des couleurs</h2>
+
+      <div class="legend-line"><span class="dot" style="background:#F4F1EA;"></span> VIVANT</div>
+      <div class="legend-line"><span class="dot" style="background:#D4AF37;"></span> LOI</div>
+      <div class="legend-line"><span class="dot" style="background:#D1495B;"></span> OMBRE / MALADIE</div>
+      <div class="legend-line"><span class="dot" style="background:#33D1C6;"></span> TEMPLE</div>
+      <div class="legend-line"><span class="dot" style="background:#E13BFF;"></span> VERBE / SYMBOLIQUE</div>
+      <div class="legend-line"><span class="dot" style="background:#8A8F98;"></span> MIXTE</div>
+    </div>
+
+    <div class="card">
+      <h2>Comment l’atlas est construit</h2>
+      <p>
+        Ouroboros lit le corpus, extrait les concepts, construit un graphe relationnel,
+        détecte des paires, des triades, des hubs et des axes, puis organise ces résultats
+        dans une cosmologie conceptuelle.
+      </p>
+      <p>
+        Le système actuel s’appuie notamment sur :
+        <code>core_concepts.json</code>,
+        <code>pairs.json</code>,
+        <code>triads.json</code>,
+        <code>hubs.json</code>,
+        ainsi que sur des scripts de lecture, de raisonnement et de routage.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Intention</h2>
+      <p>
+        Cet atlas n’est pas une vérité fermée. C’est une carte de lecture vivante.
+        Il cherche à rendre visible une structure du sens :
+        ses noyaux, ses tensions, ses ponts, ses foyers de conscience
+        et ses zones d’ombre.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Navigation</h2>
+      <p>
+        Tu peux revenir à la carte ici :
+      </p>
+      <p>
+        <a href="./index.html">Ouvrir l’atlas interactif</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

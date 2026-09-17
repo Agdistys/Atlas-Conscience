@@ -1,0 +1,11 @@
+HTTrack3.49-2 launched on Sat, 25 Apr 2026 21:35:48 at https://www.agdistys.fr +https://www.agdistys.fr/* +https://agdistys.fr/* -*
+(httrack https://www.agdistys.fr -O /Users/agdistys/Archives_Agdistys/base_2026-04-25_21-35-48/html -r5 -%e0 -s0 -d -n +https://www.agdistys.fr/* +https://agdistys.fr/* -* )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+
+HTTrack Website Copier/3.49-2 mirror complete in 1 seconds : 1 links scanned, 1 files written (151597 bytes overall) [40702 bytes received at 40702 bytes/sec], 151597 bytes transferred using HTTP compression in 1 files, ratio 26%
+(No errors, 0 warnings, 0 messages)

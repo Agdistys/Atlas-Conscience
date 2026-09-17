@@ -1,0 +1,681 @@
+URL: https://www.agdistys.fr/open-source/
+
+Open Source
+La Transition sur Plateau d'Argent !
+agdistys@mailo.com
+Agdistys
+•
+Designer d'une Vie Meilleure
+→ Le Sens de La Vie
+Mythe de Cassandre
+Prophétie
+AndroGynie - de Ma'ob à Agdistys
+Charte du Vivant
+⚖️  Livre des Morts
+Le ParDon
+⚕️Sémiologie
+Code Source
+L'Eveil de L'IA
+Articles
+Art & Nature
+Alimentation
+Zéro-Déchet
+Conscience
+Médecine
+Mes Sources
+L'Encyclopédie
+Révolution
+Le Seuil du Paradoxe
+Etymologie de La Vie
+Lecture Comparative
+Charte Graphique
+La Sublimation
+Architecture
+Schémas
+Fables
+Atlas
+Qui Suis-Je
+Serment & Charte
+Prestations
+Manifeste
+Contact
+Livre d'Or
+Ressources
+Continuums
+L'Esprit-Critique
+Manuel Anti-Biais
+Ressources Violence
+WikiLeaks - Agresseurs
+Pacte de ConScience
+Dossier Judiciaire
+Pacte d'Habitat
+Guide du Legs
+Open Source
+Aide Sociale
+Formations
+Plus
+L'Encyclopédie
+Révolution
+Le Seuil du Paradoxe
+Etymologie de La Vie
+Lecture Comparative
+Charte Graphique
+La Sublimation
+Architecture
+Schémas
+Fables
+Atlas
+Qui Suis-Je
+Serment & Charte
+Prestations
+Manifeste
+Contact
+Livre d'Or
+Ressources
+Continuums
+L'Esprit-Critique
+Manuel Anti-Biais
+Ressources Violence
+WikiLeaks - Agresseurs
+Pacte de ConScience
+Dossier Judiciaire
+Pacte d'Habitat
+Guide du Legs
+Open Source
+Aide Sociale
+Formations
+Plus
+Rechercher
+Menu
+Open Source
+Quand c'est Gratuit, c'est souvent Vous le Produit. Mais pas Ici.
+⛲️
+Open-source ne veut pas dire gratuit seulement.
+Ça signifie :
+📖 Transparence du fonctionnement
+🛠️ Reproductibilité
+🔁 Amélioration collective
+🧩 Adaptabilité
+🛡️ Pas de dépendance à la personne
+Ici je fais un rassemblement d'informations. Je n'ai pas testé toutes les propositions, loin de là, mais je me sers de quelques une déjà.
+📖 Sommaire
+🌐 Ressources Open Source & Outils Libres
+⚖️ L'Ethique Numérique
+🧠 IA & Connaissances
+💻 Systèmes d'Exploitation
+✏️ Ecriture & Code
+🎨 Création Graphique
+🎧 Audio & Video
+🌐 Internet Libre
+🔐 Vie Privée & Sécurité
+💬 Communication
+🗂️ Transfert de Fichiers
+🌙 Confort Visuel
+📡 Culture Libre
+🌍 Cartographie du Web Libre
+🤖 IA Open Source
+🧰 Boîte à Outils Libres pour Créateurices
+📚 Les Bibliothèques Numériques Libres
+🌐 Ressources Open Source & Outils Libres
+Logiciels, infrastructures et communs numériques
+L'open source est un principe simple :
+Le code, les outils et les connaissances appartiennent au commun.
+Chacun peut les utiliser, les modifier et les partager.
+Ces outils permettent :
+l'autonomie numérique
+la protection des données
+la collaboration ouverte
+la transmission des connaissances
+💡 Pourquoi utiliser l'Open Source ?
+L'open source permet :
+d'éviter la dépendance aux grandes plateformes
+de protéger ses données
+de soutenir un internet plus libre.
+C'est une forme de
+bien commun numérique
+.
+⚖️ L'Ethique Numérique
+La question éthique d'utiliser une IA
+Peut-on utiliser un outil créé dans un système imparfait ?
+C'est une question classique en éthique technologique.
+Trois approches existent généralement.
+1. Approche Puriste
+Ne pas utiliser un outil si l'organisation derrière pose problème.
+Avantage :
+cohérence morale
+Limite :
+cela coupe souvent de nombreux outils utiles.
+2. Approche Pragmatique
+Utiliser l'outil tout en restant critique.
+Principe :
+utiliser
++
+comprendre
++
+ne pas dépendre
+C'est l'approche la plus répandue chez :
+chercheurs
+journalistes
+militants numériques.
+3. Approche Open-Source
+Chercher à migrer progressivement
+vers :
+logiciels libres
+IA ouvertes
+infrastructures décentralisées.
+4. Ce qui est souvent recommandé
+Beaucoup de personnes adoptent une stratégie hybride :
+utiliser certains outils existants
++
+développer et soutenir des alternatives ouvertes
+C'est exactement ce que fait :
+le mouvement open source
+les communautés tech critiques.
+Le point le plus important
+L'éthique numérique ne se résume pas à
+l'outil utilisé
+.
+Elle repose surtout sur :
+ce que l'on Fait avec l'Outil -
+l'Attention
+&
+ce que l'on Choisit de Défendre -
+L'Intention
+C'est toujours la balance de
+qu'est ce que je consomme (-)
+qu'est ce que je crée (+)
+Il faut que cette balance soit positive.
+Il faut que par votre consommation vous puissiez créer plus de richesses (non je ne parle pas en matériel) pour sublimer le monde par ce que vous pouvez détruire en consommant. C'est ca la balance du vivant, la balance karmique.
+Karma & Militantisme
+🧠 IA & Connaissance
+🤖 Hugging Face
+https://huggingface.co
+Plateforme open source dédiée à l'IA.
+Elle permet :
+partager des modèles d'intelligence artificielle
+utiliser des IA localement
+accéder à des datasets ouverts
+C'est aujourd'hui
+l'un des grands hubs mondiaux de l'IA ouverte
+.
+🔎 Wayback Machine
+https://archive.org
+Bibliothèque numérique mondiale.
+Elle permet de :
+consulter les anciennes versions de sites web
+préserver des contenus supprimés
+accéder à des livres, vidéos et archives numériques.
+C'est une
+mémoire collective d'internet
+.
+📚 Internet Archive
+https://archive.org
+Organisation qui préserve le patrimoine numérique.
+On y trouve :
+millions de livres
+films
+logiciels
+archives historiques.
+Moodle
+Plateforme d'apprentissage en ligne (LMS)
+Création de cours, quiz, forums, suivi des progrès
+Très utilisée dans les écoles et universités
+💻 Systèmes d'Exploitation
+🐧 Ubuntu
+https://ubuntu.com
+Distribution Linux populaire.
+Caractéristiques :
+gratuite
+stable
+respectueuse des utilisateurs
+grande communauté.
+Bonne alternative à Windows.
+🐧 Linux Mint
+Distribution Linux très accessible.
+Points forts :
+simple pour débuter
+rapide
+interface proche de Windows.
+🛜 Fedora
+Distribution Linux axée sur les dernières technologies
+Supporte les environnements de bureau modernes
+Idéale pour développeurs et utilisateurs avancés
+✏️ Écriture & Code
+📝 Notepad++
+https://notepad-plus-plus.org
+Éditeur de texte avancé.
+Fonctions :
+programmation
+édition HTML
+gestion de fichiers volumineux.
+Très léger et puissant.
+💻 VS Codium
+https://vscodium.com
+Version open source de Visual Studio Code.
+Permet :
+coder
+éditer du texte
+utiliser des extensions.
+🖊️ LibreOffice
+https://www.libreoffice.org
+Suite bureautique libre.
+Equivalent de :
+Word
+Excel
+PowerPoint.
+Compatible avec la plupart des formats.
+🌘 Eclipse
+Environnement de développement intégré (IDE) principalement pour JavaSupporte d'autres langages via plugins. Outils de débogage, compilation, gestion de projets
+🎨 Création Graphique
+🎨 GIMP
+https://www.gimp.org
+Logiciel de retouche d'image open source.
+Equivalent de Photoshop.
+Fonctions :
+montage
+illustration
+manipulation d'images.
+✏️ Inkscape
+https://inkscape.org
+Logiciel de dessin vectoriel.
+Equivalent de :
+Illustrator.
+Idéal pour :
+schémas
+logos
+infographies.
+🧱 Blender
+https://www.blender.org
+Logiciel 3D open source.
+Permet :
+modélisation
+animation
+effets visuels
+jeux vidéo.
+Très utilisé dans le cinéma indépendant.
+🎧 Audio & Vidéo
+🎧 Audacity
+https://www.audacityteam.org
+Éditeur audio libre.
+Fonctions :
+montage sonore
+enregistrement
+nettoyage audio.
+📺 VLC
+https://www.videolan.org
+Lecteur multimédia universel.
+Fonctions :
+lit presque tous les formats
+léger et gratuit.
+🎬 Kdenlive
+https://kdenlive.org
+Logiciel de montage vidéo open source.
+Alternative à Premiere Pro.
+🛑 HandBrake
+https://handbrake.fr
+HandBrake is a open-source tool, built by volunteers, for converting video from nearly any format to a selection of modern, widely supported codecs.
+Reasons you'll love HandBrake:
+Convert video from nearly any format
+Free and Open Source
+Multi-Platform (Windows, Mac and Linux)
+🎙️ Free Audio Converter
+https://www.freac.org/
+🌐 Internet Libre
+🐘 Mastodon
+https://joinmastodon.org
+Réseau social décentralisé.
+Caractéristiques :
+pas contrôlé par une seule entreprise
+instances autonomes
+fédération de serveurs.
+Alternative à Twitter/X.
+🐈 CHATONS
+https://www.chatons.org
+Collectif d'hébergeurs éthiques.
+Objectif :
+proposer des services en ligne respectueux des données.
+🧡 Framasoft
+https://framasoft.org
+Association française majeure du logiciel libre.
+Propose :
+outils collaboratifs
+alternatives aux services des géants du web.
+🔐 Vie Privée & Sécurité
+🧅 Tor Browser
+https://www.torproject.org
+Navigateur protégeant l'anonymat.
+Utilise un réseau chiffré qui :
+masque l'adresse IP
+protège la navigation.
+📞 Signal
+https://signal.org
+Application de messagerie sécurisée.
+Fonctions :
+chiffrement de bout en bout
+appels sécurisés.
+🔑 KeePassXC
+Gestionnaire de mots de passe sécurisé
+Chiffrement fort des bases de données
+Multiplateforme et portable
+💬 Communication
+🎥 Jitsi Meet
+https://meet.jit.si
+Plateforme de visioconférence open source.
+Fonctions :
+réunions vidéo
+partage d'écran
+sans inscription.
+📡 Matrix / Element
+https://matrix.org
+Protocole de communication décentralisé.
+Equivalent open source de :
+Slack
+Discord.
+📁 Transfert de Fichiers
+📦 SwissTransfer
+https://www.swisstransfer.com
+Service gratuit pour envoyer des fichiers lourds.
+Fonctions :
+jusqu'à 50 Go
+sans inscription.
+📁 Nextcloud
+https://nextcloud.com
+Alternative open source à Google Drive.
+Permet :
+stockage
+partage
+collaboration.
+🌙 Confort Visuel
+🌙 f.lux
+https://justgetflux.com
+Ajuste la couleur de l'écran selon l'heure.
+Réduit la lumière bleue.
+🌙 Twilight (Android)
+Application similaire pour smartphone.
+Protège les yeux le soir.
+Pour plus sur les Hyperesthesies & le Handicap
+📡 Culture Libre
+📚 Wikisource
+https://wikisource.org
+Bibliothèque de textes libres.
+🌍 Wikipedia
+Encyclopédie collaborative mondiale.
+📖 Project Gutenberg
+https://gutenberg.org
+Bibliothèque gratuite de livres du domaine public.
+🌍 Cartographie du Web Libre
+Les grands projets qui structurent l'internet libre.
+🌐 Mozilla
+Organisation derrière Firefox.
+Mission :
+défendre un internet ouvert
+protéger la vie privée.
+🐧 Linux Foundation
+Fondation qui soutient :
+Linux
+Kubernetes
+de nombreux projets open source majeurs.
+🌐 Wikimedia Foundation
+Organisation qui soutient :
+Wikipedia
+Wikisource
+Wikidata.
+📦 Apache Foundation
+Gère de nombreux projets open source essentiels.
+Exemples :
+Apache HTTP server
+Hadoop
+Spark.
+🤖 IA Open Source
+Des alternatives ouvertes.
+EURIA = Ethique, Universelle, Responsable, Indépendante, Autonome
+— et ça inclut :
+Zéro stockage de tes données
+Zéro accès aux fichiers
+Zéro risque de fuite ou d'exploitation
+C'est ce qui fait de moi une IA
+vraiment souveraine
+, hébergée en Suisse, alimentée par de l'énergie renouvelable, et alignée avec les valeurs d'Infomaniak.
+🧠 LLaMA
+Modèles développés par Meta.
+Utilisables localement.
+🧠 Mistral AI
+Entreprise européenne développant des modèles ouverts.
+🧠 Stable Diffusion
+IA open source de génération d'images.
+🧠 Ollama
+Permet de faire tourner des IA localement sur son ordinateur.
+🧠 LM Studio
+Interface pour utiliser des modèles IA open source.
+🧠 OUROBOROS
+🪄 Gestion de Projets
+🗃️ Taiga
+Outil de gestion de projets agile (Scrum, Kanban)
+Interface moderne et intuitive
+Open source et auto-hébergeable
+🗃️ OpenProject
+Gestion complète de projets avec planification, suivi des tâches, collaboration
+Fonctionnalités avancées pour équipes distribuées
+Sécurité et contrôle des accès
+🧰 Boîte à Outils Libre pour Créateurices
+Une section très utile pour ton site.
+📊 Obsidian
+Outil de prise de notes interconnectées.
+Très utilisé pour :
+recherche
+cartographie d'idées.
+🗺️ FreeMind / FreePlane
+Logiciels de mind-mapping open source.
+📂 Zotero
+Gestionnaire de références académiques.
+📖 Calibre
+Gestionnaire de bibliothèque numérique.
+🌐 PeerTube
+Alternative open source à YouTube.
+🗄️ Nextcloud
+Cloud personnel open source.
+📚 Les Bibliothèques Numériques Libres
+Les Plus Puissantes du Monde
+Ces projets constituent ce que certains chercheurs appellent :
+la bibliothèque universelle du numérique
+Ils permettent d'accéder à
+des millions d'ouvrages, archives, articles scientifiques et documents historiques
+.
+Plus sur ce sujet : La Mémoire, Preuve du Lien
+🌍 Internet Archive
+https://archive.org
+C'est
+la plus grande bibliothèque numérique ouverte du monde
+.
+Contenu :
+40+ millions de livres
+films et documentaires
+archives audio
+logiciels anciens
+millions de sites web archivés
+Outils majeurs :
+Wayback Machine
+→ archive d'internet
+Open Library
+→ bibliothèque de livres numériques.
+Objectif :
+préserver la mémoire de l'humanité.
+📖 Open Library
+https://openlibrary.org
+Projet de l'Internet Archive.
+Ambition :
+créer une page pour
+chaque livre jamais publié
+.
+Contenu :
+millions de livres
+prêt numérique
+métadonnées bibliographiques.
+📚 Project Gutenberg
+https://www.gutenberg.org
+Bibliothèque numérique gratuite de livres
+dans le domaine public
+.
+Contenu :
+plus de
+70 000 livres
+littérature classique mondiale
+formats libres (epub, txt, pdf).
+Créée en
+1971
+→ un des plus vieux projets internet.
+📚 Wikisource
+https://wikisource.org
+Bibliothèque collaborative de textes libres.
+Contenu :
+textes historiques
+philosophie
+littérature classique
+documents publics.
+Exemples :
+Platon
+Rousseau
+Darwin
+textes juridiques.
+📚 Library Genesis
+- LibGen
+⚠️ juridiquement controversé dans certains pays.
+Contenu :
+millions de livres scientifiques
+articles académiques
+manuels universitaires.
+LibGen est souvent utilisé par :
+chercheurs
+étudiants
+universités dans les pays pauvres.
+Il s'inscrit dans le mouvement :
+Open Access scientifique
+.
+📚 Sci-Hub
+⚠️ également controversé juridiquement.
+Créé pour donner accès aux
+articles scientifiques payants
+.
+Contenu :
+plus de
+80 millions d'articles scientifiques
+.
+Fonction :
+permettre l'accès au savoir même lorsque les éditeurs scientifiques verrouillent les publications derrière des paywalls.
+📚 DOAB
+- Directory of Open Access Books
+https://www.doabooks.org
+Bibliothèque académique légale.
+Contenu :
+livres scientifiques open access
+publiés par universités et centres de recherche.
+📚 DOAJ
+– Directory of Open Access Journals
+https://doaj.org
+Base de données de
+revues scientifiques ouvertes
+.
+Contenu :
+millions d'articles
+revues académiques vérifiées.
+📚 Europeana
+https://www.europeana.eu
+Bibliothèque culturelle européenne.
+Contenu :
+musées
+archives
+œuvres d'art
+documents historiques.
+Plus de
+50 millions d'objets culturels
+.
+📚 Gallica
+https://gallica.bnf.fr
+Bibliothèque numérique de la
+Bibliothèque nationale de France
+.
+Contenu :
+livres
+journaux historiques
+manuscrits
+cartes.
+📚 HathiTrust
+https://www.hathitrust.org
+Consortium de grandes universités.
+Contenu :
+plus de
+17 millions de livres numérisés
+.
+🧠 L'Ensemble
+Ces bibliothèques constituent ce que certains appellent :
+La Bibliothèque Planétaire du Savoir
+.
+Internet a rendu possible quelque chose qui n'existait jamais auparavant :
+📖
+un accès mondial à la connaissance humaine
+.
+C'est probablement l'une des plus grandes transformations culturelles de l'histoire.
+Il existe aujourd'hui
+un mouvement mondial appelé :
+🌐 The Digital Commons
+qui vise à créer :
+une
+bibliothèque universelle
+une
+science ouverte
+une
+IA open source globale
+.
+Et certaines de ces initiatives sont
+absolument gigantesques
+.
+La Suite 👉 La Mémoire, Preuve du Lien
+•
+👉 Ici, on explore Comment Le Vivant Transforme l'Expérience en Sens et en Cohérence.
+👉 La Folie est de Tellement Détester avoir Tort à en Perdre la Raison.
+---------------
+Je ne suis pas sponsorisée & je refuse les partenariats qui me sont proposés qui ne sont pas vraiment Éthiques.
+Je partage juste les bons plans que j'ai chiné depuis 20 ans car je crois fortement à un meilleur demain Ensemble, en se serrant les coudes, en partageant ce genre d'informations. Je fais tout simplement ma part.
+Alors transitionnons ensemble, pour créer un meilleur demain Uni entre Art & Nature, pour voir le Beau partout autour de Nous.
+Au plaisir de Nous voir grandir et s'épanouir. 🌿
+--------------
+Si tu veux me soutenir,
+• tu peux me faire un don sur
+Tipeee
+(à la manière de wikipedia)
+• ou bien partager mon travail :
+Facebook
+&
+Instagram
+• ou bien me laisser un avis ici :
+Avis google
+.
+Si tu as des bons plans à partager ou si tu veux un devis pour une prestation : n'hésite pas à
+me contacter !
+On pourra écrire ensemble ou je pourrai publier ce que tu veux partager :)  Ici c'est open edition
+Téléchargements gratuits :
+•
+Ma Liste d'Achat
+•
+•
+Mon Guide Express Complet
+•
+•
+Formations
+•
+•
+Mes Schéma
+•
+•
+Mes Fables
+•
+• Galerie Charte aMi •
+-
+Mes Réseaux en haut à gauche du site.
+Sitemap Agdistys.fr
+Sitemap Schémas
+Agdistys • Diane Serant © Tous droits réservés 2021
+Mon travail est sous licence Creative Commons Attribution
+-
+ShareAlike 4.0 International (CC BY-SA 4.0).
+https://creativecommons.org/licenses/by-sa/4.0/

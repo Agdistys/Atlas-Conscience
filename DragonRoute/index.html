@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="DragonRoute — trouver l'arrêt carburant au meilleur coût réel sur son trajet.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>DragonRoute V3</title>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><span class="dragon">🐉</span><strong>DragonRoute</strong><span class="badge">V3 PWA</span></div>
+    <button id="installBtn" class="ghost tiny-btn" hidden>＋ Installer</button>
+  </header>
+
+  <main class="stage">
+    <div id="map" class="map" aria-label="Carte du trajet">
+      <div id="mapFallback" class="fallback-map">
+        <svg id="routeViz" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+          <g id="grid"></g>
+          <path id="routeGlow" class="route-glow" d=""></path>
+          <path id="routeLine" class="route-line" d=""></path>
+          <g id="stationDots"></g>
+          <circle id="startDot" class="endpoint" r="7" cx="-50" cy="-50"></circle>
+          <circle id="endDot" class="endpoint" r="7" cx="-50" cy="-50"></circle>
+        </svg>
+        <div id="fallbackLabel" class="map-label">Chargement de la carte…</div>
+      </div>
+    </div>
+
+    <section class="sheet" id="sheet">
+      <div class="grabber"></div>
+
+      <div class="route-fields">
+        <label>
+          <span>Départ</span>
+          <div class="field-row">
+            <input id="start" value="Lyon" autocomplete="off" placeholder="Ville ou adresse">
+            <button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">📍</button>
+          </div>
+        </label>
+        <label>
+          <span>Arrivée</span>
+          <input id="end" value="Valence" autocomplete="off" placeholder="Ville ou adresse">
+        </label>
+      </div>
+
+      <div class="settings">
+        <label><span>Carburant</span>
+          <select id="fuel">
+            <option>E10</option><option>Gazole</option><option>SP98</option>
+            <option>SP95</option><option>E85</option><option>GPLc</option>
+          </select>
+        </label>
+        <label><span>Litres</span><input id="liters" type="number" min="1" max="150" step="1" value="40"></label>
+        <label><span>L/100 km</span><input id="cons" type="number" min="1" max="30" step="0.1" value="6.2"></label>
+        <label><span>Temps €/h</span><input id="timeValue" type="number" min="0" max="200" step="1" value="0"></label>
+      </div>
+
+      <button id="goBtn" class="primary">🔥 Trouver mon arrêt</button>
+
+      <div class="status-row">
+        <span id="statusDot" class="status-dot"></span>
+        <span id="status" role="status" aria-live="polite">Démarrage du moteur…</span>
+      </div>
+
+      <div class="health">
+        <span id="hJS" class="pill">JS</span>
+        <span id="hMap" class="pill">carte</span>
+        <span id="hGeo" class="pill">géocodage</span>
+        <span id="hRoute" class="pill">routage</span>
+        <span id="hFuel" class="pill">carburants</span>
+      </div>
+
+      <div id="summary" class="summary" hidden>
+        <div class="metric"><b id="tripKm">—</b><small>trajet</small></div>
+        <div class="metric"><b id="tripTime">—</b><small>durée</small></div>
+        <div class="metric"><b id="stationCount">—</b><small>stations</small></div>
+        <div class="metric"><b id="testedCount">—</b><small>comparées</small></div>
+      </div>
+
+      <div class="cards">
+        <article class="result-card winner" id="optimal">
+          <h3>🏆 OPTIMAL</h3>
+          <p>Prix du plein + carburant du détour + valeur du temps.</p>
+        </article>
+        <article class="result-card" id="cheap">
+          <h3>💶 POMPE</h3>
+          <p>Prix au litre minimal parmi les stations comparées.</p>
+        </article>
+        <article class="result-card" id="fast">
+          <h3>⚡ RAPIDE</h3>
+          <p>Détour routier minimal.</p>
+        </article>
+      </div>
+
+      <details id="diagWrap">
+        <summary>🩺 Diagnostic</summary>
+        <pre id="diag"></pre>
+      </details>
+
+      <footer>
+        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM
+      </footer>
+    </section>
+  </main>
+</div>
+
+<script src="./config.js"></script>
+<script src="./app.js" defer></script>
+</body>
+</html>

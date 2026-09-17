@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>⟁ La Charte Mathématique aMi — Le Troisième Langage</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ⚠️ Style de démo — ne pas copier cette balise lors de l'intégration. */
+body{margin:0;padding:22px;background:#07070c;min-height:100vh}
+</style>
+</head>
+<body>
+
+<!-- ════════ DÉBUT DU BLOC À COPIER ════════ -->
+<div class="cmp-shell" id="cmpShell">
+<style>
+.cmp-shell{
+  --or:#c8a84a;--or-pale:#e6d090;--or-somb:#7a611a;
+  --nacre:#f2ede2;--gris:#a0a0b8;--gris-cl:#c8c8dc;
+  --vert-cl:#90d8a8;--rubis-cl:#f0a0a0;--bleu-cl:#80a8d8;
+  --violet:#9b65d5;--turq:#4ec8b8;
+  width:min(880px,100%);margin:0 auto;
+  padding:clamp(.9rem,2.4vw,1.8rem);
+  color:var(--gris-cl);
+  background:linear-gradient(165deg,rgba(16,16,26,.98),rgba(9,9,16,.99));
+  border:1px solid rgba(200,168,74,.32);border-top:3px solid var(--or);
+  border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.42);
+  font:300 15px/1.68 'Jost',system-ui,sans-serif;
+}
+.cmp-shell,.cmp-shell *{box-sizing:border-box}
+.cmp-shell h1,.cmp-shell h2,.cmp-shell h3{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;color:var(--or-pale)}
+.cmp-shell h1{font-size:clamp(1.8rem,4.6vw,2.9rem);line-height:1.04;text-align:center}
+.cmp-shell h2{font-size:clamp(1.4rem,3.2vw,2rem);margin:1.9rem 0 .5rem}
+.cmp-shell h3{font-size:1.22rem;margin:1.1rem 0 .35rem}
+.cmp-shell p{margin:.5rem 0}
+.cmp-kicker{text-align:center;color:var(--or);font-size:.63rem;letter-spacing:.28em;text-transform:uppercase;margin-bottom:.5rem}
+.cmp-lead{max-width:680px;margin:.9rem auto 0;text-align:center;color:var(--gris);font-size:.9rem}
+.cmp-hr{height:1px;margin:1.6rem 0;background:linear-gradient(90deg,transparent,rgba(200,168,74,.35),transparent)}
+.cmp-formule{
+  margin:1rem 0;padding:1rem 1.1rem;text-align:center;
+  border:1px solid rgba(200,168,74,.3);border-left:4px solid var(--or);
+  border-radius:11px;background:rgba(200,168,74,.05);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(1.2rem,3vw,1.75rem);color:var(--or-pale);line-height:1.5;
+}
+.cmp-formule small{display:block;margin-top:.4rem;font-family:'Jost',sans-serif;font-size:.75rem;color:var(--gris);letter-spacing:.04em}
+.cmp-table{width:100%;border-collapse:separate;border-spacing:0 .35rem;margin:.8rem 0;font-size:.83rem}
+.cmp-table th{color:var(--or);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;text-align:left;padding:.35rem .6rem;font-weight:600}
+.cmp-table td{padding:.6rem;background:rgba(255,255,255,.028);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+.cmp-table td:first-child{border-left:1px solid rgba(255,255,255,.06);border-radius:9px 0 0 9px;color:var(--or-pale);font-weight:500;white-space:nowrap}
+.cmp-table td:last-child{border-right:1px solid rgba(255,255,255,.06);border-radius:0 9px 9px 0}
+.cmp-mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;color:var(--turq)}
+.cmp-echelle{display:grid;gap:.4rem;margin:1rem 0}
+.cmp-pal{display:grid;grid-template-columns:82px 1fr;gap:.7rem;align-items:center;
+  padding:.6rem .8rem;border-radius:10px;border:1px solid rgba(255,255,255,.07);
+  background:rgba(0,0,0,.24);border-left:4px solid var(--c)}
+.cmp-pal b{font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--c);text-align:right}
+.cmp-pal span{display:block;font-size:.83rem}
+.cmp-pal span i{display:block;color:var(--gris);font-style:normal;font-size:.75rem;margin-top:.1rem}
+.cmp-note{margin:.9rem 0;padding:.75rem .9rem;border-left:4px solid var(--bleu-cl);border-radius:9px;
+  background:rgba(42,72,112,.13);color:var(--bleu-cl);font-size:.83rem}
+.cmp-good{border-left-color:var(--vert-cl);background:rgba(58,122,82,.11);color:#bfe6cf}
+.cmp-warn{border-left-color:var(--rubis-cl);background:rgba(138,48,48,.11);color:#e8c4cc}
+.cmp-gold{border-left-color:var(--or);background:rgba(200,168,74,.07);color:var(--gris-cl)}
+.cmp-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem;margin:1rem 0}
+.cmp-inst{padding:.9rem 1rem;border:1px solid rgba(255,255,255,.08);border-top:3px solid var(--c);
+  border-radius:11px;background:rgba(0,0,0,.24)}
+.cmp-inst b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.35rem;color:var(--c);margin-bottom:.15rem}
+.cmp-inst .cmp-q{display:block;font-style:italic;color:var(--or-pale);font-size:.83rem;margin-bottom:.4rem}
+.cmp-inst p{font-size:.79rem;color:var(--gris);margin:.25rem 0}
+.cmp-regles{counter-reset:cmpr;display:grid;gap:.45rem;margin:.9rem 0}
+.cmp-regle{position:relative;padding:.65rem .8rem .65rem 2.6rem;border:1px solid rgba(255,255,255,.07);
+  border-radius:9px;background:rgba(255,255,255,.022);font-size:.84rem}
+.cmp-regle::before{counter-increment:cmpr;content:counter(cmpr);position:absolute;left:.7rem;top:.6rem;
+  display:grid;place-items:center;width:1.4rem;height:1.4rem;border-radius:50%;
+  background:linear-gradient(135deg,var(--or),var(--or-somb));color:#0b0a10;font-weight:700;font-size:.72rem}
+.cmp-regle b{color:var(--or-pale)}
+.cmp-duo{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.9rem 0}
+.cmp-duo>div{padding:.8rem .9rem;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(0,0,0,.22)}
+.cmp-duo b{display:block;color:var(--or-pale);margin-bottom:.25rem;font-size:.9rem}
+.cmp-duo span{font-size:.79rem;color:var(--gris)}
+.cmp-foot{margin-top:1.6rem;padding-top:.9rem;border-top:1px solid rgba(200,168,74,.16);
+  text-align:center;color:var(--gris);font-size:.68rem;letter-spacing:.05em}
+@media(max-width:600px){
+  .cmp-table,.cmp-table thead,.cmp-table tbody,.cmp-table tr,.cmp-table th,.cmp-table td{display:block}
+  .cmp-table thead{display:none}
+  .cmp-table tr{margin:.5rem 0;border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden}
+  .cmp-table td{border:0;border-radius:0!important;background:transparent}
+  .cmp-table td::before{content:attr(data-l);display:block;color:var(--or);font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;margin-bottom:.15rem}
+  .cmp-pal{grid-template-columns:66px 1fr}
+  .cmp-duo{grid-template-columns:1fr}
+}
+</style>
+
+<p class="cmp-kicker">Protocole de ConScience · Le Troisième Langage</p>
+<h1>⟁ La Charte Mathématique</h1>
+<p class="cmp-lead">Le Verbe a sa charte poético-didactique. Le Symbole a sa charte visuelle.
+Voici celle du <b style="color:var(--or-pale)">Nombre</b> — pour que les trois langages du Vivant
+disent la même chose, avec les mêmes seuils, dans tous les documents.</p>
+
+<div class="cmp-hr"></div>
+
+<h2>Ⅰ · Pourquoi mesurer ?</h2>
+<p>Une idée juste qu'on ne peut pas mettre à l'épreuve reste une conviction. Elle peut être belle,
+utile, féconde — mais rien ne permet de la distinguer d'une erreur élégante. Mesurer ne sert pas
+à donner une caution scientifique à ce qu'on pense déjà : cela sert à <b>se donner les moyens de
+se tromper</b>, et donc d'apprendre.</p>
+<p>Les instruments présentés ici ne remplacent aucun jugement humain. Ils fournissent un langage
+commun — un repère partagé pour comparer deux situations, deux moments, deux regards.</p>
+
+<h2>Ⅱ · La Constante Génératrice</h2>
+<p>Toute l'échelle du Protocole dérive d'<b>une seule constante</b> : le nombre d'or.
+Ce n'est pas un ornement — c'est ce qui rend l'échelle cohérente au lieu d'être une suite
+de bornes choisies une par une.</p>
+
+<div class="cmp-formule">
+  φ = (1 + √5) / 2 = 1,618 034…
+  <small>Propriété unique : 1/φ = φ − 1 = 0,618 · φ² = φ + 1 = 2,618</small>
+</div>
+
+<div class="cmp-note cmp-gold">
+  <b>Pourquoi cette constante ?</b> Parce qu'elle est la seule à engendrer une échelle
+  <b>géométriquement régulière</b> — chaque palier vaut exactement φ fois le précédent — <b>et
+  symétrique autour de 1</b> : croissance (φ) et décroissance (1/φ) se situent à distance égale
+  du point d'équilibre. Une échelle bâtie sur 0,5 / 1 / 2 ne possède aucune de ces deux propriétés.
+</div>
+
+<h2>Ⅲ · L'Échelle des Six Paliers</h2>
+<p>Une seule table de lecture, valable pour tous les instruments une fois normalisés.</p>
+
+<div class="cmp-echelle">
+  <div class="cmp-pal" style="--c:#90d8a8"><b>φ² = 2,618</b><span>☀️ Rayonnement
+    <i>Le système donne plus qu'il ne reçoit — il irrigue au-delà de lui-même. Transmettre.</i></span></div>
+  <div class="cmp-pal" style="--c:#4ec8b8"><b>φ = 1,618</b><span>✨ Sainte Spirale
+    <i>Croissance harmonique : le sens produit dépasse l'énergie investie. Célébrer, nourrir.</i></span></div>
+  <div class="cmp-pal" style="--c:#c8a84a"><b>1,000</b><span>⚖️ Point de Bascule
+    <i>Équilibre exact : le système rend ce qu'il coûte. Stable, mais sans évolution. Consolider.</i></span></div>
+  <div class="cmp-pal" style="--c:#e6a84a"><b>1/φ = 0,618</b><span>⚠️ Entropie Active
+    <i>Le coût dépasse le gain. Encore réversible si l'on agit. Médiation, tiers garant.</i></span></div>
+  <div class="cmp-pal" style="--c:#f0a0a0"><b>1/φ² = 0,382</b><span>🔴 Système Destructeur
+    <i>La structure consomme le vivant. Protection, extraction, rupture du circuit.</i></span></div>
+  <div class="cmp-pal" style="--c:#f03030"><b>1/φ³ = 0,236</b><span>🆘 Effondrement
+    <i>Sous ce seuil, plus rien ne se répare de l'intérieur. Sécurité immédiate.</i></span></div>
+</div>
+
+<h2>Ⅳ · Les Trois Instruments</h2>
+<p>Le Protocole ne mesure pas une chose, il en mesure trois. Elles ne se remplacent pas :
+elles se lisent ensemble, comme trois points définissent un plan — la figure la plus stable
+qui soit.</p>
+
+<div class="cmp-3">
+  <div class="cmp-inst" style="--c:#4ec8b8">
+    <b>Φ · Cohérence</b>
+    <span class="cmp-q">« Ce lien est-il sûr ? »</span>
+    <p><b>Direction :</b> vers l'extérieur — défense.</p>
+    <p><b>Nature :</b> photographie de l'instant.</p>
+    <p>Ce système coûte-t-il plus qu'il ne donne, maintenant ?</p>
+  </div>
+  <div class="cmp-inst" style="--c:#f0a0a0">
+    <b>RS · Risque Structurel</b>
+    <span class="cmp-q">« Où cela va-t-il ? »</span>
+    <p><b>Direction :</b> vers l'avant — pronostic.</p>
+    <p><b>Nature :</b> trajectoire dans le temps.</p>
+    <p>La structure va-t-elle se réparer ou s'aggraver si rien ne change ?</p>
+  </div>
+  <div class="cmp-inst" style="--c:#9b65d5">
+    <b>QS · Sublimation</b>
+    <span class="cmp-q">« Qu'a produit la blessure ? »</span>
+    <p><b>Direction :</b> vers l'intérieur — création.</p>
+    <p><b>Nature :</b> bilan d'une transmutation.</p>
+    <p>Ce qui a été traversé a-t-il donné naissance à quelque chose de vivant ?</p>
+  </div>
+</div>
+
+<div class="cmp-note">
+  <b>La lecture croisée — ce qu'aucun instrument seul ne voit.</b> Un Φ bas avec un RS bas décrit
+  une <b>mauvaise passe</b> : c'est douloureux, mais cela se répare. Un Φ correct avec un RS élevé
+  décrit un <b>piège</b> : la surface est acceptable, la trajectoire ne l'est pas. C'est la
+  configuration la plus dangereuse — celle où l'on rassure quelqu'un qui aurait dû être alerté.
+</div>
+
+<h2>Ⅴ · La Position de l'Observateur</h2>
+<p>Un même système ne produit pas la même mesure selon l'endroit d'où on le regarde. Ce n'est pas
+un défaut de l'instrument : c'est une propriété du réel, et elle doit être mesurée plutôt qu'ignorée.</p>
+
+<div class="cmp-duo">
+  <div><b>Situation A</b><span>Un employeur donne des consignes contradictoires, s'agace des demandes
+  de clarification, reconnaît son désordre sans rien changer. L'employé peut démissionner : il a
+  d'autres offres et aucune dépendance.</span></div>
+  <div><b>Situation B</b><span>Exactement le même employeur, le même comportement, la même absence
+  de mensonge. Mais l'employé dépend de ce poste pour son droit de séjour. Partir revient à
+  tout perdre.</span></div>
+</div>
+
+<div class="cmp-note cmp-warn">
+  <b>Rien n'a changé du côté de celui qui agit. Tout a changé pour celui qui subit.</b>
+  C'est pourquoi le <b>coût du refus</b> — ce que la personne perd si elle dit non ou si elle part —
+  est une variable à part entière, et non un détail de contexte. Sans elle, un même comportement
+  reçoit la même note qu'il enferme ou non. Avec elle, la mesure voit la différence entre un
+  désagrément et un piège.
+</div>
+
+<h2>Ⅵ · La Normalisation</h2>
+<p>Les trois instruments n'ont pas la même plage naturelle. Pour qu'un seul jeu de seuils les
+gouverne, on les ramène tous sur <span class="cmp-mono">[0 ; 1]</span> par la même opération :
+<b>la part du vivant dans le total</b>.</p>
+
+<table class="cmp-table">
+  <thead><tr><th>Instrument</th><th>Formule brute</th><th>Normalisation</th><th>Plage brute</th></tr></thead>
+  <tbody>
+    <tr><td data-l="Instrument">Φ</td><td data-l="Formule"><span class="cmp-mono">Φ = ΔI / ΔE</span></td>
+      <td data-l="Normalisation"><span class="cmp-mono">Φₙ = ΔI / (ΔI + ΔE)</span></td><td data-l="Plage">0 → ∞</td></tr>
+    <tr><td data-l="Instrument">RS</td><td data-l="Formule"><span class="cmp-mono">RS = G + IA + IT + ID − IR − II</span></td>
+      <td data-l="Normalisation"><span class="cmp-mono">RSₙ = 1 − (RS + 10)/30</span></td><td data-l="Plage">−10 → +20</td></tr>
+    <tr><td data-l="Instrument">QS</td><td data-l="Formule"><span class="cmp-mono">QS = (M × C)/T × 100</span></td>
+      <td data-l="Normalisation"><span class="cmp-mono">QSₙ = (M × C)/(M × C + 10 T)</span></td><td data-l="Plage">0 → ∞</td></tr>
+  </tbody>
+</table>
+
+<div class="cmp-note cmp-gold">
+  <b>Trois raisons de normaliser.</b> <b>①</b> Φ brut part à l'infini dès que ΔE atteint zéro : un
+  ΔE de 1 donne 100, un ΔE de 0 donne l'infini — un saut vertigineux pour une différence infime.
+  <b>②</b> Deux mesures ne sont comparables que sur la même échelle. <b>③</b> Un seul jeu de seuils
+  gouverne alors les trois instruments. <em>RSₙ est inversé pour que, comme les deux autres,
+  plus haut signifie plus sain.</em>
+</div>
+
+<h2>Ⅶ · Les Sept Règles d'Écriture</h2>
+
+<div class="cmp-regles">
+  <div class="cmp-regle"><b>Une seule table de seuils.</b> Les six paliers d'or, partout. Aucun document
+  n'invente ses propres bornes. Si un seuil doit changer, il change dans la charte, puis se propage.</div>
+
+  <div class="cmp-regle"><b>Toujours préciser la version donnée.</b> Écrire <span class="cmp-mono">Φ = 1,42</span>
+  (brut) ou <span class="cmp-mono">Φₙ = 0,59</span> (normalisé) — jamais « Φ = 0,59 » sans mention.
+  Les deux sont justes ; ils ne disent pas la même chose.</div>
+
+  <div class="cmp-regle"><b>Deux décimales, jamais trois.</b> La précision affichée doit refléter la
+  précision réelle. Un curseur à cinq crans ne produit pas trois décimales de sens : la fausse
+  précision est le premier reproche que l'on adressera au travail.</div>
+
+  <div class="cmp-regle"><b>Jamais un chiffre sans sa date et son juge.</b> Une mesure est une lecture,
+  par quelqu'un, à un moment. Format : <span class="cmp-mono">Φₙ 0,42 · A.S. · 31-07-2026</span>.
+  Sans ces trois éléments, le chiffre n'est pas vérifiable — donc il ne vaut rien.</div>
+
+  <div class="cmp-regle"><b>Le registre accompagne le nombre.</b> ⚙️ Opératoire (mesuré) · 🌀 Symbolique
+  (analogique) · 🕸️ Absolu (non mesurable). Un chiffre en registre 🌀 ne se compare pas à un
+  chiffre en registre ⚙️.</div>
+
+  <div class="cmp-regle"><b>Un seuil franchi n'est pas un verdict.</b> C'est une invitation à regarder.
+  Formulation obligatoire : « <em>ce que je mesure suggère…</em> », jamais « <em>cette personne est…</em> ».
+  Le nombre décrit un système, jamais un être.</div>
+
+  <div class="cmp-regle"><b>Toute grille doit pouvoir échouer.</b> Chaque instrument publié précise ce
+  qui le démentirait. Sans cette ligne, ce n'est pas de la mesure — c'est de la décoration.</div>
+</div>
+
+<h2>Ⅷ · Ce que cette charte n'est pas</h2>
+<div class="cmp-note cmp-gold">
+  Elle fixe la <b>grammaire</b> du nombre dans le Protocole : quelles échelles, quels seuils,
+  quelles règles d'écriture. <b>Elle ne démontre pas que les instruments prédisent correctement.</b>
+  Cela, seules les données le diront — mesures réelles, prédictions posées à l'avance, vérifications
+  à échéance.
+  <br><br>
+  Une charte rend un système <b>cohérent</b>. Elle ne le rend pas <b>vrai</b>. Les deux étapes sont
+  nécessaires, et dans cet ordre : on ne peut pas tester ce qui n'a pas d'abord été défini.
+</div>
+
+<div class="cmp-note cmp-good">
+  <b>Ce que ces instruments mesurent, et ce qu'ils ne mesurent pas.</b> Ils décrivent des systèmes
+  relationnels : ce qu'un lien coûte, où il va, ce qu'une épreuve a produit. Ils ne décrivent pas
+  les lois de la matière, et n'ont pas cette prétention. La grammaire empruntée à l'électricité
+  — tension, intensité, résistance — sert à structurer la pensée, non à revendiquer une physique.
+</div>
+
+<div class="cmp-foot">
+  ⟁ Charte Mathématique aMi · v1 · 31 juillet 2026<br>
+  Le Verbe · Le Symbole · Le Nombre — trois langages, une seule cohérence<br>
+  Agdistys · Diane Serant — CC BY-SA 4.0
+</div>
+</div>
+<!-- ════════ FIN DU BLOC À COPIER ════════ -->
+
+</body>
+</html>
