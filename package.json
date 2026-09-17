@@ -5,7 +5,7 @@
   "scripts": {
     "test:contract": "node tests/repo-contract.mjs",
     "test:e2e": "playwright test",
-    "test:inspection": "node --test tests/inspection-report.test.mjs",
+    "test:inspection": "node --test tests/inspection-report.test.mjs tests/service-worker.test.mjs",
     "inspect": "node tests/inspect.mjs",
     "test": "npm run test:contract && npm run test:e2e"
   },
