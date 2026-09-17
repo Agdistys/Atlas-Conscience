@@ -39,6 +39,12 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
   await expect(page.locator('.result-card').first()).toContainText('€/L');
   await expect(page.locator('.result-card').first()).toContainText('min');
   await expect(page.locator('#testedCount')).toHaveText('2');
+  await expect(page.locator('#routeLine')).toHaveCSS('stroke','rgb(7, 88, 217)');
+  await expect(page.locator('#routeLine')).toHaveCSS('stroke-width','7px');
+  await expect(page.locator('#routeGlow')).toHaveCSS('stroke','rgb(255, 255, 255)');
+  await expect(page.locator('#alternativeRoutes path')).toHaveCount(1);
+  await expect(page.locator('#alternativeRoutes path')).toHaveCSS('stroke','rgb(130, 186, 255)');
+  await expect(page.locator('#routeAlternativesNote')).toContainText('1 alternative indicative');
   await page.locator('.cards').scrollIntoViewIfNeeded();
   await capture(page, info, 'resultats');
   await checkOverflow(page);
@@ -98,6 +104,8 @@ for (const [service, pattern] of [
       await expect(page.locator('#' + id)).toHaveText('—');
     }
     await expect(page.locator('#routeLine')).toHaveAttribute('d', '');
+    await expect(page.locator('#alternativeRoutes path')).toHaveCount(0);
+    await expect(page.locator('#routeAlternativesNote')).toBeHidden();
     await expect(page.locator('#stationDots circle')).toHaveCount(0);
     await expect(page.locator('#goBtn')).toBeEnabled();
     await checkOverflow(page);
@@ -208,6 +216,10 @@ test('carte Leaflet interactive sans recouvrement des commandes', async ({ page 
   await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('Trajet prêt');
   await expect(page.locator('.leaflet-overlay-pane path')).not.toHaveCount(0);
+  await expect(page.locator('.map-route-selected')).toHaveAttribute('stroke','#0758d9');
+  await expect(page.locator('.map-route-selected')).toHaveAttribute('stroke-width','7');
+  await expect(page.locator('.map-route-outline')).toHaveAttribute('stroke','#fff');
+  await expect(page.locator('.map-route-alternative')).toHaveAttribute('stroke','#82baff');
   await page.locator('#stationsBtn').click();
   await expect(page.locator('.station-marker')).toHaveCount(2);
   await page.locator('.station-marker').first().click();
@@ -221,8 +233,38 @@ test('carte Leaflet interactive sans recouvrement des commandes', async ({ page 
   expect(sheet.x + sheet.width <= map.x + 1 || map.y + map.height <= sheet.y + 1).toBe(true);
   await page.locator('.leaflet-control-zoom-in').click();
   await capture(page, info, 'carte-leaflet');
+  await page.locator('[data-select]').first().click();
+  await expect(page.locator('#selectedStop')).toBeVisible();
+  await expect(page.locator('.map-route-selected')).toHaveCount(1);
+  await expect(page.locator('.map-route-alternative')).toHaveCount(0);
+  await expect(page.locator('#routeAlternativesNote')).toBeHidden();
+  await page.locator('#liters').fill('35');
+  await expect(page.locator('.map-route-alternative')).toHaveCount(1);
+  await expect(page.locator('#routeAlternativesNote')).toBeVisible();
   await checkOverflow(page);
   expect(errors).toEqual([]);
+});
+
+test('alternatives absentes ou invalides sans ancien trace', async ({ page }) => {
+  const pattern='https://router.project-osrm.org/route/v1/driving/**';
+  const main={distance:104000,duration:3900,geometry:{type:'LineString',coordinates:[[4.8357,45.7640],[4.8924,44.9334]]}};
+  let routes=[main];
+  await page.route(pattern, handler=>handler.fulfill({contentType:'application/json',body:JSON.stringify({code:'Ok',routes})}));
+  await page.goto('/DragonRoute/');
+  await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Trajet prêt');
+  await expect(page.locator('#alternativeRoutes path')).toHaveCount(0);
+  await expect(page.locator('#routeAlternativesNote')).toContainText('Aucun autre trajet proposé');
+  routes=[main,{geometry:{type:'LineString'}},{geometry:{type:'LineString',coordinates:[[4,45],[null,44]]}}];
+  await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Trajet prêt');
+  await expect(page.locator('#alternativeRoutes path')).toHaveCount(0);
+  routes=[{...main,geometry:null}];
+  await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Tracé routier incomplet');
+  await expect(page.locator('#routeLine')).toHaveAttribute('d','');
+  await expect(page.locator('#routeAlternativesNote')).toBeHidden();
+  await expect(page.locator('#stops')).toBeHidden();
 });
 
 test('fiche station et favoris actualises apres rechargement', async ({ page }, info) => {

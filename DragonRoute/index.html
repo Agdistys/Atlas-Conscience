@@ -21,7 +21,7 @@
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
       <div id="mapFallback" class="fallback-map">
         <svg id="routeViz" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Schéma du trajet, sans fond cartographique">
-          <g id="grid"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="stationDots"></g>
+          <g id="grid"></g><g id="alternativeRoutes"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="stationDots"></g>
           <circle id="startDot" class="endpoint" r="7" cx="-50" cy="-50"></circle><circle id="endDot" class="endpoint" r="7" cx="-50" cy="-50"></circle>
         </svg>
         <div id="fallbackLabel" class="map-label">Chargement de la carte…</div>
@@ -38,6 +38,7 @@
         <button id="goBtn" class="primary">Trouver mon trajet</button>
         <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
         <div id="summary" class="summary" hidden><div class="metric"><b id="tripKm">—</b><small>trajet direct</small></div><div class="metric"><b id="tripTime">—</b><small>durée estimée</small></div></div>
+        <p id="routeAlternativesNote" class="note" hidden></p>
       </section>
       <section id="stops" class="stops-section" hidden aria-labelledby="stopsHeading">
         <h2 id="stopsHeading">Sur mon trajet</h2>

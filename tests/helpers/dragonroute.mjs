@@ -28,7 +28,10 @@ export async function mockDragonRoute(page){
       geometry:{type:'LineString',coordinates:[
         [4.8357,45.7640],[4.8550,45.55],[4.8750,45.25],[4.8924,44.9334]
       ]}
-    }]
+    },...(new URL(route.request().url()).searchParams.get('alternatives')==='true'?[{
+      distance:118000,duration:4600,
+      geometry:{type:'LineString',coordinates:[[4.8357,45.7640],[5.08,45.55],[5.03,45.25],[4.8924,44.9334]]}
+    }]:[])]
   }));
 
   await page.route('https://router.project-osrm.org/table/v1/driving/**', route => {

@@ -16,6 +16,7 @@ export const requiredScenarios = [
   'stations filtrees par distance et jamais elargies silencieusement',
   'panne carburants ne supprime pas le trajet et peut etre relancee',
   'carte Leaflet interactive sans recouvrement des commandes',
+  'alternatives absentes ou invalides sans ancien trace',
   'fiche station et favoris actualises apres rechargement',
   'vehicule et adresses persistes modifiables et reutilisables',
   'profil invalide ou stockage refuse sans fausse sauvegarde',
