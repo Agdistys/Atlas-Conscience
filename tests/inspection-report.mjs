@@ -30,7 +30,7 @@ export function summarize(report, stages = {}) {
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-export function writeReport(root = process.cwd()) {
+export function writeReport(root = process.cwd(), { publishSummary = true } = {}) {
   const output = path.join(root, 'quality');
   fs.mkdirSync(output, { recursive: true });
   const diagnostics = [];
@@ -87,7 +87,7 @@ export function writeReport(root = process.cwd()) {
     'Non testes : ' + status.notTested.join(' ; ') + '.', '',
     'Rapport detaille : artefact inspectrice-v2, fichier quality/inspection.html. Validation humaine requise avant fusion.'];
   fs.writeFileSync(path.join(output, 'inspection.md'), lines.join('\n') + '\n');
-  if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+  if (publishSummary && process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
   const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inspectrice v2</title>
 <style>body{margin:0;background:#09090e;color:#eee;font:16px/1.6 system-ui}main{max-width:1080px;margin:auto;padding:24px}h1{font-size:28px}h2{font-size:21px}section{padding:20px 0;border-top:1px solid #555}img{max-width:100%;height:auto}a{color:#87dccc}code,pre{white-space:pre-wrap;overflow-wrap:anywhere}figure{margin:24px 0}li{overflow-wrap:anywhere}summary{cursor:pointer}small{color:#ccc}</style></head><body><main>
 <h1>Inspectrice v2</h1><p><strong>${verdict}</strong></p><p>${esc(status.generatedAt)}<br>Commit : <code>${esc(status.commit || 'execution locale')}</code></p>

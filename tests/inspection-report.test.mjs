@@ -45,3 +45,33 @@ test('passing tests without evidence still generate a blocked HTML report', () =
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('complete evidence is required and audit violations block publication readiness', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'inspectrice-evidence-'));
+  try {
+    const report = passing();
+    for (const [i, state] of ['demarrage', 'resultats'].entries()) {
+      for (const item of report.suites[0].specs[i].tests) {
+        item.results[0].attachments = [
+          { name: state, contentType: 'image/png', body: Buffer.from('fixture-only').toString('base64') },
+          { name: `accessibilite-${state}`, contentType: 'application/json',
+            body: Buffer.from(JSON.stringify({ violations: [], incomplete: [], passes: [{}] })).toString('base64') }
+        ];
+      }
+    }
+    fs.mkdirSync(path.join(root, 'quality'));
+    fs.writeFileSync(path.join(root, 'quality/stages.json'), JSON.stringify(stages));
+    const save = () => fs.writeFileSync(path.join(root, 'quality/browser-results.json'), JSON.stringify(report));
+    save();
+    assert.equal(writeReport(root, { publishSummary: false }).state, 'inspection');
+    report.suites[0].specs[0].tests[0].results[0].attachments[1].body =
+      Buffer.from(JSON.stringify({ violations: [{ id: 'label' }], incomplete: [], passes: [] })).toString('base64');
+    save();
+    assert.equal(writeReport(root, { publishSummary: false }).state, 'blocked');
+    report.suites[0].specs[0].tests[0].results[0].attachments = [];
+    save();
+    assert.equal(writeReport(root, { publishSummary: false }).state, 'blocked');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
