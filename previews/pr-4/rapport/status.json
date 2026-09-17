@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-09-17T12:43:21.343Z",
-  "commit": "6e68f489760d03e651b90f10d0c5bdc0734db10b",
+  "generatedAt": "2026-09-17T14:20:07.490Z",
+  "commit": "7ec86d074a13fe6bcb44f6b17fd10992462a684b",
   "state": "inspection",
-  "passed": 28,
-  "total": 28,
+  "passed": 48,
+  "total": 48,
   "stages": {
     "contract": {
       "exitCode": 0,
@@ -73,48 +73,6 @@
       "violations": [],
       "incomplete": [
         {
-          "id": "aria-prohibited-attr",
-          "impact": "serious",
-          "tags": [
-            "cat.aria",
-            "wcag2a",
-            "wcag412",
-            "EN-301-549",
-            "EN-9.4.1.2"
-          ],
-          "description": "Ensure ARIA attributes are not prohibited for an element's role",
-          "help": "Elements must only use permitted ARIA attributes",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI",
-          "nodes": [
-            {
-              "any": [],
-              "all": [],
-              "none": [
-                {
-                  "id": "aria-prohibited-attr",
-                  "data": {
-                    "role": null,
-                    "nodeName": "div",
-                    "messageKey": "noRoleSingular",
-                    "prohibited": [
-                      "aria-label"
-                    ]
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-                }
-              ],
-              "impact": "serious",
-              "html": "<div id=\"map\" class=\"map\" aria-label=\"Carte du trajet\">",
-              "target": [
-                "#map"
-              ],
-              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ]
-        },
-        {
           "id": "color-contrast",
           "impact": "serious",
           "tags": [
@@ -150,7 +108,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -174,309 +132,26 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
+                    "messageKey": "nonBmp"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element content contains only non-text characters"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span>Départ</span>",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
               "target": [
-                ".route-fields > label:nth-child(1) > span"
+                "#gpsBtn"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Arrivée</span>",
-              "target": [
-                ".route-fields > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Carburant</span>",
-              "target": [
-                ".settings > label:nth-child(1) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Litres</span>",
-              "target": [
-                ".settings > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>L/100 km</span>",
-              "target": [
-                "label:nth-child(3) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Temps €/h</span>",
-              "target": [
-                "label:nth-child(4) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">Moteur chargé. Prêt pour un trajet réel.</span>",
-              "target": [
-                "#status"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "6.8pt (9px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<footer>\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      </footer>",
-              "target": [
-                "footer"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
             }
           ]
         }
       ],
-      "rulesPassed": 22
+      "rulesPassed": 24
     },
     {
       "project": "desktop-1440",
@@ -484,48 +159,6 @@
       "violations": [],
       "incomplete": [
         {
-          "id": "aria-prohibited-attr",
-          "impact": "serious",
-          "tags": [
-            "cat.aria",
-            "wcag2a",
-            "wcag412",
-            "EN-301-549",
-            "EN-9.4.1.2"
-          ],
-          "description": "Ensure ARIA attributes are not prohibited for an element's role",
-          "help": "Elements must only use permitted ARIA attributes",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI",
-          "nodes": [
-            {
-              "any": [],
-              "all": [],
-              "none": [
-                {
-                  "id": "aria-prohibited-attr",
-                  "data": {
-                    "role": null,
-                    "nodeName": "div",
-                    "messageKey": "noRoleSingular",
-                    "prohibited": [
-                      "aria-label"
-                    ]
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-                }
-              ],
-              "impact": "serious",
-              "html": "<div id=\"map\" class=\"map\" aria-label=\"Carte du trajet\">",
-              "target": [
-                "#map"
-              ],
-              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ]
-        },
-        {
           "id": "color-contrast",
           "impact": "serious",
           "tags": [
@@ -555,13 +188,13 @@
                   },
                   "relatedNodes": [
                     {
-                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence · 2 stations · E10</div>",
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
                       "target": [
                         "#fallbackLabel"
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -574,7 +207,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence · 2 stations · E10</div>",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
               "target": [
                 "#fallbackLabel"
               ],
@@ -586,227 +219,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
+                    "fontSize": "17.3pt (23px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "3:1"
                   },
                   "relatedNodes": [
                     {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
                       "target": [
                         "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
                       ]
                     }
                   ],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span>Départ</span>",
+              "html": "<h1>Mon trajet</h1>",
               "target": [
-                ".route-fields > label:nth-child(1) > span"
+                "h1"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Arrivée</span>",
-              "target": [
-                ".route-fields > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Carburant</span>",
-              "target": [
-                ".settings > label:nth-child(1) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Litres</span>",
-              "target": [
-                ".settings > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>L/100 km</span>",
-              "target": [
-                "label:nth-child(3) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Temps €/h</span>",
-              "target": [
-                "label:nth-child(4) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
             {
               "any": [
@@ -816,35 +253,50 @@
                     "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
-                    "messageKey": "imgNode",
+                    "messageKey": "elmPartiallyObscured",
                     "expectedContrastRatio": "4.5:1"
                   },
                   "relatedNodes": [
                     {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
                       "target": [
                         "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
                       ]
                     }
                   ],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">✅ 2 stations comparées sur le vrai trajet.</span>",
+              "html": "<label for=\"start\">Départ</label>",
               "target": [
-                "#status"
+                "label[for=\"start\"]"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
+              "target": [
+                "#gpsBtn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
             },
             {
               "any": [
@@ -852,42 +304,548 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "6.8pt (9px)",
+                    "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
-                    "messageKey": "imgNode",
+                    "messageKey": "elmPartiallyObscured",
                     "expectedContrastRatio": "4.5:1"
                   },
                   "relatedNodes": [
                     {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
                       "target": [
                         "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
                       ]
                     }
                   ],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<footer>\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      </footer>",
+              "html": "<label for=\"end\">Arrivée</label>",
               "target": [
-                "footer"
+                "label[for=\"end\"]"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">Trajet prêt. Choisis maintenant tes arrêts.</span>",
+              "target": [
+                "#status"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "15.0pt (20px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<b id=\"tripKm\">104,0 km</b>",
+              "target": [
+                "#tripKm"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>trajet direct</small>",
+              "target": [
+                "#summary > .metric:nth-child(1) > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "15.0pt (20px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<b id=\"tripTime\">65 min</b>",
+              "target": [
+                "#tripTime"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>durée estimée</small>",
+              "target": [
+                "#summary > .metric:nth-child(2) > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "13.5pt (18px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 id=\"stopsHeading\">Sur mon trajet</h2>",
+              "target": [
+                "#stopsHeading"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"stationsTab\" role=\"tab\" aria-selected=\"true\" aria-controls=\"stationsPanel\">Stations</button>",
+              "target": [
+                "#stationsTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"ridesTab\" role=\"tab\" aria-selected=\"false\" aria-controls=\"ridesPanel\" tabindex=\"-1\">Covoiturage</button>",
+              "target": [
+                "#ridesTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<legend>Quand faire le plein ?</legend>",
+              "target": [
+                "legend"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label><input type=\"radio\" name=\"stopMode\" value=\"soon\" checked=\"\" style=\"\"> Au plus tôt</label>",
+              "target": [
+                "label:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label><input type=\"radio\" name=\"stopMode\" value=\"near\" style=\"\"> Bon compromis proche</label>",
+              "target": [
+                "label:nth-child(3)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label><input type=\"radio\" name=\"stopMode\" value=\"around\" style=\"\"> Vers une distance choisie</label>",
+              "target": [
+                "label:nth-child(4)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"windowNote\" class=\"note\">Stations classées par distance routière depuis le départ.</p>",
+              "target": [
+                "#windowNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"fuel\">Carburant</label>",
+              "target": [
+                "label[for=\"fuel\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"liters\">Litres à acheter</label>",
+              "target": [
+                "label[for=\"liters\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"cons\">Conso. L/100 km</label>",
+              "target": [
+                "label[for=\"cons\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             }
           ]
         }
       ],
-      "rulesPassed": 22
+      "rulesPassed": 28
     },
     {
       "project": "tablet-768",
@@ -895,48 +853,6 @@
       "violations": [],
       "incomplete": [
         {
-          "id": "aria-prohibited-attr",
-          "impact": "serious",
-          "tags": [
-            "cat.aria",
-            "wcag2a",
-            "wcag412",
-            "EN-301-549",
-            "EN-9.4.1.2"
-          ],
-          "description": "Ensure ARIA attributes are not prohibited for an element's role",
-          "help": "Elements must only use permitted ARIA attributes",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI",
-          "nodes": [
-            {
-              "any": [],
-              "all": [],
-              "none": [
-                {
-                  "id": "aria-prohibited-attr",
-                  "data": {
-                    "role": null,
-                    "nodeName": "div",
-                    "messageKey": "noRoleSingular",
-                    "prohibited": [
-                      "aria-label"
-                    ]
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-                }
-              ],
-              "impact": "serious",
-              "html": "<div id=\"map\" class=\"map\" aria-label=\"Carte du trajet\">",
-              "target": [
-                "#map"
-              ],
-              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ]
-        },
-        {
           "id": "color-contrast",
           "impact": "serious",
           "tags": [
@@ -972,7 +888,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -996,309 +912,26 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
+                    "messageKey": "nonBmp"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element content contains only non-text characters"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span>Départ</span>",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
               "target": [
-                ".route-fields > label:nth-child(1) > span"
+                "#gpsBtn"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Arrivée</span>",
-              "target": [
-                ".route-fields > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Carburant</span>",
-              "target": [
-                ".settings > label:nth-child(1) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Litres</span>",
-              "target": [
-                ".settings > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>L/100 km</span>",
-              "target": [
-                "label:nth-child(3) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Temps €/h</span>",
-              "target": [
-                "label:nth-child(4) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">Moteur chargé. Prêt pour un trajet réel.</span>",
-              "target": [
-                "#status"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "6.8pt (9px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<footer>\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      </footer>",
-              "target": [
-                "footer"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
             }
           ]
         }
       ],
-      "rulesPassed": 22
+      "rulesPassed": 24
     },
     {
       "project": "tablet-768",
@@ -1306,48 +939,6 @@
       "violations": [],
       "incomplete": [
         {
-          "id": "aria-prohibited-attr",
-          "impact": "serious",
-          "tags": [
-            "cat.aria",
-            "wcag2a",
-            "wcag412",
-            "EN-301-549",
-            "EN-9.4.1.2"
-          ],
-          "description": "Ensure ARIA attributes are not prohibited for an element's role",
-          "help": "Elements must only use permitted ARIA attributes",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI",
-          "nodes": [
-            {
-              "any": [],
-              "all": [],
-              "none": [
-                {
-                  "id": "aria-prohibited-attr",
-                  "data": {
-                    "role": null,
-                    "nodeName": "div",
-                    "messageKey": "noRoleSingular",
-                    "prohibited": [
-                      "aria-label"
-                    ]
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-                }
-              ],
-              "impact": "serious",
-              "html": "<div id=\"map\" class=\"map\" aria-label=\"Carte du trajet\">",
-              "target": [
-                "#map"
-              ],
-              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ]
-        },
-        {
           "id": "color-contrast",
           "impact": "serious",
           "tags": [
@@ -1377,13 +968,13 @@
                   },
                   "relatedNodes": [
                     {
-                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence · 2 stations · E10</div>",
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
                       "target": [
                         "#fallbackLabel"
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -1396,7 +987,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence · 2 stations · E10</div>",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
               "target": [
                 "#fallbackLabel"
               ],
@@ -1407,357 +998,32 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
+                    "messageKey": "nonBmp"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element content contains only non-text characters"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span>Départ</span>",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
               "target": [
-                ".route-fields > label:nth-child(1) > span"
+                "#gpsBtn"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Arrivée</span>",
-              "target": [
-                ".route-fields > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Carburant</span>",
-              "target": [
-                ".settings > label:nth-child(1) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Litres</span>",
-              "target": [
-                ".settings > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>L/100 km</span>",
-              "target": [
-                "label:nth-child(3) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Temps €/h</span>",
-              "target": [
-                "label:nth-child(4) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">✅ 2 stations comparées sur le vrai trajet.</span>",
-              "target": [
-                "#status"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "6.8pt (9px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<footer>\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      </footer>",
-              "target": [
-                "footer"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
             }
           ]
         }
       ],
-      "rulesPassed": 22
+      "rulesPassed": 27
     },
     {
       "project": "mobile-390",
       "state": "accessibilite-demarrage",
       "violations": [],
       "incomplete": [
-        {
-          "id": "aria-prohibited-attr",
-          "impact": "serious",
-          "tags": [
-            "cat.aria",
-            "wcag2a",
-            "wcag412",
-            "EN-301-549",
-            "EN-9.4.1.2"
-          ],
-          "description": "Ensure ARIA attributes are not prohibited for an element's role",
-          "help": "Elements must only use permitted ARIA attributes",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI",
-          "nodes": [
-            {
-              "any": [],
-              "all": [],
-              "none": [
-                {
-                  "id": "aria-prohibited-attr",
-                  "data": {
-                    "role": null,
-                    "nodeName": "div",
-                    "messageKey": "noRoleSingular",
-                    "prohibited": [
-                      "aria-label"
-                    ]
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-                }
-              ],
-              "impact": "serious",
-              "html": "<div id=\"map\" class=\"map\" aria-label=\"Carte du trajet\">",
-              "target": [
-                "#map"
-              ],
-              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ]
-        },
         {
           "id": "color-contrast",
           "impact": "serious",
@@ -1794,7 +1060,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -1818,357 +1084,32 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
+                    "messageKey": "nonBmp"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element content contains only non-text characters"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span>Départ</span>",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
               "target": [
-                ".route-fields > label:nth-child(1) > span"
+                "#gpsBtn"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Arrivée</span>",
-              "target": [
-                ".route-fields > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Carburant</span>",
-              "target": [
-                ".settings > label:nth-child(1) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Litres</span>",
-              "target": [
-                ".settings > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>L/100 km</span>",
-              "target": [
-                "label:nth-child(3) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Temps €/h</span>",
-              "target": [
-                "label:nth-child(4) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">Moteur chargé. Prêt pour un trajet réel.</span>",
-              "target": [
-                "#status"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "6.8pt (9px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<footer>\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      </footer>",
-              "target": [
-                "footer"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
             }
           ]
         }
       ],
-      "rulesPassed": 22
+      "rulesPassed": 24
     },
     {
       "project": "mobile-390",
       "state": "accessibilite-resultats",
       "violations": [],
       "incomplete": [
-        {
-          "id": "aria-prohibited-attr",
-          "impact": "serious",
-          "tags": [
-            "cat.aria",
-            "wcag2a",
-            "wcag412",
-            "EN-301-549",
-            "EN-9.4.1.2"
-          ],
-          "description": "Ensure ARIA attributes are not prohibited for an element's role",
-          "help": "Elements must only use permitted ARIA attributes",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI",
-          "nodes": [
-            {
-              "any": [],
-              "all": [],
-              "none": [
-                {
-                  "id": "aria-prohibited-attr",
-                  "data": {
-                    "role": null,
-                    "nodeName": "div",
-                    "messageKey": "noRoleSingular",
-                    "prohibited": [
-                      "aria-label"
-                    ]
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-                }
-              ],
-              "impact": "serious",
-              "html": "<div id=\"map\" class=\"map\" aria-label=\"Carte du trajet\">",
-              "target": [
-                "#map"
-              ],
-              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ]
-        },
         {
           "id": "color-contrast",
           "impact": "serious",
@@ -2199,13 +1140,13 @@
                   },
                   "relatedNodes": [
                     {
-                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence · 2 stations · E10</div>",
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
                       "target": [
                         "#fallbackLabel"
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -2218,7 +1159,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence · 2 stations · E10</div>",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
               "target": [
                 "#fallbackLabel"
               ],
@@ -2229,277 +1170,32 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
+                    "messageKey": "nonBmp"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                  "message": "Element content contains only non-text characters"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span>Départ</span>",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
               "target": [
-                ".route-fields > label:nth-child(1) > span"
+                "#gpsBtn"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Arrivée</span>",
-              "target": [
-                ".route-fields > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Carburant</span>",
-              "target": [
-                ".settings > label:nth-child(1) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Litres</span>",
-              "target": [
-                ".settings > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>L/100 km</span>",
-              "target": [
-                "label:nth-child(3) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Temps €/h</span>",
-              "target": [
-                "label:nth-child(4) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">✅ 2 stations comparées sur le vrai trajet.</span>",
-              "target": [
-                "#status"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
             }
           ]
         }
       ],
-      "rulesPassed": 23
+      "rulesPassed": 27
     },
     {
       "project": "mobile-360",
       "state": "accessibilite-demarrage",
       "violations": [],
       "incomplete": [
-        {
-          "id": "aria-prohibited-attr",
-          "impact": "serious",
-          "tags": [
-            "cat.aria",
-            "wcag2a",
-            "wcag412",
-            "EN-301-549",
-            "EN-9.4.1.2"
-          ],
-          "description": "Ensure ARIA attributes are not prohibited for an element's role",
-          "help": "Elements must only use permitted ARIA attributes",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI",
-          "nodes": [
-            {
-              "any": [],
-              "all": [],
-              "none": [
-                {
-                  "id": "aria-prohibited-attr",
-                  "data": {
-                    "role": null,
-                    "nodeName": "div",
-                    "messageKey": "noRoleSingular",
-                    "prohibited": [
-                      "aria-label"
-                    ]
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-                }
-              ],
-              "impact": "serious",
-              "html": "<div id=\"map\" class=\"map\" aria-label=\"Carte du trajet\">",
-              "target": [
-                "#map"
-              ],
-              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ]
-        },
         {
           "id": "color-contrast",
           "impact": "serious",
@@ -2536,7 +1232,7 @@
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -2560,319 +1256,32 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
+                    "messageKey": "nonBmp"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element content contains only non-text characters"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span>Départ</span>",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
               "target": [
-                ".route-fields > label:nth-child(1) > span"
+                "#gpsBtn"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Arrivée</span>",
-              "target": [
-                ".route-fields > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Carburant</span>",
-              "target": [
-                ".settings > label:nth-child(1) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Litres</span>",
-              "target": [
-                ".settings > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>L/100 km</span>",
-              "target": [
-                "label:nth-child(3) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Temps €/h</span>",
-              "target": [
-                "label:nth-child(4) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">Moteur chargé. Prêt pour un trajet réel.</span>",
-              "target": [
-                "#status"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
             }
           ]
         }
       ],
-      "rulesPassed": 23
+      "rulesPassed": 24
     },
     {
       "project": "mobile-360",
       "state": "accessibilite-resultats",
       "violations": [],
       "incomplete": [
-        {
-          "id": "aria-prohibited-attr",
-          "impact": "serious",
-          "tags": [
-            "cat.aria",
-            "wcag2a",
-            "wcag412",
-            "EN-301-549",
-            "EN-9.4.1.2"
-          ],
-          "description": "Ensure ARIA attributes are not prohibited for an element's role",
-          "help": "Elements must only use permitted ARIA attributes",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI",
-          "nodes": [
-            {
-              "any": [],
-              "all": [],
-              "none": [
-                {
-                  "id": "aria-prohibited-attr",
-                  "data": {
-                    "role": null,
-                    "nodeName": "div",
-                    "messageKey": "noRoleSingular",
-                    "prohibited": [
-                      "aria-label"
-                    ]
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-                }
-              ],
-              "impact": "serious",
-              "html": "<div id=\"map\" class=\"map\" aria-label=\"Carte du trajet\">",
-              "target": [
-                "#map"
-              ],
-              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ]
-        },
         {
           "id": "color-contrast",
           "impact": "serious",
@@ -2903,13 +1312,13 @@
                   },
                   "relatedNodes": [
                     {
-                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence · 2 stations · E10</div>",
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
                       "target": [
                         "#fallbackLabel"
                       ]
                     },
                     {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid slice\">",
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"img\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
                       "target": [
                         "#routeViz"
                       ]
@@ -2922,7 +1331,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence · 2 stations · E10</div>",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
               "target": [
                 "#fallbackLabel"
               ],
@@ -2933,171 +1342,32 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
+                    "messageKey": "nonBmp"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                  "message": "Element content contains only non-text characters"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<span>Carburant</span>",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
               "target": [
-                ".settings > label:nth-child(1) > span"
+                "#gpsBtn"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Litres</span>",
-              "target": [
-                ".settings > label:nth-child(2) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>L/100 km</span>",
-              "target": [
-                "label:nth-child(3) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span>Temps €/h</span>",
-              "target": [
-                "label:nth-child(4) > span"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<section class=\"sheet\" id=\"sheet\">",
-                      "target": [
-                        "#sheet"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<span id=\"status\" role=\"status\" aria-live=\"polite\">✅ 2 stations comparées sur le vrai trajet.</span>",
-              "target": [
-                "#status"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
             }
           ]
         }
       ],
-      "rulesPassed": 23
+      "rulesPassed": 27
     }
   ],
   "diagnostics": [],
   "notTested": [
     "Disponibilite des API reelles",
-    "Carte Leaflet et tuiles externes",
+    "Tuiles cartographiques reelles (Leaflet teste avec tuiles simulees)",
     "Installation PWA et hors connexion",
     "Lighthouse et performances",
     "Comparaison avec des captures approuvees",
