@@ -1,13 +1,15 @@
 name: Applications — Inspectrice
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'DragonRoute/**'
       - 'APP_*.html'
       - 'tests/**'
+      - 'docs/acceptance/**'
       - 'playwright.config.mjs'
-      - 'package.json'
+      - 'package*.json'
       - '.github/workflows/apps-ci.yml'
   push:
     branches: [main]
@@ -15,13 +17,24 @@ on:
       - 'DragonRoute/**'
       - 'APP_*.html'
       - 'tests/**'
+      - 'docs/acceptance/**'
       - 'playwright.config.mjs'
-      - 'package.json'
+      - 'package*.json'
+      - '.github/workflows/apps-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: inspectrice-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   inspect:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,24 +42,21 @@ jobs:
           node-version: 22
       - name: Install test dependencies
         run: npm install --no-audit --no-fund
-      - name: Static contract
-        run: npm run test:contract
-      - name: JavaScript syntax
-        run: |
-          node --check DragonRoute/app.js
-          node --check DragonRoute/config.js
-          node --check DragonRoute/service-worker.js
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser acceptance tests
-        run: npm run test:e2e
-      - name: Archive inspection report
+      - name: Inspectrice v2
+        run: npm run inspect
+      - name: Publish inspection summary even after failure
+        if: always()
+        run: node tests/inspection-report.mjs
+      - name: Archive inspection evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: inspectrice-playwright-report
+          name: inspectrice-v2
           path: |
+            quality/
             playwright-report/
             test-results/
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14

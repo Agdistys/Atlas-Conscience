@@ -9,6 +9,7 @@ html,body,#app{height:100%;margin:0}
 body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
 button,input,select{font:inherit}
 button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .topbar{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#0f141b;border-bottom:1px solid #242c36;position:relative;z-index:10}
 .brand{display:flex;align-items:center;gap:8px}.brand strong{font-size:18px}.dragon{font-size:21px}
 .badge{font-size:10px;font-weight:900;background:var(--gold);color:#21180a;padding:4px 7px;border-radius:999px}
@@ -40,6 +41,7 @@ input:focus,select:focus{border-color:#796642;box-shadow:0 0 0 2px #f2c66d16}
 .status-dot{width:9px;height:9px;border-radius:50%;background:#626c79;flex:none;margin-top:4px}
 .status-dot.busy{background:var(--orange);animation:pulse .7s infinite alternate}.status-dot.ok{background:var(--green)}.status-dot.err{background:var(--red)}
 @keyframes pulse{to{opacity:.28}}
+@media(prefers-reduced-motion:reduce){.status-dot.busy{animation:none}}
 .health{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
 .pill{font-size:10px;border:1px solid #313b48;border-radius:999px;color:var(--muted);padding:4px 7px;background:#10151c}
 .pill.ok{border-color:#315a3d;color:#9ae5ac}.pill.busy{border-color:#674e2f;color:#ffc27a}.pill.err{border-color:#653737;color:#ff9c9c}
