@@ -183,14 +183,18 @@ async function geocode(q){
   if(!d?.length) throw new Error(`Lieu introuvable : ${q}`);
   return {lat:+d[0].lat,lon:+d[0].lon,label:d[0].display_name||q};
 }
-async function route(points,overview=true){
+function hasRouteGeometry(r){
+  return r?.geometry?.type==="LineString"&&Array.isArray(r.geometry.coordinates)&&r.geometry.coordinates.length>1&&r.geometry.coordinates.every(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90);
+}
+async function route(points,overview=true,alternatives=false){
   health("hRoute","busy","routage…");
   const coords=points.map(p=>`${p[1]},${p[0]}`).join(";");
-  const u=`${C.osrm}/route/v1/driving/${coords}?overview=${overview?"full":"false"}&geometries=geojson&steps=false&alternatives=false`;
+  const u=`${C.osrm}/route/v1/driving/${coords}?overview=${overview?"full":"false"}&geometries=geojson&steps=false&alternatives=${alternatives}`;
   const d=await getJSON(u,"Routage",20000);
   if(d.code!=="Ok"||!d.routes?.length) throw new Error("Aucun itinéraire routier trouvé");
+  if(overview&&!hasRouteGeometry(d.routes[0]))throw new Error("Tracé routier incomplet. Relancer la recherche.");
   health("hRoute","ok","routage ✓");
-  return d.routes[0];
+  return {...d.routes[0],alternatives:alternatives?d.routes.slice(1).filter(hasRouteGeometry):[]};
 }
 async function matrix(points){
   const coords=points.map(p=>`${p[1]},${p[0]}`).join(";");
@@ -332,16 +336,22 @@ function renderStations(stations,mode){
     </article>`).join("");
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-function projectSvg(coords,stations=[],best=null,label=""){
+function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   if(!coords?.length)return;
   const W=1000,H=700,pad=70;
   let minLat=Infinity,maxLat=-Infinity,minLon=Infinity,maxLon=-Infinity;
-  const all=coords.concat(stations.map(s=>[s.lat,s.lon]));
+  const all=coords.concat(...alternatives,stations.map(s=>[s.lat,s.lon]));
   for(const [lat,lon] of all){minLat=Math.min(minLat,lat);maxLat=Math.max(maxLat,lat);minLon=Math.min(minLon,lon);maxLon=Math.max(maxLon,lon)}
   const latSpan=Math.max(.01,maxLat-minLat),lonSpan=Math.max(.01,maxLon-minLon);
   const scale=Math.min((W-2*pad)/lonSpan,(H-2*pad)/latSpan);
   const xoff=(W-lonSpan*scale)/2,yoff=(H-latSpan*scale)/2;
   const P=([lat,lon])=>[xoff+(lon-minLon)*scale,H-(yoff+(lat-minLat)*scale)];
+  $("alternativeRoutes").replaceChildren(...alternatives.map(points=>{
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("class","route-alternative");
+    path.setAttribute("d",points.map((p,i)=>{const [x,y]=P(p);return `${i?"L":"M"} ${x.toFixed(1)} ${y.toFixed(1)}`}).join(" "));
+    return path;
+  }));
   const step=Math.max(1,Math.floor(coords.length/350));let d="";
   coords.forEach((p,i)=>{if(i%step&&i!==coords.length-1)return;const [x,y]=P(p);d+=(d?" L ":"M ")+x.toFixed(1)+" "+y.toFixed(1)});
   $("routeLine").setAttribute("d",d);$("routeGlow").setAttribute("d",d);
@@ -353,10 +363,16 @@ function projectSvg(coords,stations=[],best=null,label=""){
 }
 function showOnMap(coords,stations,best,start,end,label){
   mapView=[coords,stations,best,start,end,label];
-  if(!map){projectSvg(coords,stations,best,label);return}
+  const alternatives=best?[]:(trip?.base.alternatives||[]).map(r=>r.geometry.coordinates.map(([lon,lat])=>[lat,lon]));
+  $("routeAlternativesNote").hidden=Boolean(best);
+  $("routeAlternativesNote").textContent=alternatives.length===1?"1 alternative indicative, non sélectionnable pour le moment.":alternatives.length?`${alternatives.length} alternatives indicatives, non sélectionnables pour le moment.`:"Aucun autre trajet proposé par le moteur pour cette recherche.";
+  if(!map){projectSvg(coords,stations,best,label,alternatives);return}
   if(routeLayer)map.removeLayer(routeLayer);
   markerLayer.clearLayers();
-  routeLayer=L.polyline(coords,{color:"#f2c66d",weight:5,opacity:.95}).addTo(map);
+  routeLayer=L.featureGroup().addTo(map);
+  alternatives.forEach(points=>L.polyline(points,{color:"#82baff",weight:6,opacity:1,interactive:false,className:"map-route-alternative"}).addTo(routeLayer));
+  L.polyline(coords,{color:"#fff",weight:11,opacity:1,interactive:false,className:"map-route-outline"}).addTo(routeLayer);
+  L.polyline(coords,{color:"#0758d9",weight:7,opacity:1,interactive:false,className:"map-route-selected"}).addTo(routeLayer);
   L.circleMarker(start,{radius:7,color:"#111",weight:3,fillColor:"#fff",fillOpacity:1}).addTo(markerLayer);
   L.circleMarker(end,{radius:7,color:"#111",weight:3,fillColor:"#fff",fillOpacity:1}).addTo(markerLayer);
   stations.forEach(s=>{
@@ -380,6 +396,7 @@ function clearResults(){
   $("summary").hidden=true;$("stops").hidden=true;
   $("tripKm").textContent="—";$("tripTime").textContent="—";
   for(const id of ["routeLine","routeGlow"])$(id).setAttribute("d","");
+  $("alternativeRoutes").replaceChildren();$("routeAlternativesNote").hidden=true;
   $("stationDots").replaceChildren();
   for(const id of ["startDot","endDot"]){$(id).setAttribute("cx","-50");$(id).setAttribute("cy","-50")}
   $("fallbackLabel").textContent="En attente du nouveau trajet.";
@@ -412,7 +429,7 @@ async function run(){
     health("hGeo","ok","géocodage ✓");
     const a=[ga.lat,ga.lon],b=[gb.lat,gb.lon];
     setStatus("Calcul du trajet…","busy");
-    const base=await route([a,b],true);
+    const base=await route([a,b],true,true);
     const coords=base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
     const label=`${ga.label.split(",")[0]} → ${gb.label.split(",")[0]}`;
     trip={a,b,base,coords,label};

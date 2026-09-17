@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-09-17T15:09:19.343Z",
-  "commit": "ab129e457cfd0f3674124d64ec141ca0382c8d9a",
+  "generatedAt": "2026-09-17T20:14:32.247Z",
+  "commit": "f196adcd7266148f08cb86626be7a84de4e9dbdc",
   "state": "inspection",
-  "passed": 64,
-  "total": 64,
+  "passed": 68,
+  "total": 68,
   "stages": {
     "contract": {
       "exitCode": 0,
@@ -194,9 +194,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<text x=\"504.01155790994454\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
+              "html": "<text x=\"440.77052732964154\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
               "target": [
-                "text[x=\"504.01155790994454\"]"
+                "text[x=\"440.77052732964154\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
@@ -219,9 +219,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<text x=\"510.75367204430506\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
+              "html": "<text x=\"447.51264146400206\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
               "target": [
-                "text[x=\"510.75367204430506\"]"
+                "text[x=\"447.51264146400206\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
@@ -537,6 +537,38 @@
               "html": "<small>durée estimée</small>",
               "target": [
                 "#summary > .metric:nth-child(2) > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"routeAlternativesNote\" class=\"note\">1 alternative indicative, non sélectionnable pour le moment.</p>",
+              "target": [
+                "#routeAlternativesNote"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -1134,9 +1166,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<text x=\"504.01155790994454\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
+              "html": "<text x=\"440.77052732964154\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
               "target": [
-                "text[x=\"504.01155790994454\"]"
+                "text[x=\"440.77052732964154\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
@@ -1159,9 +1191,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<text x=\"510.75367204430506\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
+              "html": "<text x=\"447.51264146400206\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
               "target": [
-                "text[x=\"510.75367204430506\"]"
+                "text[x=\"447.51264146400206\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
@@ -1415,9 +1447,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<text x=\"504.01155790994454\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
+              "html": "<text x=\"440.77052732964154\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
               "target": [
-                "text[x=\"504.01155790994454\"]"
+                "text[x=\"440.77052732964154\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
@@ -1440,9 +1472,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<text x=\"510.75367204430506\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
+              "html": "<text x=\"447.51264146400206\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
               "target": [
-                "text[x=\"510.75367204430506\"]"
+                "text[x=\"447.51264146400206\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
@@ -1876,9 +1908,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<text x=\"504.01155790994454\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
+              "html": "<text x=\"440.77052732964154\" y=\"320.4129544907313\" text-anchor=\"middle\">1</text>",
               "target": [
-                "text[x=\"504.01155790994454\"]"
+                "text[x=\"440.77052732964154\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
@@ -1901,9 +1933,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<text x=\"510.75367204430506\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
+              "html": "<text x=\"447.51264146400206\" y=\"455.2552371779418\" text-anchor=\"middle\">2</text>",
               "target": [
-                "text[x=\"510.75367204430506\"]"
+                "text[x=\"447.51264146400206\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
@@ -1993,6 +2025,31 @@
           "help": "Elements must meet minimum color contrast ratio thresholds",
           "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
           "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscuring",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Automate 24 h/24 : Oui. Les horaires de la boutique peuvent différer.</p>",
+              "target": [
+                ".detail-section:nth-child(3) > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+            },
             {
               "any": [
                 {
