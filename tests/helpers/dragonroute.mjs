@@ -31,21 +31,12 @@ export async function mockDragonRoute(page){
     }]
   }));
 
-  await page.route('https://router.project-osrm.org/table/v1/driving/**',route=>json(route,{
-    code:'Ok',
-    distances:[
-      [0,50000,62000,104000],
-      [50000,0,12000,56000],
-      [62000,12000,0,45000],
-      [104000,56000,45000,0]
-    ],
-    durations:[
-      [0,1850,2300,3900],
-      [1850,0,500,2100],
-      [2300,500,0,1750],
-      [3900,2100,1750,0]
-    ]
-  }));
+  await page.route('https://router.project-osrm.org/table/v1/driving/**', route => {
+    const coords = new URL(route.request().url()).pathname.split('/').at(-1).split(';');
+    const km = coords.map((_, i) => i === 0 ? 0 : i === coords.length - 1 ? 104 : Number(coords[i].split(',')[1]) > 45.3 ? 50 : 62);
+    const distances = km.map((a, i) => km.map((b, j) => i === j ? 0 : (Math.abs(a-b) + (i > 0 && i < km.length-1 || j > 0 && j < km.length-1 ? 1 : 0))*1000));
+    return json(route, { code: 'Ok', distances, durations: distances.map(row => row.map(value => value/26)) });
+  });
 
   await page.route('https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?**',route=>json(route,{
     total_count:2,

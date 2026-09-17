@@ -10,7 +10,12 @@ export const requiredScenarios = [
   'erreur de geocodage explicite',
   'relance apres succes puis panne du geocodage et recuperation',
   'relance apres succes puis panne du routage et recuperation',
-  'Entree pendant une recherche ne cree pas de requetes concurrentes'
+  'Entree pendant une recherche ne cree pas de requetes concurrentes',
+  'trajet disponible avant toute recherche de station',
+  'une seule station cumule les trois badges sans doublon',
+  'stations filtrees par distance et jamais elargies silencieusement',
+  'panne carburants ne supprime pas le trajet et peut etre relancee',
+  'carte Leaflet interactive sans recouvrement des commandes'
 ];
 const states = ['demarrage', 'resultats'];
 const stageNames = ['contract', 'syntax', 'report-tests', 'browser'];
@@ -83,7 +88,7 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
     generatedAt: new Date().toISOString(), commit: process.env.INSPECTION_COMMIT || process.env.GITHUB_SHA || null,
     state: ready ? 'inspection' : 'blocked', passed: summary.passed, total: summary.total,
     stages: summary.stages, screenshots, accessibility, diagnostics,
-    notTested: ['Disponibilite des API reelles', 'Carte Leaflet et tuiles externes', 'Installation PWA et hors connexion',
+    notTested: ['Disponibilite des API reelles', 'Tuiles cartographiques reelles (Leaflet teste avec tuiles simulees)', 'Installation PWA et hors connexion',
       'Lighthouse et performances', 'Comparaison avec des captures approuvees', 'Autres applications'],
     humanDecision: 'En attente de validation humaine' };
   fs.writeFileSync(path.join(output, 'status.json'), JSON.stringify(status, null, 2));
