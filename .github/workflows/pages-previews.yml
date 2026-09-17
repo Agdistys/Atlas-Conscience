@@ -70,8 +70,11 @@ jobs:
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./public-source
-          destination: ./site
+          destination: ./built-site
           build_revision: ${{ steps.plan.outputs.main }}
+      - name: Prepare writable publication copy
+        if: steps.plan.outputs.publish == 'true'
+        run: cp -R built-site site
       - name: Download inspected preview as static files
         if: steps.plan.outputs.publish == 'true' && steps.plan.outputs.pr != ''
         uses: actions/download-artifact@v4
