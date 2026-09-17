@@ -1,6 +1,6 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inspectrice v2</title>
 <style>body{margin:0;background:#09090e;color:#eee;font:16px/1.6 system-ui}main{max-width:1080px;margin:auto;padding:24px}h1{font-size:28px}h2{font-size:21px}section{padding:20px 0;border-top:1px solid #555}img{max-width:100%;height:auto}a{color:#87dccc}code,pre{white-space:pre-wrap;overflow-wrap:anywhere}figure{margin:24px 0}li{overflow-wrap:anywhere}summary{cursor:pointer}small{color:#ccc}</style></head><body><main>
-<h1>Inspectrice v2</h1><p><strong>PRET POUR INSPECTION</strong></p><p>2026-09-17T14:55:52.357Z<br>Commit : <code>9c67b9172869f74f15a284a54fbb316ef9a027c0</code></p>
+<h1>Inspectrice v2</h1><p><strong>PRET POUR INSPECTION</strong></p><p>2026-09-17T15:03:13.260Z<br>Commit : <code>07ca1f6d1dea6fc2718bcf8f3b85376c8fe52d0d</code></p>
 <p>DragonRoute, pilote de OuQuandQui. Tests avec services simules et carte de secours.</p>
 <section><h2>Controles</h2><ul><li>contract : OK</li><li>syntax : OK</li><li>report-tests : OK</li><li>browser : OK</li></ul>
 <p>Tests navigateur : 64/64. Captures : 8/8. Audits : 16 (8 de base requis).</p>
@@ -1449,31 +1449,6 @@
           &quot;all&quot;: [],
           &quot;none&quot;: [],
           &quot;impact&quot;: &quot;serious&quot;,
-          &quot;html&quot;: &quot;&lt;p class=\&quot;note\&quot;&gt;Automate 24 h/24 : Oui. Les horaires de la boutique peuvent différer.&lt;/p&gt;&quot;,
-          &quot;target&quot;: [
-            &quot;.detail-section:nth-child(3) &gt; .note&quot;
-          ],
-          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it partially overlaps other elements&quot;
-        },
-        {
-          &quot;any&quot;: [
-            {
-              &quot;id&quot;: &quot;color-contrast&quot;,
-              &quot;data&quot;: {
-                &quot;contrastRatio&quot;: 0,
-                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
-                &quot;fontWeight&quot;: &quot;normal&quot;,
-                &quot;messageKey&quot;: &quot;elmPartiallyObscuring&quot;,
-                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
-              },
-              &quot;relatedNodes&quot;: [],
-              &quot;impact&quot;: &quot;serious&quot;,
-              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it partially overlaps other elements&quot;
-            }
-          ],
-          &quot;all&quot;: [],
-          &quot;none&quot;: [],
-          &quot;impact&quot;: &quot;serious&quot;,
           &quot;html&quot;: &quot;&lt;p class=\&quot;note\&quot;&gt;Informations déclaratives, ouverture et disponibilité à confirmer sur place. Données reçues le 17/09/2026 12:00:00.&lt;/p&gt;&quot;,
           &quot;target&quot;: [
             &quot;#stationDetails &gt; .note&quot;
@@ -1503,38 +1478,6 @@
       &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
       &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
       &quot;nodes&quot;: [
-        {
-          &quot;any&quot;: [
-            {
-              &quot;id&quot;: &quot;color-contrast&quot;,
-              &quot;data&quot;: {
-                &quot;contrastRatio&quot;: 0,
-                &quot;fontSize&quot;: &quot;13.5pt (18px)&quot;,
-                &quot;fontWeight&quot;: &quot;bold&quot;,
-                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
-                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
-              },
-              &quot;relatedNodes&quot;: [
-                {
-                  &quot;html&quot;: &quot;&lt;dialog id=\&quot;profileDialog\&quot; aria-labelledby=\&quot;profileTitle\&quot; open=\&quot;\&quot;&gt;&quot;,
-                  &quot;target&quot;: [
-                    &quot;#profileDialog&quot;
-                  ]
-                }
-              ],
-              &quot;impact&quot;: &quot;serious&quot;,
-              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
-            }
-          ],
-          &quot;all&quot;: [],
-          &quot;none&quot;: [],
-          &quot;impact&quot;: &quot;serious&quot;,
-          &quot;html&quot;: &quot;&lt;h2 id=\&quot;profileTitle\&quot;&gt;Mon profil&lt;/h2&gt;&quot;,
-          &quot;target&quot;: [
-            &quot;#profileTitle&quot;
-          ],
-          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
-        },
         {
           &quot;any&quot;: [
             {
@@ -1956,31 +1899,6 @@
             &quot;#stationDetails &gt; .note&quot;
           ],
           &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it partially overlaps other elements&quot;
-        },
-        {
-          &quot;any&quot;: [
-            {
-              &quot;id&quot;: &quot;color-contrast&quot;,
-              &quot;data&quot;: {
-                &quot;contrastRatio&quot;: 0,
-                &quot;fontSize&quot;: &quot;10.5pt (14px)&quot;,
-                &quot;fontWeight&quot;: &quot;bold&quot;,
-                &quot;messageKey&quot;: &quot;elmPartiallyObscuring&quot;,
-                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
-              },
-              &quot;relatedNodes&quot;: [],
-              &quot;impact&quot;: &quot;serious&quot;,
-              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it partially overlaps other elements&quot;
-            }
-          ],
-          &quot;all&quot;: [],
-          &quot;none&quot;: [],
-          &quot;impact&quot;: &quot;serious&quot;,
-          &quot;html&quot;: &quot;&lt;button id=\&quot;detailChooseBtn\&quot; class=\&quot;primary\&quot;&gt;Choisir cet arrêt&lt;/button&gt;&quot;,
-          &quot;target&quot;: [
-            &quot;#detailChooseBtn&quot;
-          ],
-          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it partially overlaps other elements&quot;
         }
       ]
     }
@@ -2005,38 +1923,6 @@
       &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
       &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
       &quot;nodes&quot;: [
-        {
-          &quot;any&quot;: [
-            {
-              &quot;id&quot;: &quot;color-contrast&quot;,
-              &quot;data&quot;: {
-                &quot;contrastRatio&quot;: 0,
-                &quot;fontSize&quot;: &quot;13.5pt (18px)&quot;,
-                &quot;fontWeight&quot;: &quot;bold&quot;,
-                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
-                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
-              },
-              &quot;relatedNodes&quot;: [
-                {
-                  &quot;html&quot;: &quot;&lt;dialog id=\&quot;profileDialog\&quot; aria-labelledby=\&quot;profileTitle\&quot; open=\&quot;\&quot;&gt;&quot;,
-                  &quot;target&quot;: [
-                    &quot;#profileDialog&quot;
-                  ]
-                }
-              ],
-              &quot;impact&quot;: &quot;serious&quot;,
-              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
-            }
-          ],
-          &quot;all&quot;: [],
-          &quot;none&quot;: [],
-          &quot;impact&quot;: &quot;serious&quot;,
-          &quot;html&quot;: &quot;&lt;h2 id=\&quot;profileTitle\&quot;&gt;Mon profil&lt;/h2&gt;&quot;,
-          &quot;target&quot;: [
-            &quot;#profileTitle&quot;
-          ],
-          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
-        },
         {
           &quot;any&quot;: [
             {
