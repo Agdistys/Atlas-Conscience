@@ -5,7 +5,95 @@ const fuelField={E10:"e10",Gazole:"gazole",SP98:"sp98",SP95:"sp95",E85:"e85",GPL
 const log=[];
 let map=null, routeLayer=null, markerLayer=null, currentPos=null, activeAbort=null, deferredInstall=null;
 let trip=null, compared=[], busy=false;
+let mapView=null,currentStation=null,detailSequence=0;
+const PROFILE_KEY="dragonroute.profile.v1."+(document.body.dataset.preview==="true"?"preview:"+new URL('.',location.href).pathname:"public");
+let profile=emptyProfile(),storageNotice="";
+try{const raw=localStorage.getItem(PROFILE_KEY);if(raw)profile=validateProfile(JSON.parse(raw))}
+catch{storageNotice="Profil non chargé : stockage indisponible ou données invalides. Les réglages par défaut sont utilisés."}
 
+function emptyProfile(){return {version:1,vehicle:{name:"",type:"car",fuel:"E10",cons:6.2,liters:40},addresses:[],stations:[]}}
+function validateProfile(data){
+  const text=(value,max)=>{if(typeof value!=="string"||value.length>max)throw new Error("Texte de profil invalide");return value.trim()};
+  const number=(value,min,max)=>{if(typeof value!=="number"||!Number.isFinite(value)||value<min||value>max)throw new Error("Valeur de profil invalide");return value};
+  if(!data||data.version!==1||!data.vehicle||!Array.isArray(data.addresses)||!Array.isArray(data.stations)||data.addresses.length>50||data.stations.length>100)throw new Error("Format de profil invalide");
+  const v=data.vehicle;
+  if(!["car","caravan","van","truck"].includes(v.type)||!Object.hasOwn(fuelField,v.fuel))throw new Error("Véhicule invalide");
+  const addresses=data.addresses.map(a=>({id:text(a.id,80),name:text(a.name,80),value:text(a.value,250)}));
+  const stations=data.stations.map(s=>({id:text(s.id,80),address:text(s.address,300),city:text(s.city,100),lat:number(s.lat,-90,90),lon:number(s.lon,-180,180)}));
+  for(const list of [addresses,stations]){if(list.some(x=>!x.id)||new Set(list.map(x=>x.id)).size!==list.length)throw new Error("Identifiants invalides")}
+  if(addresses.some(a=>!a.name||!a.value))throw new Error("Adresse incomplète");
+  return {version:1,vehicle:{name:text(v.name,80),type:v.type,fuel:v.fuel,cons:number(v.cons,1,30),liters:number(v.liters,1,150)},addresses,stations};
+}
+function saveProfile(next){
+  try{const clean=validateProfile(next);localStorage.setItem(PROFILE_KEY,JSON.stringify(clean));profile=clean;storageNotice="";renderSaved();updateFavorite();return true}
+  catch{const message="Enregistrement impossible : stockage indisponible, plein ou données invalides.";$("profileMessage").textContent=message;$("stationMessage").textContent=message;return false}
+}
+function applyVehicle(){
+  $("fuel").value=profile.vehicle.fuel;$("cons").value=profile.vehicle.cons;$("liters").value=profile.vehicle.liters;
+  $("activeVehicle").hidden=!profile.vehicle.name&&profile.vehicle.type==="car";
+  $("activeVehicle").textContent=(profile.vehicle.name||"Mon véhicule")+" · "+profile.vehicle.fuel+(profile.vehicle.type!=="car"?" · itinéraire voiture, gabarit non contrôlé":"");
+  if(trip)clearStations();
+}
+function renderSaved(){
+  $("savedAddresses").innerHTML=profile.addresses.length?profile.addresses.map(a=>`<div class="saved-row"><strong>${escapeHtml(a.name)}</strong><p>${escapeHtml(a.value)}</p><div class="dialog-actions"><button class="ghost" data-address-start="${escapeHtml(a.id)}">Départ</button><button class="ghost" data-address-end="${escapeHtml(a.id)}">Arrivée</button><button class="ghost" data-address-edit="${escapeHtml(a.id)}">Modifier</button><button class="ghost" data-address-remove="${escapeHtml(a.id)}">Supprimer</button></div></div>`).join(""):"<p class=note>Aucune adresse enregistrée.</p>";
+  $("savedStations").innerHTML=profile.stations.length?profile.stations.map(s=>`<div class="saved-row"><strong>${escapeHtml(s.city||"Station")}</strong><p>${escapeHtml(s.address)}</p><div class="dialog-actions"><button class="ghost" data-favorite-open="${escapeHtml(s.id)}">Voir la station</button><button class="ghost" data-favorite-remove="${escapeHtml(s.id)}">Retirer</button></div></div>`).join(""):"<p class=note>Aucune station enregistrée.</p>";
+}
+function openProfile(){
+  if(busy)return;
+  $("profileMessage").textContent=storageNotice;
+  for(const [id,key] of [["vehicleName","name"],["vehicleType","type"],["vehicleFuel","fuel"],["vehicleCons","cons"],["vehicleLiters","liters"]])$(id).value=profile.vehicle[key];
+  renderSaved();if(!$("profileDialog").open)$("profileDialog").showModal();
+}
+function updateFavorite(){
+  const saved=currentStation&&profile.stations.some(s=>s.id===currentStation.id);
+  $("favoriteBtn").textContent=saved?"Retirer des favoris":"Enregistrer la station";
+  $("favoriteBtn").setAttribute("aria-pressed",String(Boolean(saved)));
+}
+function stationInfo(r){
+  return {hours:r.horaires??null,automate:r.horaires_automate_24_24??null,services:Array.isArray(r.services_service)?r.services_service.filter(s=>typeof s==="string").slice(0,50):[],receivedAt:new Date().toISOString()};
+}
+function hoursRows(raw){
+  try{
+    const h=typeof raw==="string"?JSON.parse(raw):raw;
+    const days=Array.isArray(h?.jour)?h.jour:h?.jour?[h.jour]:[];
+    return days.slice(0,7).map(day=>{
+      const slots=Array.isArray(day.horaire)?day.horaire:day.horaire?[day.horaire]:[];
+      const time=value=>typeof value==="string"&&/^(?:[01]?\d|2[0-3])[:h.][0-5]\d$|^24[:h.]00$/.test(value)?value.replace(/[h.]/,":"):null;
+      const ranges=slots.map(slot=>[time(slot["@ouverture"]),time(slot["@fermeture"])]).filter(pair=>pair.every(Boolean)).map(pair=>pair.join(" – "));
+      return `${typeof day["@nom"]==="string"?day["@nom"]:"Jour"} : ${day["@ferme"]==="1"?"fermé":ranges.length?ranges.join(", "):"non renseigné"}`;
+    });
+  }catch{return []}
+}
+function renderStationDetails(s){
+  const rows=hoursRows(s.hours);
+  $("stationTitle").textContent=s.city?`Station à ${s.city}`:"Station";
+  $("stationDetails").innerHTML=`<p class="detail-address">${escapeHtml(s.address)}</p><p>${Number.isFinite(s.price)?`${escapeHtml(s.fuel)} : ${fmt(s.price,3)} €/L · ${escapeHtml(age(s.updated))}`:"Prix actuel non renseigné pour le carburant choisi."}</p>
+    <section class="detail-section"><h3>Horaires déclarés</h3><p class="note">Automate 24 h/24 : ${["Oui","Non"].includes(s.automate)?s.automate:"non renseigné"}. Les horaires de la boutique peuvent différer.</p>${rows.length?`<ul>${rows.map(row=>`<li>${escapeHtml(row)}</li>`).join("")}</ul>`:"<p>Horaires non renseignés.</p>"}</section>
+    <section class="detail-section"><h3>Services déclarés</h3>${s.services?.length?`<ul>${s.services.map(service=>`<li>${escapeHtml(service)}</li>`).join("")}</ul>`:"<p>Services non renseignés.</p>"}</section>
+    <p class="note">Informations déclaratives, ouverture et disponibilité à confirmer sur place.${s.receivedAt?` Données reçues le ${escapeHtml(new Date(s.receivedAt).toLocaleString("fr-FR"))}.`:""}</p><a class="detail-source" href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener noreferrer">Source : données officielles des carburants ↗</a>`;
+}
+async function openStation(id){
+  if(busy)return;
+  const sequence=++detailSequence;
+  const live=compared.find(s=>s.id===id),saved=profile.stations.find(s=>s.id===id);
+  if(!live&&!saved)return;
+  currentStation=live||saved;
+  $("stationMessage").textContent="";$("favoriteBtn").disabled=false;
+  $("detailChooseBtn").hidden=!live;updateFavorite();renderStationDetails(currentStation);
+  if(!$("stationDialog").open)$("stationDialog").showModal();
+  if(live)return;
+  $("stationMessage").textContent="Actualisation de la fiche enregistrée…";
+  try{
+    const literal=/^\d+$/.test(id)?id:"'"+id.replaceAll("'","''")+"'";
+    const q=new URLSearchParams({limit:"1",where:`id=${literal}`});
+    const data=await getJSON(`${C.fuelApi}?${q}`,"Fiche station");
+    if(sequence!==detailSequence)return;
+    const record=data.results?.find(r=>String(r.id)===id);
+    if(!record)throw new Error("Station absente de la réponse officielle.");
+    currentStation=stationFrom(record,$("fuel").value)||{...saved,...stationInfo(record)};
+    renderStationDetails(currentStation);$("stationMessage").textContent="Fiche actualisée. Recalcule les stations du trajet pour comparer cet arrêt.";
+  }catch(e){if(sequence===detailSequence)$("stationMessage").textContent=`Informations actuelles indisponibles : ${e.message}`}
+}
 function dbg(...a){
   const s=a.map(v=>typeof v==="string"?v:JSON.stringify(v)).join(" ");
   log.push(new Date().toLocaleTimeString()+" "+s);
@@ -70,10 +158,10 @@ async function initMap(){
   try{
     map=L.map("map",{zoomControl:true,attributionControl:true}).setView([46.7,2.4],6);
     L.tileLayer(C.tileUrl,{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
-    markerLayer=L.layerGroup().addTo(map);
+    markerLayer=L.featureGroup().addTo(map);
     $("mapFallback").style.display="none";
     health("hMap","ok","carte ✓");
-    if(trip)showOnMap(trip.coords,compared,null,trip.a,trip.b,trip.label);
+    if(mapView)showOnMap(...mapView);
     new ResizeObserver(()=>map?.invalidateSize()).observe($("map"));
   }catch(e){
     map=null; health("hMap","err","carte fallback"); dbg("Map init",e.message);
@@ -153,13 +241,13 @@ function stationFrom(r,fuel){
     id:String(r.id),lat:p[0],lon:p[1],price,
     updated:r[`${f}_maj`]||null,
     address:[r.adresse,r.cp,r.ville].filter(Boolean).join(", "),
-    city:r.ville||""
+    city:r.ville||"",...stationInfo(r),fuel
   };
 }
 async function stationsAround(p,fuel,radius=C.corridorRadiusKm){
   const f=fuelField[fuel],[lat,lon]=p;
   const where=`within_distance(geom, geom'POINT(${lon} ${lat})', ${radius} km) and ${f}_prix is not null`;
-  const select=`id,adresse,cp,ville,geom,${f}_prix,${f}_maj,${f}_rupture_type`;
+  const select=`id,adresse,cp,ville,geom,horaires,horaires_automate_24_24,services_service,${f}_prix,${f}_maj,${f}_rupture_type`;
   const q=new URLSearchParams({limit:"100",where,select});
   const d=await getJSON(`${C.fuelApi}?${q}`,"Carburants",18000);
   return (d.results||[]).map(r=>stationFrom(r,fuel)).filter(Boolean);
@@ -235,12 +323,12 @@ function renderStations(stations,mode){
   const list=mode==="soon"?[...stations].sort((a,b)=>a.distanceFromStart-b.distanceFromStart).slice(0,3):[...new Map(winners.map(([,s])=>[s.id,s])).values()];
   $("stationCards").innerHTML=list.map(s=>`<article class="result-card" data-station="${escapeHtml(s.id)}">
     <div class="result-badges">${winners.filter(([,winner])=>winner.id===s.id).map(([name])=>`<span class="result-badge">${name}</span>`).join("")}</div>
-    <h3>${escapeHtml(s.city||`Station ${s.id}`)}</h3><div class="result-small">${escapeHtml(s.address)}</div>
+    <span class="station-index">Point ${s.number}</span><h3>${escapeHtml(s.city||`Station ${s.id}`)}</h3><div class="result-small">${escapeHtml(s.address)}</div>
     <div class="result-line">À ${fmt(s.distanceFromStart,1)} km du départ</div>
     <div class="price">${fmt(s.real)} € <span class="price-note">plein + détour</span></div>
     <div class="result-line"><b>${fmt(s.price,3)} €/L</b> · +${fmt(s.extraKm,1)} km · +${Math.round(s.extraMin)} min</div>
     <div class="result-small">Achat ${fmt(s.purchase)} € · carburant du détour ${fmt(s.detourFuelCost)} €<br>${escapeHtml(age(s.updated))}</div>
-    <button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">Choisir cette station</button>
+    <button class="ghost station-detail-link" data-details="${escapeHtml(s.id)}">Infos et favori</button><button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">Choisir cette station</button>
     </article>`).join("");
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
@@ -260,10 +348,11 @@ function projectSvg(coords,stations=[],best=null,label=""){
   const a=P(coords[0]),b=P(coords.at(-1));
   $("startDot").setAttribute("cx",a[0]);$("startDot").setAttribute("cy",a[1]);
   $("endDot").setAttribute("cx",b[0]);$("endDot").setAttribute("cy",b[1]);
-  $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<circle class="${cl}" cx="${x}" cy="${y}" r="${s.id===best?.id?8:5}"><title>${escapeHtml(s.address)} — ${fmt(s.price,3)} €/L</title></circle>`}).join("");
+  $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<g class="svg-station" role="button" tabindex="0" data-details="${escapeHtml(s.id)}" aria-label="Voir la station ${s.number} : ${escapeHtml(s.address)}"><circle class="${cl}" cx="${x}" cy="${y}" r="16"/><text x="${x}" y="${y+5}" text-anchor="middle">${s.number}</text></g>`}).join("");
   $("fallbackLabel").textContent=label||"Visualisation autonome";
 }
 function showOnMap(coords,stations,best,start,end,label){
+  mapView=[coords,stations,best,start,end,label];
   if(!map){projectSvg(coords,stations,best,label);return}
   if(routeLayer)map.removeLayer(routeLayer);
   markerLayer.clearLayers();
@@ -272,11 +361,11 @@ function showOnMap(coords,stations,best,start,end,label){
   L.circleMarker(end,{radius:7,color:"#111",weight:3,fillColor:"#fff",fillOpacity:1}).addTo(markerLayer);
   stations.forEach(s=>{
     const isBest=s.id===best?.id;
-    L.circleMarker([s.lat,s.lon],{radius:isBest?8:5,color:isBest?"#fff1bc":"#111",weight:isBest?3:2,fillColor:isBest?"#f2c66d":"#8cb9ff",fillOpacity:1})
-      .bindPopup(`<b>${escapeHtml(s.address)}</b><br>${fmt(s.price,3)} €/L<br>+${fmt(s.extraKm,1)} km · +${Math.round(s.extraMin)} min`)
-      .addTo(markerLayer);
+    const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({className:"station-marker"+(isBest?" chosen":""),html:String(s.number),iconSize:[32,32],iconAnchor:[16,16]}),title:`Voir la station ${s.number} : ${s.address}`,keyboard:true}).addTo(markerLayer);
+    marker.getElement().setAttribute("aria-label",`Voir la station ${s.number} : ${s.address}`);
+    marker.on("click",()=>openStation(s.id));
   });
-  map.fitBounds(routeLayer.getBounds(),{padding:[35,35]});
+  map.invalidateSize();map.fitBounds(L.featureGroup([routeLayer,markerLayer]).getBounds(),{padding:[35,35]});
 }
 
 function clearStations(){
@@ -287,7 +376,7 @@ function clearStations(){
   if(trip)showOnMap(trip.coords,[],null,trip.a,trip.b,trip.label);
 }
 function clearResults(){
-  trip=null;clearStations();
+  trip=null;mapView=null;clearStations();
   $("summary").hidden=true;$("stops").hidden=true;
   $("tripKm").textContent="—";$("tripTime").textContent="—";
   for(const id of ["routeLine","routeGlow"])$(id).setAttribute("d","");
@@ -300,6 +389,7 @@ function clearResults(){
 }
 function lock(value){
   busy=value;
+  $("profileBtn").disabled=value;
   document.querySelectorAll('#sheet input,#sheet select,#sheet button').forEach(el=>el.disabled=value);
 }
 function updateWindow(){
@@ -354,6 +444,7 @@ async function searchStations(){
       .filter(s=>s.distanceFromStart>=w.min&&s.distanceFromStart<=w.max);
     $("testedCount").textContent=String(compared.length);
     if(!compared.length)throw new Error("Aucune station accessible dans cette plage de distance. Modifie la distance choisie.");
+    compared.forEach((s,i)=>s.number=i+1);
     renderStations(compared,w.mode);
     showOnMap(trip.coords,compared,null,trip.a,trip.b,trip.label);
     $("fuelStatus").textContent=`${compared.length} stations comparées parmi ${found.stations.length} reçues. ${found.partial?"Réponse partielle du service. ":""}Distances depuis le départ choisi ; pas de suivi GPS continu.`;
@@ -401,6 +492,73 @@ function initPwa(){
   window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;$("installBtn").hidden=false});
   $("installBtn").addEventListener("click",async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$("installBtn").hidden=true});
 }
+function bindProfile(){
+  $("profileBtn").addEventListener("click",openProfile);
+  document.querySelectorAll('.close-dialog').forEach(button=>button.addEventListener("click",()=>button.closest('dialog').close()));
+  $("stationDialog").addEventListener("close",()=>{detailSequence++});
+  for(const id of ["stationCards","stationDots"]){
+    $(id).addEventListener("click",e=>{const target=e.target.closest('[data-details]');if(target)openStation(target.dataset.details)});
+    $(id).addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches('.svg-station')){e.preventDefault();openStation(e.target.dataset.details)}});
+  }
+  $("favoriteBtn").addEventListener("click",()=>{
+    if(!currentStation)return;const next=structuredClone(profile),s=currentStation;
+    const found=next.stations.some(station=>station.id===s.id);
+    next.stations=found?next.stations.filter(station=>station.id!==s.id):[...next.stations,{id:s.id,address:s.address,city:s.city,lat:s.lat,lon:s.lon}];
+    if(saveProfile(next))$("stationMessage").textContent=found?"Station retirée des favoris.":"Station enregistrée dans ce navigateur.";
+  });
+  $("detailChooseBtn").addEventListener("click",()=>{const id=currentStation?.id;$("stationDialog").close();if(id)selectStation(id)});
+  $("vehicleForm").addEventListener("submit",e=>{
+    e.preventDefault();const next=structuredClone(profile);
+    next.vehicle={name:$("vehicleName").value.trim(),type:$("vehicleType").value,fuel:$("vehicleFuel").value,cons:Number($("vehicleCons").value),liters:Number($("vehicleLiters").value)};
+    if(saveProfile(next)){applyVehicle();$("profileMessage").textContent="Véhicule enregistré. Paramètres carburant appliqués."}
+  });
+  const resetAddress=()=>{$("addressForm").reset();$("addressId").value="";$("cancelAddressEdit").hidden=true};
+  $("cancelAddressEdit").addEventListener("click",resetAddress);
+  for(const [button,input] of [["copyStartBtn","start"],["copyEndBtn","end"]])$(button).addEventListener("click",()=>{
+    if($(input).value==="Ma position"){$("profileMessage").textContent="Saisis une adresse complète pour enregistrer ce point GPS.";return}
+    $("addressValue").value=$(input).value;
+  });
+  $("addressForm").addEventListener("submit",e=>{
+    e.preventDefault();const next=structuredClone(profile),value=$("addressValue").value.trim();
+    if(value==="Ma position"){$("profileMessage").textContent="Saisis une adresse complète, pas le libellé GPS temporaire.";return}
+    const entry={id:$("addressId").value||crypto.randomUUID(),name:$("addressName").value.trim(),value};
+    const index=next.addresses.findIndex(a=>a.id===entry.id);if(index<0)next.addresses.push(entry);else next.addresses[index]=entry;
+    if(saveProfile(next)){resetAddress();$("profileMessage").textContent="Adresse enregistrée."}
+  });
+  $("savedAddresses").addEventListener("click",e=>{
+    const button=e.target.closest('button');if(!button)return;
+    for(const [key,input] of [["addressStart","start"],["addressEnd","end"]])if(button.dataset[key]){
+      const a=profile.addresses.find(a=>a.id===button.dataset[key]);if(!a)return;
+      $(input).value=a.value;clearResults();setStatus("Adresse choisie. Trajet à recalculer.");$("profileDialog").close();$(input).focus();return;
+    }
+    if(button.dataset.addressEdit){const a=profile.addresses.find(a=>a.id===button.dataset.addressEdit);if(a){$("addressId").value=a.id;$("addressName").value=a.name;$("addressValue").value=a.value;$("cancelAddressEdit").hidden=false;$("addressName").focus()}}
+    if(button.dataset.addressRemove){const next=structuredClone(profile);next.addresses=next.addresses.filter(a=>a.id!==button.dataset.addressRemove);if(saveProfile(next))$("profileMessage").textContent="Adresse supprimée."}
+  });
+  $("savedStations").addEventListener("click",e=>{
+    const button=e.target.closest('button');if(!button)return;
+    if(button.dataset.favoriteOpen){$("profileDialog").close();openStation(button.dataset.favoriteOpen)}
+    if(button.dataset.favoriteRemove){const next=structuredClone(profile);next.stations=next.stations.filter(s=>s.id!==button.dataset.favoriteRemove);if(saveProfile(next))$("profileMessage").textContent="Station retirée des favoris."}
+  });
+  $("exportProfileBtn").addEventListener("click",()=>{
+    const url=URL.createObjectURL(new Blob([JSON.stringify(profile,null,2)],{type:"application/json"}));
+    const link=document.createElement('a');link.href=url;link.download="DragonRoute-profil.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
+  $("importProfileBtn").addEventListener("click",()=>$("importProfileFile").click());
+  $("importProfileFile").addEventListener("change",async e=>{
+    const file=e.target.files[0];if(!file)return;
+    try{
+      if(file.size>100000)throw new Error("Fichier trop volumineux");
+      const next=validateProfile(JSON.parse(await file.text()));
+      if(confirm("Remplacer ce profil local par le contenu du fichier ?")&&saveProfile(next)){applyVehicle();openProfile();$("profileMessage").textContent="Profil importé."}
+    }catch{$("profileMessage").textContent="Import refusé : fichier invalide ou trop volumineux. Le profil existant est conservé."}
+    finally{e.target.value=""}
+  });
+  $("eraseProfileBtn").addEventListener("click",()=>{
+    if(!confirm("Effacer le véhicule, les adresses et les stations de ce profil local ?"))return;
+    try{localStorage.removeItem(PROFILE_KEY);profile=emptyProfile();storageNotice="";applyVehicle();resetAddress();openProfile();$("profileMessage").textContent="Profil local effacé."}
+    catch{$("profileMessage").textContent="Suppression impossible : stockage indisponible."}
+  });
+}
 function bind(){
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
@@ -414,7 +572,7 @@ function bind(){
   }
 }
 
-makeGrid();bind();initPwa();
+makeGrid();bind();bindProfile();applyVehicle();initPwa();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
 initMap();

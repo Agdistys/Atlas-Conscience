@@ -41,7 +41,7 @@ export async function mockDragonRoute(page){
   await page.route('https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?**',route=>json(route,{
     total_count:2,
     results:[
-      {id:'A',adresse:'1 route test',cp:'26000',ville:'Valence',geom:[45.40,4.87],e10_prix:1.72,e10_maj:'2026-09-16T18:00:00+00:00',e10_rupture_type:null},
+      {id:'A',adresse:'1 route test',cp:'26000',ville:'Valence',geom:[45.40,4.87],e10_prix:1.72,e10_maj:'2026-09-16T18:00:00+00:00',e10_rupture_type:null,horaires_automate_24_24:'Oui',services_service:['Station de gonflage','Lavage automatique'],horaires:JSON.stringify({jour:[{'@nom':'Lundi','@ferme':'0',horaire:[{'@ouverture':'08:00','@fermeture':'12:00'},{'@ouverture':'14:00','@fermeture':'18:00'}]},{'@nom':'Mardi','@ferme':'1'},{'@nom':'Mercredi'}]})},
       {id:'B',adresse:'2 route test',cp:'26000',ville:'Valence',geom:[45.20,4.88],e10_prix:1.66,e10_maj:'2026-09-16T18:00:00+00:00',e10_rupture_type:null}
     ]
   }));

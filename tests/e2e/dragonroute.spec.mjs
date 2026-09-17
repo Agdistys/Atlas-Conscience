@@ -49,7 +49,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  for (const id of ['start', 'gpsBtn', 'end', 'goBtn']) {
+  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'goBtn']) {
     await page.keyboard.press('Tab');
     await expect(page.locator('#' + id)).toBeFocused();
     const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);
@@ -208,6 +208,12 @@ test('carte Leaflet interactive sans recouvrement des commandes', async ({ page 
   await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('Trajet prêt');
   await expect(page.locator('.leaflet-overlay-pane path')).not.toHaveCount(0);
+  await page.locator('#stationsBtn').click();
+  await expect(page.locator('.station-marker')).toHaveCount(2);
+  await page.locator('.station-marker').first().click();
+  await expect(page.locator('#stationDialog')).toBeVisible();
+  await expect(page.locator('#stationDetails')).toContainText('Station de gonflage');
+  await page.getByRole('button', { name: 'Fermer la fiche station' }).click();
   const map = await page.locator('#map').boundingBox();
   const sheet = await page.locator('#sheet').boundingBox();
   expect(map.width).toBeGreaterThan(250);
@@ -217,4 +223,94 @@ test('carte Leaflet interactive sans recouvrement des commandes', async ({ page 
   await capture(page, info, 'carte-leaflet');
   await checkOverflow(page);
   expect(errors).toEqual([]);
+});
+
+test('fiche station et favoris actualises apres rechargement', async ({ page }, info) => {
+  await page.goto('/DragonRoute/');
+  await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Trajet prêt');
+  await page.locator('#stationsBtn').click();
+  await expect(page.locator('.svg-station')).toHaveCount(2);
+  await page.locator('.svg-station').first().click();
+  await expect(page.locator('#stationDetails')).toContainText('08:00 – 12:00, 14:00 – 18:00');
+  await expect(page.locator('#stationDetails')).toContainText('Mardi : fermé');
+  await expect(page.locator('#stationDetails')).toContainText('Mercredi : non renseigné');
+  await expect(page.locator('#stationDetails')).toContainText('Automate 24 h/24 : Oui');
+  await page.locator('#favoriteBtn').click();
+  await expect(page.locator('#favoriteBtn')).toHaveAttribute('aria-pressed','true');
+  await capture(page, info, 'fiche-station');
+  await checkAccessibility(page, info, 'fiche-station');
+  await page.reload();
+  await page.locator('#profileBtn').click();
+  await expect(page.locator('#savedStations .saved-row')).toHaveCount(1);
+  await page.getByRole('button', {name:'Voir la station',exact:true}).click();
+  await expect(page.locator('#stationMessage')).toContainText('Fiche actualisée');
+  await expect(page.locator('#detailChooseBtn')).toBeHidden();
+  await expect(page.locator('#stationDetails')).toContainText('Lavage automatique');
+  await page.locator('#favoriteBtn').click();
+  await expect(page.locator('#favoriteBtn')).toHaveAttribute('aria-pressed','false');
+});
+
+test('vehicule et adresses persistes modifiables et reutilisables', async ({ page }, info) => {
+  await page.goto('/DragonRoute/');
+  await page.locator('#profileBtn').click();
+  await page.locator('#vehicleName').fill('Ma caravane');
+  await page.locator('#vehicleType').selectOption('caravan');
+  await page.locator('#vehicleFuel').selectOption('E85');
+  await page.locator('#vehicleCons').fill('9');
+  await page.locator('#vehicleLiters').fill('30');
+  await page.getByRole('button',{name:'Enregistrer le véhicule'}).click();
+  await page.locator('#addressName').fill('Maison');
+  await page.locator('#addressValue').fill('1 rue de Paris, Lyon');
+  await page.getByRole('button',{name:'Enregistrer l’adresse'}).click();
+  await capture(page, info, 'profil');
+  await checkAccessibility(page, info, 'profil');
+  await page.reload();
+  await expect(page.locator('#fuel')).toHaveValue('E85');
+  await expect(page.locator('#cons')).toHaveValue('9');
+  await expect(page.locator('#activeVehicle')).toContainText('gabarit non contrôlé');
+  await page.locator('#profileBtn').click();
+  await page.getByRole('button',{name:'Modifier',exact:true}).click();
+  await page.locator('#addressValue').fill('2 rue de Paris, Lyon');
+  await page.getByRole('button',{name:'Enregistrer l’adresse'}).click();
+  await expect(page.locator('#savedAddresses .saved-row')).toHaveCount(1);
+  await page.getByRole('button',{name:'Départ',exact:true}).click();
+  await expect(page.locator('#start')).toHaveValue('2 rue de Paris, Lyon');
+  await expect(page.locator('#stops')).toBeHidden();
+});
+
+test('profil invalide ou stockage refuse sans fausse sauvegarde', async ({ page }) => {
+  await page.addInitScript(()=>{
+    localStorage.setItem('dragonroute.profile.v1.public','{"version":999}');
+    Storage.prototype.setItem=()=>{throw new Error('Quota exceeded')};
+  });
+  await page.goto('/DragonRoute/');
+  await expect(page.locator('#hJS')).toHaveText('JS ✓');
+  await page.locator('#profileBtn').click();
+  await expect(page.locator('#profileMessage')).toContainText('Profil non chargé');
+  await page.locator('#vehicleName').fill('Non sauvegardé');
+  await page.getByRole('button',{name:'Enregistrer le véhicule'}).click();
+  await expect(page.locator('#profileMessage')).toContainText('Enregistrement impossible');
+});
+
+test('import export et suppression du profil sans toucher les autres donnees', async ({ page }) => {
+  await page.goto('/DragonRoute/');
+  await page.evaluate(()=>localStorage.setItem('autre-application','conserver'));
+  await page.locator('#profileBtn').click();
+  await page.locator('#importProfileFile').setInputFiles({name:'profil.json',mimeType:'application/json',buffer:Buffer.from('{"version":999}')});
+  await expect(page.locator('#profileMessage')).toContainText('Import refusé');
+  page.on('dialog',dialog=>dialog.accept());
+  const profile={version:1,vehicle:{name:'Import test',type:'car',fuel:'E10',cons:7,liters:35},addresses:[{id:'maison',name:'Maison',value:'Lyon'}],stations:[]};
+  await page.locator('#importProfileFile').setInputFiles({name:'profil.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(profile))});
+  await expect(page.locator('#profileMessage')).toHaveText('Profil importé.');
+  await expect(page.locator('#vehicleName')).toHaveValue('Import test');
+  const downloadPromise=page.waitForEvent('download');
+  await page.locator('#exportProfileBtn').click();
+  const download=await downloadPromise;
+  expect(download.suggestedFilename()).toBe('DragonRoute-profil.json');
+  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual(profile);
+  await page.locator('#eraseProfileBtn').click();
+  await expect(page.locator('#profileMessage')).toHaveText('Profil local effacé.');
+  await expect(page.locator('#savedAddresses')).toContainText('Aucune adresse');
+  expect(await page.evaluate(()=>localStorage.getItem('autre-application'))).toBe('conserver');
 });
