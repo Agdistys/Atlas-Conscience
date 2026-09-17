@@ -1,0 +1,3007 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inspectrice v2</title>
+<style>body{margin:0;background:#09090e;color:#eee;font:16px/1.6 system-ui}main{max-width:1080px;margin:auto;padding:24px}h1{font-size:28px}h2{font-size:21px}section{padding:20px 0;border-top:1px solid #555}img{max-width:100%;height:auto}a{color:#87dccc}code,pre{white-space:pre-wrap;overflow-wrap:anywhere}figure{margin:24px 0}li{overflow-wrap:anywhere}summary{cursor:pointer}small{color:#ccc}</style></head><body><main>
+<h1>Inspectrice v2</h1><p><strong>PRET POUR INSPECTION</strong></p><p>2026-09-17T12:43:21.343Z<br>Commit : <code>6e68f489760d03e651b90f10d0c5bdc0734db10b</code></p>
+<p>DragonRoute, pilote de OuQuandQui. Tests avec services simules et carte de secours.</p>
+<section><h2>Controles</h2><ul><li>contract : OK</li><li>syntax : OK</li><li>report-tests : OK</li><li>browser : OK</li></ul>
+<p>Tests navigateur : 28/28. Captures : 8/8. Audits : 8/8.</p>
+<ul><li>desktop-1440 : demarrage accessible sans Leaflet : OK</li><li>desktop-1440 : Lyon vers Valence : resultats et accessibilite : OK</li><li>desktop-1440 : parcours clavier et mouvement reduit : OK</li><li>desktop-1440 : erreur de geocodage explicite : OK</li><li>desktop-1440 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>desktop-1440 : relance apres succes puis panne du routage et recuperation : OK</li><li>desktop-1440 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>tablet-768 : demarrage accessible sans Leaflet : OK</li><li>tablet-768 : Lyon vers Valence : resultats et accessibilite : OK</li><li>tablet-768 : parcours clavier et mouvement reduit : OK</li><li>tablet-768 : erreur de geocodage explicite : OK</li><li>tablet-768 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>tablet-768 : relance apres succes puis panne du routage et recuperation : OK</li><li>tablet-768 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>mobile-390 : demarrage accessible sans Leaflet : OK</li><li>mobile-390 : Lyon vers Valence : resultats et accessibilite : OK</li><li>mobile-390 : parcours clavier et mouvement reduit : OK</li><li>mobile-390 : erreur de geocodage explicite : OK</li><li>mobile-390 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>mobile-390 : relance apres succes puis panne du routage et recuperation : OK</li><li>mobile-390 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>mobile-360 : demarrage accessible sans Leaflet : OK</li><li>mobile-360 : Lyon vers Valence : resultats et accessibilite : OK</li><li>mobile-360 : parcours clavier et mouvement reduit : OK</li><li>mobile-360 : erreur de geocodage explicite : OK</li><li>mobile-360 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>mobile-360 : relance apres succes puis panne du routage et recuperation : OK</li><li>mobile-360 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li></ul>
+</section>
+<section><h2>Accessibilite</h2><p>Regles WCAG 2.1 A/AA detectables par axe-core. L'examen humain reste necessaire.</p>
+<details><summary>desktop-1440 / accessibilite-demarrage : 0 anomalie(s), 2 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.aria&quot;,
+        &quot;wcag2a&quot;,
+        &quot;wcag412&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.4.1.2&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure ARIA attributes are not prohibited for an element&#39;s role&quot;,
+      &quot;help&quot;: &quot;Elements must only use permitted ARIA attributes&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [
+            {
+              &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+              &quot;data&quot;: {
+                &quot;role&quot;: null,
+                &quot;nodeName&quot;: &quot;div&quot;,
+                &quot;messageKey&quot;: &quot;noRoleSingular&quot;,
+                &quot;prohibited&quot;: [
+                  &quot;aria-label&quot;
+                ]
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+            }
+          ],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;map\&quot; class=\&quot;map\&quot; aria-label=\&quot;Carte du trajet\&quot;&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#map&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Carte externe indisponible — visualisation autonome active.&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Carte externe indisponible — visualisation autonome active.&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Départ&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Arrivée&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Carburant&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Litres&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;L/100 km&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(3) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Temps €/h&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(4) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span id=\&quot;status\&quot; role=\&quot;status\&quot; aria-live=\&quot;polite\&quot;&gt;Moteur chargé. Prêt pour un trajet réel.&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#status&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;6.8pt (9px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;footer&gt;\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      &lt;/footer&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;footer&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details><details><summary>desktop-1440 / accessibilite-resultats : 0 anomalie(s), 2 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.aria&quot;,
+        &quot;wcag2a&quot;,
+        &quot;wcag412&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.4.1.2&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure ARIA attributes are not prohibited for an element&#39;s role&quot;,
+      &quot;help&quot;: &quot;Elements must only use permitted ARIA attributes&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [
+            {
+              &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+              &quot;data&quot;: {
+                &quot;role&quot;: null,
+                &quot;nodeName&quot;: &quot;div&quot;,
+                &quot;messageKey&quot;: &quot;noRoleSingular&quot;,
+                &quot;prohibited&quot;: [
+                  &quot;aria-label&quot;
+                ]
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+            }
+          ],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;map\&quot; class=\&quot;map\&quot; aria-label=\&quot;Carte du trajet\&quot;&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#map&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · 2 stations · E10&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · 2 stations · E10&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Départ&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Arrivée&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Carburant&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Litres&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;L/100 km&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(3) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Temps €/h&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(4) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span id=\&quot;status\&quot; role=\&quot;status\&quot; aria-live=\&quot;polite\&quot;&gt;✅ 2 stations comparées sur le vrai trajet.&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#status&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;6.8pt (9px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;footer&gt;\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      &lt;/footer&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;footer&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details><details><summary>tablet-768 / accessibilite-demarrage : 0 anomalie(s), 2 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.aria&quot;,
+        &quot;wcag2a&quot;,
+        &quot;wcag412&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.4.1.2&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure ARIA attributes are not prohibited for an element&#39;s role&quot;,
+      &quot;help&quot;: &quot;Elements must only use permitted ARIA attributes&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [
+            {
+              &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+              &quot;data&quot;: {
+                &quot;role&quot;: null,
+                &quot;nodeName&quot;: &quot;div&quot;,
+                &quot;messageKey&quot;: &quot;noRoleSingular&quot;,
+                &quot;prohibited&quot;: [
+                  &quot;aria-label&quot;
+                ]
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+            }
+          ],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;map\&quot; class=\&quot;map\&quot; aria-label=\&quot;Carte du trajet\&quot;&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#map&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Carte externe indisponible — visualisation autonome active.&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Carte externe indisponible — visualisation autonome active.&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Départ&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Arrivée&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Carburant&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Litres&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;L/100 km&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(3) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Temps €/h&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(4) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span id=\&quot;status\&quot; role=\&quot;status\&quot; aria-live=\&quot;polite\&quot;&gt;Moteur chargé. Prêt pour un trajet réel.&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#status&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;6.8pt (9px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;footer&gt;\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      &lt;/footer&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;footer&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details><details><summary>tablet-768 / accessibilite-resultats : 0 anomalie(s), 2 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.aria&quot;,
+        &quot;wcag2a&quot;,
+        &quot;wcag412&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.4.1.2&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure ARIA attributes are not prohibited for an element&#39;s role&quot;,
+      &quot;help&quot;: &quot;Elements must only use permitted ARIA attributes&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [
+            {
+              &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+              &quot;data&quot;: {
+                &quot;role&quot;: null,
+                &quot;nodeName&quot;: &quot;div&quot;,
+                &quot;messageKey&quot;: &quot;noRoleSingular&quot;,
+                &quot;prohibited&quot;: [
+                  &quot;aria-label&quot;
+                ]
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+            }
+          ],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;map\&quot; class=\&quot;map\&quot; aria-label=\&quot;Carte du trajet\&quot;&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#map&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · 2 stations · E10&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · 2 stations · E10&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Départ&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Arrivée&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Carburant&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Litres&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;L/100 km&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(3) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Temps €/h&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(4) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span id=\&quot;status\&quot; role=\&quot;status\&quot; aria-live=\&quot;polite\&quot;&gt;✅ 2 stations comparées sur le vrai trajet.&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#status&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;6.8pt (9px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;footer&gt;\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      &lt;/footer&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;footer&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details><details><summary>mobile-390 / accessibilite-demarrage : 0 anomalie(s), 2 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.aria&quot;,
+        &quot;wcag2a&quot;,
+        &quot;wcag412&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.4.1.2&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure ARIA attributes are not prohibited for an element&#39;s role&quot;,
+      &quot;help&quot;: &quot;Elements must only use permitted ARIA attributes&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [
+            {
+              &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+              &quot;data&quot;: {
+                &quot;role&quot;: null,
+                &quot;nodeName&quot;: &quot;div&quot;,
+                &quot;messageKey&quot;: &quot;noRoleSingular&quot;,
+                &quot;prohibited&quot;: [
+                  &quot;aria-label&quot;
+                ]
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+            }
+          ],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;map\&quot; class=\&quot;map\&quot; aria-label=\&quot;Carte du trajet\&quot;&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#map&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Carte externe indisponible — visualisation autonome active.&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Carte externe indisponible — visualisation autonome active.&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Départ&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Arrivée&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Carburant&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Litres&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;L/100 km&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(3) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Temps €/h&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(4) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span id=\&quot;status\&quot; role=\&quot;status\&quot; aria-live=\&quot;polite\&quot;&gt;Moteur chargé. Prêt pour un trajet réel.&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#status&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;6.8pt (9px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;footer&gt;\n        Prototype · DGCCRF · OpenStreetMap/Nominatim · OSRM\n      &lt;/footer&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;footer&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details><details><summary>mobile-390 / accessibilite-resultats : 0 anomalie(s), 2 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.aria&quot;,
+        &quot;wcag2a&quot;,
+        &quot;wcag412&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.4.1.2&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure ARIA attributes are not prohibited for an element&#39;s role&quot;,
+      &quot;help&quot;: &quot;Elements must only use permitted ARIA attributes&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [
+            {
+              &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+              &quot;data&quot;: {
+                &quot;role&quot;: null,
+                &quot;nodeName&quot;: &quot;div&quot;,
+                &quot;messageKey&quot;: &quot;noRoleSingular&quot;,
+                &quot;prohibited&quot;: [
+                  &quot;aria-label&quot;
+                ]
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+            }
+          ],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;map\&quot; class=\&quot;map\&quot; aria-label=\&quot;Carte du trajet\&quot;&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#map&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · 2 stations · E10&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · 2 stations · E10&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Départ&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Arrivée&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Carburant&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Litres&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;L/100 km&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(3) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Temps €/h&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(4) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span id=\&quot;status\&quot; role=\&quot;status\&quot; aria-live=\&quot;polite\&quot;&gt;✅ 2 stations comparées sur le vrai trajet.&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#status&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details><details><summary>mobile-360 / accessibilite-demarrage : 0 anomalie(s), 2 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.aria&quot;,
+        &quot;wcag2a&quot;,
+        &quot;wcag412&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.4.1.2&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure ARIA attributes are not prohibited for an element&#39;s role&quot;,
+      &quot;help&quot;: &quot;Elements must only use permitted ARIA attributes&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [
+            {
+              &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+              &quot;data&quot;: {
+                &quot;role&quot;: null,
+                &quot;nodeName&quot;: &quot;div&quot;,
+                &quot;messageKey&quot;: &quot;noRoleSingular&quot;,
+                &quot;prohibited&quot;: [
+                  &quot;aria-label&quot;
+                ]
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+            }
+          ],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;map\&quot; class=\&quot;map\&quot; aria-label=\&quot;Carte du trajet\&quot;&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#map&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Carte externe indisponible — visualisation autonome active.&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Carte externe indisponible — visualisation autonome active.&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Départ&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Arrivée&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.route-fields &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Carburant&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Litres&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;L/100 km&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(3) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Temps €/h&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(4) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span id=\&quot;status\&quot; role=\&quot;status\&quot; aria-live=\&quot;polite\&quot;&gt;Moteur chargé. Prêt pour un trajet réel.&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#status&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details><details><summary>mobile-360 / accessibilite-resultats : 0 anomalie(s), 2 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.aria&quot;,
+        &quot;wcag2a&quot;,
+        &quot;wcag412&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.4.1.2&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure ARIA attributes are not prohibited for an element&#39;s role&quot;,
+      &quot;help&quot;: &quot;Elements must only use permitted ARIA attributes&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/aria-prohibited-attr?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [
+            {
+              &quot;id&quot;: &quot;aria-prohibited-attr&quot;,
+              &quot;data&quot;: {
+                &quot;role&quot;: null,
+                &quot;nodeName&quot;: &quot;div&quot;,
+                &quot;messageKey&quot;: &quot;noRoleSingular&quot;,
+                &quot;prohibited&quot;: [
+                  &quot;aria-label&quot;
+                ]
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+            }
+          ],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;map\&quot; class=\&quot;map\&quot; aria-label=\&quot;Carte du trajet\&quot;&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#map&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute.&quot;
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · 2 stations · E10&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid slice\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · 2 stations · E10&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Carburant&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(1) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Litres&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;.settings &gt; label:nth-child(2) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;L/100 km&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(3) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;7.5pt (10px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span&gt;Temps €/h&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label:nth-child(4) &gt; span&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;span id=\&quot;status\&quot; role=\&quot;status\&quot; aria-live=\&quot;polite\&quot;&gt;✅ 2 stations comparées sur le vrai trajet.&lt;/span&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#status&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details></section>
+<section><h2>Captures a inspecter</h2><p>Aucune reference visuelle n'a encore ete approuvee.</p><figure><figcaption>desktop-1440 / demarrage</figcaption><a href="desktop-1440-demarrage.png"><img src="desktop-1440-demarrage.png" alt="desktop-1440 : demarrage" loading="lazy"></a></figure><figure><figcaption>desktop-1440 / resultats</figcaption><a href="desktop-1440-resultats.png"><img src="desktop-1440-resultats.png" alt="desktop-1440 : resultats" loading="lazy"></a></figure><figure><figcaption>tablet-768 / demarrage</figcaption><a href="tablet-768-demarrage.png"><img src="tablet-768-demarrage.png" alt="tablet-768 : demarrage" loading="lazy"></a></figure><figure><figcaption>tablet-768 / resultats</figcaption><a href="tablet-768-resultats.png"><img src="tablet-768-resultats.png" alt="tablet-768 : resultats" loading="lazy"></a></figure><figure><figcaption>mobile-390 / demarrage</figcaption><a href="mobile-390-demarrage.png"><img src="mobile-390-demarrage.png" alt="mobile-390 : demarrage" loading="lazy"></a></figure><figure><figcaption>mobile-390 / resultats</figcaption><a href="mobile-390-resultats.png"><img src="mobile-390-resultats.png" alt="mobile-390 : resultats" loading="lazy"></a></figure><figure><figcaption>mobile-360 / demarrage</figcaption><a href="mobile-360-demarrage.png"><img src="mobile-360-demarrage.png" alt="mobile-360 : demarrage" loading="lazy"></a></figure><figure><figcaption>mobile-360 / resultats</figcaption><a href="mobile-360-resultats.png"><img src="mobile-360-resultats.png" alt="mobile-360 : resultats" loading="lazy"></a></figure></section>
+<section><h2>Perimetre restant</h2><ul><li>Disponibilite des API reelles</li><li>Carte Leaflet et tuiles externes</li><li>Installation PWA et hors connexion</li><li>Lighthouse et performances</li><li>Comparaison avec des captures approuvees</li><li>Autres applications</li></ul><p>En attente de validation humaine. Aucun deploiement n'est declenche par ce rapport.</p></section>
+</main></body></html>
