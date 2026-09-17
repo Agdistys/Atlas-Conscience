@@ -1,13 +1,209 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inspectrice v2</title>
 <style>body{margin:0;background:#09090e;color:#eee;font:16px/1.6 system-ui}main{max-width:1080px;margin:auto;padding:24px}h1{font-size:28px}h2{font-size:21px}section{padding:20px 0;border-top:1px solid #555}img{max-width:100%;height:auto}a{color:#87dccc}code,pre{white-space:pre-wrap;overflow-wrap:anywhere}figure{margin:24px 0}li{overflow-wrap:anywhere}summary{cursor:pointer}small{color:#ccc}</style></head><body><main>
-<h1>Inspectrice v2</h1><p><strong>PRET POUR INSPECTION</strong></p><p>2026-09-17T20:14:32.247Z<br>Commit : <code>f196adcd7266148f08cb86626be7a84de4e9dbdc</code></p>
+<h1>Inspectrice v2</h1><p><strong>PRET POUR INSPECTION</strong></p><p>2026-09-17T20:52:59.640Z<br>Commit : <code>2edfa8c12457314c91a8041e4c5817dcb278dd6c</code></p>
 <p>DragonRoute, pilote de OuQuandQui. Tests avec services simules et carte de secours.</p>
 <section><h2>Controles</h2><ul><li>contract : OK</li><li>syntax : OK</li><li>report-tests : OK</li><li>browser : OK</li></ul>
-<p>Tests navigateur : 68/68. Captures : 8/8. Audits : 16 (8 de base requis).</p>
-<ul><li>desktop-1440 : demarrage accessible sans Leaflet : OK</li><li>desktop-1440 : Lyon vers Valence : resultats et accessibilite : OK</li><li>desktop-1440 : parcours clavier et mouvement reduit : OK</li><li>desktop-1440 : erreur de geocodage explicite : OK</li><li>desktop-1440 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>desktop-1440 : relance apres succes puis panne du routage et recuperation : OK</li><li>desktop-1440 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>desktop-1440 : trajet disponible avant toute recherche de station : OK</li><li>desktop-1440 : une seule station cumule les trois badges sans doublon : OK</li><li>desktop-1440 : stations filtrees par distance et jamais elargies silencieusement : OK</li><li>desktop-1440 : panne carburants ne supprime pas le trajet et peut etre relancee : OK</li><li>desktop-1440 : carte Leaflet interactive sans recouvrement des commandes : OK</li><li>desktop-1440 : alternatives absentes ou invalides sans ancien trace : OK</li><li>desktop-1440 : fiche station et favoris actualises apres rechargement : OK</li><li>desktop-1440 : vehicule et adresses persistes modifiables et reutilisables : OK</li><li>desktop-1440 : profil invalide ou stockage refuse sans fausse sauvegarde : OK</li><li>desktop-1440 : import export et suppression du profil sans toucher les autres donnees : OK</li><li>tablet-768 : demarrage accessible sans Leaflet : OK</li><li>tablet-768 : Lyon vers Valence : resultats et accessibilite : OK</li><li>tablet-768 : parcours clavier et mouvement reduit : OK</li><li>tablet-768 : erreur de geocodage explicite : OK</li><li>tablet-768 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>tablet-768 : relance apres succes puis panne du routage et recuperation : OK</li><li>tablet-768 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>tablet-768 : trajet disponible avant toute recherche de station : OK</li><li>tablet-768 : une seule station cumule les trois badges sans doublon : OK</li><li>tablet-768 : stations filtrees par distance et jamais elargies silencieusement : OK</li><li>tablet-768 : panne carburants ne supprime pas le trajet et peut etre relancee : OK</li><li>tablet-768 : carte Leaflet interactive sans recouvrement des commandes : OK</li><li>tablet-768 : alternatives absentes ou invalides sans ancien trace : OK</li><li>tablet-768 : fiche station et favoris actualises apres rechargement : OK</li><li>tablet-768 : vehicule et adresses persistes modifiables et reutilisables : OK</li><li>tablet-768 : profil invalide ou stockage refuse sans fausse sauvegarde : OK</li><li>tablet-768 : import export et suppression du profil sans toucher les autres donnees : OK</li><li>mobile-390 : demarrage accessible sans Leaflet : OK</li><li>mobile-390 : Lyon vers Valence : resultats et accessibilite : OK</li><li>mobile-390 : parcours clavier et mouvement reduit : OK</li><li>mobile-390 : erreur de geocodage explicite : OK</li><li>mobile-390 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>mobile-390 : relance apres succes puis panne du routage et recuperation : OK</li><li>mobile-390 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>mobile-390 : trajet disponible avant toute recherche de station : OK</li><li>mobile-390 : une seule station cumule les trois badges sans doublon : OK</li><li>mobile-390 : stations filtrees par distance et jamais elargies silencieusement : OK</li><li>mobile-390 : panne carburants ne supprime pas le trajet et peut etre relancee : OK</li><li>mobile-390 : carte Leaflet interactive sans recouvrement des commandes : OK</li><li>mobile-390 : alternatives absentes ou invalides sans ancien trace : OK</li><li>mobile-390 : fiche station et favoris actualises apres rechargement : OK</li><li>mobile-390 : vehicule et adresses persistes modifiables et reutilisables : OK</li><li>mobile-390 : profil invalide ou stockage refuse sans fausse sauvegarde : OK</li><li>mobile-390 : import export et suppression du profil sans toucher les autres donnees : OK</li><li>mobile-360 : demarrage accessible sans Leaflet : OK</li><li>mobile-360 : Lyon vers Valence : resultats et accessibilite : OK</li><li>mobile-360 : parcours clavier et mouvement reduit : OK</li><li>mobile-360 : erreur de geocodage explicite : OK</li><li>mobile-360 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>mobile-360 : relance apres succes puis panne du routage et recuperation : OK</li><li>mobile-360 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>mobile-360 : trajet disponible avant toute recherche de station : OK</li><li>mobile-360 : une seule station cumule les trois badges sans doublon : OK</li><li>mobile-360 : stations filtrees par distance et jamais elargies silencieusement : OK</li><li>mobile-360 : panne carburants ne supprime pas le trajet et peut etre relancee : OK</li><li>mobile-360 : carte Leaflet interactive sans recouvrement des commandes : OK</li><li>mobile-360 : alternatives absentes ou invalides sans ancien trace : OK</li><li>mobile-360 : fiche station et favoris actualises apres rechargement : OK</li><li>mobile-360 : vehicule et adresses persistes modifiables et reutilisables : OK</li><li>mobile-360 : profil invalide ou stockage refuse sans fausse sauvegarde : OK</li><li>mobile-360 : import export et suppression du profil sans toucher les autres donnees : OK</li></ul>
+<p>Tests navigateur : 88/88. Captures : 8/8. Audits : 20 (8 de base requis).</p>
+<ul><li>desktop-1440 : exclusions sans cle bloquees sans retour silencieux OSRM : OK</li><li>desktop-1440 : ORS exclusions appliquees aux stations et cle privee : OK</li><li>desktop-1440 : ORS refus et geometrie invalide sans fuite de cle ni repli : OK</li><li>desktop-1440 : ORS comparaison interrompue ou incoherente conserve le trajet : OK</li><li>desktop-1440 : ORS alternatives courtes et indisponibilite explicite : OK</li><li>desktop-1440 : demarrage accessible sans Leaflet : OK</li><li>desktop-1440 : Lyon vers Valence : resultats et accessibilite : OK</li><li>desktop-1440 : parcours clavier et mouvement reduit : OK</li><li>desktop-1440 : erreur de geocodage explicite : OK</li><li>desktop-1440 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>desktop-1440 : relance apres succes puis panne du routage et recuperation : OK</li><li>desktop-1440 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>desktop-1440 : trajet disponible avant toute recherche de station : OK</li><li>desktop-1440 : une seule station cumule les trois badges sans doublon : OK</li><li>desktop-1440 : stations filtrees par distance et jamais elargies silencieusement : OK</li><li>desktop-1440 : panne carburants ne supprime pas le trajet et peut etre relancee : OK</li><li>desktop-1440 : carte Leaflet interactive sans recouvrement des commandes : OK</li><li>desktop-1440 : alternatives absentes ou invalides sans ancien trace : OK</li><li>desktop-1440 : fiche station et favoris actualises apres rechargement : OK</li><li>desktop-1440 : vehicule et adresses persistes modifiables et reutilisables : OK</li><li>desktop-1440 : profil invalide ou stockage refuse sans fausse sauvegarde : OK</li><li>desktop-1440 : import export et suppression du profil sans toucher les autres donnees : OK</li><li>tablet-768 : exclusions sans cle bloquees sans retour silencieux OSRM : OK</li><li>tablet-768 : ORS exclusions appliquees aux stations et cle privee : OK</li><li>tablet-768 : ORS refus et geometrie invalide sans fuite de cle ni repli : OK</li><li>tablet-768 : ORS comparaison interrompue ou incoherente conserve le trajet : OK</li><li>tablet-768 : ORS alternatives courtes et indisponibilite explicite : OK</li><li>tablet-768 : demarrage accessible sans Leaflet : OK</li><li>tablet-768 : Lyon vers Valence : resultats et accessibilite : OK</li><li>tablet-768 : parcours clavier et mouvement reduit : OK</li><li>tablet-768 : erreur de geocodage explicite : OK</li><li>tablet-768 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>tablet-768 : relance apres succes puis panne du routage et recuperation : OK</li><li>tablet-768 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>tablet-768 : trajet disponible avant toute recherche de station : OK</li><li>tablet-768 : une seule station cumule les trois badges sans doublon : OK</li><li>tablet-768 : stations filtrees par distance et jamais elargies silencieusement : OK</li><li>tablet-768 : panne carburants ne supprime pas le trajet et peut etre relancee : OK</li><li>tablet-768 : carte Leaflet interactive sans recouvrement des commandes : OK</li><li>tablet-768 : alternatives absentes ou invalides sans ancien trace : OK</li><li>tablet-768 : fiche station et favoris actualises apres rechargement : OK</li><li>tablet-768 : vehicule et adresses persistes modifiables et reutilisables : OK</li><li>tablet-768 : profil invalide ou stockage refuse sans fausse sauvegarde : OK</li><li>tablet-768 : import export et suppression du profil sans toucher les autres donnees : OK</li><li>mobile-390 : exclusions sans cle bloquees sans retour silencieux OSRM : OK</li><li>mobile-390 : ORS exclusions appliquees aux stations et cle privee : OK</li><li>mobile-390 : ORS refus et geometrie invalide sans fuite de cle ni repli : OK</li><li>mobile-390 : ORS comparaison interrompue ou incoherente conserve le trajet : OK</li><li>mobile-390 : ORS alternatives courtes et indisponibilite explicite : OK</li><li>mobile-390 : demarrage accessible sans Leaflet : OK</li><li>mobile-390 : Lyon vers Valence : resultats et accessibilite : OK</li><li>mobile-390 : parcours clavier et mouvement reduit : OK</li><li>mobile-390 : erreur de geocodage explicite : OK</li><li>mobile-390 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>mobile-390 : relance apres succes puis panne du routage et recuperation : OK</li><li>mobile-390 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>mobile-390 : trajet disponible avant toute recherche de station : OK</li><li>mobile-390 : une seule station cumule les trois badges sans doublon : OK</li><li>mobile-390 : stations filtrees par distance et jamais elargies silencieusement : OK</li><li>mobile-390 : panne carburants ne supprime pas le trajet et peut etre relancee : OK</li><li>mobile-390 : carte Leaflet interactive sans recouvrement des commandes : OK</li><li>mobile-390 : alternatives absentes ou invalides sans ancien trace : OK</li><li>mobile-390 : fiche station et favoris actualises apres rechargement : OK</li><li>mobile-390 : vehicule et adresses persistes modifiables et reutilisables : OK</li><li>mobile-390 : profil invalide ou stockage refuse sans fausse sauvegarde : OK</li><li>mobile-390 : import export et suppression du profil sans toucher les autres donnees : OK</li><li>mobile-360 : exclusions sans cle bloquees sans retour silencieux OSRM : OK</li><li>mobile-360 : ORS exclusions appliquees aux stations et cle privee : OK</li><li>mobile-360 : ORS refus et geometrie invalide sans fuite de cle ni repli : OK</li><li>mobile-360 : ORS comparaison interrompue ou incoherente conserve le trajet : OK</li><li>mobile-360 : ORS alternatives courtes et indisponibilite explicite : OK</li><li>mobile-360 : demarrage accessible sans Leaflet : OK</li><li>mobile-360 : Lyon vers Valence : resultats et accessibilite : OK</li><li>mobile-360 : parcours clavier et mouvement reduit : OK</li><li>mobile-360 : erreur de geocodage explicite : OK</li><li>mobile-360 : relance apres succes puis panne du geocodage et recuperation : OK</li><li>mobile-360 : relance apres succes puis panne du routage et recuperation : OK</li><li>mobile-360 : Entree pendant une recherche ne cree pas de requetes concurrentes : OK</li><li>mobile-360 : trajet disponible avant toute recherche de station : OK</li><li>mobile-360 : une seule station cumule les trois badges sans doublon : OK</li><li>mobile-360 : stations filtrees par distance et jamais elargies silencieusement : OK</li><li>mobile-360 : panne carburants ne supprime pas le trajet et peut etre relancee : OK</li><li>mobile-360 : carte Leaflet interactive sans recouvrement des commandes : OK</li><li>mobile-360 : alternatives absentes ou invalides sans ancien trace : OK</li><li>mobile-360 : fiche station et favoris actualises apres rechargement : OK</li><li>mobile-360 : vehicule et adresses persistes modifiables et reutilisables : OK</li><li>mobile-360 : profil invalide ou stockage refuse sans fausse sauvegarde : OK</li><li>mobile-360 : import export et suppression du profil sans toucher les autres donnees : OK</li></ul>
 </section>
 <section><h2>Accessibilite</h2><p>Regles WCAG 2.1 A/AA detectables par axe-core. L'examen humain reste necessaire.</p>
-<details><summary>desktop-1440 / accessibilite-demarrage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
+<details><summary>desktop-1440 / accessibilite-options-routage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;text x=\&quot;504.01155790994454\&quot; y=\&quot;320.4129544907313\&quot; text-anchor=\&quot;middle\&quot;&gt;1&lt;/text&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;text[x=\&quot;504.01155790994454\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;text x=\&quot;510.75367204430506\&quot; y=\&quot;455.2552371779418\&quot; text-anchor=\&quot;middle\&quot;&gt;2&lt;/text&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;text[x=\&quot;510.75367204430506\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · arrêt Valence&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid meet\&quot; role=\&quot;group\&quot; aria-label=\&quot;Schéma du trajet, sans fond cartographique\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · arrêt Valence&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;17.3pt (23px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;3:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot; aria-label=\&quot;Préparation du trajet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;h1&gt;Mon trajet&lt;/h1&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;h1&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot; aria-label=\&quot;Préparation du trajet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;label for=\&quot;start\&quot;&gt;Départ&lt;/label&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;label[for=\&quot;start\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;messageKey&quot;: &quot;nonBmp&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content contains only non-text characters&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;button id=\&quot;gpsBtn\&quot; class=\&quot;icon-btn\&quot; title=\&quot;Utiliser ma position\&quot; aria-label=\&quot;Utiliser ma position\&quot;&gt;⌖&lt;/button&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#gpsBtn&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content contains only non-text characters&quot;
+        }
+      ]
+    }
+  ]
+}</pre></details><details><summary>desktop-1440 / accessibilite-demarrage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
   &quot;violations&quot;: [],
   &quot;incomplete&quot;: [
     {
@@ -320,6 +516,38 @@
               &quot;id&quot;: &quot;color-contrast&quot;,
               &quot;data&quot;: {
                 &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot; aria-label=\&quot;Préparation du trajet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;summary id=\&quot;routingOptionsToggle\&quot;&gt;Options du trajet&lt;/summary&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#routingOptionsToggle&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
                 &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
                 &quot;fontWeight&quot;: &quot;normal&quot;,
                 &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
@@ -512,6 +740,38 @@
               &quot;id&quot;: &quot;color-contrast&quot;,
               &quot;data&quot;: {
                 &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.0pt (12px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot; aria-label=\&quot;Préparation du trajet\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#sheet&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;p id=\&quot;appliedRouting\&quot; class=\&quot;note\&quot;&gt;OSRM · sans exclusions&lt;/p&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#appliedRouting&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
                 &quot;fontSize&quot;: &quot;13.5pt (18px)&quot;,
                 &quot;fontWeight&quot;: &quot;bold&quot;,
                 &quot;messageKey&quot;: &quot;elmPartiallyObscured&quot;,
@@ -630,7 +890,7 @@
           &quot;impact&quot;: &quot;serious&quot;,
           &quot;html&quot;: &quot;&lt;legend&gt;Quand faire le plein ?&lt;/legend&gt;&quot;,
           &quot;target&quot;: [
-            &quot;legend&quot;
+            &quot;.stop-modes &gt; legend&quot;
           ],
           &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
         },
@@ -662,7 +922,7 @@
           &quot;impact&quot;: &quot;serious&quot;,
           &quot;html&quot;: &quot;&lt;label&gt;&lt;input type=\&quot;radio\&quot; name=\&quot;stopMode\&quot; value=\&quot;soon\&quot; checked=\&quot;\&quot; style=\&quot;\&quot;&gt; Au plus tôt&lt;/label&gt;&quot;,
           &quot;target&quot;: [
-            &quot;fieldset &gt; label:nth-child(2)&quot;
+            &quot;.stop-modes &gt; label:nth-child(2)&quot;
           ],
           &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
         },
@@ -694,7 +954,7 @@
           &quot;impact&quot;: &quot;serious&quot;,
           &quot;html&quot;: &quot;&lt;label&gt;&lt;input type=\&quot;radio\&quot; name=\&quot;stopMode\&quot; value=\&quot;near\&quot; style=\&quot;\&quot;&gt; Bon compromis proche&lt;/label&gt;&quot;,
           &quot;target&quot;: [
-            &quot;label:nth-child(3)&quot;
+            &quot;.stop-modes &gt; label:nth-child(3)&quot;
           ],
           &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
         },
@@ -726,7 +986,7 @@
           &quot;impact&quot;: &quot;serious&quot;,
           &quot;html&quot;: &quot;&lt;label&gt;&lt;input type=\&quot;radio\&quot; name=\&quot;stopMode\&quot; value=\&quot;around\&quot; style=\&quot;\&quot;&gt; Vers une distance choisie&lt;/label&gt;&quot;,
           &quot;target&quot;: [
-            &quot;fieldset &gt; label:nth-child(4)&quot;
+            &quot;.stop-modes &gt; label:nth-child(4)&quot;
           ],
           &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
         },
@@ -889,70 +1149,6 @@
             &quot;#fuelStatus&quot;
           ],
           &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it&#39;s partially obscured by another element&quot;
-        },
-        {
-          &quot;any&quot;: [
-            {
-              &quot;id&quot;: &quot;color-contrast&quot;,
-              &quot;data&quot;: {
-                &quot;contrastRatio&quot;: 0,
-                &quot;fontSize&quot;: &quot;15.0pt (20px)&quot;,
-                &quot;fontWeight&quot;: &quot;bold&quot;,
-                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
-                &quot;expectedContrastRatio&quot;: &quot;3:1&quot;
-              },
-              &quot;relatedNodes&quot;: [
-                {
-                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot; aria-label=\&quot;Préparation du trajet\&quot;&gt;&quot;,
-                  &quot;target&quot;: [
-                    &quot;#sheet&quot;
-                  ]
-                }
-              ],
-              &quot;impact&quot;: &quot;serious&quot;,
-              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
-            }
-          ],
-          &quot;all&quot;: [],
-          &quot;none&quot;: [],
-          &quot;impact&quot;: &quot;serious&quot;,
-          &quot;html&quot;: &quot;&lt;b id=\&quot;stationCount\&quot;&gt;2&lt;/b&gt;&quot;,
-          &quot;target&quot;: [
-            &quot;#stationCount&quot;
-          ],
-          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
-        },
-        {
-          &quot;any&quot;: [
-            {
-              &quot;id&quot;: &quot;color-contrast&quot;,
-              &quot;data&quot;: {
-                &quot;contrastRatio&quot;: 0,
-                &quot;fontSize&quot;: &quot;15.0pt (20px)&quot;,
-                &quot;fontWeight&quot;: &quot;bold&quot;,
-                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
-                &quot;expectedContrastRatio&quot;: &quot;3:1&quot;
-              },
-              &quot;relatedNodes&quot;: [
-                {
-                  &quot;html&quot;: &quot;&lt;section class=\&quot;sheet\&quot; id=\&quot;sheet\&quot; aria-label=\&quot;Préparation du trajet\&quot;&gt;&quot;,
-                  &quot;target&quot;: [
-                    &quot;#sheet&quot;
-                  ]
-                }
-              ],
-              &quot;impact&quot;: &quot;serious&quot;,
-              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
-            }
-          ],
-          &quot;all&quot;: [],
-          &quot;none&quot;: [],
-          &quot;impact&quot;: &quot;serious&quot;,
-          &quot;html&quot;: &quot;&lt;b id=\&quot;testedCount\&quot;&gt;2&lt;/b&gt;&quot;,
-          &quot;target&quot;: [
-            &quot;#testedCount&quot;
-          ],
-          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
         }
       ]
     }
@@ -963,6 +1159,138 @@
 }</pre></details><details><summary>desktop-1440 / accessibilite-profil : 0 anomalie(s), 0 point(s) a examiner</summary><pre>{
   &quot;violations&quot;: [],
   &quot;incomplete&quot;: []
+}</pre></details><details><summary>tablet-768 / accessibilite-options-routage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;text x=\&quot;504.01155790994454\&quot; y=\&quot;320.4129544907313\&quot; text-anchor=\&quot;middle\&quot;&gt;1&lt;/text&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;text[x=\&quot;504.01155790994454\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;text x=\&quot;510.75367204430506\&quot; y=\&quot;455.2552371779418\&quot; text-anchor=\&quot;middle\&quot;&gt;2&lt;/text&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;text[x=\&quot;510.75367204430506\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · arrêt Valence&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid meet\&quot; role=\&quot;group\&quot; aria-label=\&quot;Schéma du trajet, sans fond cartographique\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · arrêt Valence&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;messageKey&quot;: &quot;nonBmp&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content contains only non-text characters&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;button id=\&quot;gpsBtn\&quot; class=\&quot;icon-btn\&quot; title=\&quot;Utiliser ma position\&quot; aria-label=\&quot;Utiliser ma position\&quot;&gt;⌖&lt;/button&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#gpsBtn&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content contains only non-text characters&quot;
+        }
+      ]
+    }
+  ]
 }</pre></details><details><summary>tablet-768 / accessibilite-demarrage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
   &quot;violations&quot;: [],
   &quot;incomplete&quot;: [
@@ -1228,6 +1556,138 @@
 }</pre></details><details><summary>tablet-768 / accessibilite-profil : 0 anomalie(s), 0 point(s) a examiner</summary><pre>{
   &quot;violations&quot;: [],
   &quot;incomplete&quot;: []
+}</pre></details><details><summary>mobile-390 / accessibilite-options-routage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;text x=\&quot;504.01155790994454\&quot; y=\&quot;320.4129544907313\&quot; text-anchor=\&quot;middle\&quot;&gt;1&lt;/text&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;text[x=\&quot;504.01155790994454\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;text x=\&quot;510.75367204430506\&quot; y=\&quot;455.2552371779418\&quot; text-anchor=\&quot;middle\&quot;&gt;2&lt;/text&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;text[x=\&quot;510.75367204430506\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · arrêt Valence&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid meet\&quot; role=\&quot;group\&quot; aria-label=\&quot;Schéma du trajet, sans fond cartographique\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · arrêt Valence&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;messageKey&quot;: &quot;nonBmp&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content contains only non-text characters&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;button id=\&quot;gpsBtn\&quot; class=\&quot;icon-btn\&quot; title=\&quot;Utiliser ma position\&quot; aria-label=\&quot;Utiliser ma position\&quot;&gt;⌖&lt;/button&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#gpsBtn&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content contains only non-text characters&quot;
+        }
+      ]
+    }
+  ]
 }</pre></details><details><summary>mobile-390 / accessibilite-demarrage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
   &quot;violations&quot;: [],
   &quot;incomplete&quot;: [
@@ -1673,6 +2133,138 @@
       ]
     }
   ]
+}</pre></details><details><summary>mobile-360 / accessibilite-options-routage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
+  &quot;violations&quot;: [],
+  &quot;incomplete&quot;: [
+    {
+      &quot;id&quot;: &quot;color-contrast&quot;,
+      &quot;impact&quot;: &quot;serious&quot;,
+      &quot;tags&quot;: [
+        &quot;cat.color&quot;,
+        &quot;wcag2aa&quot;,
+        &quot;wcag143&quot;,
+        &quot;TTv5&quot;,
+        &quot;TT13.c&quot;,
+        &quot;EN-301-549&quot;,
+        &quot;EN-9.1.4.3&quot;,
+        &quot;ACT&quot;
+      ],
+      &quot;description&quot;: &quot;Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds&quot;,
+      &quot;help&quot;: &quot;Elements must meet minimum color contrast ratio thresholds&quot;,
+      &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI&quot;,
+      &quot;nodes&quot;: [
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;text x=\&quot;504.01155790994454\&quot; y=\&quot;320.4129544907313\&quot; text-anchor=\&quot;middle\&quot;&gt;1&lt;/text&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;text[x=\&quot;504.01155790994454\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;9.8pt (13px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;shortTextContent&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content is too short to determine if it is actual text content&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;text x=\&quot;510.75367204430506\&quot; y=\&quot;455.2552371779418\&quot; text-anchor=\&quot;middle\&quot;&gt;2&lt;/text&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;text[x=\&quot;510.75367204430506\&quot;]&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content is too short to determine if it is actual text content&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;8.3pt (11px)&quot;,
+                &quot;fontWeight&quot;: &quot;normal&quot;,
+                &quot;messageKey&quot;: &quot;imgNode&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [
+                {
+                  &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · arrêt Valence&lt;/div&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#fallbackLabel&quot;
+                  ]
+                },
+                {
+                  &quot;html&quot;: &quot;&lt;svg id=\&quot;routeViz\&quot; viewBox=\&quot;0 0 1000 700\&quot; preserveAspectRatio=\&quot;xMidYMid meet\&quot; role=\&quot;group\&quot; aria-label=\&quot;Schéma du trajet, sans fond cartographique\&quot;&gt;&quot;,
+                  &quot;target&quot;: [
+                    &quot;#routeViz&quot;
+                  ]
+                }
+              ],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because element contains an image node&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;div id=\&quot;fallbackLabel\&quot; class=\&quot;map-label\&quot;&gt;Lyon → Valence · arrêt Valence&lt;/div&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#fallbackLabel&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because element contains an image node&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;messageKey&quot;: &quot;nonBmp&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element content contains only non-text characters&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;button id=\&quot;gpsBtn\&quot; class=\&quot;icon-btn\&quot; title=\&quot;Utiliser ma position\&quot; aria-label=\&quot;Utiliser ma position\&quot;&gt;⌖&lt;/button&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#gpsBtn&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element content contains only non-text characters&quot;
+        }
+      ]
+    }
+  ]
 }</pre></details><details><summary>mobile-360 / accessibilite-demarrage : 0 anomalie(s), 1 point(s) a examiner</summary><pre>{
   &quot;violations&quot;: [],
   &quot;incomplete&quot;: [
@@ -1954,6 +2546,31 @@
           &quot;html&quot;: &quot;&lt;p class=\&quot;note\&quot;&gt;Informations déclaratives, ouverture et disponibilité à confirmer sur place. Données reçues le 17/09/2026 12:00:00.&lt;/p&gt;&quot;,
           &quot;target&quot;: [
             &quot;#stationDetails &gt; .note&quot;
+          ],
+          &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it partially overlaps other elements&quot;
+        },
+        {
+          &quot;any&quot;: [
+            {
+              &quot;id&quot;: &quot;color-contrast&quot;,
+              &quot;data&quot;: {
+                &quot;contrastRatio&quot;: 0,
+                &quot;fontSize&quot;: &quot;10.5pt (14px)&quot;,
+                &quot;fontWeight&quot;: &quot;bold&quot;,
+                &quot;messageKey&quot;: &quot;elmPartiallyObscuring&quot;,
+                &quot;expectedContrastRatio&quot;: &quot;4.5:1&quot;
+              },
+              &quot;relatedNodes&quot;: [],
+              &quot;impact&quot;: &quot;serious&quot;,
+              &quot;message&quot;: &quot;Element&#39;s background color could not be determined because it partially overlaps other elements&quot;
+            }
+          ],
+          &quot;all&quot;: [],
+          &quot;none&quot;: [],
+          &quot;impact&quot;: &quot;serious&quot;,
+          &quot;html&quot;: &quot;&lt;button id=\&quot;detailChooseBtn\&quot; class=\&quot;primary\&quot;&gt;Choisir cet arrêt&lt;/button&gt;&quot;,
+          &quot;target&quot;: [
+            &quot;#detailChooseBtn&quot;
           ],
           &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element&#39;s background color could not be determined because it partially overlaps other elements&quot;
         }

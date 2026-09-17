@@ -9,10 +9,11 @@ button,input,select{font:inherit}button{cursor:pointer}button,input,select,a{tou
 .sheet{grid-column:1;grid-row:1;min-width:0;overflow:auto;padding:22px 20px;background:var(--bg);border-right:1px solid var(--line)}
 h1{font-size:23px;line-height:1.2;margin:0 0 18px}h2{font-size:18px;margin:0 0 12px}.route-fields{display:grid;gap:12px}
 label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.field-row{display:flex;gap:8px}.field-row input{flex:1;min-width:0}
-input:not([type=radio]):not([type=range]),select{width:100%;min-width:0;height:44px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--text);padding:8px 10px}
+input:not([type=radio]):not([type=range]):not([type=checkbox]),select{width:100%;min-width:0;height:44px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--text);padding:8px 10px}
 .icon-btn{width:44px;height:44px;flex:none;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;font-size:24px}
 .primary,.choose-station{width:100%;min-height:44px;border:1px solid var(--gold);border-radius:6px;padding:10px 12px;background:var(--gold);color:#21180a;font-weight:750}
 .primary{margin-top:14px}.choose-station{margin-top:12px;background:transparent;color:var(--gold);font-size:13px}.choose-station[aria-pressed=true]{background:var(--gold);color:#21180a}
+.routing-options{margin-top:14px;padding-top:0}.routing-options summary{font-size:13px;color:var(--text);min-height:40px}.avoid-options{border:0;padding:0;margin:6px 0 14px}.avoid-options legend{font-size:12px;color:var(--muted)}.avoid-options label{display:flex;align-items:center;gap:9px;min-height:36px;color:var(--text);font-size:13px;margin:0}.avoid-options input[type=checkbox]{width:18px;height:18px;padding:0;accent-color:var(--green);flex:none}.routing-options a{color:var(--green)}#orsConnection{margin-top:14px}#cancelStationsBtn{margin-top:10px;min-height:40px;width:100%}
 .ghost{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:6px;padding:7px;font-size:12px}
 .header-actions,.dialog-actions{display:flex;flex-wrap:wrap;gap:8px}.dialog-actions{margin-top:12px}.dialog-actions button{flex:1;margin-top:0;min-height:40px}.header-actions .ghost{min-height:36px}
 dialog{width:min(540px,calc(100% - 24px));max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:20px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px}dialog::backdrop{background:#0009}
