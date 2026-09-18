@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'DragonRoute/**'
+      - 'server/**'
       - 'APP_*.html'
       - 'tests/**'
       - 'docs/acceptance/**'

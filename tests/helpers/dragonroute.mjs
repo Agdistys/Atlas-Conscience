@@ -1,7 +1,13 @@
 const lyon={lat:'45.7640',lon:'4.8357',display_name:'Lyon, France'};
 const valence={lat:'44.9334',lon:'4.8924',display_name:'Valence, France'};
 
-export const orsPattern='https://api.heigit.org/openrouteservice/v2/directions/driving-car/geojson';
+export const orsPattern='https://routing.example.test/api/route';
+export async function publicRouting(page){
+  await page.route('**/DragonRoute/config.js',async route=>{
+    const response=await route.fetch();
+    await route.fulfill({response,body:(await response.text()).replace('routingApi: ""',`routingApi: "${orsPattern}"`)});
+  });
+}
 export const testOrsKey='ors-test-not-a-real-key';
 export function orsResponse(body,{distance=120000,shorter=false,invalid=false}={}){
   const via=body.coordinates.length===3;
@@ -9,7 +15,7 @@ export function orsResponse(body,{distance=120000,shorter=false,invalid=false}={
   const duration=via?8400:7200;
   const legs=via?[{distance:50000,duration:3000},{distance:km-50000,duration:duration-3000}]:[{distance:km,duration}];
   const feature={type:'Feature',geometry:invalid?null:{type:'LineString',coordinates:body.coordinates},properties:{summary:{distance:km,duration},segments:legs}};
-  return {type:'FeatureCollection',features:[feature,...(body.alternative_routes?[{...feature,geometry:{type:'LineString',coordinates:[body.coordinates[0],[5.08,45.55],body.coordinates.at(-1)]}}]:[])]};
+  return {type:'FeatureCollection',features:[feature,...(body.alternatives?[{...feature,geometry:{type:'LineString',coordinates:[body.coordinates[0],[5.08,45.55],body.coordinates.at(-1)]}}]:[])]};
 }
 
 function json(route, body){
