@@ -816,6 +816,8 @@ Les prix, quotas, offres gratuites et droits d'utilisation des fournisseurs ne s
 
 **PUB-12 : PROPOSITION COMMERCIALE.** Une période de démonstration d’un mois ou davantage, puis une éventuelle facturation, sont envisagées. Durée, prix, conversion, conditions et budget restent à décider. Aucun paiement, abonnement, expiration automatique ni promesse d’essai illimité ne sont implémentés. Les coûts d’exploitation doivent être connus avant l’ouverture, pas découverts après la démonstration.
 
+**Condition d’hébergement commercial :** GitHub Pages ne doit pas être utilisé pour héberger un site principalement destiné à fournir un logiciel commercial en ligne. Avant une offre payante, prévoir une solution d’hébergement conforme et explicitement approuvée ; le dépôt peut rester sur GitHub. L’hébergement actuel du prototype n’est pas modifié. Source : [limites officielles de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits), consultées le 18 septembre 2026.
+
 **PUB-13 :** recharge de véhicules électriques reportée aux évolutions ultérieures ; le premier module carburant n’implique pas une couverture des bornes. Transports publics, covoiturage connecté, mobilités douces, Boussole et Empreinte restent dans le cahier global et leurs lots respectifs, sans données inventées.
 
 ### Critères de Recette Complémentaires
@@ -834,4 +836,3 @@ Les prix, quotas, offres gratuites et droits d'utilisation des fournisseurs ne s
 | Déploiement avancé | Tests réels et conditions d’exploitation validés en plus des tests simulés. |
 
 Édition V3 du cahier / V4 du dossier centralisé, 18 septembre 2026 : accès public, France et véhicules confirmés ; architecture sans clé visiteur, activation séparée, hypothèse commerciale et critères de recette ajoutés. Les originaux restent conservés.
-

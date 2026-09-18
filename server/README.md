@@ -50,6 +50,7 @@ Sans configuration, les options avancees echouent explicitement AVANT tout geoco
 - Essais reels indispensables : peages/autoroutes, gabarit poids lourd, routes sans acces, stations et alternatives. Les fixtures ne prouvent pas l'exactitude cartographique.
 - Prevoir geocodage et tuiles appropries au volume public. Le routage seul ne qualifie pas toute l'application pour la production.
 - Demo d'un mois ou plus et facturation ulterieure : hypothese commerciale, duree/prix non arretes. Aucun paiement, expiration ou abonnement integre.
+- Offre payante : [GitHub Pages ne permet pas un site principalement destine a un SaaS commercial](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits). Avant commercialisation, approuver un hebergement conforme ; depot GitHub conservable. Aucun changement d'hebergeur effectue ici.
 
 Sources : [ORS options](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/routing-options), [restrictions ORS](https://openrouteservice.org/restrictions/), [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages). Consultees le 18 septembre 2026.
 

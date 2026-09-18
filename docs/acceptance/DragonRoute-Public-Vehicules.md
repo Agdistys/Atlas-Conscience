@@ -20,7 +20,9 @@ Application publique, usage personnel et partage, sans cle technique visiteur. F
 
 ## Recette et limites
 
-96 scenarios navigateur prevus sur quatre tailles, dont camion valide/invalide, profil, arrets, quotas, absence de service public, alternatives et annulation. Onze tests du service couvrent secret, bornes, liste blanche, erreurs, quotas, timeout et concurrence. Aucune cle reelle utilisee.
+Recette locale terminee : 96 tests navigateur sur quatre tailles, 18 tests Node dont onze du service, 5 tests d'assemblage. Les 24 audits axe n'ont detecte aucune violation. Scenarios : camion valide/invalide, profil, arrets, quotas, absence de service public, alternatives et annulation. Aucun secret reel utilise. Essai reel OSRM Lyon-Valence : 102 km, 78 min, 20 stations comparees parmi 160 recues ; un seul trajet propose, aucune erreur de page.
+
+Avant facturation, une autre decision d'hebergement sera necessaire : [GitHub Pages n'autorise pas un service principalement SaaS commercial](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits). Aucune infrastructure modifiee ou souscrite.
 
 Le service public n'est PAS active dans l'apercu : `routingApi` vide. Voir `server/README.md` pour les prealables d'ouverture, notamment quota durable et conditions des fournisseurs.
 
