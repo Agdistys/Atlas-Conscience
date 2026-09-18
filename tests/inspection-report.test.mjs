@@ -1,17 +1,32 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { projects, summarize, writeReport } from './inspection-report.mjs';
+import { projects, requiredScenarios, summarize, writeReport } from './inspection-report.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
 const stages = Object.fromEntries(['contract', 'syntax', 'report-tests', 'browser'].map(name => [name, { exitCode: 0 }]));
 function passing() {
-  return { suites: [{ specs: Array.from({ length: 4 }, (_, i) => ({ title: `Test ${i}`, tests: projects.map(projectName => ({
+  return { suites: [{ specs: requiredScenarios.map(title => ({ title, tests: projects.map(projectName => ({
     projectName, status: 'expected', results: [{ status: 'passed' }]
   })) })) }], errors: [] };
 }
 test('complete success is eligible for inspection', () => assert.equal(summarize(passing(), stages).ready, true));
+test('extra scenarios are allowed but cannot replace or duplicate required ones', () => {
+  const report = passing();
+  const extra = structuredClone(report.suites[0].specs[0]);
+  extra.title = 'Additional coverage';
+  report.suites[0].specs.push(extra);
+  assert.equal(summarize(report, stages).ready, true);
+  report.suites[0].specs[0].tests.pop();
+  assert.equal(summarize(report, stages).ready, false);
+  const duplicate = passing();
+  duplicate.suites[0].specs.push(structuredClone(duplicate.suites[0].specs[0]));
+  assert.equal(summarize(duplicate, stages).ready, false);
+  const renamed = passing();
+  renamed.suites[0].specs[0].title = 'Replacement';
+  assert.equal(summarize(renamed, stages).ready, false);
+});
 test('missing, skipped, flaky and crashed runs cannot be green', () => {
   assert.equal(summarize(null, stages).ready, false);
   assert.equal(summarize(passing(), {}).ready, false);

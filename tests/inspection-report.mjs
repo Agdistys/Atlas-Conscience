@@ -3,6 +3,30 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
+export const requiredScenarios = [
+  'exclusions sans cle bloquees sans retour silencieux OSRM',
+  'ORS exclusions appliquees aux stations et cle privee',
+  'ORS refus et geometrie invalide sans fuite de cle ni repli',
+  'ORS comparaison interrompue ou incoherente conserve le trajet',
+  'ORS alternatives courtes et indisponibilite explicite',
+  'demarrage accessible sans Leaflet',
+  'Lyon vers Valence : resultats et accessibilite',
+  'parcours clavier et mouvement reduit',
+  'erreur de geocodage explicite',
+  'relance apres succes puis panne du geocodage et recuperation',
+  'relance apres succes puis panne du routage et recuperation',
+  'Entree pendant une recherche ne cree pas de requetes concurrentes',
+  'trajet disponible avant toute recherche de station',
+  'une seule station cumule les trois badges sans doublon',
+  'stations filtrees par distance et jamais elargies silencieusement',
+  'panne carburants ne supprime pas le trajet et peut etre relancee',
+  'carte Leaflet interactive sans recouvrement des commandes',
+  'alternatives absentes ou invalides sans ancien trace',
+  'fiche station et favoris actualises apres rechargement',
+  'vehicule et adresses persistes modifiables et reutilisables',
+  'profil invalide ou stockage refuse sans fausse sauvegarde',
+  'import export et suppression du profil sans toucher les autres donnees'
+];
 const states = ['demarrage', 'resultats'];
 const stageNames = ['contract', 'syntax', 'report-tests', 'browser'];
 
@@ -21,7 +45,8 @@ export function summarize(report, stages = {}) {
     for (const child of suite.suites || []) visit(child);
   }
   if (report) visit(report);
-  const complete = projects.every(project => tests.filter(t => t.project === project).length === 4);
+  const complete = projects.every(project => requiredScenarios.every(title =>
+    tests.filter(t => t.project === project && t.title === title).length === 1));
   const stagesOK = stageNames.every(name => stages[name]?.exitCode === 0);
   const passed = tests.filter(t => t.passed).length;
   return { ready: complete && stagesOK && passed === tests.length && !report?.errors?.length,
@@ -73,7 +98,7 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
     generatedAt: new Date().toISOString(), commit: process.env.INSPECTION_COMMIT || process.env.GITHUB_SHA || null,
     state: ready ? 'inspection' : 'blocked', passed: summary.passed, total: summary.total,
     stages: summary.stages, screenshots, accessibility, diagnostics,
-    notTested: ['Disponibilite des API reelles', 'Carte Leaflet et tuiles externes', 'Installation PWA et hors connexion',
+    notTested: ['Disponibilite des API reelles', 'Tuiles cartographiques reelles (Leaflet teste avec tuiles simulees)', 'Installation PWA et hors connexion',
       'Lighthouse et performances', 'Comparaison avec des captures approuvees', 'Autres applications'],
     humanDecision: 'En attente de validation humaine' };
   fs.writeFileSync(path.join(output, 'status.json'), JSON.stringify(status, null, 2));
@@ -81,7 +106,7 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
   const lines = ['# Inspectrice v2 : ' + verdict, '', 'DragonRoute / OuQuandQui', '',
     `Commit : ${status.commit || 'execution locale'}`, `Tests navigateur : ${summary.passed}/${summary.total}`, '',
     ...stageNames.map(name => `- ${name} : ${summary.stages[name]?.exitCode === 0 ? 'OK' : 'ECHEC OU NON EXECUTE'}`), '',
-    `Captures : ${screenshots.length}/8. Audits d'accessibilite : ${accessibility.length}/8.`,
+    `Captures : ${screenshots.length}/8. Audits d'accessibilite : ${accessibility.length} (8 de base requis).`,
     `Points d'accessibilite a examiner manuellement : ${accessibility.reduce((n, a) => n + a.incomplete.length, 0)}.`, '',
     'Scenario reproductible avec API simulees et carte de secours. Les captures sont a inspecter, sans comparaison automatique a une reference approuvee.', '',
     'Non testes : ' + status.notTested.join(' ; ') + '.', '',
@@ -93,7 +118,7 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
 <h1>Inspectrice v2</h1><p><strong>${verdict}</strong></p><p>${esc(status.generatedAt)}<br>Commit : <code>${esc(status.commit || 'execution locale')}</code></p>
 <p>DragonRoute, pilote de OuQuandQui. Tests avec services simules et carte de secours.</p>
 <section><h2>Controles</h2><ul>${stageNames.map(name => `<li>${esc(name)} : ${summary.stages[name]?.exitCode === 0 ? 'OK' : 'ECHEC OU NON EXECUTE'}</li>`).join('')}</ul>
-<p>Tests navigateur : ${summary.passed}/${summary.total}. Captures : ${screenshots.length}/8. Audits : ${accessibility.length}/8.</p>
+<p>Tests navigateur : ${summary.passed}/${summary.total}. Captures : ${screenshots.length}/8. Audits : ${accessibility.length} (8 de base requis).</p>
 <ul>${summary.tests.map(t => `<li>${esc(t.project)} : ${esc(t.title)} : ${t.passed ? 'OK' : esc(t.status)}${t.errors.length ? `<pre>${esc(t.errors.join('\n'))}</pre>` : ''}</li>`).join('')}</ul>
 ${diagnostics.length || summary.errors.length ? `<pre>${esc(JSON.stringify({ diagnostics, errors: summary.errors }, null, 2))}</pre>` : ''}</section>
 <section><h2>Accessibilite</h2><p>Regles WCAG 2.1 A/AA detectables par axe-core. L'examen humain reste necessaire.</p>
