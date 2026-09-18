@@ -9,7 +9,7 @@ function files(dir) {
   });
 }
 let failed = false;
-for (const file of [...files('DragonRoute'), ...files('tests'), 'playwright.config.mjs', 'playwright.preview.config.mjs']) {
+for (const file of [...files('DragonRoute'), ...files('server'), ...files('tests'), 'playwright.config.mjs', 'playwright.preview.config.mjs']) {
   const result = spawnSync(process.execPath, ['--check', file], { stdio: 'inherit' });
   if (result.status !== 0) failed = true;
 }
