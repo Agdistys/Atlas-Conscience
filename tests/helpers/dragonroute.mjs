@@ -37,11 +37,13 @@ export async function mockDragonRoute(page){
     await json(route,[q.includes('valence')?valence:lyon]);
   });
 
-  await page.route('https://router.project-osrm.org/route/v1/driving/**',route=>json(route,{
+  await page.route('https://router.project-osrm.org/route/v1/driving/**',route=>{
+    const via=new URL(route.request().url()).pathname.split('/').at(-1).split(';').length===3;
+    return json(route,{
     code:'Ok',
     routes:[{
-      distance:104000,
-      duration:3900,
+      distance:via?106000:104000,
+      duration:via?106000/26:3900,
       geometry:{type:'LineString',coordinates:[
         [4.8357,45.7640],[4.8550,45.55],[4.8750,45.25],[4.8924,44.9334]
       ]}
@@ -49,7 +51,7 @@ export async function mockDragonRoute(page){
       distance:118000,duration:4600,
       geometry:{type:'LineString',coordinates:[[4.8357,45.7640],[5.08,45.55],[5.03,45.25],[4.8924,44.9334]]}
     }]:[])]
-  }));
+  })});
 
   await page.route('https://router.project-osrm.org/table/v1/driving/**', route => {
     const coords = new URL(route.request().url()).pathname.split('/').at(-1).split(';');

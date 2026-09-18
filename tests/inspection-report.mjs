@@ -4,7 +4,15 @@ import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
-  'service public absent sans cle visiteur ni retour silencieux OSRM',
+  'service public absent : controles indisponibles avant recherche',
+  'geocodage ambigu : choix explicite, libelles, annulation et cache',
+  'geocodage : coordonnees invalides refusees et libelle hostile en texte',
+  'budget carburant distinct du plein et peages inconnus',
+  'budget arret : distance via, prix source et suppression',
+  'autonomie : litres, reserve, acces routier, filtre et unite',
+  'autonomie : depart change, hors portee confirme et liste complete',
+  'profil caravane conserve sans calcul voiture implicite',
+  'recalcul via different : refus preserve ancien trajet et couts',
   'routage public exclusions appliquees aux stations sans secret client',
   'poids lourd valide memorise et transmis aux arrets sans assimilation caravane',
   'alternatives selectionnables et suppression arret sans ancien classement',

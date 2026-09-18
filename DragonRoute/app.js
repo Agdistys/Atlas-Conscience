@@ -7,6 +7,8 @@ let map=null, routeLayer=null, markerLayer=null, currentPos=null, activeAbort=nu
 let trip=null, compared=[], busy=false;
 let mapView=null,currentStation=null,detailSequence=0;
 let orsLastRequest=-Infinity;
+let geoLastRequest=-Infinity,placePending=null,selectedStop=null,budgetReference=null,rangeMeasuredAt=null;
+const geoCache=new Map();
 const dimensionFields={height:"truckHeight",width:"truckWidth",length:"truckLength",weight:"truckWeight",axleload:"truckAxleload"};
 const avoidLabels={tollways:"péages",highways:"autoroutes",ferries:"ferries"};
 const PROFILE_KEY="dragonroute.profile.v1."+(document.body.dataset.preview==="true"?"preview:"+new URL('.',location.href).pathname:"public");
@@ -33,6 +35,7 @@ function saveProfile(next){
   catch{const message="Enregistrement impossible : stockage indisponible, plein ou données invalides.";$("profileMessage").textContent=message;$("stationMessage").textContent=message;return false}
 }
 function applyVehicle(){
+  if($("fuel").value!==profile.vehicle.fuel){$("budgetPrice").value="";budgetReference=null}
   $("fuel").value=profile.vehicle.fuel;$("cons").value=profile.vehicle.cons;$("liters").value=profile.vehicle.liters;
   $("routeVehicle").value=profile.vehicle.type;
   for(const [key,id] of Object.entries(dimensionFields))$(id).value=profile.vehicle.dimensions?.[key]??"";
@@ -40,6 +43,7 @@ function applyVehicle(){
   $("activeVehicle").hidden=!profile.vehicle.name&&profile.vehicle.type==="car";
   $("activeVehicle").textContent=(profile.vehicle.name||"Mon véhicule")+" · "+profile.vehicle.fuel;
   if(trip){clearResults();setStatus("Véhicule modifié. Trajet à recalculer.")}
+  updateRange();
 }
 function renderSaved(){
   $("savedAddresses").innerHTML=profile.addresses.length?profile.addresses.map(a=>`<div class="saved-row"><strong>${escapeHtml(a.name)}</strong><p>${escapeHtml(a.value)}</p><div class="dialog-actions"><button class="ghost" data-address-start="${escapeHtml(a.id)}">Départ</button><button class="ghost" data-address-end="${escapeHtml(a.id)}">Arrivée</button><button class="ghost" data-address-edit="${escapeHtml(a.id)}">Modifier</button><button class="ghost" data-address-remove="${escapeHtml(a.id)}">Supprimer</button></div></div>`).join(""):"<p class=note>Aucune adresse enregistrée.</p>";
@@ -75,7 +79,7 @@ function hoursRows(raw){
 function renderStationDetails(s){
   const rows=hoursRows(s.hours);
   $("stationTitle").textContent=s.city?`Station à ${s.city}`:"Station";
-  $("stationDetails").innerHTML=`<p class="detail-address">${escapeHtml(s.address)}</p><p>${Number.isFinite(s.price)?`${escapeHtml(s.fuel)} : ${fmt(s.price,3)} €/L · ${escapeHtml(age(s.updated))}`:"Prix actuel non renseigné pour le carburant choisi."}</p>
+  $("stationDetails").innerHTML=`<p class="detail-address">${escapeHtml(s.address)}</p><p>${Number.isFinite(s.price)?`${escapeHtml(s.fuel)} : ${fmt(s.price,3)} €/L · ${escapeHtml(age(s.updated))}`:"Prix actuel non renseigné pour le carburant choisi."}</p>${Number.isFinite(s.distanceFromStart)?`<p>${fmt(s.distanceFromStart,1)} km depuis le départ · ${escapeHtml(stationRangeText(s.distanceFromStart))}</p>`:""}
     <section class="detail-section"><h3>Horaires déclarés</h3><p class="note">Automate 24 h/24 : ${["Oui","Non"].includes(s.automate)?s.automate:"non renseigné"}. Les horaires de la boutique peuvent différer.</p>${rows.length?`<ul>${rows.map(row=>`<li>${escapeHtml(row)}</li>`).join("")}</ul>`:"<p>Horaires non renseignés.</p>"}</section>
     <section class="detail-section"><h3>Services déclarés</h3>${s.services?.length?`<ul>${s.services.map(service=>`<li>${escapeHtml(service)}</li>`).join("")}</ul>`:"<p>Services non renseignés.</p>"}</section>
     <p class="note">Informations déclaratives, ouverture et disponibilité à confirmer sur place.${s.receivedAt?` Données reçues le ${escapeHtml(new Date(s.receivedAt).toLocaleString("fr-FR"))}.`:""}</p><a class="detail-source" href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener noreferrer">Source : données officielles des carburants ↗</a>`;
@@ -182,15 +186,33 @@ function makeGrid(){
   $("grid").innerHTML=s;
 }
 
-async function geocode(q){
+function choosePlace(places,field){
+  const dialog=$("placeDialog");
+  $("placeTitle").textContent=field==="start"?"Quel lieu de départ ?":"Quel lieu d’arrivée ?";
+  $("placeChoices").innerHTML=`<legend>Plusieurs lieux correspondent</legend>${places.map((p,i)=>`<label><input type="radio" name="placeChoice" value="${i}"><span>${escapeHtml(p.label)}</span></label>`).join("")}`;
+  $("confirmPlace").disabled=true;
+  dialog.showModal();
+  return new Promise((resolve,reject)=>{placePending={places,resolve,reject}});
+}
+async function geocode(q,field){
   if(q==="__CURRENT__"){
     if(!currentPos) throw new Error("Position GPS non disponible");
     return {lat:currentPos[0],lon:currentPos[1],label:"Ma position"};
   }
-  const p=new URLSearchParams({format:"jsonv2",limit:"1",countrycodes:"fr",q});
-  const d=await getJSON(`${C.nominatim}/search?${p}`,"Géocodage");
-  if(!d?.length) throw new Error(`Lieu introuvable : ${q}`);
-  return {lat:+d[0].lat,lon:+d[0].lon,label:d[0].display_name||q};
+  const key=q.trim().toLocaleLowerCase("fr-FR");
+  let places=geoCache.get(key);
+  if(!places){
+    await sleep(Math.max(0,1100-(performance.now()-geoLastRequest)));
+    geoLastRequest=performance.now();
+    const p=new URLSearchParams({format:"jsonv2",limit:"5",addressdetails:"1",countrycodes:"fr",q});
+    const d=await getJSON(`${C.nominatim}/search?${p}`,"Géocodage");
+    if(!Array.isArray(d))throw new Error("Réponse de géocodage invalide.");
+    places=[...new Map(d.filter(x=>x.lat!=null&&x.lon!=null&&String(x.lat).trim()!==""&&String(x.lon).trim()!==""&&Number.isFinite(+x.lat)&&Number.isFinite(+x.lon)&&Math.abs(+x.lat)<=90&&Math.abs(+x.lon)<=180&&typeof x.display_name==="string"&&x.display_name.trim()).map(x=>({lat:+x.lat,lon:+x.lon,label:x.display_name})).map(p=>[`${p.lat},${p.lon},${p.label}`,p])).values()].slice(0,5);
+    if(!places.length)throw new Error(`Lieu introuvable : ${q}`);
+    if(geoCache.size>=30)geoCache.delete(geoCache.keys().next().value);
+    geoCache.set(key,places);
+  }
+  return places.length===1?places[0]:choosePlace(places,field);
 }
 function validateDimensions(d){
   const maxima={height:6,width:6,length:40,weight:100,axleload:30};
@@ -205,10 +227,18 @@ function routingEndpoint(){
 }
 function updateVehicleRouting(){
   const type=$("routeVehicle").value;
+  const advanced=Boolean(routingEndpoint());
+  for(const option of $("routeVehicle").options){
+    option.disabled=option.value!=="car"&&(option.value!=="truck"||!advanced);
+    if(option.value==="truck")option.textContent=advanced?"Poids lourd":"Poids lourd · indisponible";
+  }
+  document.querySelectorAll('.avoid-options input').forEach(el=>el.disabled=busy||!advanced);
+  $("avoidAvailability").textContent=advanced?"":"Indisponible";
+  $("goBtn").disabled=busy||!["car",...(advanced?["truck"]:[])].includes(type);
   $("truckDimensions").hidden=type!=="truck";
   $("vehicleRoutingNote").hidden=type==="car";
   $("vehicleRoutingNote").textContent=type==="truck"?"Restrictions calculées selon le gabarit déclaré et les données cartographiques. La signalisation et les conditions réelles restent prioritaires. Transport exceptionnel ou de matières dangereuses non pris en charge.":"Le routage spécifique aux caravanes et utilitaires n’est pas encore validé. Aucun trajet voiture ne sera substitué automatiquement.";
-  $("routingAvailability").textContent=routingEndpoint()?"Service public configuré : coordonnées et gabarit transmis au service de calcul puis à OpenRouteService. Aucun compte technique requis.":"Version d’essai : trajet léger standard disponible. Péages, autoroutes, ferries et poids lourds attendent l’activation du service public ; aucune clé n’est demandée aux visiteurs.";
+  $("routingAvailability").textContent=advanced?"Service public configuré : coordonnées et gabarit transmis au service de calcul puis à OpenRouteService. Aucun compte technique requis.":"Évitements et poids lourds indisponibles : service non activé. Trajet léger standard disponible ; aucune clé à fournir.";
 }
 function routingPreferences(){
   const type=$("routeVehicle").value;
@@ -385,7 +415,7 @@ function scoreCandidates(cands,base,m,liters,cons){
     const idx=i+1,s=cands[i];
     const d1=m.distances?.[0]?.[idx],d2=m.distances?.[idx]?.[endIndex];
     const t1=m.durations?.[0]?.[idx],t2=m.durations?.[idx]?.[endIndex];
-    if([d1,d2,t1,t2].some(v=>v==null||!Number.isFinite(v)))continue;
+    if([d1,d2,t1,t2].some(v=>v==null||!Number.isFinite(v)||v<0))continue;
     const extraKm=(d1+d2-base.distance)/1000;
     const extraMin=(t1+t2-base.duration)/60;
     if(extraKm<0||extraMin<0)continue;
@@ -418,21 +448,29 @@ function age(iso){
   return h<2?"mise à jour récente":h<24?`maj il y a ${Math.round(h)} h`:`maj il y a ${Math.round(h/24)} j`;
 }
 function renderStations(stations,mode){
+  const range=rangeEstimate();
+  const visible=$("rangeOnly").checked&&range?.valid?stations.filter(s=>s.distanceFromStart<=range.useful):stations;
+  $("stationListControls").hidden=!stations.length;
+  if(!visible.length){$("stationCards").innerHTML='<p class="note">Aucune station comparée dans la portée estimée. Ne pas compter sur cette estimation pour poursuivre sans carburant.</p>';return}
   const winners=[
-    ["OPTIMAL",[...stations].sort((a,b)=>a.real-b.real)[0]],
-    ["POMPE",[...stations].sort((a,b)=>a.price-b.price||a.real-b.real)[0]],
-    ["RAPIDE",[...stations].sort((a,b)=>a.extraMin-b.extraMin||a.extraKm-b.extraKm)[0]]
+    ["OPTIMAL",[...visible].sort((a,b)=>Math.round(a.real*100)-Math.round(b.real*100)||a.distanceFromStart-b.distanceFromStart)[0]],
+    ["POMPE",[...visible].sort((a,b)=>a.price-b.price||a.real-b.real)[0]],
+    ["RAPIDE",[...visible].sort((a,b)=>a.extraMin-b.extraMin||a.extraKm-b.extraKm)[0]]
   ];
-  const list=mode==="soon"?[...stations].sort((a,b)=>a.distanceFromStart-b.distanceFromStart).slice(0,3):[...new Map(winners.map(([,s])=>[s.id,s])).values()];
+  const all=$("stationListMode").value==="all";
+  const list=all||mode==="soon"?[...visible].sort((a,b)=>a.distanceFromStart-b.distanceFromStart).slice(0,all?visible.length:3):[...new Map(winners.map(([,s])=>[s.id,s])).values()];
   $("stationCards").innerHTML=list.map(s=>`<article class="result-card" data-station="${escapeHtml(s.id)}">
     <div class="result-badges">${winners.filter(([,winner])=>winner.id===s.id).map(([name])=>`<span class="result-badge">${name}</span>`).join("")}</div>
     <span class="station-index">Point ${s.number}</span><h3>${escapeHtml(s.city||`Station ${s.id}`)}</h3><div class="result-small">${escapeHtml(s.address)}</div>
     <div class="result-line">À ${fmt(s.distanceFromStart,1)} km du départ</div>
-    <div class="price">${fmt(s.real)} € <span class="price-note">plein + détour</span></div>
+    <p class="range-badge${range?.valid&&s.distanceFromStart>range.useful?" outside":""}">${escapeHtml(stationRangeText(s.distanceFromStart,range))}</p>
+    <div class="price">${fmt(s.real)} € <span class="price-note">achat + carburant du détour</span></div>
     <div class="result-line"><b>${fmt(s.price,3)} €/L</b> · +${fmt(s.extraKm,1)} km · +${Math.round(s.extraMin)} min</div>
     <div class="result-small">Achat ${fmt(s.purchase)} € · carburant du détour ${fmt(s.detourFuelCost)} €<br>${escapeHtml(age(s.updated))}</div>
     <button class="ghost station-detail-link" data-details="${escapeHtml(s.id)}">Infos et favori</button><button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">Choisir cette station</button>
     </article>`).join("");
+  document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===selectedStop?.station.id));
+  document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===selectedStop?.station.id)));
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
@@ -484,6 +522,51 @@ function showOnMap(coords,stations,best,start,end,label){
   map.invalidateSize();map.fitBounds(L.featureGroup([routeLayer,markerLayer]).getBounds(),{padding:[35,35]});
 }
 
+function rangeEstimate(){
+  const mode=$("rangeMode").value;
+  if(mode==="none")return null;
+  const amount=Number($("rangeValue").value),reserve=Number($("reserveKm").value),cons=Number($("cons").value);
+  if(!$("rangeValue").value.trim()||!$("reserveKm").value.trim()||!Number.isFinite(amount)||amount<0||amount>(mode==="km"?5000:2000)||!Number.isFinite(reserve)||reserve<0||reserve>500||(mode==="liters"&&(!Number.isFinite(cons)||cons<1||cons>100)))return {valid:false};
+  const total=mode==="liters"?amount*100/cons:amount;
+  return {valid:true,total,reserve,useful:Math.max(0,total-reserve)};
+}
+function stationRangeText(distance,range=rangeEstimate()){
+  if(!range?.valid)return "Autonomie inconnue";
+  return distance<=range.useful?"Dans la portée estimée, sans garantie d’accès":"Hors portée estimée avec la réserve choisie";
+}
+function updateRange(){
+  const mode=$("rangeMode").value,range=rangeEstimate();
+  $("rangeFields").hidden=mode==="none";
+  $("rangeValueLabel").textContent=mode==="liters"?"Carburant restant (L)":"Distance restante (km)";
+  $("rangeValue").max=mode==="liters"?"2000":"5000";
+  $("rangeOnly").disabled=busy||!range?.valid;
+  if(!range?.valid)$("rangeOnly").checked=false;
+  $("rangeStatus").textContent=!range?"Autonomie inconnue. Distances depuis le départ, sans suivi en temps réel.":!range.valid?"Renseigner une autonomie et une réserve valides.":`${fmt(range.total,1)} km théoriques − ${fmt(range.reserve,0)} km de réserve : ${fmt(range.useful,1)} km utiles estimés depuis le départ. Saisie à ${new Date(rangeMeasuredAt||Date.now()).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}. Aucun suivi du carburant ni garantie d’accès ou d’ouverture.`;
+  if(compared.length)renderStations(compared,stopWindow().mode);
+}
+function resetRange(){
+  $("rangeMode").value="none";$("rangeValue").value="";$("rangeOnly").checked=false;rangeMeasuredAt=null;updateRange();
+}
+function updateBudget(){
+  $("tripBudget").hidden=!trip;
+  $("useStationPrice").disabled=busy||!selectedStop;
+  if(!trip)return;
+  const r=selectedStop?.via||trip.base,cons=Number($("cons").value),price=Number($("budgetPrice").value);
+  const liters=Number.isFinite(cons)&&cons>=1&&cons<=100?r.distance/1000*cons/100:null;
+  const validPrice=$("budgetPrice").value.trim()&&Number.isFinite(price)&&price>0&&price<=10;
+  $("budgetRoute").textContent=`${fmt(r.distance/1000,1)} km · ${Math.round(r.duration/60)} min${selectedStop?" · arrêt inclus, hors temps du plein":" · sans arrêt"}`;
+  $("budgetFuel").textContent=liters===null?"Consommation à vérifier":`${fmt(liters,2)} L${validPrice?` · ${fmt(liters*price)} €`:" · prix à renseigner"}`;
+  $("budgetSource").textContent=validPrice?(budgetReference?`${budgetReference.label} · ${$("fuel").value} · ${fmt(price,3)} €/L · ${budgetReference.at}`:`Prix saisi · ${$("fuel").value} · ${fmt(price,3)} €/L`):"Prix de référence non renseigné ou invalide. Aucun prix moyen supposé.";
+}
+function invalidateStationPrice(){
+  if(budgetReference?.stationId){budgetReference=null;$("budgetPrice").value=""}
+}
+function updateTripMetrics(){
+  if(!trip)return;
+  const r=selectedStop?.via||trip.base;
+  $("tripKm").textContent=`${fmt(r.distance/1000,1)} km`;$("tripTime").textContent=`${Math.round(r.duration/60)} min`;
+  updateBudget();
+}
 function renderRouteChoices(){
   const choices=trip?.choices||[];
   $("routeChoices").hidden=choices.length<2;
@@ -501,17 +584,21 @@ function chooseRoute(index){
   setStatus("Trajet choisi. Les stations seront recherchées sur ce trajet.","ok");
 }
 function clearStations(){
+  selectedStop=null;invalidateStationPrice();
   compared=[];
   $("stationCards").replaceChildren();$("stationSummary").hidden=true;$("selectedStop").hidden=true;
   $("removeStopBtn").hidden=true;
+  $("stationListControls").hidden=true;
   $("stationCount").textContent="—";$("testedCount").textContent="—";$("fuelStatus").textContent="";
   health("hFuel","","carburants");
   if(trip)showOnMap(trip.coords,[],null,trip.a,trip.b,trip.label);
+  updateTripMetrics();updateBudget();
 }
 function clearResults(){
   trip=null;mapView=null;clearStations();
   renderRouteChoices();
   $("summary").hidden=true;$("stops").hidden=true;
+  $("resolvedPlaces").hidden=true;
   $("tripKm").textContent="—";$("tripTime").textContent="—";
   for(const id of ["routeLine","routeGlow"])$(id).setAttribute("d","");
   $("alternativeRoutes").replaceChildren();$("routeAlternativesNote").hidden=true;
@@ -527,6 +614,7 @@ function lock(value){
   busy=value;
   $("profileBtn").disabled=value;
   document.querySelectorAll('#sheet input,#sheet select,#sheet button').forEach(el=>el.disabled=value);
+  if(!value){updateVehicleRouting();updateRange();updateBudget()}
 }
 function updateWindow(){
   const w=stopWindow();$("distanceControl").hidden=w.mode!=="around";
@@ -543,9 +631,8 @@ async function run(){
     const sv=$("start").value.trim(),ev=$("end").value.trim();
     if(!sv||!ev)throw new Error("Départ et arrivée requis.");
     setStatus("Recherche du départ…","busy");health("hGeo","busy","géocodage…");
-    const ga=await geocode(sv==="Ma position"?"__CURRENT__":sv);
-    if(sv!=="Ma position")await sleep(1100);
-    setStatus("Recherche de l’arrivée…","busy");const gb=await geocode(ev);
+    const ga=await geocode(sv==="Ma position"?"__CURRENT__":sv,"start");
+    setStatus("Recherche de l’arrivée…","busy");const gb=await geocode(ev,"end");
     health("hGeo","ok","géocodage ✓");
     const a=[ga.lat,ga.lon],b=[gb.lat,gb.lon];
     setStatus("Calcul du trajet…","busy");
@@ -554,6 +641,8 @@ async function run(){
     const label=`${ga.label.split(",")[0]} → ${gb.label.split(",")[0]}`;
     const choices=[base,...base.alternatives];
     trip={a,b,base,coords,label,routing,choices,choice:0};renderRouteChoices();
+    $("resolvedPlaces").textContent=`Départ : ${ga.label}. Arrivée : ${gb.label}.`;
+    $("resolvedPlaces").hidden=false;
     $("appliedRouting").textContent=routingLabel(routing);$("appliedRouting").hidden=false;
     $("routingAttribution").innerHTML=routing.provider==="ors"?'<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">© openrouteservice.org by HeiGIT</a> · © OpenStreetMap contributors':"OSRM";
     showOnMap(coords,[],null,a,b,label);
@@ -566,7 +655,7 @@ async function run(){
     setStatus("Trajet prêt. Choisis maintenant tes arrêts.","ok");
   }catch(e){
     dbg(e.stack||e.message);setStatus(`⚠️ ${e.message}`,"err");$("diagWrap").open=true;
-  }finally{lock(false)}
+  }finally{lock(false);activeAbort=null}
 }
 async function searchStations(){
   if(busy||!trip)return;
@@ -599,11 +688,17 @@ async function searchStations(){
 async function selectStation(id){
   if(busy||!trip)return;
   const station=compared.find(s=>s.id===id);if(!station)return;
+  const range=rangeEstimate();
+  if(range?.valid&&station.distanceFromStart>range.useful&&!confirm("Cette station est hors de la portée estimée avec la réserve choisie. Conserver néanmoins cet arrêt dans la préparation du trajet ?"))return;
   if((station.via||trip.choice>0)&&!confirm(`Ajouter cet arrêt ? Le trajet sera recalculé via la station et peut changer de routes. ${routingLabel(trip.routing)}.${station.via?` Total : ${fmt(station.via.distance/1000,1)} km, ${Math.round(station.via.duration/60)} min, hors temps du plein.`:""}`))return;
   lock(true);$("fuelStatus").textContent="Vérification du trajet avec cet arrêt…";
   try{
     const via=station.via||await route([trip.a,[station.lat,station.lon],trip.b]);
+    const changed=Math.abs(via.distance-(trip.base.distance+station.extraKm*1000))>100||Math.abs(via.duration-(trip.base.duration+station.extraMin*60))>60;
+    if(changed&&!confirm(`Le recalcul diffère de la comparaison : ${fmt(via.distance/1000,1)} km, ${Math.round(via.duration/60)} min. Confirmer ce trajet avec arrêt ?`)){$("fuelStatus").textContent="Arrêt non confirmé. Le trajet précédent est conservé.";return}
     const coords=via.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
+    invalidateStationPrice();selectedStop={station,via};
+    updateTripMetrics();
     showOnMap(coords,compared,station,trip.a,trip.b,`${trip.label} · arrêt ${station.city}`);
     document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===id));
     document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===id)));
@@ -626,7 +721,9 @@ function gps(){
   setStatus("Demande de position GPS…","busy");
   navigator.geolocation.getCurrentPosition(p=>{
     if(busy)return;
+    if(p.coords.accuracy>200&&!confirm(`Position imprécise (±${Math.round(p.coords.accuracy)} m). Utiliser ce point comme départ ?`)){setStatus("Position non retenue. Saisie manuelle disponible.");return}
     clearResults();
+    resetRange();
     currentPos=[p.coords.latitude,p.coords.longitude];$("start").value="Ma position";
     setStatus(`Position reçue (±${Math.round(p.coords.accuracy)} m).`,"ok");
   },e=>setStatus(`⚠️ GPS : ${e.message}`,"err"),{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
@@ -680,7 +777,7 @@ function bindProfile(){
     const button=e.target.closest('button');if(!button)return;
     for(const [key,input] of [["addressStart","start"],["addressEnd","end"]])if(button.dataset[key]){
       const a=profile.addresses.find(a=>a.id===button.dataset[key]);if(!a)return;
-      $(input).value=a.value;clearResults();setStatus("Adresse choisie. Trajet à recalculer.");$("profileDialog").close();$(input).focus();return;
+      $(input).value=a.value;clearResults();if(input==="start")resetRange();setStatus("Adresse choisie. Trajet à recalculer.");$("profileDialog").close();$(input).focus();return;
     }
     if(button.dataset.addressEdit){const a=profile.addresses.find(a=>a.id===button.dataset.addressEdit);if(a){$("addressId").value=a.id;$("addressName").value=a.name;$("addressValue").value=a.value;$("cancelAddressEdit").hidden=false;$("addressName").focus()}}
     if(button.dataset.addressRemove){const next=structuredClone(profile);next.addresses=next.addresses.filter(a=>a.id!==button.dataset.addressRemove);if(saveProfile(next))$("profileMessage").textContent="Adresse supprimée."}
@@ -711,23 +808,52 @@ function bindProfile(){
   });
 }
 function bind(){
+  $("placeChoices").addEventListener("change",()=>{$("confirmPlace").disabled=false});
+  $("confirmPlace").addEventListener("click",()=>{
+    const choice=document.querySelector('input[name=placeChoice]:checked');
+    if(!placePending||!choice)return;
+    placePending.result=placePending.places[Number(choice.value)];$("placeDialog").close();
+  });
+  $("cancelPlace").addEventListener("click",()=>$("placeDialog").close());
+  $("placeDialog").addEventListener("close",()=>{
+    if(!placePending)return;
+    const pending=placePending;placePending=null;
+    if(pending.result)pending.resolve(pending.result);
+    else pending.reject(new Error("Choix du lieu annulé. Préciser l’adresse puis relancer."));
+  });
+  $("budgetPrice").addEventListener("input",()=>{budgetReference={label:"Prix saisi",at:new Date().toLocaleString("fr-FR")};updateBudget()});
+  $("useStationPrice").addEventListener("click",()=>{
+    if(!selectedStop)return;
+    const s=selectedStop.station;$("budgetPrice").value=s.price;
+    budgetReference={stationId:s.id,label:`Prix de l’arrêt : ${s.address}`,at:age(s.updated)};updateBudget();
+  });
+  for(const id of ["rangeMode","rangeValue","reserveKm","rangeOnly"]){
+    $(id).addEventListener("input",()=>{
+      if(id==="rangeMode")$("rangeValue").value="";
+      rangeMeasuredAt=Date.now();updateRange();
+    });
+  }
+  $("stationListMode").addEventListener("change",()=>{if(compared.length)renderStations(compared,stopWindow().mode)});
   document.querySelectorAll('.avoid-options input,#routeVehicle,#truckDimensions input').forEach(el=>el.addEventListener("change",()=>{if(!busy)invalidateRouting()}));
   $("cancelStationsBtn").addEventListener("click",()=>activeAbort?.abort());
   $("routeChoices").addEventListener("change",e=>{if(e.target.name==="routeChoice")chooseRoute(Number(e.target.value))});
-  $("removeStopBtn").addEventListener("click",()=>{if(!busy&&trip){showOnMap(trip.coords,compared,null,trip.a,trip.b,trip.label);$("selectedStop").hidden=true;$("removeStopBtn").hidden=true;document.querySelectorAll('[data-station]').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed','false'));$("fuelStatus").textContent="Arrêt retiré. Trajet choisi restauré."}});
+  $("removeStopBtn").addEventListener("click",()=>{if(!busy&&trip){selectedStop=null;invalidateStationPrice();updateTripMetrics();showOnMap(trip.coords,compared,null,trip.a,trip.b,trip.label);$("selectedStop").hidden=true;$("removeStopBtn").hidden=true;document.querySelectorAll('[data-station]').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed','false'));$("fuelStatus").textContent="Arrêt retiré. Trajet choisi restauré."}});
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
-  ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{if(!busy){clearResults();setStatus("Trajet à recalculer.")}}));
+  ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
   $("stationsBtn").addEventListener("click",searchStations);
   $("stationCards").addEventListener("click",e=>{const button=e.target.closest('[data-select]');if(button)selectStation(button.dataset.select)});
-  document.querySelectorAll('input[name="stopMode"],#stopKm,#fuel,#liters,#cons').forEach(el=>el.addEventListener("input",()=>{if(!busy){clearStations();updateWindow()}}));
+  document.querySelectorAll('input[name="stopMode"],#stopKm,#fuel,#liters,#cons').forEach(el=>el.addEventListener("input",()=>{if(!busy){
+    if(el.id==="fuel"){$("budgetPrice").value="";budgetReference=null}
+    clearStations();updateWindow();updateRange();updateBudget();
+  }}));
   for(const name of ["stations","rides"]){
     $(name+"Tab").addEventListener("click",()=>selectTab(name));
     $(name+"Tab").addEventListener("keydown",e=>{if(["ArrowLeft","ArrowRight","Home","End"].includes(e.key)){e.preventDefault();const next=e.key==="Home"?"stations":e.key==="End"?"rides":name==="stations"?"rides":"stations";selectTab(next);$(next+"Tab").focus()}});
   }
 }
 
-makeGrid();bind();bindProfile();applyVehicle();initPwa();
+makeGrid();bind();bindProfile();applyVehicle();updateRange();initPwa();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
 initMap();

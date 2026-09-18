@@ -17,12 +17,12 @@ async function configureOrs(page){
   await page.locator('#avoidFerries').check();
 }
 
-test('service public absent sans cle visiteur ni retour silencieux OSRM', async ({ page }) => {
+test('service public absent : controles indisponibles avant recherche', async ({ page }) => {
   const requests=[];page.on('request',r=>{if(/route\/v1|openrouteservice\/v2|nominatim/.test(r.url()))requests.push(r.url())});
   await page.goto('/DragonRoute/');
-  await page.locator('#avoidTolls').check();
-  await page.locator('#goBtn').click();
-  await expect(page.locator('#status')).toContainText('Service public de routage avancé non activé');
+  for(const id of ['avoidTolls','avoidHighways','avoidFerries'])await expect(page.locator('#'+id)).toBeDisabled();
+  for(const type of ['truck','caravan','van'])await expect(page.locator(`#routeVehicle option[value=${type}]`)).toBeDisabled();
+  await expect(page.locator('#goBtn')).toBeEnabled();
   await expect(page.locator('#stops')).toBeHidden();
   await expect(page.locator('input[type=password]')).toHaveCount(0);
   await expect(page.locator('#routingAvailability')).toContainText('aucune clé');
@@ -152,8 +152,7 @@ test('poids lourd valide memorise et transmis aux arrets sans assimilation carav
   await page.getByRole('button',{name:'Enregistrer le véhicule'}).click();
   await page.reload();await expect(page.locator('#routeVehicle')).toHaveValue('truck');
   await expect(page.locator('#truckHeight')).toHaveValue('3.8');await expect(page.locator('#cons')).toHaveValue('35');
-  await page.locator('#routeVehicle').selectOption('caravan');await page.locator('#goBtn').click();
-  await expect(page.locator('#status')).toContainText('Aucun trajet voiture ne sera substitué');expect(bodies).toHaveLength(3);
+  await expect(page.locator('#routeVehicle option[value=caravan]')).toBeDisabled();expect(bodies).toHaveLength(3);
 });
 
 test('alternatives selectionnables et suppression arret sans ancien classement', async ({ page }) => {
@@ -204,7 +203,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
   await expect(page.locator('#hRoute')).toHaveText('routage ✓');
   await expect(page.locator('#hFuel')).toHaveText('carburants ✓');
   await expect(page.locator('.result-card')).toHaveCount(2);
-  await expect(page.locator('.result-card').first()).toContainText('plein + détour');
+  await expect(page.locator('.result-card').first()).toContainText('achat + carburant du détour');
   await expect(page.locator('.result-card').first()).toContainText('€/L');
   await expect(page.locator('.result-card').first()).toContainText('min');
   await expect(page.locator('#testedCount')).toHaveText('2');
@@ -224,7 +223,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'avoidTolls', 'avoidHighways', 'avoidFerries', 'goBtn']) {
+  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'goBtn']) {
     await page.keyboard.press('Tab');
     await expect(page.locator('#' + id)).toBeFocused();
     const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);
