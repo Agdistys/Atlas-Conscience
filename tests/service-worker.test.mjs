@@ -12,13 +12,13 @@ test('cache upgrade preserves other applications and the current shell', async (
     self: { addEventListener: (name, callback) => { listeners[name] = callback; },
       clients: { claim: async () => { claimed = true; } } },
     caches: {
-      keys: async () => ['dragonroute-v3-shell-2', 'dragonroute-v3-shell-3', 'agora-v1', 'autre-cache'],
+      keys: async () => ['dragonroute-v3-shell-4', 'dragonroute-v3-shell-5', 'dragonroute-v3-shell-6', 'dragonroute-v3-shell-7', 'dragonroute-v3-shell-8', 'agora-v1', 'autre-cache'],
       delete: async name => { removed.push(name); return true; }
     }
   });
   let activation;
   listeners.activate({ waitUntil: promise => { activation = promise; } });
   await activation;
-  assert.deepEqual(removed, ['dragonroute-v3-shell-2']);
+  assert.deepEqual(removed, ['dragonroute-v3-shell-4', 'dragonroute-v3-shell-5', 'dragonroute-v3-shell-6', 'dragonroute-v3-shell-7']);
   assert.equal(claimed, true);
 });

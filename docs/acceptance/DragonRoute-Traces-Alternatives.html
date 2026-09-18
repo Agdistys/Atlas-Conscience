@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Traces routiers et alternatives indicatives | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Traces routiers et alternatives indicatives" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Traces-Alternatives.html" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Traces-Alternatives.html" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Traces routiers et alternatives indicatives" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)","headline":"Traces routiers et alternatives indicatives","url":"https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Traces-Alternatives.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=7bce0ea9988b3fad041175b615b5bb40302bfcda">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="traces-routiers-et-alternatives-indicatives">Traces routiers et alternatives indicatives</h1>
+
+<h2 id="acceptation">Acceptation</h2>
+
+<ul>
+  <li>Trajet principal bleu soutenu (#0758d9), epaisseur 7 px sur Leaflet,
+avec liseré blanc de 11 px, au-dessus des alternatives.</li>
+  <li>Alternatives fournies par OSRM en bleu clair (#82baff), epaisseur 6 px.
+Aucun trace alternatif invente ; geometries absentes ou invalides ignorees.</li>
+  <li>Cadrage incluant les routes et les stations comparees.</li>
+  <li>Memes couleurs sur le schema de secours ; trace principal et alternatives
+distingues meme apres une recherche de stations.</li>
+  <li>Une geometrie principale incomplete bloque la recherche avec un message
+explicite, sans anciens resultats ni stations sur un trajet invalide.</li>
+  <li>Alternatives absentes : message explicite, trajet principal utilisable.</li>
+  <li>Ajout d’une station : trajet via la station en bleu ; alternatives du trajet
+direct masquees car elles ne passent pas necessairement par cet arret.</li>
+  <li>Modification des parametres de carburant : retour au trajet direct avec
+ses alternatives, effacement de l’ancien choix de station.</li>
+  <li>Modification du depart/de l’arrivee ou echec de relance : effacement de
+tous les traces et de la mention des alternatives.</li>
+  <li>Mise a jour du cache de l’application sans effacer celui des autres applications.</li>
+</ul>
+
+<h2 id="limites-explicites">Limites explicites</h2>
+
+<p>Cette livraison affiche les alternatives ; elle ne permet pas de les selectionner.
+Leur selection exige de garantir la coherence du classement des stations et du
+trajet recalcule avec arret. Le moteur actuel recalcule un trajet via la station,
+sans garantir la conservation du trace direct initial.</p>
+
+<p>Les exclusions peages/autoroutes et les restrictions de gabarit ne sont pas
+operationnelles. Leur activation depend d’un moteur qui les applique reellement,
+y compris aux detours par les stations. Aucun reglage ignore n’est ajoute.</p>
+
+<h2 id="verification">Verification</h2>
+
+<p>Tests navigateur sur ordinateur, tablette et deux formats mobiles : couleurs,
+epaisseurs, geometries, absence d’alternative, nettoyage apres erreur, marqueurs
+et fiches de stations, retour au trajet direct. Les services sont simules ; ces
+tests ne garantissent ni disponibilite ni justesse des donnees du service reel.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

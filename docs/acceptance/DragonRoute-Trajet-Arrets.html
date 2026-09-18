@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Trajet puis arrets | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Trajet puis arrets" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Trajet-Arrets.html" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Trajet-Arrets.html" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Trajet puis arrets" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)","headline":"Trajet puis arrets","url":"https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Trajet-Arrets.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=7bce0ea9988b3fad041175b615b5bb40302bfcda">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="trajet-puis-arrets">Trajet puis arrets</h1>
+
+<h2 id="intention">Intention</h2>
+
+<p>Calculer et afficher le trajet avant de demander les parametres carburant.
+Garder la carte et les commandes dans des zones distinctes sur ordinateur et mobile.</p>
+
+<h2 id="acceptation">Acceptation</h2>
+
+<ul>
+  <li>Le bouton initial est “Trouver mon trajet” ; aucun appel carburant a cette etape.</li>
+  <li>Un trajet reussi ouvre les branches Stations et Covoiturage.</li>
+  <li>Stations : au plus tot, compromis dans les 50 premiers kilometres, ou autour
+d’une distance choisie avec une tolerance explicite de 20 km.</li>
+  <li>Les distances sont routieres depuis le depart saisi, pas un suivi GPS continu.</li>
+  <li>La preselection utilise la projection sur la geometrie ; les distances definitives
+viennent de la matrice routiere. Au maximum 20 candidates sont comparees parmi
+les stations recues. Aucun elargissement silencieux si la fenetre est vide.</li>
+  <li>Une fiche par station, avec les badges OPTIMAL/POMPE/RAPIDE cumules.</li>
+  <li>Le choix d’une station recalcule et dessine le trajet passant par cet arret.</li>
+  <li>Cout = achat + carburant du detour ; les minutes restent affichees separement.</li>
+  <li>Changer le trajet efface les anciens resultats. Changer les parametres carburant
+efface les stations, mais conserve le trajet direct.</li>
+  <li>Une panne carburant ne supprime pas le trajet. Les reponses partielles sont signalees.</li>
+  <li>Tests sur quatre formats, axe, captures et Leaflet reel avec tuiles simulees.</li>
+</ul>
+
+<h2 id="limites-explicites">Limites explicites</h2>
+
+<ul>
+  <li>Le service OSRM public refuse actuellement exclude=motorway et exclude=toll
+(verification le 17 septembre 2026, code InvalidValue). Sans peages et sans
+autoroutes ne sont donc pas encore proposes comme options operationnelles.</li>
+  <li>Profil caravane/camion : connexion a un moteur avec restrictions de gabarit
+a confirmer avec Diane ; ne pas assimiler un itineraire voiture a un trajet
+garanti pour vehicule encombrant. La signalisation routiere reste determinante.</li>
+  <li>Covoiturage : branche et lien vers la recherche externe uniquement ; aucune
+annonce connectee, aucun prix ni disponibilite inventes.</li>
+  <li>L’API carburants, ses prix et sa couverture ne garantissent pas l’ouverture
+ni la disponibilite du carburant a l’arrivee. Le mode proche n’est pas une
+assistance d’urgence ni un calcul d’autonomie restante.</li>
+</ul>
+
+<p>Sources : https://project-osrm.org/docs/v5.24.0/api/
+et https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/routing-options</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

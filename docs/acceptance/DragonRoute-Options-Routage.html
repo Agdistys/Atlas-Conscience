@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Options de routage : integration personnelle OpenRouteService | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Options de routage : integration personnelle OpenRouteService" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Options-Routage.html" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Options-Routage.html" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Options de routage : integration personnelle OpenRouteService" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.github.io/Schemas/ (CC BY-SA 4.0)","headline":"Options de routage : integration personnelle OpenRouteService","url":"https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Options-Routage.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=7bce0ea9988b3fad041175b615b5bb40302bfcda">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="options-de-routage--integration-personnelle-openrouteservice">Options de routage : integration personnelle OpenRouteService</h1>
+
+<h2 id="statut">Statut</h2>
+
+<p>Integration optionnelle preparee, avec tests simules. La validation terrain avec
+une cle personnelle valide reste a effectuer. OSRM reste le mode par defaut sans
+compte. L’hebergement demeure sur GitHub Pages ; aucun secret partage n’est publie.</p>
+
+<h2 id="acceptation">Acceptation</h2>
+
+<ul>
+  <li>Options distinctes : eviter peages, autoroutes, ferries. Cocher une exclusion
+selectionne OpenRouteService ; revenir a OSRM ne decoche pas les choix.
+Une recherche OSRM avec exclusions est refusee avant tout appel de geocodage.</li>
+  <li>Cle personnelle saisie volontairement et conservee en memoire de la page.
+Le champ est vide apres lancement ; aucun stockage local/session, export de
+profil, URL ou journal de diagnostic ne doit contenir la cle. Effacement explicite.
+Une nouvelle ouverture/recharge necessite une nouvelle saisie. La cle reste
+accessible aux outils du navigateur : ce mode ne protege pas un secret partage.</li>
+  <li>Destination fixe HTTPS : api.heigit.org/openrouteservice/v2/directions/driving-car/geojson.
+Cle dans Authorization uniquement, POST, pas de cookies ni suivi de redirection.</li>
+  <li>Les coordonnees du depart, de l’arrivee et de chaque station comparee sont
+transmises a HeiGIT / OpenRouteService. L’interface le signale avant activation.</li>
+  <li>Format longitude/latitude, metres, secondes, preference fastest, profil voiture.
+Aucun controle de gabarit : le type de vehicule enregistre ne devient pas un
+profil camion/caravane. Rayons de raccordement limites a 200 m ; l’entree reelle
+de la station n’est pas certifiee.</li>
+  <li>Exclusions identiques sur trajet direct, alternatives et trajets via station.
+Aucun repli vers OSRM ou suppression d’exclusion apres une erreur du fournisseur.</li>
+  <li>Alternatives indicatives : tentative supplementaire seulement si trajet direct
+&lt;= 100 km ; au-dela, limite explicite. Une erreur de cette tentative conserve le
+trajet direct calcule avec les memes exclusions, avec un avertissement explicite.</li>
+  <li>Recherche de stations ORS : chaque candidate est verifiee avec Directions via
+la station, sans matrice OSRM. Meme selection limitee a 20 candidates du corridor
+qu’auparavant ; classement non exhaustif. Appels sequences et espaces de 1,8 s
+au minimum. Le compte peut imposer d’autres quotas ; 429 arrete la comparaison.</li>
+  <li>Distances et durees des segments et du total validees ; geometrie invalide,
+avertissement moteur ou donnees incoherentes : resultat refuse.</li>
+  <li>Detour = difference entre trajet avec station et trajet direct, sous memes
+exclusions. Une difference negative n’est pas ramenee silencieusement a zero :
+la candidate est exclue du classement et ce cas est compte et signale.</li>
+  <li>Achat = litres * prix ; carburant supplementaire = detour km * conso/100 * prix.
+L’achat reste distinct du cout compare. Distances jusqu’a la station issues du
+premier segment du vrai trajet via station, puis filtrees par plage demandee.</li>
+  <li>Absence d’acces (codes ORS 2009/2010) : station exclue et comptabilisee. Erreur
+reseau, cle refusee, quota, reponse invalide : aucun classement partiel affiche.</li>
+  <li>Choix d’une station ORS : confirmation explicite que les routes peuvent changer,
+rappel des exclusions, distance/duree totales. Le trace propose est celui verifie
+lors du classement, sans appel supplementaire. Annulation conserve la carte.</li>
+  <li>Modification d’option/service/cle : ancien trajet, stations et arret invalides.</li>
+  <li>Arret de la comparaison : requetes interrompues, pas de resultats tardifs,
+trajet direct conserve. Les controles restent utilisables apres l’arret.</li>
+</ul>
+
+<h2 id="verification">Verification</h2>
+
+<p>Scenarios navigateur sur quatre formats : absence de cle, refus de repli OSRM,
+transport des exclusions/cle, ordre des coordonnees, attribution, stations,
+confirmation/annulation, export sans cle, oubli/rechargement, 403/429/500,
+geometrie invalide, station inaccessible, detour negatif, panne apres resultat
+intermediaire, interruption, alternatives courtes et limite de distance.</p>
+
+<p>Les tests utilisent une cle factice et ne certifient pas la conformite des routes
+reelles. Avant validation terrain : calculer un trajet connu avec/sans chaque
+exclusion, verifier les voies et les detours de stations, puis les erreurs de quota.
+Les limites des cartes demeurent : signalisation et restrictions sur place priment.</p>
+
+<h2 id="activation-de-lessai-personnel">Activation de l’essai personnel</h2>
+
+<ol>
+  <li>Creer un compte sur https://account.heigit.org/ et une cle donnant acces a
+Directions OpenRouteService, selon les conditions et quotas affiches.</li>
+  <li>Ouvrir l’apercu, puis Options du trajet. Cocher les exclusions souhaitees.</li>
+  <li>Saisir la cle directement dans le champ masque de l’application, jamais dans
+une conversation, un fichier public ou le depot. Calculer le trajet.</li>
+  <li>Verifier les exclusions affichees puis les stations. Effacer la cle a la fin.</li>
+</ol>
+
+<p>Cette integration personnelle n’est pas une strategie de cle partagee pour un
+site grand public. Un tel deploiement exigerait un service protege et une decision
+d’architecture distincte ; GitHub Pages seul ne peut pas garder une cle secrete.</p>
+
+<h2 id="sources-verifiees-le-17-septembre-2026">Sources verifiees le 17 septembre 2026</h2>
+
+<ul>
+  <li>Schema officiel (serveur, parametres, retour GeoJSON) : https://docs.openrouteservice.org/all/docs</li>
+  <li>Exclusions : https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/routing-options</li>
+  <li>Formats : https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/requests-and-return-types</li>
+  <li>Restrictions : https://openrouteservice.org/restrictions/</li>
+  <li>Codes d’erreur : https://giscience.github.io/openrouteservice/api-reference/error-codes</li>
+  <li>Compte et quotas : https://account.heigit.org/</li>
+</ul>
+
+<p>Prevol CORS du serveur officiel verifie : POST avec Authorization et Content-Type
+autorises depuis l’origine GitHub Pages. Ce test sans cle ne valide pas le calcul.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
