@@ -14,6 +14,6 @@ function run(name, command, args) {
 }
 run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
-run('report-tests', process.execPath, ['--test', 'tests/inspection-report.test.mjs', 'tests/service-worker.test.mjs']);
+run('report-tests', process.execPath, ['--test', 'tests/inspection-report.test.mjs', 'tests/service-worker.test.mjs', 'tests/routing-server.test.mjs']);
 run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test']);
 process.exitCode = writeReport(process.cwd(), { publishSummary: false }).state === 'inspection' ? 0 : 1;

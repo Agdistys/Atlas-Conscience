@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mockDragonRoute, orsPattern, orsResponse, testOrsKey } from '../helpers/dragonroute.mjs';
+import { mockDragonRoute, orsPattern, orsResponse, testOrsKey, publicRouting } from '../helpers/dragonroute.mjs';
 import { capture, checkAccessibility, checkOverflow } from '../helpers/inspection.mjs';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -10,37 +10,34 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function configureOrs(page){
+  await publicRouting(page);
   await page.goto('/DragonRoute/');
-  await page.locator('#routingOptionsToggle').click();
   await page.locator('#avoidTolls').check();
   await page.locator('#avoidHighways').check();
   await page.locator('#avoidFerries').check();
-  await page.locator('#orsKey').fill(testOrsKey);
 }
 
-test('exclusions sans cle bloquees sans retour silencieux OSRM', async ({ page }) => {
+test('service public absent : controles indisponibles avant recherche', async ({ page }) => {
   const requests=[];page.on('request',r=>{if(/route\/v1|openrouteservice\/v2|nominatim/.test(r.url()))requests.push(r.url())});
   await page.goto('/DragonRoute/');
-  await page.locator('#routingOptionsToggle').click();
-  await page.locator('#avoidTolls').check();
-  await expect(page.locator('#routeProvider')).toHaveValue('ors');
-  await page.locator('#goBtn').click();
-  await expect(page.locator('#status')).toContainText('Clé OpenRouteService requise');
+  for(const id of ['avoidTolls','avoidHighways','avoidFerries'])await expect(page.locator('#'+id)).toBeDisabled();
+  for(const type of ['truck','caravan','van'])await expect(page.locator(`#routeVehicle option[value=${type}]`)).toBeDisabled();
+  await expect(page.locator('#goBtn')).toBeEnabled();
   await expect(page.locator('#stops')).toBeHidden();
-  await page.locator('#routeProvider').selectOption('osrm');
-  await page.locator('#goBtn').click();
-  await expect(page.locator('#status')).toContainText('Aucune option ne sera ignorée');
+  await expect(page.locator('input[type=password]')).toHaveCount(0);
+  await expect(page.locator('#routingAvailability')).toContainText('aucune clé');
   expect(requests).toEqual([]);
 });
 
-test('ORS exclusions appliquees aux stations et cle privee', async ({ page },info) => {
+test('routage public exclusions appliquees aux stations sans secret client', async ({ page },info) => {
   const requests=[];let osrm=0;
   page.on('request',r=>{if(r.url().includes('router.project-osrm.org'))osrm++});
   await page.route(orsPattern,async r=>{
     const request=r.request(),body=request.postDataJSON();
-    expect(request.method()).toBe('POST');expect(request.headers().authorization).toBe(testOrsKey);
+    expect(request.method()).toBe('POST');expect(request.headers().authorization).toBeUndefined();
     expect(request.url()).not.toContain(testOrsKey);
-    expect(body.options.avoid_features).toEqual(['tollways','highways','ferries']);
+    expect(body.avoid).toEqual(['tollways','highways','ferries']);
+    expect(body.vehicle).toEqual({type:'car'});
     expect(body.coordinates[0]).toEqual([4.8357,45.764]);
     requests.push(body);
     await r.fulfill({json:orsResponse(body)});
@@ -48,7 +45,7 @@ test('ORS exclusions appliquees aux stations et cle privee', async ({ page },inf
   await configureOrs(page);
   await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('Trajet prêt');
-  await expect(page.locator('#orsKey')).toHaveValue('');
+  await expect(page.locator('#orsKey')).toHaveCount(0);
   await expect(page.locator('#appliedRouting')).toContainText('péages, autoroutes, ferries');
   await expect(page.locator('#routeAlternativesNote')).toContainText('100 km');
   await page.locator('#stationsBtn').click();
@@ -73,11 +70,7 @@ test('ORS exclusions appliquees aux stations et cle privee', async ({ page },inf
   expect(exported).not.toContain(testOrsKey);
   await page.getByRole('button',{name:'Fermer le profil'}).click();
   await page.locator('#avoidHighways').uncheck();await expect(page.locator('#stops')).toBeHidden();
-  await page.locator('#forgetOrsKey').click();await page.locator('#goBtn').click();
-  await expect(page.locator('#status')).toContainText('Clé OpenRouteService requise');
-  await page.reload();await page.locator('#routingOptionsToggle').click();
-  await page.locator('#routeProvider').selectOption('ors');await page.locator('#goBtn').click();
-  await expect(page.locator('#status')).toContainText('Clé OpenRouteService requise');
+  await page.reload();await expect(page.locator('#orsKey')).toHaveCount(0);
 });
 
 test('ORS refus et geometrie invalide sans fuite de cle ni repli', async ({ page }) => {
@@ -85,7 +78,7 @@ test('ORS refus et geometrie invalide sans fuite de cle ni repli', async ({ page
   page.on('request',r=>{if(r.url().includes('router.project-osrm.org'))osrm++});
   await page.route(orsPattern,r=>r.fulfill({status,json:invalid?orsResponse(r.request().postDataJSON(),{invalid:true}):{error:{message:testOrsKey}}}));
   await configureOrs(page);
-  for(const [http,message] of [[403,'Clé refusée'],[429,'Quota OpenRouteService'],[500,'indisponible']]){
+  for(const [http,message] of [[403,'Accès au service public refusé'],[429,'Limite du service public'],[500,'indisponible']]){
     status=http;await page.locator('#goBtn').click();
     await expect(page.locator('#status')).toContainText(message);
     await expect(page.locator('#stops')).toBeHidden();expect(await page.content()).not.toContain(testOrsKey);
@@ -99,7 +92,7 @@ test('ORS comparaison interrompue ou incoherente conserve le trajet', async ({ p
   await page.route(orsPattern,async r=>{
     const body=r.request().postDataJSON();calls++;
     if(mode==='quota'&&body.coordinates.length===3&&body.coordinates[1][1]<45.3)return r.fulfill({status:429,json:{error:{message:'quota'}}});
-    if(mode==='noRoute'&&body.coordinates.length===3&&body.coordinates[1][1]>45.3)return r.fulfill({status:404,json:{error:{code:2009}}});
+    if(mode==='noRoute'&&body.coordinates.length===3&&body.coordinates[1][1]>45.3)return r.fulfill({status:422,json:{error:{code:'NO_ROUTE'}}});
     await r.fulfill({json:orsResponse(body,{shorter:mode==='shorter'})});
   });
   await configureOrs(page);await page.locator('#goBtn').click();
@@ -113,7 +106,7 @@ test('ORS comparaison interrompue ou incoherente conserve le trajet', async ({ p
   await page.locator('[data-details]').first().click();await page.locator('#favoriteBtn').click();
   await page.getByRole('button',{name:'Fermer la fiche station'}).click();
   mode='quota';await page.locator('#stationsBtn').click();
-  await expect(page.locator('#fuelStatus')).toContainText('Quota OpenRouteService');
+  await expect(page.locator('#fuelStatus')).toContainText('Limite du service public');
   await expect(page.locator('.result-card')).toHaveCount(0);
   await page.locator('#stationsBtn').click();await page.locator('#cancelStationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('Recherche interrompue');
@@ -127,7 +120,7 @@ test('ORS alternatives courtes et indisponibilite explicite', async ({ page }) =
   let failAlternatives=false;
   await page.route(orsPattern,r=>{
     const body=r.request().postDataJSON();
-    return failAlternatives&&body.alternative_routes?r.fulfill({status:400,json:{error:{code:2004}}}):r.fulfill({json:orsResponse(body,{distance:80000})});
+    return failAlternatives&&body.alternatives?r.fulfill({status:400,json:{error:{code:'UPSTREAM_UNAVAILABLE'}}}):r.fulfill({json:orsResponse(body,{distance:80000})});
   });
   await configureOrs(page);await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('Trajet prêt');
@@ -137,6 +130,51 @@ test('ORS alternatives courtes et indisponibilite explicite', async ({ page }) =
   await expect(page.locator('#alternativeRoutes path')).toHaveCount(0);
   await expect(page.locator('#routeAlternativesNote')).toContainText('Recherche d’alternatives indisponible');
   await expect(page.locator('#appliedRouting')).toContainText('péages, autoroutes, ferries');
+});
+
+test('poids lourd valide memorise et transmis aux arrets sans assimilation caravane', async ({ page }, info) => {
+  const bodies=[];
+  await page.route(orsPattern,r=>{const body=r.request().postDataJSON();bodies.push(body);return r.fulfill({json:orsResponse(body)})});
+  await configureOrs(page);await page.locator('#routeVehicle').selectOption('truck');
+  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('cinq dimensions');
+  expect(bodies).toHaveLength(0);
+  for(const [id,value]of Object.entries({truckHeight:'3.8',truckWidth:'2.5',truckLength:'16',truckWeight:'32',truckAxleload:'10'}))await page.locator('#'+id).fill(value);
+  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
+  await expect(page.locator('#appliedRouting')).toContainText('poids lourd');
+  await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées',{timeout:20000});
+  expect(bodies).toHaveLength(3);
+  for(const body of bodies)expect(body.vehicle).toEqual({type:'truck',dimensions:{height:3.8,width:2.5,length:16,weight:32,axleload:10}});
+  await page.locator('#truckDimensions').scrollIntoViewIfNeeded();
+  await capture(page,info,'poids-lourd');await checkOverflow(page);await checkAccessibility(page,info,'poids-lourd');
+  await page.locator('#profileBtn').click();await page.locator('#vehicleType').selectOption('truck');
+  await page.locator('#saveTruckDimensions').click();await expect(page.locator('#savedDimensionsNote')).toContainText('32,00 t');
+  await page.locator('#vehicleCons').fill('35');await page.locator('#vehicleLiters').fill('400');
+  await page.getByRole('button',{name:'Enregistrer le véhicule'}).click();
+  await page.reload();await expect(page.locator('#routeVehicle')).toHaveValue('truck');
+  await expect(page.locator('#truckHeight')).toHaveValue('3.8');await expect(page.locator('#cons')).toHaveValue('35');
+  await expect(page.locator('#routeVehicle option[value=caravan]')).toBeDisabled();expect(bodies).toHaveLength(3);
+});
+
+test('alternatives selectionnables et suppression arret sans ancien classement', async ({ page }) => {
+  await page.goto('/DragonRoute/');await page.locator('#goBtn').click();
+  await expect(page.locator('#status')).toContainText('Trajet prêt');
+  const initial=await page.locator('#routeLine').getAttribute('d');
+  await page.locator('input[name=routeChoice][value="1"]').check();
+  await expect(page.locator('#tripKm')).toHaveText('118,0 km');
+  expect(await page.locator('#routeLine').getAttribute('d')).not.toBe(initial);
+  await page.locator('#stationsBtn').click();
+  await expect(page.locator('#fuelStatus')).toContainText('non comparable');
+  await expect(page.locator('.result-card')).toHaveCount(0);
+  await page.locator('input[name=routeChoice][value="0"]').check();
+  await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
+  page.once('dialog',d=>d.dismiss());await page.locator('input[name=routeChoice][value="1"]').click();
+  await expect(page.locator('input[name=routeChoice][value="0"]')).toBeChecked();
+  await page.locator('[data-select]').first().click();await expect(page.locator('#removeStopBtn')).toBeVisible();
+  await page.locator('#removeStopBtn').click();await expect(page.locator('#selectedStop')).toBeHidden();
+  await expect(page.locator('#routeLine')).toHaveAttribute('d',initial);
+  await expect(page.locator('[data-select][aria-pressed=true]')).toHaveCount(0);
+  page.once('dialog',d=>d.accept());await page.locator('input[name=routeChoice][value="1"]').click();
+  await expect(page.locator('#tripKm')).toHaveText('118,0 km');await expect(page.locator('.result-card')).toHaveCount(0);
 });
 
 test('demarrage accessible sans Leaflet', async ({ page }, info) => {
@@ -165,7 +203,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
   await expect(page.locator('#hRoute')).toHaveText('routage ✓');
   await expect(page.locator('#hFuel')).toHaveText('carburants ✓');
   await expect(page.locator('.result-card')).toHaveCount(2);
-  await expect(page.locator('.result-card').first()).toContainText('plein + détour');
+  await expect(page.locator('.result-card').first()).toContainText('achat + carburant du détour');
   await expect(page.locator('.result-card').first()).toContainText('€/L');
   await expect(page.locator('.result-card').first()).toContainText('min');
   await expect(page.locator('#testedCount')).toHaveText('2');
@@ -174,7 +212,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
   await expect(page.locator('#routeGlow')).toHaveCSS('stroke','rgb(255, 255, 255)');
   await expect(page.locator('#alternativeRoutes path')).toHaveCount(1);
   await expect(page.locator('#alternativeRoutes path')).toHaveCSS('stroke','rgb(130, 186, 255)');
-  await expect(page.locator('#routeAlternativesNote')).toContainText('1 alternative indicative');
+  await expect(page.locator('#routeAlternativesNote')).toContainText('1 autre(s) trajet(s)');
   await page.locator('.cards').scrollIntoViewIfNeeded();
   await capture(page, info, 'resultats');
   await checkOverflow(page);
@@ -185,7 +223,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'goBtn']) {
+  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'goBtn']) {
     await page.keyboard.press('Tab');
     await expect(page.locator('#' + id)).toBeFocused();
     const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);
@@ -443,7 +481,8 @@ test('vehicule et adresses persistes modifiables et reutilisables', async ({ pag
   await page.reload();
   await expect(page.locator('#fuel')).toHaveValue('E85');
   await expect(page.locator('#cons')).toHaveValue('9');
-  await expect(page.locator('#activeVehicle')).toContainText('gabarit non contrôlé');
+  await expect(page.locator('#routeVehicle')).toHaveValue('caravan');
+  await expect(page.locator('#vehicleRoutingNote')).toContainText('n’est pas encore validé');
   await page.locator('#profileBtn').click();
   await page.getByRole('button',{name:'Modifier',exact:true}).click();
   await page.locator('#addressValue').fill('2 rue de Paris, Lyon');
