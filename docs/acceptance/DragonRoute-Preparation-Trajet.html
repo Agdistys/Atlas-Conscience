@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>DragonRoute : preparation du trajet | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="DragonRoute : preparation du trajet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Preparation-Trajet.html" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Preparation-Trajet.html" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="DragonRoute : preparation du trajet" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)","headline":"DragonRoute : preparation du trajet","url":"https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Preparation-Trajet.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=76d0f8c54ee8a7668f9a1c24dc5f8876e51dd36b">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="dragonroute--preparation-du-trajet">DragonRoute : preparation du trajet</h1>
+
+<p>Lot de la PR 5, 18 septembre 2026. Complete DragonRoute-Public-Vehicules.md sans activer de service externe.</p>
+
+<h2 id="perimetre">Perimetre</h2>
+
+<ul>
+  <li>Disponibilites rendues explicites avant recherche : exclusions desactivees si routingApi est vide ; poids lourd indisponible sans service ; caravane/utilitaire toujours non valides. Les profils existants sont conserves, aucun remplacement silencieux par une voiture.</li>
+  <li>Geocodage a la demande, maximum 5 candidats et choix modal sans preselection. Annuler/echap debloque les commandes. Libelles complets resolus. Coordonnees invalides rejetees, contenus rendus en texte.</li>
+  <li>Nominatim : cache borne 30 recherches en memoire, 1,1 s entre appels d’une page, pas d’autocompletion. Ce n’est pas un quota global pour une application publique a grande echelle.</li>
+  <li>Budget carburant selon le trajet affiche, pas les litres achetes. Prix manuel ou reprise explicite du prix de l’arret choisi. Peages inconnus, total incomplet, aucune moyenne ou gratuite supposee.</li>
+  <li>Autonomie ponctuelle en km ou litres, reserve modifiable (30 km initialement), portee utile estimee. Filtre facultatif des stations selon leur distance routiere d’acces, sans garantie d’atteignabilite. Unite ou depart modifies : invalidation de la quantite.</li>
+  <li>Liste complete des stations deja comparees et badges regroupes. Nombre de candidates inchange.</li>
+  <li>Metriques du trajet mises a jour avec l’arret ; recalcul different de plus de 100 m ou 60 s confirme avant remplacement. Retrait restaure la reference, invalide le prix repris de cet arret.</li>
+  <li>Position GPS annoncee imprecise de plus de 200 m : confirmation demandee.</li>
+</ul>
+
+<h2 id="tests">Tests</h2>
+
+<p><code class="language-plaintext highlighter-rouge">tests/e2e/trip-planning.spec.mjs</code> : adresses ambigues, deux dialogues successifs et cache, annulation, donnees hostiles/invalides, budget sans double comptage, prix d’arret, autonomie et reserve, filtres, profils anciens, recalcul refuse. Scenarios executes par Inspectrice sur les 4 formats Chromium existants ; rapport joint a chaque execution.</p>
+
+<p><code class="language-plaintext highlighter-rouge">tests/e2e/dragonroute.spec.mjs</code> : regressions du trajet, des stations, des profils et du serveur configure simule. Mise a jour des tests de disponibilite et des reponses de trajet via station pour correspondre a la matrice simulee.</p>
+
+<h2 id="limites">Limites</h2>
+
+<p>Pas de peages calcules, pas d’evitements actifs dans l’apercu sans serveur, pas de routage caravane. Pas de navigation continue ni estimation dynamique du reservoir. Les stations sont une selection bornee, non exhaustive. Les nouvelles options de budget et d’autonomie ne certifient ni l’etat d’une route, ni l’ouverture d’une station.</p>
+
+<p>Les tests simules ne prouvent pas une couverture France exhaustive. Les limites et la politique du service public Nominatim doivent etre respectees a l’echelle du public, pas seulement d’une page. Aucune infrastructure, depense ou cle acquise. Aucune fusion automatique.</p>
+
+<p>Specification centralisee : <code class="language-plaintext highlighter-rouge">docs/specifications/OuQuandQui-Cahier-des-Charges-V5-2026-09-18.md</code>, sections 32 et 33.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

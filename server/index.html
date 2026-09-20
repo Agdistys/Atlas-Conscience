@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Service de routage public | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Service de routage public" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/server/" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/server/" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Service de routage public" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)","headline":"Service de routage public","url":"https://agdistys.github.io/Atlas-Conscience/server/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=76d0f8c54ee8a7668f9a1c24dc5f8876e51dd36b">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="service-de-routage-public">Service de routage public</h1>
+
+<p>Etat : socle local teste, non deploye. Aucune cle reelle, aucun compte ni abonnement active.
+Ce service remplace la saisie de cle par les visiteurs. Le site et ses apercus restent sur GitHub Pages.
+GitHub Pages ne peut pas executer ce serveur Node : l’hebergement du service est une decision distincte, encore ouverte.</p>
+
+<h2 id="contrat">Contrat</h2>
+
+<p>Node 22 ou ulterieur. Aucune dependance npm de production.
+<code class="language-plaintext highlighter-rouge">POST /api/route</code>, JSON uniquement, 8192 octets maximum :</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="mf">4.8357</span><span class="p">,</span><span class="w"> </span><span class="mf">45.764</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">4.8924</span><span class="p">,</span><span class="w"> </span><span class="mf">44.9334</span><span class="p">]],</span><span class="w">
+  </span><span class="nl">"avoid"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"tollways"</span><span class="p">,</span><span class="w"> </span><span class="s2">"highways"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ferries"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"vehicle"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"car"</span><span class="p">},</span><span class="w">
+  </span><span class="nl">"alternatives"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Deux points pour un trajet direct, trois pour un arret. GeoJSON longitude/latitude, WGS84.
+Poids lourd : <code class="language-plaintext highlighter-rouge">vehicle.type = "truck"</code>, <code class="language-plaintext highlighter-rouge">vehicle.dimensions</code> exige les cinq nombres <code class="language-plaintext highlighter-rouge">height</code>, <code class="language-plaintext highlighter-rouge">width</code>, <code class="language-plaintext highlighter-rouge">length</code> en metres, <code class="language-plaintext highlighter-rouge">weight</code>, <code class="language-plaintext highlighter-rouge">axleload</code> en tonnes. Valeurs strictement positives, plafonds techniques respectifs 6, 6, 40, 100, 30 ; essieu &lt;= poids total. Ces plafonds ne sont pas des limites legales ni des garanties de passage. Aucun profil implicite pour caravane/utilitaire. Pas de matieres dangereuses ou transport exceptionnel.</p>
+
+<p>Mapping fixe ORS <code class="language-plaintext highlighter-rouge">driving-car</code> ou <code class="language-plaintext highlighter-rouge">driving-hgv</code>, ce dernier avec <code class="language-plaintext highlighter-rouge">vehicle_type: hgv</code> et <code class="language-plaintext highlighter-rouge">profile_params.restrictions</code>. Memes parametres pour trajet direct, alternatives et arret. Le navigateur ne choisit jamais une URL amont ni un profil arbitraire.</p>
+
+<p>Reponse : GeoJSON limite a geometrie, resume et segments numeriques. Pas de metadonnees ni de texte libre amont. Erreurs : codes stables sans details secrets ; aucune conversion automatique vers OSRM. <code class="language-plaintext highlighter-rouge">/health</code> n’indique que si la configuration minimale est presente, pas si une cle ou une route reelle est valide.</p>
+
+<h2 id="configuration-apres-autorisation">Configuration apres autorisation</h2>
+
+<p>Variables a fournir via le gestionnaire de secrets de l’hebergeur, jamais dans GitHub Pages, un commit, un export ou une commande partagee :</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ORS_API_KEY</code> : cle de l’exploitant, uniquement cote serveur.</li>
+  <li><code class="language-plaintext highlighter-rouge">ALLOWED_ORIGINS</code> : origines exactes separees par virgules, par exemple <code class="language-plaintext highlighter-rouge">https://agdistys.github.io</code>. HTTPS, sauf loopback HTTP local.</li>
+  <li><code class="language-plaintext highlighter-rouge">ROUTING_DAILY_LIMIT</code> : entier positif choisi APRES verification du quota et du budget. Zero par defaut : service ferme.</li>
+  <li><code class="language-plaintext highlighter-rouge">ROUTING_PER_MINUTE</code> : plafond global par processus, 30 par defaut. Ce nombre n’est pas une affirmation du quota du fournisseur.</li>
+  <li><code class="language-plaintext highlighter-rouge">HOST</code> : <code class="language-plaintext highlighter-rouge">127.0.0.1</code> par defaut ; exposition externe seulement derriere la terminaison HTTPS approuvee.</li>
+  <li><code class="language-plaintext highlighter-rouge">PORT</code> : 8787 par defaut.</li>
+</ul>
+
+<p>Lancement : <code class="language-plaintext highlighter-rouge">npm run start:routing</code>. Configurer ensuite <code class="language-plaintext highlighter-rouge">DragonRoute/config.js</code> avec l’URL HTTPS publique <code class="language-plaintext highlighter-rouge">/api/route</code>, sans cle, identifiants, query ou fragment. Cette URL publique n’est pas un secret.</p>
+
+<p>Sans configuration, les options avancees echouent explicitement AVANT tout geocodage. Le trajet leger standard OSRM reste disponible, sans exclusions. La version publique ne demande jamais une cle aux visiteurs.</p>
+
+<h2 id="conditions-douverture-et-limites">Conditions d’ouverture et limites</h2>
+
+<ul>
+  <li>CORS controle les navigateurs, ce n’est PAS une authentification ni une protection contre un client forgeant Origin. Une origine GitHub Pages comprend tous les chemins du compte, pas seulement le projet.</li>
+  <li>Une requete amont simultanee, plafonds minute et journalier globaux. Compteur en memoire, remis a zero au redemarrage et par processus : PAS un verrou financier durable ou multi-instance. Avant une demonstration publique : compteur partage persistant ou plafond dur fournisseur verifie, limitation d’abus en frontal et controle des redemarrages.</li>
+  <li>Aucun journal applicatif des trajets. Desactiver aussi la journalisation des corps, entetes Authorization et coordonnees dans les outils de l’hebergeur, de supervision et du proxy HTTPS. Politiques des tiers a verifier.</li>
+  <li>Taille amont bornee a 8 Mio, timeout 20 secondes, pas de redirection, liste blanche d’entrees et de sorties, annulation lors de la deconnexion du client. Pas de cache des itineraires ni de profils.</li>
+  <li>Valider conditions d’usage public/commercial, quotas, attribution, couverture, conservation des donnees et retrait de cle AVANT toute ouverture. Aucun montant de forfait presume.</li>
+  <li>Essais reels indispensables : peages/autoroutes, gabarit poids lourd, routes sans acces, stations et alternatives. Les fixtures ne prouvent pas l’exactitude cartographique.</li>
+  <li>Prevoir geocodage et tuiles appropries au volume public. Le routage seul ne qualifie pas toute l’application pour la production.</li>
+  <li>Demo d’un mois ou plus et facturation ulterieure : hypothese commerciale, duree/prix non arretes. Aucun paiement, expiration ou abonnement integre.</li>
+  <li>Offre payante : <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits">GitHub Pages ne permet pas un site principalement destine a un SaaS commercial</a>. Avant commercialisation, approuver un hebergement conforme ; depot GitHub conservable. Aucun changement d’hebergeur effectue ici.</li>
+</ul>
+
+<p>Sources : <a href="https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/routing-options">ORS options</a>, <a href="https://openrouteservice.org/restrictions/">restrictions ORS</a>, <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages">GitHub Pages</a>. Consultees le 18 septembre 2026.</p>
+
+<p>Tests : <code class="language-plaintext highlighter-rouge">node --test tests/routing-server.test.mjs</code> (serveurs locaux ephemeres, amont simule, aucune cle reelle).</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

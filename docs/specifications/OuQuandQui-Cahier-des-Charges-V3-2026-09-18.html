@@ -1,0 +1,2408 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>OùQuandQui ? | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="OùQuandQui ?" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/docs/specifications/OuQuandQui-Cahier-des-Charges-V3-2026-09-18.html" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/docs/specifications/OuQuandQui-Cahier-des-Charges-V3-2026-09-18.html" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="OùQuandQui ?" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)","headline":"OùQuandQui ?","url":"https://agdistys.github.io/Atlas-Conscience/docs/specifications/OuQuandQui-Cahier-des-Charges-V3-2026-09-18.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=76d0f8c54ee8a7668f9a1c24dc5f8876e51dd36b">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="oùquandqui-">OùQuandQui ?</h1>
+
+<h2 id="01-objet-et-statut-du-document">01. Objet et Statut du Document</h2>
+
+<p><strong>Cahier des Charges Fonctionnel et Technique · Édition Publique V3 · 18 septembre 2026</strong></p>
+
+<p><strong>Finalité :</strong> définir les fonctions attendues de OùQuandQui, leurs règles de calcul, leurs données, leurs limites et leurs critères de validation. Ce référentiel organise le développement et rend les engagements du produit consultables.</p>
+
+<p><strong>Statut : document de conception.</strong> Les exigences du produit, les spécifications proposées et les arbitrages ouverts sont distingués des fonctionnalités disponibles. Une fonction décrite constitue une cible de développement, sauf indication explicite de sa disponibilité.</p>
+
+<p><strong>Périmètre :</strong> trajet routier, arrêts carburant, profil local, covoiturage, transports publics, mobilités douces, comparaison des possibilités et Journal de Mobilité. Les modalités de réalisation sont réparties en lots.</p>
+
+<p><strong>État de référence :</strong> PR 4 fusionnée, commit <code class="language-plaintext highlighter-rouge">7bce0ea9988b3fad041175b615b5bb40302bfcda</code>. Le développement du 18 septembre ajoute le contrat de service public, le gabarit poids lourd et la sélection des alternatives ; le service avancé n’est pas encore activé. La section 31 formalise les décisions de cette édition.</p>
+
+<h3 id="exigences-fondatrices">Exigences Fondatrices</h3>
+
+<ul>
+  <li>Ouvrir l’application à l’usage personnel et au public, sans compte technique ni clé API à fournir par les visiteurs.</li>
+  <li>Commencer par la France ; documenter la couverture effective de chaque source, y compris les écarts entre métropole et outre-mer.</li>
+  <li>
+    <p>Distinguer véhicules légers et poids lourds ; traiter le revêtement de la route comme une préférence distincte du véhicule.</p>
+  </li>
+  <li>Calculer et choisir un trajet avant de rechercher les stations ou les possibilités de covoiturage.</li>
+  <li>Rendre le trajet principal nettement visible en bleu et afficher ses alternatives en bleu clair.</li>
+  <li>Appliquer les options « éviter les péages » et « éviter les autoroutes » au trajet et aux détours.</li>
+  <li>Prendre en compte le véhicule, notamment la voiture avec caravane, sans annoncer une compatibilité de gabarit non vérifiée.</li>
+  <li>Rechercher les stations au plus tôt, selon un compromis proche ou autour d’une distance choisie.</li>
+  <li>Afficher chaque station sur la carte, ouvrir sa fiche d’informations et permettre son enregistrement.</li>
+  <li>Conserver localement le véhicule, les adresses et les stations favorites.</li>
+  <li>Regrouper les classements sur une seule fiche lorsqu’une station remplit plusieurs critères.</li>
+  <li>Présenter séparément les montants et les durées, sans demander une valeur du temps en euros par heure.</li>
+  <li>Distinguer les données observées, les estimations et les informations indisponibles.</li>
+  <li>Étendre progressivement la comparaison au covoiturage, aux transports publics, aux mobilités douces et au bilan CO₂e.</li>
+</ul>
+
+<h3 id="conventions-de-lecture">Conventions de Lecture</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Marque</th>
+      <th>Signification</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>EXIGENCE</td>
+      <td>Fonction ou règle attendue du produit, énoncée explicitement dans la section concernée.</td>
+    </tr>
+    <tr>
+      <td>VISION</td>
+      <td>Intention présente dans la présentation transmise ; ses modalités restent à définir ou valider.</td>
+    </tr>
+    <tr>
+      <td>PROPOSITION</td>
+      <td>Choix fonctionnel, technique ou valeur par défaut proposé dans ce cahier.</td>
+    </tr>
+    <tr>
+      <td>À DÉCIDER</td>
+      <td>Arbitrage nécessaire avant de développer ou publier le lot concerné.</td>
+    </tr>
+    <tr>
+      <td>PRÉSENT EN ESSAI</td>
+      <td>Observé dans la base de référence ; ne signifie ni publication sur le site principal, ni garantie opérationnelle.</td>
+    </tr>
+    <tr>
+      <td>PARTIEL / ABSENT</td>
+      <td>Fonction incomplète ou non présente dans cette base.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Les identifiants <code class="language-plaintext highlighter-rouge">TRA-01</code>, <code class="language-plaintext highlighter-rouge">STA-01</code>, etc. sont stables. Une exigence modifiée conserve son identifiant et reçoit une entrée au journal des décisions. Sauf mention EXIGENCE ou VISION, les règles détaillées sont des PROPOSITIONS destinées à validation. Les verbes « doit » et « interdit » définissent la cible de recette après cette validation.</p>
+
+<h2 id="02-vision-et-périmètre">02. Vision et Périmètre</h2>
+
+<p><strong>VISION :</strong> comparer comment aller quelque part, quand, avec qui et à quel coût, sans réduire la décision à un classement opaque. Montrer les données, les compromis et les incertitudes ; laisser la personne choisir.</p>
+
+<p><strong>OùQuandQui ?</strong> est le produit global. <strong>DragonRoute</strong> est son module routier, pas une seconde application concurrente. Le changement de nom visible ne doit pas précéder la réalité fonctionnelle ni casser les adresses publiques existantes.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Élément</th>
+      <th>Responsabilité</th>
+      <th>Exclusion de responsabilité</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tapis Volant</td>
+      <td>Vue de comparaison des solutions de déplacement et de leurs étapes.</td>
+      <td>Ne fabrique pas d’offres ni de tarifs absents.</td>
+    </tr>
+    <tr>
+      <td>Boussole</td>
+      <td>Contraintes, préférences et classement explicable.</td>
+      <td>Aucun jugement moral universel ; aucune contrainte de sécurité compensée par un bon score.</td>
+    </tr>
+    <tr>
+      <td>DragonRoute</td>
+      <td>Routes, énergie, stations, détours ; recharge électrique dans un lot ultérieur.</td>
+      <td>Pas de garantie d’ouverture, de stock ou de passage physique.</td>
+    </tr>
+    <tr>
+      <td>Covoiturage</td>
+      <td>Accès aux offres autorisées, points de rencontre, coûts et détours.</td>
+      <td>Pas de fausse disponibilité ni de réservation sans raccordement explicite.</td>
+    </tr>
+    <tr>
+      <td>Transports publics</td>
+      <td>Parcours et correspondances, horaires, données temps réel lorsqu’elles existent.</td>
+      <td>Un horaire n’est pas un billet disponible ni un prix connu.</td>
+    </tr>
+    <tr>
+      <td>Corps &amp; Partage</td>
+      <td>Marche, vélo, VAE, vélo partagé et accès aux autres modes.</td>
+      <td>Pas de routage voiture réétiqueté « vélo ».</td>
+    </tr>
+    <tr>
+      <td>Empreinte</td>
+      <td>Estimation CO₂e et journal volontaire de mobilité.</td>
+      <td>Pas d’assimilation CO₂e = pollution totale ; pas de trajet réputé effectué parce que recherché.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>EXIGENCE d’hébergement :</strong> héberger le site et ses aperçus sur GitHub. Un service de données externe n’est pas un changement d’hébergement ; son usage, ses conditions et les informations transmises doivent toutefois être explicités.</p>
+
+<h3 id="hors-périmètre-du-premier-lot-routier">Hors Périmètre du Premier Lot Routier</h3>
+
+<p>Pas de compte distant, paiement, messagerie, publication d’annonces, communauté ou réputation ; pas de guidage vocal ni de navigation continue en arrière-plan ; pas de trafic temps réel affirmé sans source ; pas de cartographie hors ligne complète ; pas de recharge électrique ; pas de classement multimodal tant que les sources ne sont pas branchées. Ces exclusions concernent le premier lot, pas nécessairement la vision finale.</p>
+
+<h2 id="03-état-de-réalisation">03. État de Réalisation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Fonction</th>
+      <th>État au 18 septembre</th>
+      <th>Écart à combler</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Départ, arrivée, géolocalisation ponctuelle</td>
+      <td>PRÉSENT EN ESSAI</td>
+      <td>Résolution des adresses ambiguës et validation explicite du lieu retenu.</td>
+    </tr>
+    <tr>
+      <td>Trajet avant stations</td>
+      <td>PRÉSENT EN ESSAI</td>
+      <td>Activer et qualifier le service avancé public.</td>
+    </tr>
+    <tr>
+      <td>Route et carte Leaflet</td>
+      <td>PRÉSENT EN ESSAI</td>
+      <td>Tracé bleu bordé de blanc, alternatives bleu clair. Contrôles visuels continus.</td>
+    </tr>
+    <tr>
+      <td>Alternatives</td>
+      <td>DÉVELOPPÉ, RECETTE EN COURS</td>
+      <td>Sélection parmi les réponses réelles ; aucun itinéraire alternatif fabriqué.</td>
+    </tr>
+    <tr>
+      <td>Éviter péages / autoroutes</td>
+      <td>CONNECTEUR DÉVELOPPÉ, NON ACTIVÉ</td>
+      <td>Service public, clé d’exploitation et validation réelle encore nécessaires ; aucun secret visiteur.</td>
+    </tr>
+    <tr>
+      <td>Poids lourd</td>
+      <td>DÉVELOPPÉ, NON ACTIVÉ</td>
+      <td>Gabarit et charge transmis au profil HGV ; validation réelle et activation serveur nécessaires.</td>
+    </tr>
+    <tr>
+      <td>Caravane / utilitaire</td>
+      <td>NON VALIDÉ</td>
+      <td>Calcul spécifique bloqué, aucune substitution automatique par voiture ou camion.</td>
+    </tr>
+    <tr>
+      <td>Stations / prix / comparaison</td>
+      <td>PRÉSENT EN ESSAI</td>
+      <td>Échantillonnage limité ; pas de garantie d’exhaustivité ; gestion du trajet alternatif à renforcer.</td>
+    </tr>
+    <tr>
+      <td>Carte des stations / fiches / favoris</td>
+      <td>PRÉSENT EN ESSAI</td>
+      <td>Fraîcheur par champ, filtres de services, accessibilité de l’entrée à approfondir.</td>
+    </tr>
+    <tr>
+      <td>Urgence / station vers X km</td>
+      <td>PARTIEL</td>
+      <td>Plages depuis le départ choisi, sans progression GPS ni autonomie restante.</td>
+    </tr>
+    <tr>
+      <td>Profil / adresses</td>
+      <td>PRÉSENT EN ESSAI</td>
+      <td>Un véhicule actif, stockage local ; aucun compte ni synchronisation.</td>
+    </tr>
+    <tr>
+      <td>Covoiturage</td>
+      <td>PARTIEL</td>
+      <td>Onglet et lien externe ; pas d’annonces connectées.</td>
+    </tr>
+    <tr>
+      <td>Autonomie</td>
+      <td>ABSENT dans cette référence</td>
+      <td>Calcul du carburant restant et de l’autonomie à développer ; portée et incertitude à afficher.</td>
+    </tr>
+    <tr>
+      <td>Transports publics / marche / vélo / recharge</td>
+      <td>ABSENT</td>
+      <td>Fournisseurs, modèle de trajet et lots dédiés.</td>
+    </tr>
+    <tr>
+      <td>Boussole globale / CO₂e / journal</td>
+      <td>ABSENT</td>
+      <td>Ne pas confondre maquettes de la présentation et fonctions opérationnelles.</td>
+    </tr>
+    <tr>
+      <td>PWA / hors ligne</td>
+      <td>PARTIEL</td>
+      <td>Mécanisme de cache de l’interface ; cela ne fournit pas routes, prix ou tuiles hors ligne.</td>
+    </tr>
+    <tr>
+      <td>Contrôle automatisé / aperçus</td>
+      <td>PRÉSENT EN ESSAI</td>
+      <td>Tests majoritairement sur données simulées ; compléter les preuves avec des parcours réels.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>La Présentation expose la vision ; le Cahier des Charges définit les comportements attendus.</strong> L’état de réalisation ci-dessus reste indépendant du périmètre cible.</p>
+
+<h2 id="04-usages-et-parcours-de-référence">04. Usages et Parcours de Référence</h2>
+
+<p>Pas besoin de créer un compte pour préparer un déplacement. Le profil local est facultatif.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parcours</th>
+      <th>Situation</th>
+      <th>Résultat attendu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>PAR-01 · Préparer</td>
+      <td>Préparer un trajet de Lyon vers Montpellier sans autoroutes.</td>
+      <td>Choix des contraintes, comparaison des routes compatibles, confirmation d’un itinéraire, puis recherche de ses arrêts.</td>
+    </tr>
+    <tr>
+      <td>PAR-02 · Plein proche</td>
+      <td>Atteindre une station le plus tôt possible sur le trajet.</td>
+      <td>Classement par distance routière atteignable depuis l’origine active, pas par prix ni distance à vol d’oiseau.</td>
+    </tr>
+    <tr>
+      <td>PAR-03 · Plein planifié</td>
+      <td>Rechercher un arrêt carburant à environ 100 km.</td>
+      <td>Fenêtre explicite autour de 100 km ; stations situées en aval sur le trajet ; aucun élargissement caché.</td>
+    </tr>
+    <tr>
+      <td>PAR-04 · Caravane</td>
+      <td>Préparer un déplacement avec une voiture tractant une caravane.</td>
+      <td>Les contraintes compatibles sont appliquées ; limites et informations manquantes restent visibles ; aucun faux « trajet garanti ».</td>
+    </tr>
+    <tr>
+      <td>PAR-05 · Habitudes</td>
+      <td>Reprendre la préparation d’un trajet dans le même navigateur.</td>
+      <td>Le véhicule, les adresses et les favoris sont conservés ; les informations tarifaires sont actualisées.</td>
+    </tr>
+    <tr>
+      <td>PAR-06 · Comparer</td>
+      <td>Arriver à destination avant une heure donnée.</td>
+      <td>Solutions multimodales compatibles avec cette contrainte, ou explication explicite de l’absence de solution.</td>
+    </tr>
+    <tr>
+      <td>PAR-07 · Partager</td>
+      <td>Organiser un covoiturage comme conducteur ou comme passager.</td>
+      <td>Deux intentions distinctes ; offres ou recherche externe clairement identifiées.</td>
+    </tr>
+    <tr>
+      <td>PAR-08 · Bilan</td>
+      <td>Enregistrer un déplacement effectivement réalisé.</td>
+      <td>Confirmation volontaire, correction possible, CO₂e estimé sourcé, pas de doublon au rechargement.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>La préparation se fait à l’arrêt. Un futur mode en déplacement devra réduire les interactions ; il n’est pas inclus dans la première livraison.</p>
+
+<h2 id="05-arborescence-et-écrans">05. Arborescence et Écrans</h2>
+
+<h3 id="architecture-cible">Architecture Cible</h3>
+
+<ol>
+  <li><strong>Mon trajet</strong> : départ, arrivée, date/heure lorsqu’elles sont prises en charge, voyageurs, véhicule et options.</li>
+  <li><strong>Mes possibilités</strong> : routes routières puis Tapis Volant multimodal, comparaison et choix.</li>
+  <li><strong>Sur mon trajet</strong> : stations, puis covoiturage et autres étapes réellement disponibles.</li>
+  <li><strong>Mon profil</strong> : véhicule(s), adresses, préférences, favoris, données locales.</li>
+  <li><strong>Mon journal</strong> : seulement à partir du lot Empreinte.</li>
+</ol>
+
+<p>Le premier écran reste une application utilisable, sans page marketing préalable. Le bouton principal est <strong>« Trouver mon trajet »</strong>. Les paramètres carburant ne sont pas nécessaires pour calculer une route.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Écran</th>
+      <th>Contenu obligatoire</th>
+      <th>Actions</th>
+      <th>États particuliers</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>E01 · Préparation</td>
+      <td>Départ/arrivée identifiables, véhicule actif, options opérationnelles.</td>
+      <td>Inverser, géolocaliser, utiliser une adresse, calculer.</td>
+      <td>Champ manquant, lieu ambigu, GPS refusé, moteur absent.</td>
+    </tr>
+    <tr>
+      <td>E02 · Itinéraires</td>
+      <td>Carte, résumé distance/durée, contraintes, variantes distinctes.</td>
+      <td>Choisir une variante, recentrer, modifier la recherche.</td>
+      <td>Une seule route, aucune route, service indisponible.</td>
+    </tr>
+    <tr>
+      <td>E03 · Stations</td>
+      <td>Intention d’arrêt, carburant, quantité, rayon de détour, couverture de la recherche.</td>
+      <td>Chercher, trier, filtrer, ouvrir une fiche, sélectionner un arrêt.</td>
+      <td>Aucune station, données partielles, prix absent ou ancien.</td>
+    </tr>
+    <tr>
+      <td>E04 · Fiche station</td>
+      <td>Identité, adresse, prix datés, services, horaires, source.</td>
+      <td>Favori, ajouter comme arrêt, retour à la liste.</td>
+      <td>Service inconnu, fermeture déclarée, carburant indisponible.</td>
+    </tr>
+    <tr>
+      <td>E05 · Profil</td>
+      <td>Données locales, véhicule, adresses, favoris.</td>
+      <td>Créer/modifier/supprimer, importer/exporter/effacer.</td>
+      <td>Stockage bloqué, quota atteint, fichier invalide.</td>
+    </tr>
+    <tr>
+      <td>E06 · Comparaison</td>
+      <td>Segments de chaque possibilité, coûts comparables, Boussole.</td>
+      <td>Filtrer, pondérer, choisir, consulter les hypothèses.</td>
+      <td>Données non comparables, tarification inconnue.</td>
+    </tr>
+    <tr>
+      <td>E07 · Journal</td>
+      <td>Trajets confirmés, calendrier, distances et CO₂e par mode.</td>
+      <td>Ajouter, corriger, supprimer, exporter.</td>
+      <td>Facteur carbone absent, trajet partiellement renseigné.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="ux-01-à-ux-08--règles-dinterface">UX-01 à UX-08 · Règles d’Interface</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Exigence et critère de recette</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>UX-01</td>
+      <td>Ordinateur : carte et panneau de travail distincts ; aucune commande cachée sous la carte. Vérification à 1440 × 900 et 1024 × 768.</td>
+    </tr>
+    <tr>
+      <td>UX-02</td>
+      <td>Mobile : carte à hauteur limitée puis contenu dans le flux, ou panneau accessible équivalent validé ; aucun bouton essentiel hors écran sans possibilité de défilement. Vérification à 360 × 800, 390 × 844, 768 × 1024.</td>
+    </tr>
+    <tr>
+      <td>UX-03</td>
+      <td>Le trajet principal est bleu soutenu avec contour contrasté ; les alternatives sont bleu clair. La sélection porte aussi un libellé, pas uniquement une couleur.</td>
+    </tr>
+    <tr>
+      <td>UX-04</td>
+      <td>Une station correspond à une seule fiche ; les badges de classement se cumulent sur celle-ci. Le même identifiant relie point, fiche et favori.</td>
+    </tr>
+    <tr>
+      <td>UX-05</td>
+      <td>Le profil et les fiches s’utilisent au clavier ; Échap ferme une fenêtre, le focus reste dedans puis revient à l’élément déclencheur.</td>
+    </tr>
+    <tr>
+      <td>UX-06</td>
+      <td>Les commandes de carte conservent leur place ; le chargement ne déplace pas le bouton principal. Une fermeture reste accessible dans une fiche longue.</td>
+    </tr>
+    <tr>
+      <td>UX-07</td>
+      <td>Les actions et états sont nommés simplement ; pas de jargon de fournisseur dans la saisie ordinaire, ni de diagnostic technique à la place d’un message utile.</td>
+    </tr>
+    <tr>
+      <td>UX-08</td>
+      <td>Conserver l’identité aMi, Onyx et accents existants ; le bleu de navigation a une fonction cartographique. La charte graphique n’autorise pas les contrastes insuffisants.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="06-saisie-géocodage-et-position">06. Saisie, Géocodage et Position</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Règle</th>
+      <th>Acceptation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GEO-01</td>
+      <td>Les champs acceptent ville, adresse ou adresse favorite. Espaces superflus retirés ; libellé original conservé pour édition.</td>
+      <td>Un champ vide empêche le calcul et reçoit une erreur associée.</td>
+    </tr>
+    <tr>
+      <td>GEO-02</td>
+      <td>Un texte ambigu ne doit pas devenir silencieusement le premier résultat du géocodeur.</td>
+      <td>Plusieurs communes plausibles produisent un choix avec commune/code postal/pays avant calcul.</td>
+    </tr>
+    <tr>
+      <td>GEO-03</td>
+      <td>Le lieu retenu apparaît avec son libellé résolu.</td>
+      <td>« Montpellier » ne reste pas un texte opaque après résolution ; les coordonnées sont liées à la sélection.</td>
+    </tr>
+    <tr>
+      <td>GEO-04</td>
+      <td>La géolocalisation est déclenchée par une action, jamais au chargement.</td>
+      <td>Refus, délai dépassé ou absence du capteur laissent la saisie manuelle disponible.</td>
+    </tr>
+    <tr>
+      <td>GEO-05</td>
+      <td>La précision et l’heure de la position sont conservées. Seuil d’alerte proposé : précision supérieure à 200 m.</td>
+      <td>Une position imprécise demande confirmation ; elle ne devient pas une entrée de station fiable.</td>
+    </tr>
+    <tr>
+      <td>GEO-06</td>
+      <td>Une adresse favorite stocke le lieu choisi si résolu et son texte ; un libellé « Ma position » n’est pas une adresse fixe.</td>
+      <td>Réutiliser un favori ne déclenche pas un déplacement de carte vers une ancienne position GPS inattendue.</td>
+    </tr>
+    <tr>
+      <td>GEO-07</td>
+      <td>Toute modification d’une entrée invalide le trajet concerné et ses arrêts calculés.</td>
+      <td>Une réponse arrivée en retard pour Lyon ne remplace pas une nouvelle recherche depuis Grenoble.</td>
+    </tr>
+    <tr>
+      <td>GEO-08</td>
+      <td>L’autocomplétion n’est activée qu’avec un fournisseur qui l’autorise et des limites de débit adaptées.</td>
+      <td>Aucune requête à chaque frappe au service public actuel par simple ajout d’un champ suggestif.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Territoire initial confirmé : France.</strong> La disponibilité effective en métropole et outre-mer est qualifiée séparément pour chaque source ; cette décision ne vaut pas certification nationale de couverture. L’interface signale un départ ou une arrivée hors couverture des sources nécessaires. L’extension Europe est un lot à décider, pas une conséquence implicite de l’affichage mondial d’une carte.</p>
+
+<h2 id="07-routage-et-alternatives">07. Routage et Alternatives</h2>
+
+<p><strong>EXIGENCE :</strong> trouver le trajet avant les stations ; route principale bleue, alternatives bleu clair ; éviter péages et autoroutes.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Exigence cible</th>
+      <th>Acceptation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TRA-01</td>
+      <td>Calculer un itinéraire routier réel entre les lieux résolus. Distance et durée proviennent du moteur, pas d’une ligne droite.</td>
+      <td>Une géométrie absente ou invalide ne devient pas un succès avec carte vide.</td>
+    </tr>
+    <tr>
+      <td>TRA-02</td>
+      <td>Afficher jusqu’à trois possibilités distinctes si le fournisseur les renvoie ; nombre proposé configurable.</td>
+      <td>Une seule possibilité = une seule fiche. Aucun doublon ni variante inventée pour remplir trois places.</td>
+    </tr>
+    <tr>
+      <td>TRA-03</td>
+      <td>La variante active est sélectionnable depuis la liste et, si possible, la carte ; une commande clavier équivalente est obligatoire.</td>
+      <td>La sélection change le tracé prioritaire, les km, la durée, l’identifiant de route et invalide les anciens résultats de stations.</td>
+    </tr>
+    <tr>
+      <td>TRA-04</td>
+      <td>Afficher durée estimée, distance, contraintes actives, source et heure du calcul.</td>
+      <td>Ne pas annoncer « trafic en direct » si la durée utilise des vitesses théoriques.</td>
+    </tr>
+    <tr>
+      <td>TRA-05</td>
+      <td>Le choix de la personne reste la référence tant qu’elle ne le change pas.</td>
+      <td>Ajouter une station ne remplace pas discrètement sa variante par la route la plus rapide. Voir section 11.</td>
+    </tr>
+    <tr>
+      <td>TRA-06</td>
+      <td>Les parties communes des routes ne rendent pas le principal invisible.</td>
+      <td>Alternatives dessinées avant le principal ; contour contrasté ; cadrage incluant les géométries utiles.</td>
+    </tr>
+    <tr>
+      <td>TRA-07</td>
+      <td>Une recherche sans résultat distingue absence de route, contrainte impossible et panne du fournisseur.</td>
+      <td>Les anciennes propositions ne restent pas affichées comme le résultat de la nouvelle recherche.</td>
+    </tr>
+    <tr>
+      <td>TRA-08</td>
+      <td>Le calcul et son annulation sont explicites.</td>
+      <td>Un double clic ne lance pas deux calculs concurrents ; Annuler remet les commandes dans un état cohérent.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="options-de-route">Options de Route</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Origine</th>
+      <th>Sens attendu</th>
+      <th>Si non prise en charge</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Éviter les péages</td>
+      <td>EXIGENCE</td>
+      <td>Exclure les tronçons à péage selon les données du fournisseur, y compris pour les arrêts.</td>
+      <td>Option indisponible avec raison ; jamais acceptée puis ignorée.</td>
+    </tr>
+    <tr>
+      <td>Éviter les autoroutes</td>
+      <td>EXIGENCE</td>
+      <td>Exclure la catégorie autoroute ; ne signifie pas seulement éviter les autoroutes payantes.</td>
+      <td>Même règle.</td>
+    </tr>
+    <tr>
+      <td>Éviter les ferries</td>
+      <td>PROPOSITION</td>
+      <td>Ne pas proposer de traversée en ferry dans ce trajet.</td>
+      <td>Ne pas promettre l’absence de ferry.</td>
+    </tr>
+    <tr>
+      <td>Plus rapide / plus court</td>
+      <td>PROPOSITION</td>
+      <td>Critère du moteur, distinct du coût et des préférences éthiques.</td>
+      <td>N’afficher que les critères réellement implémentés.</td>
+    </tr>
+    <tr>
+      <td>Détour maximal</td>
+      <td>PROPOSITION</td>
+      <td>Limite séparée en km et/ou minutes pour les arrêts.</td>
+      <td>Pas de station « proche » présentée sans unité ni seuil.</td>
+    </tr>
+    <tr>
+      <td>Éviter routes étroites/non revêtues</td>
+      <td>À DÉCIDER</td>
+      <td>Définition mesurable et données de couverture nécessaires.</td>
+      <td>Ne pas assimiler « camion » à cette option.</td>
+    </tr>
+    <tr>
+      <td>Zones réglementées / restrictions temporelles</td>
+      <td>À DÉCIDER</td>
+      <td>Dépend du territoire, de la date et du véhicule.</td>
+      <td>Aucun indicateur de conformité sans données à jour et règles validées.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>TRA-09 · Contraintes strictes :</strong> elles s’appliquent au trajet direct, aux alternatives, aux trajets d’accès aux stations, aux prises en charge et aux exports. Si le moteur ne peut les appliquer à une opération, cette opération s’arrête avec explication. Aucun repli silencieux vers une route non contrainte.</p>
+
+<p><strong>TRA-10 · Recalcul :</strong> changer une contrainte annule les anciennes comparaisons. Les préférences cochées restent cochées en cas de panne. Les désactiver exige une action de la personne.</p>
+
+<p><strong>TRA-11 · Statut d’application :</strong> conserver <code class="language-plaintext highlighter-rouge">requested</code>, <code class="language-plaintext highlighter-rouge">applied</code>, <code class="language-plaintext highlighter-rouge">unsupported</code>, <code class="language-plaintext highlighter-rouge">unverified</code>. « Appliquée par le moteur » ne signifie pas « garantie sur le terrain ». Une contrainte explicitement non prise en charge bloque les résultats présentés comme conformes.</p>
+
+<h2 id="08-véhicule-caravane-et-camion">08. Véhicule, Caravane et Camion</h2>
+
+<p><strong>EXIGENCE :</strong> mémoriser son véhicule et prendre en compte les véhicules encombrants, notamment une voiture tractant une caravane.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Exigence</th>
+      <th>Critère</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>VEH-01</td>
+      <td>Profil facultatif ; mode voiture explicite par défaut, jamais véhicule deviné.</td>
+      <td>Sans profil, un trajet voiture est possible avec hypothèses affichées.</td>
+    </tr>
+    <tr>
+      <td>VEH-02</td>
+      <td>Données : nom, type, énergie(s), consommation ; quantité de plein préférée distincte du carburant restant.</td>
+      <td>« 40 L à acheter » ne signifie pas « 40 L dans le réservoir ».</td>
+    </tr>
+    <tr>
+      <td>VEH-03</td>
+      <td>Pour le gabarit : hauteur/largeur/longueur de l’ensemble, masse utilisée par le moteur, remorque, éventuellement charge à l’essieu.</td>
+      <td>Unités visibles et confirmation des valeurs ; pas de zéro ou dimensions inventées.</td>
+    </tr>
+    <tr>
+      <td>VEH-04</td>
+      <td>Le mapping caravane, utilitaire et camion vers les profils du fournisseur doit être documenté.</td>
+      <td>Ne pas traiter automatiquement toute caravane comme poids lourd, ni présenter un profil poids lourd comme équivalent juridique.</td>
+    </tr>
+    <tr>
+      <td>VEH-05</td>
+      <td>Les champs nécessaires dépendent du fournisseur et du type retenu.</td>
+      <td>Si une dimension requise manque, pas d’annonce « gabarit vérifié ». Un trajet voiture ordinaire peut rester consultable seulement comme tel.</td>
+    </tr>
+    <tr>
+      <td>VEH-06</td>
+      <td>L’accès à la station fait partie du contrôle de compatibilité.</td>
+      <td>Un trajet compatible jusqu’à la rue ne prouve pas que l’auvent, l’entrée ou le demi-tour conviennent. Information absente = inconnue.</td>
+    </tr>
+    <tr>
+      <td>VEH-07</td>
+      <td>Le type réellement appliqué est visible au résultat.</td>
+      <td>Une erreur fournisseur ne reconvertit pas un camion en voiture sans accord.</td>
+    </tr>
+    <tr>
+      <td>VEH-08</td>
+      <td>Plusieurs véhicules et un actif constituent une évolution proposée.</td>
+      <td>Changer d’actif invalide les résultats dépendant de ses paramètres ; ne supprime pas les autres profils.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Le contrat routier développé utilise les mètres pour le gabarit, les tonnes pour le poids total et la charge par essieu, les litres pour le carburant. Les unités sont affichées aux champs et conservées dans le contrat fournisseur ; les autres contrats peuvent utiliser les kilogrammes si la conversion explicite est testée. Les plages techniques doivent être définies avec le fournisseur retenu ; aucune limite arbitraire ne sera présentée comme une réglementation.</p>
+
+<h2 id="09-stations-recherche-et-intention-darrêt">09. Stations, Recherche et Intention d’Arrêt</h2>
+
+<h3 id="sens-des-trois-intentions">Sens des Trois Intentions</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Intention</th>
+      <th>EXIGENCE</th>
+      <th>Règle proposée</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Au plus tôt</td>
+      <td>Atteindre une station au plus tôt le long du trajet.</td>
+      <td>Priorité à la distance routière nécessaire pour atteindre une station utilisable depuis l’origine active. Le prix ne passe pas devant la proximité.</td>
+    </tr>
+    <tr>
+      <td>Bon compromis proche</td>
+      <td>Comparer les stations proches selon le coût et le détour.</td>
+      <td>Fenêtre proche visible ; compromis coût d’achat + coût du détour, sous limites de détour. Valeur initiale proposée : 50 km, modifiable.</td>
+    </tr>
+    <tr>
+      <td>Vers X km</td>
+      <td>Comparer les stations autour d’une distance choisie.</td>
+      <td>Cible en distance parcourue sur la route, tolérance visible proposée ±20 km ; le détour d’accès est présenté séparément.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Le mode actuel utilise des distances routières depuis le départ saisi. La cible ci-dessus précise davantage le sens de « sur mon trajet » et exige une adaptation du calcul, pas un simple changement de libellé.</p>
+
+<p><strong>STA-01 · Origine active :</strong> avant départ, origine du trajet. Une actualisation ponctuelle depuis « Ma position » remplace explicitement l’origine après confirmation et recalcule. Pas de progression supposée, pas de suivi permanent implicite.</p>
+
+<p><strong>STA-02 · Fenêtre :</strong> cible et tolérance sont des distances positives en kilomètres ; la borne basse est <code class="language-plaintext highlighter-rouge">max(0, cible - tolérance)</code> et la haute <code class="language-plaintext highlighter-rouge">min(longueur restante, cible + tolérance)</code>. Si la cible dépasse le trajet, afficher la limite avant recherche. Le curseur a un champ numérique équivalent et fonctionne au clavier.</p>
+
+<p><strong>STA-03 · Zone vide :</strong> dire « Aucune station trouvée dans cette zone avec ces critères ». Proposer des actions explicites : élargir, modifier le carburant ou réduire les filtres. Ne jamais élargir automatiquement ou affirmer que le territoire ne contient aucune station.</p>
+
+<p><strong>STA-04 · Sources :</strong> priorité aux données officielles disponibles ; conserver l’identifiant source stable, prix par carburant, date de chaque prix, ruptures, localisation, adresse, horaires et services. Un nom d’enseigne absent n’est pas reconstitué depuis une intuition sur l’adresse.</p>
+
+<p><strong>STA-05 · Présélection :</strong> le corridor géographique sert à trouver des candidates, pas à mesurer leur accessibilité. Une station de l’autre côté d’une autoroute ou d’une rivière exige un accès routier calculé.</p>
+
+<p><strong>STA-06 · Couverture :</strong> afficher reçues, candidates examinées, effectivement comparées, réponses partielles et filtres. « Optimal » signifie meilleur parmi les stations comparées, pas meilleur de France ni de tout le trajet.</p>
+
+<p><strong>STA-07 · Limites actuelles à rendre configurables :</strong> corridor 12 km, prélèvements environ tous les 30 km, maximum 24 points et 20 candidates dans le prototype. Ce sont des compromis techniques, pas une preuve d’exhaustivité. Une limite atteinte entraîne une indication de couverture partielle et une pagination ou relance ciblée proposée.</p>
+
+<p><strong>STA-08 · En aval :</strong> la station doit être rattachée à une portion encore à parcourir. Ne pas classer comme « sur le trajet » une station déjà dépassée sans présenter le retour nécessaire et demander accord.</p>
+
+<p><strong>STA-09 · Carburant :</strong> un prix inconnu, invalide ou une rupture déclarée pour le carburant choisi exclut la station des comparaisons chiffrées correspondantes. Elle peut rester visible avec son état, sans faux zéro.</p>
+
+<p><strong>STA-10 · Filtres proposés :</strong> détour maximal, services nécessaires, enseignes exclues, ouverture connue à l’arrivée. Une valeur inconnue ne satisfait pas un filtre strict ; une option explicite peut afficher séparément les stations « à vérifier ».</p>
+
+<p><strong>STA-11 · Carte :</strong> points numérotés stables pendant la recherche, contrastés, activables au clavier et au clic. Sélectionner un point ouvre la même station que sélectionner sa fiche. Le favori ne modifie pas son rang automatiquement.</p>
+
+<p><strong>STA-12 · Liste :</strong> présenter les recommandations puis permettre l’accès à toutes les stations réellement comparées, pas seulement aux trois gagnantes. Tri indiqué et réversible. Une carte ne doit pas être l’unique moyen d’accéder aux informations.</p>
+
+<h2 id="10-coûts-et-classements-carburant">10. Coûts et Classements Carburant</h2>
+
+<p><strong>EXIGENCE :</strong> supprimer la question « Temps €/h ». Le temps reste une durée. Une conversion monétaire du temps n’est pas introduite par défaut dans les classements.</p>
+
+<h3 id="variables-et-périmètres">Variables et Périmètres</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Symbole</th>
+      <th>Unité</th>
+      <th>Définition</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">L</code></td>
+      <td>litre</td>
+      <td>Quantité que la personne souhaite acheter.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">p_s</code></td>
+      <td>EUR/litre</td>
+      <td>Prix daté du carburant choisi dans la station s.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">c</code></td>
+      <td>litre/100 km</td>
+      <td>Consommation saisie ou estimation explicitement identifiée.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">D0</code>, <code class="language-plaintext highlighter-rouge">T0</code></td>
+      <td>km, minute</td>
+      <td>Distance et durée du trajet de référence sélectionné.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ds</code>, <code class="language-plaintext highlighter-rouge">Ts</code></td>
+      <td>km, minute</td>
+      <td>Distance et durée du trajet vérifié avec la station, sous les mêmes contraintes.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">deltaD</code>, <code class="language-plaintext highlighter-rouge">deltaT</code></td>
+      <td>km, minute</td>
+      <td>Différences <code class="language-plaintext highlighter-rouge">Ds - D0</code>, <code class="language-plaintext highlighter-rouge">Ts - T0</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">deltaFrais</code></td>
+      <td>EUR</td>
+      <td>Surcoûts documentés du détour, hors carburant : péage, parking, etc.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>CAL-01 · Achat :</strong> <code class="language-plaintext highlighter-rouge">achat_s = L × p_s</code>.</p>
+
+<p><strong>CAL-02 · Carburant du détour :</strong> <code class="language-plaintext highlighter-rouge">volume_detour_s = deltaD × c / 100</code> ; <code class="language-plaintext highlighter-rouge">cout_detour_s = volume_detour_s × p_reference</code>. Proposition initiale : <code class="language-plaintext highlighter-rouge">p_reference = p_s</code>, explicitement nommé « estimation au prix de cette station ». Le coût exact du carburant déjà dans le réservoir n’est pas connu.</p>
+
+<p><strong>CAL-03 · Comparaison :</strong> <code class="language-plaintext highlighter-rouge">cout_compare_s = achat_s + cout_detour_s + deltaFrais</code>, seulement si toutes les composantes revendiquées sont connues. Si les frais supplémentaires sont inconnus, afficher le sous-total « achat + carburant du détour » et indiquer les exclusions. Ne pas l’appeler coût total du voyage.</p>
+
+<p><strong>CAL-04 · Différences négatives :</strong> un petit écart numérique peut être traité selon une tolérance documentée. Un écart significatif négatif indique un changement de route ou d’hypothèse : ne pas le masquer par <code class="language-plaintext highlighter-rouge">max(0, ...)</code>. Revalider le trajet de référence ou présenter explicitement une nouvelle proposition, avant de la classer comme simple détour.</p>
+
+<p><strong>CAL-05 · Temps :</strong> détour et durée totale sont séparés. Le temps du plein, l’attente et l’entrée/sortie ne sont inclus que s’ils sont connus ou paramétrés ; sinon préciser « hors temps du plein ». Aucun zéro supposé pour une durée absente.</p>
+
+<p><strong>CAL-06 · Coût du voyage :</strong> la quantité achetée n’est pas égale à la quantité consommée sur le trajet. Pour le voyage, estimer <code class="language-plaintext highlighter-rouge">distance × consommation / 100 × prix_reference</code>, puis ajouter les autres composantes disponibles. Ne pas ajouter à nouveau l’intégralité du plein.</p>
+
+<p><strong>CAL-07 · Précision :</strong> calculs sans arrondi intermédiaire ; valeurs monétaires arrondies à deux décimales à l’affichage, prix carburant à trois, distances selon leur précision utile. Pour les tris, les montants comparés sont ramenés au centime ; les égalités restent explicites.</p>
+
+<h3 id="exemple-de-recette-entièrement-fictif">Exemple de Recette Entièrement Fictif</h3>
+
+<p>Trajet de référence 100 km, quantité 40 L, consommation 6,2 L/100 km. Station A : 1,80 EUR/L, détour 6 km et 8 min. Achat 72 EUR ; détour 0,372 L, soit 0,6696 EUR ; sous-total affiché 72,67 EUR. Station B : 1,78 EUR/L et aucun détour : 71,20 EUR. Si des frais sont inconnus, ces nombres ne sont pas un coût total intégral.</p>
+
+<h3 id="badges-et-ordre">Badges et Ordre</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Badge</th>
+      <th>Règle proposée et égalités</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CAL-08</td>
+      <td>Pompe</td>
+      <td>Prix au litre minimal connu parmi les stations comparées. Toutes les égalités au millième sont identifiées.</td>
+    </tr>
+    <tr>
+      <td>CAL-09</td>
+      <td>Rapide</td>
+      <td>Détour en durée minimal vérifié, puis distance supplémentaire en départage d’ordre ; pas « station la plus proche ».</td>
+    </tr>
+    <tr>
+      <td>CAL-10</td>
+      <td>Optimal</td>
+      <td>Libellé recommandé : « Meilleur coût comparé ». Minimum du coût de périmètre homogène connu, sous contraintes actives. Ne pas mélanger totaux complets et sous-totaux.</td>
+    </tr>
+    <tr>
+      <td>CAL-11</td>
+      <td>Au plus tôt</td>
+      <td>Distance routière pour atteindre la station, puis durée d’accès ; les badges de coût ne remplacent pas ce tri.</td>
+    </tr>
+    <tr>
+      <td>CAL-12</td>
+      <td>Regroupement</td>
+      <td>Si A gagne les trois critères, une seule fiche A porte trois badges. Pour des stations distinctes à égalité, ne pas fusionner leurs identités.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Une différence inférieure à la précision des hypothèses ne doit pas être présentée comme une supériorité certaine. Les classements sont calculés sur les mêmes paramètres, quantités et périmètres.</p>
+
+<h2 id="11-ajout-dun-arrêt-et-conservation-du-trajet">11. Ajout d’un Arrêt et Conservation du Trajet</h2>
+
+<p><strong>ARR-01 · Référence immuable :</strong> conserver un identifiant de route, sa géométrie, ses étapes, son fournisseur, sa date et ses contraintes. La route avec arrêt est un nouvel objet lié à cette référence, pas un écrasement silencieux.</p>
+
+<p><strong>ARR-02 · Conservation :</strong> une station se rattache à une section du trajet sélectionné. La méthode choisie doit préserver les parties hors détour, ou signaler explicitement que le moteur recalcule une route différente. Les points de passage d’ancrage ne doivent pas créer de demi-tours ni de mauvaises chaussées.</p>
+
+<p><strong>ARR-03 · Matrice et variantes :</strong> ne pas soustraire la durée d’une variante lente à des accès calculés sur une autre route rapide. Une matrice non contrainte ou sans référence à la variante ne suffit pas à garantir un détour cohérent. Si nécessaire, réduire le nombre de candidates et calculer chaque trajet via station avec les contraintes requises.</p>
+
+<p><strong>ARR-04 · Confirmation :</strong> avant ajout, vérifier la route complète, actualiser km/minutes/coûts, montrer le tracé et laisser confirmer si le résultat diffère de la comparaison. En cas d’échec, l’ancien trajet valide reste identifiable et l’arrêt n’est pas marqué comme confirmé.</p>
+
+<p><strong>ARR-05 · Suppression :</strong> retirer l’arrêt restaure la route de référence sans conserver des coûts ou marqueurs de sélection obsolètes.</p>
+
+<p><strong>ARR-06 · Nombre d’arrêts :</strong> un arrêt carburant dans le premier lot. Plusieurs arrêts ordonnés sont une évolution ; elle requiert recalcul cumulatif et autonomie par segment. Ne pas laisser ajouter un deuxième arrêt si l’interface ne sait conserver que le dernier.</p>
+
+<p><strong>ARR-07 · Sortie vers navigation :</strong> toute application externe reçoit les points qu’elle peut accepter ; avertir si contraintes ou variante ne sont pas exportables. Une ouverture externe ne prouve pas qu’elle reprend le même parcours.</p>
+
+<h2 id="12-autonomie-et-usage-en-déplacement">12. Autonomie et Usage en Déplacement</h2>
+
+<p><strong>VISION :</strong> autonomie. <strong>EXIGENCE :</strong> trouver une station proche lorsque le plein devient urgent. Ces deux besoins ne doivent pas être confondus avec une assistance d’urgence.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Règle proposée</th>
+      <th>Critère</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>AUT-01</td>
+      <td>Entrée facultative : litres restants ou autonomie estimée par la personne, jamais les deux sans règle de priorité.</td>
+      <td>Absence d’entrée = autonomie inconnue, pas « station atteignable ».</td>
+    </tr>
+    <tr>
+      <td>AUT-02</td>
+      <td>Avec litres restants <code class="language-plaintext highlighter-rouge">R</code> et consommation <code class="language-plaintext highlighter-rouge">c &gt; 0</code>, autonomie théorique <code class="language-plaintext highlighter-rouge">100 × R / c</code>.</td>
+      <td>Calcul explicitement estimatif, daté ; aucun diagnostic véhicule.</td>
+    </tr>
+    <tr>
+      <td>AUT-03</td>
+      <td>Réserve paramétrable en kilomètres, proposition initiale 30 km à valider ; portée utile <code class="language-plaintext highlighter-rouge">max(0, autonomie - réserve)</code>.</td>
+      <td>Réserve visible ; aucune certitude de pouvoir atteindre une station.</td>
+    </tr>
+    <tr>
+      <td>AUT-04</td>
+      <td>Distance d’accès inclut le trajet réellement roulé jusqu’à la station.</td>
+      <td>Une station projetée à 90 km avec accès à 110 km n’est pas annoncée atteignable avec 100 km utiles.</td>
+    </tr>
+    <tr>
+      <td>AUT-05</td>
+      <td>Position ponctuelle ou suivi continu sont deux fonctions différentes.</td>
+      <td>Le premier lot indique la référence utilisée. Le suivi continu demande un lot et un consentement spécifiques.</td>
+    </tr>
+    <tr>
+      <td>AUT-06</td>
+      <td>En mode proche, pas de distraction inutile ni de langage rassurant infondé.</td>
+      <td>Aucune garantie d’atteignabilité ou d’ouverture sans information suffisante.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Le futur suivi continu doit traiter perte GPS, sortie de route, pause/reprise, consommation inconnue et changement de réseau. Il ne se déduit pas d’un simple bouton de géolocalisation.</p>
+
+<h2 id="13-fiches-stations-et-favoris">13. Fiches Stations et Favoris</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Exigence</th>
+      <th>Recette</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FIC-01</td>
+      <td>Afficher nom si connu, adresse, commune, carburants/prix datés, services, horaires et provenance.</td>
+      <td>Champs manquants rendus « non renseigné », jamais complétés par invention.</td>
+    </tr>
+    <tr>
+      <td>FIC-02</td>
+      <td>Distinguer horaires boutique, distribution et automate 24 h/24.</td>
+      <td>Automate actif ne signifie pas boutique ouverte ni carburant disponible.</td>
+    </tr>
+    <tr>
+      <td>FIC-03</td>
+      <td>« Ouverte à l’arrivée » exige horaire exploitable, fuseau, date d’arrivée et traitement des jours spéciaux.</td>
+      <td>Si jours fériés/exceptions ne sont pas connus, afficher une réserve ou statut inconnu ; ne pas affirmer ouvert.</td>
+    </tr>
+    <tr>
+      <td>FIC-04</td>
+      <td>Chaque service est déclaré par la source.</td>
+      <td>« Lavage » n’implique pas toilettes ; l’accès PMR n’est pas déduit d’un parking.</td>
+    </tr>
+    <tr>
+      <td>FIC-05</td>
+      <td>Favori par identifiant source ; adresse/coordonnées utiles conservées localement.</td>
+      <td>Un changement de prix ne crée pas un nouveau favori.</td>
+    </tr>
+    <tr>
+      <td>FIC-06</td>
+      <td>Réouverture : rafraîchir les informations dynamiques.</td>
+      <td>Échec = adresse sauvegardée et état indisponible ; ne pas présenter l’ancien prix comme actuel.</td>
+    </tr>
+    <tr>
+      <td>FIC-07</td>
+      <td>Source et date de déclaration/consultation distinguées.</td>
+      <td>« Consulté aujourd’hui » ne rend pas un prix déclaré il y a une semaine récent.</td>
+    </tr>
+    <tr>
+      <td>FIC-08</td>
+      <td>Une réponse tardive ne remplit pas une autre fiche.</td>
+      <td>Ouvrir A puis B très vite laisse B affichée même si A répond après.</td>
+    </tr>
+    <tr>
+      <td>FIC-09</td>
+      <td>Changement de carburant ou paramètres ferme/invalide une sélection incompatible.</td>
+      <td>Aucun bouton « choisir » ne confirme une station calculée pour l’ancien carburant.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="14-profil-adresses-et-données-personnelles">14. Profil, Adresses et Données Personnelles</h2>
+
+<p><strong>EXIGENCE :</strong> enregistrer véhicule, adresses et stations. <strong>VISION :</strong> profil local d’abord.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Règle cible</th>
+      <th>Acceptation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>PRO-01</td>
+      <td>Utilisable sans compte ; mention claire « sur ce navigateur/appareil ».</td>
+      <td>Ne pas laisser croire qu’un enregistrement local sera retrouvé automatiquement sur le téléphone.</td>
+    </tr>
+    <tr>
+      <td>PRO-02</td>
+      <td>Ajouter, renommer, modifier, supprimer une adresse nommée et l’utiliser au départ ou à l’arrivée.</td>
+      <td>Les doublons sont signalés sans écrasement silencieux ; les accents sont conservés.</td>
+    </tr>
+    <tr>
+      <td>PRO-03</td>
+      <td>Sauvegarder après validation et confirmer seulement après écriture réussie.</td>
+      <td>Stockage refusé ou saturé = erreur et données de formulaire conservées.</td>
+    </tr>
+    <tr>
+      <td>PRO-04</td>
+      <td>Export JSON versionné ; aperçu du nombre d’éléments avant import ; confirmation avant remplacement.</td>
+      <td>Fichier invalide ou trop gros refusé sans détruire le profil existant.</td>
+    </tr>
+    <tr>
+      <td>PRO-05</td>
+      <td>Migration de schéma testée et non destructive.</td>
+      <td>Export de secours proposé avant migration irréversible ; version future inconnue refusée proprement.</td>
+    </tr>
+    <tr>
+      <td>PRO-06</td>
+      <td>Effacement limité aux données de cette application et de cet environnement.</td>
+      <td>Ne pas appeler un effacement global qui supprimerait les autres applications aMi.</td>
+    </tr>
+    <tr>
+      <td>PRO-07</td>
+      <td>Profil public et chaque aperçu séparés.</td>
+      <td>Un test sur PR 4 ne lit ni ne modifie les adresses de la version publique.</td>
+    </tr>
+    <tr>
+      <td>PRO-08</td>
+      <td>Les clés API ne sont jamais incluses dans l’export du profil ni dans les captures/rapports.</td>
+      <td>Test avec marqueur factice secret, recherche de ce marqueur dans tous les artefacts.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Limites proposées héritées du prototype : 50 adresses, 100 stations favorites, nom 80 caractères, adresse 250, import 100 000 octets. Elles sont des protections initiales documentées, à revoir lors de l’ajout du journal. Un dépassement produit un message utile, jamais une troncature silencieuse.</p>
+
+<p>Le stockage local n’est pas un coffre-fort chiffré. Prévoir un inventaire des données transmises : géocodeur reçoit les lieux recherchés ; routeur reçoit des coordonnées et contraintes ; fournisseur de tuiles reçoit des requêtes cartographiques. « Sans compte » ne signifie donc pas « aucune donnée sort de l’appareil ».</p>
+
+<h2 id="15-covoiturage">15. Covoiturage</h2>
+
+<p>La vision inclut conducteurs, passagers, embarquement, détour, frais partagés et consentement. Le prototype ne possède actuellement qu’un lien externe.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Exigence cible</th>
+      <th>Acceptation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>COV-01</td>
+      <td>Distinguer « Je conduis » et « Je cherche une place ».</td>
+      <td>Le nombre de places et les contraintes affichées correspondent au rôle.</td>
+    </tr>
+    <tr>
+      <td>COV-02</td>
+      <td>Sans fournisseur connecté, afficher recherche externe et absence d’offres intégrées.</td>
+      <td>Aucun résultat fictif, avis, prix ou disponibilité utilisé comme donnée réelle.</td>
+    </tr>
+    <tr>
+      <td>COV-03</td>
+      <td>Une offre contient fournisseur, identifiant, heure/fuseau, lieux, prix/devise, places connues, lien et fraîcheur.</td>
+      <td>Un champ manquant n’est pas déduit ; offre périmée séparée des disponibles.</td>
+    </tr>
+    <tr>
+      <td>COV-04</td>
+      <td>Points de rencontre et détours sont calculés selon le même contrat de route.</td>
+      <td>Une prise en charge peut être refusée si elle dépasse la limite ou viole une contrainte.</td>
+    </tr>
+    <tr>
+      <td>COV-05</td>
+      <td>Séparer prix de l’offre, estimation des frais et proposition de répartition.</td>
+      <td>Une division des coûts n’est pas une offre contractuelle ni un paiement.</td>
+    </tr>
+    <tr>
+      <td>COV-06</td>
+      <td>Réservation et contact restent chez le fournisseur au premier raccordement.</td>
+      <td>Aucun clic ne réserve ou ne publie une adresse privée sans étape explicite.</td>
+    </tr>
+    <tr>
+      <td>COV-07</td>
+      <td>Réputation portable : étude séparée, non requise pour le MVP.</td>
+      <td>Pas de score social inventé ; modèle de consentement, correction et contestation avant développement.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>L’accès à des offres implique de vérifier autorisations, conditions, quotas et couverture. Un lien vers un site public ne donne pas le droit technique ou contractuel d’en aspirer les annonces.</p>
+
+<h2 id="16-transports-publics-et-mobilités-douces">16. Transports Publics et Mobilités Douces</h2>
+
+<h3 id="transports-publics">Transports Publics</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Exigence cible</th>
+      <th>Acceptation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TC-01</td>
+      <td>Départ à une heure ou arrivée avant une heure, date et fuseau explicites.</td>
+      <td>Aucun trajet « hier » proposé à cause d’un calcul d’heure sans date.</td>
+    </tr>
+    <tr>
+      <td>TC-02</td>
+      <td>Résultat composé de segments : accès, ligne, arrêts, montée/descente, attente, correspondance, sortie.</td>
+      <td>Durée totale comprend accès et attente, pas uniquement le temps dans le train.</td>
+    </tr>
+    <tr>
+      <td>TC-03</td>
+      <td>Calendriers de service, exceptions et changements de jour gérés par une bibliothèque/moteur éprouvé.</td>
+      <td>Tests autour de minuit, changement d’heure et service supprimé.</td>
+    </tr>
+    <tr>
+      <td>TC-04</td>
+      <td>Distinguer horaire théorique, information temps réel et interruption.</td>
+      <td>Une panne temps réel restitue l’horaire théorique comme tel, sans badge « en direct ».</td>
+    </tr>
+    <tr>
+      <td>TC-05</td>
+      <td>Tarifs et disponibilité de réservation indépendants des horaires.</td>
+      <td>Prix inconnu reste inconnu ; aucun billet à 0 EUR par défaut.</td>
+    </tr>
+    <tr>
+      <td>TC-06</td>
+      <td>Accessibilité et contraintes bagages/vélo renseignées par source.</td>
+      <td>Une information inconnue ne satisfait pas un filtre strict fauteuil ou vélo embarqué.</td>
+    </tr>
+    <tr>
+      <td>TC-07</td>
+      <td>Commencer par un territoire pilote nommé et des flux identifiés.</td>
+      <td>La couverture hors pilote est annoncée absente ; pas de promesse nationale avant recette.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="marche-vélo-et-vélo-partagé">Marche, Vélo et Vélo Partagé</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Exigence cible</th>
+      <th>Acceptation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DOU-01</td>
+      <td>Moteur et profil adaptés au mode.</td>
+      <td>Les itinéraires ne reprennent pas un tracé automobile avec une vitesse modifiée.</td>
+    </tr>
+    <tr>
+      <td>DOU-02</td>
+      <td>Limites personnelles : distance de marche, vélo/VAE, changements acceptables ; pente si disponible.</td>
+      <td>Donnée inconnue et préférence souple sont distinguées d’une interdiction.</td>
+    </tr>
+    <tr>
+      <td>DOU-03</td>
+      <td>Vélo partagé : stations, vélos et places disponibles horodatés lorsque la source existe.</td>
+      <td>Disponibilité ancienne signalée ; arrivée ne garantit pas une place.</td>
+    </tr>
+    <tr>
+      <td>DOU-04</td>
+      <td>Premier/dernier kilomètre pris en compte avec location/restitution et temps associés.</td>
+      <td>Pas de comparaison train + vélo qui oublie la marche vers la station.</td>
+    </tr>
+    <tr>
+      <td>DOU-05</td>
+      <td>Batterie d’un VAE ou vélo partagé non supposée connue.</td>
+      <td>Autonomie absente ne devient pas une confirmation d’atteignabilité.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="17-tapis-volant-et-boussole">17. Tapis Volant et Boussole</h2>
+
+<p><strong>VISION :</strong> prix, temps, CO₂e, vie privée, accessibilité et choix éthiques visibles, pondérés par la personne. Les nombres et exemples de la présentation sont des maquettes, pas des valeurs de production.</p>
+
+<p><strong>BOU-01 · Deux étages :</strong> appliquer d’abord les contraintes strictes ; classer ensuite les possibilités admissibles selon les préférences. Un faible coût ne compense ni un gabarit incompatible ni une arrivée trop tardive.</p>
+
+<p><strong>BOU-02 · Comparabilité :</strong> même départ/arrivée, même date, mêmes voyageurs et périmètre de coûts. Si une solution n’a pas de prix, la montrer comme incomplète et ne pas la classer devant les autres grâce à une absence de donnée.</p>
+
+<p><strong>BOU-03 · Vue sans score :</strong> toujours pouvoir lire et trier les valeurs brutes. Le score ne remplace ni euros, ni minutes, ni kg CO₂e.</p>
+
+<p><strong>BOU-04 · Filtres éthiques :</strong> exclusions/préférences d’opérateur ou d’enseigne explicites et réversibles. La liste d’acteurs ne constitue pas un jugement éditorial caché.</p>
+
+<p><strong>BOU-05 · Vie privée et liberté :</strong> commencer par des attributs factuels sourcés : compte requis, partage de localisation, licence connue, export disponible. Pas de note numérique tant qu’un barème vérifiable et sa gouvernance n’ont pas été approuvés.</p>
+
+<p><strong>BOU-06 · Accessibilité :</strong> les besoins indispensables sont des contraintes, pas seulement un curseur. Les préférences de confort peuvent être pondérées séparément.</p>
+
+<h3 id="algorithme-proposé-pour-les-critères-numériques">Algorithme Proposé pour les Critères Numériques</h3>
+
+<p>Version initiale limitée aux critères mesurables et disponibles pour toutes les solutions du groupe comparé : coût, durée, CO₂e. Pour un critère à minimiser, <code class="language-plaintext highlighter-rouge">n_i = (x_i - min_i) / (max_i - min_i)</code>. Si toutes les valeurs sont égales, <code class="language-plaintext highlighter-rouge">n_i = 0</code>. Poids de l’utilisateur <code class="language-plaintext highlighter-rouge">w_i &gt;= 0</code>, somme strictement positive ; score de coût <code class="language-plaintext highlighter-rouge">S = somme(w_i × n_i) / somme(w_i)</code> ; plus petit = meilleur selon ces poids et ce groupe.</p>
+
+<p>Cette normalisation dépend du groupe de solutions. Ajouter une option peut changer les scores ; le groupe est donc figé pendant l’interaction, puis un recalcul explicite actualise la comparaison. Aucun score comparable entre deux recherches différentes n’est promis.</p>
+
+<p><strong>BOU-07 :</strong> un critère actif manquant rend la solution « comparaison incomplète » ; ne pas renormaliser les poids différemment pour chaque candidat. Proposer un groupe comparable ou demander de désactiver le critère pour tout le groupe.</p>
+
+<p><strong>BOU-08 :</strong> si tous les poids sont nuls, aucune recommandation pondérée ; revenir au tri choisi. Afficher la contribution de chaque critère et enregistrer la version de la formule avec le résultat.</p>
+
+<p><strong>BOU-09 :</strong> les ex æquo restent ex æquo à la précision affichée. L’ordre secondaire déterministe utilise durée, puis coût connus, puis identifiant ; il ne devient pas une supériorité morale ou scientifique.</p>
+
+<p>Cette formule est une <strong>PROPOSITION à valider</strong>, pas une formule imposée par la présentation. Sa recette doit inclure variations de poids, valeurs manquantes, égalités, changement de groupe et absence de solution admissible.</p>
+
+<h2 id="18-empreinte-et-journal-de-mobilité">18. Empreinte et Journal de Mobilité</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Règle cible</th>
+      <th>Acceptation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>EMP-01</td>
+      <td>Chaque facteur porte source, version/date, unité et périmètre.</td>
+      <td>Aucun facteur carbone arbitraire en production ; jeu fictif réservé aux tests.</td>
+    </tr>
+    <tr>
+      <td>EMP-02</td>
+      <td>Adapter la formule à l’unité : véhicule-km ou passager-km.</td>
+      <td>Un facteur par passager n’est pas divisé une deuxième fois par le nombre d’occupants.</td>
+    </tr>
+    <tr>
+      <td>EMP-03</td>
+      <td>Distinguer empreinte véhicule, allocation individuelle et somme des segments.</td>
+      <td>Un trajet partagé ne réduit pas artificiellement l’empreinte totale du véhicule.</td>
+    </tr>
+    <tr>
+      <td>EMP-04</td>
+      <td>Occupants réels ou hypothèse explicite.</td>
+      <td>Le nombre de places disponibles ne remplace pas le nombre d’occupants.</td>
+    </tr>
+    <tr>
+      <td>EMP-05</td>
+      <td>Périmètre homogène entre modes et avertissement si ce n’est pas possible.</td>
+      <td>Production du véhicule, énergie ou seuls usages ne sont pas mélangés silencieusement.</td>
+    </tr>
+    <tr>
+      <td>EMP-06</td>
+      <td>Marche/vélo ne sont pas déclarés sans impact par principe.</td>
+      <td>Afficher la valeur et le périmètre de la méthode retenue, ou absence d’estimation.</td>
+    </tr>
+    <tr>
+      <td>EMP-07</td>
+      <td>Séparer CO₂e, particules, bruit et occupation d’espace.</td>
+      <td>Pas de total d’unités incompatibles ni de score global de « pollution ».</td>
+    </tr>
+    <tr>
+      <td>JOU-01</td>
+      <td>Journal local, volontaire, désactivé par défaut proposé.</td>
+      <td>Une recherche ou un clic de sélection ne crée pas un trajet effectué.</td>
+    </tr>
+    <tr>
+      <td>JOU-02</td>
+      <td>Confirmation explicite « J’ai effectué ce trajet », date et possibilité d’ajustement.</td>
+      <td>Un identifiant empêche le double enregistrement après double clic/rechargement.</td>
+    </tr>
+    <tr>
+      <td>JOU-03</td>
+      <td>Modification, suppression, export ; aucune synchronisation implicite.</td>
+      <td>Les totaux sont recalculés après correction ou suppression.</td>
+    </tr>
+    <tr>
+      <td>JOU-04</td>
+      <td>Bilan mensuel par mode, distance et CO₂e ; données incomplètes signalées.</td>
+      <td>Trois trajets sans facteur ne deviennent pas trois trajets à émission nulle.</td>
+    </tr>
+    <tr>
+      <td>JOU-05</td>
+      <td>Conserver la version de calcul historique.</td>
+      <td>Nouvelle version d’un facteur : ne pas réécrire le passé sans action et explication.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="19-recharge-électrique-navigation-et-hors-ligne">19. Recharge Électrique, Navigation et Hors Ligne</h2>
+
+<h3 id="recharge-électrique--lot-futur">Recharge Électrique · Lot Futur</h3>
+
+<p><strong>ELE-01 :</strong> profil véhicule avec connecteurs compatibles, capacité utile et consommation. <strong>ELE-02 :</strong> distinguer puissance nominale de borne, puissance admissible et courbe de charge ; ne pas calculer tout le temps de charge par une simple division par la puissance maximale. <strong>ELE-03 :</strong> prix avec unité, abonnement, frais d’occupation et date ; tarifs inconnus non comparés comme gratuits. <strong>ELE-04 :</strong> disponibilité horodatée et provenance ; jamais une garantie à l’arrivée. <strong>ELE-05 :</strong> stratégie de réserve et arrêts multiples, avec hypothèses de température/consommation déclarées si utilisées. Fournisseurs et périmètre à décider avant développement.</p>
+
+<h3 id="installation-et-fonctionnement-dégradé">Installation et Fonctionnement Dégradé</h3>
+
+<p><strong>OFF-01 :</strong> installer la PWA peut rendre l’interface accessible sans réseau ; aucune promesse de nouveau calcul ou de nouveaux prix hors ligne sans moteur et données adaptés.</p>
+
+<p><strong>OFF-02 :</strong> un trajet sauvegardé est un instantané daté. Il est consultable comme tel, sans trafic ni prix rafraîchis simulés. Les données personnelles ne sont pas stockées dans un cache public partagé.</p>
+
+<p><strong>OFF-03 :</strong> une mise à jour du cache ne supprime ni le profil ni les données d’autres applications. Les aperçus n’installent pas le service worker de production.</p>
+
+<p><strong>OFF-04 :</strong> ne pas télécharger massivement les tuiles d’un fournisseur qui ne l’autorise pas. Le vrai hors ligne nécessite une source et une licence adaptées.</p>
+
+<p><strong>OFF-05 :</strong> Organic Maps est une piste de la présentation. Liens profonds, formats d’échange et reprise des contraintes doivent être étudiés avant promesse d’intégration. Un benchmark séparé décidera PWA, hybride ou natif ; aucune réécriture automatique du produit.</p>
+
+<h2 id="20-modèle-de-données-commun">20. Modèle de Données Commun</h2>
+
+<p><strong>PROPOSITION technique :</strong> les fournisseurs sont adaptés vers un contrat interne versionné. Les écrans et la Boussole ne lisent pas directement les formats propres à OSRM, ORS ou aux opérateurs de transport.</p>
+
+<h3 id="conventions">Conventions</h3>
+
+<p>Coordonnées GeoJSON <code class="language-plaintext highlighter-rouge">[longitude, latitude]</code> en WGS84 dans le contrat ; conversion explicite vers <code class="language-plaintext highlighter-rouge">[latitude, longitude]</code> pour Leaflet. Distances en mètres, durées en secondes, montants accompagnés d’une devise, volumes en litres, CO₂e en kilogrammes. Dates ISO 8601 avec fuseau/offset pour les instants ; conserver le fuseau de service pour les horaires locaux. <code class="language-plaintext highlighter-rouge">null</code> signifie inconnu ; un champ absent n’est pas un zéro.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Objet</th>
+      <th>Champs minimaux</th>
+      <th>Invariant</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Place</code></td>
+      <td>id local, libellé, adresse, coordonnées, source, précision si connue</td>
+      <td>Une paire de coordonnées finies et dans les bornes ; pas d’inversion lat/lon.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">TripRequest</code></td>
+      <td>id, révision, départ, arrivée, étapes, date/intention horaire, voyageurs, véhicule actif, contraintes, préférences</td>
+      <td>Instantané immuable pour un calcul ; révision nouvelle à chaque changement pertinent.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">RouteOption</code></td>
+      <td>id, requestId, fournisseur, profil appliqué, géométrie, segments, distance, durée, coûts, contraintes, provenance</td>
+      <td>Impossible d’être « valide » sans géométrie et métriques nécessaires cohérentes.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Leg</code></td>
+      <td>mode, lieux, horaires si connus, distance, durée, opérateur, provenance</td>
+      <td>Ordre continu ; attente/correspondance distinguées du mouvement.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ConstraintResult</code></td>
+      <td>code, valeur demandée, statut d’application, raison, preuve/source</td>
+      <td>Une contrainte non appliquée n’est jamais implicitement vraie.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Station</code></td>
+      <td>fournisseur/id, coordonnées, identité, adresse, prix par carburant, ruptures, services, horaires</td>
+      <td>Identité stable indépendante du prix ou du rang.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">StationCandidate</code></td>
+      <td>stationId, routeId, requestRevision, accès, sortie, détour, coûts, badges, couverture</td>
+      <td>Toute métrique dépend de la même route et des mêmes contraintes.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Vehicle</code></td>
+      <td>id, type, énergie, consommation, gabarit pertinent, valeurs déclarées</td>
+      <td>Pas de conversion automatique vers un profil fournisseur non équivalent.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Profile</code></td>
+      <td>schemaVersion, véhicules, actif, adresses, favoris, préférences</td>
+      <td>Données locales ; aucune clé API exportée.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">EmissionEstimate</code></td>
+      <td>valeur/unité, facteur, version, occupants, périmètre, hypothèses</td>
+      <td>Valeur calculée traçable ; inconnu reste inconnu.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">JournalEntry</code></td>
+      <td>id, trajet confirmé, date, segments, occupants, empreinte/version, révision</td>
+      <td>Un trajet choisi n’est pas automatiquement un trajet effectué.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="valeur-sourcée-commune">Valeur Sourcée Commune</h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EUR"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unavailable"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"sourceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"provider-id"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"declaredAt"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"fetchedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-17T18:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"validUntil"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"methodVersion"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tarif non fourni"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>États proposés : <code class="language-plaintext highlighter-rouge">observed</code>, <code class="language-plaintext highlighter-rouge">estimated</code>, <code class="language-plaintext highlighter-rouge">unavailable</code>, <code class="language-plaintext highlighter-rouge">stale</code>. Une estimation possède une méthode ; une observation porte sa date lorsqu’elle existe ; une date de consultation ne se substitue pas à la date de la donnée. Les schémas JSON exécutables et migrations sont un livrable du premier lot d’architecture, non fournis implicitement par cet exemple.</p>
+
+<h2 id="21-états-erreurs-et-concurrence">21. États, Erreurs et Concurrence</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>État principal</th>
+      <th>Ce qui reste possible</th>
+      <th>Sortie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Saisie</td>
+      <td>Modifier, ouvrir le profil, consulter les données locales.</td>
+      <td>Validation vers résolution des lieux.</td>
+    </tr>
+    <tr>
+      <td>Résolution / calcul</td>
+      <td>Voir la progression, annuler.</td>
+      <td>Résultat, erreur ou annulation ; jamais deux résultats concurrents.</td>
+    </tr>
+    <tr>
+      <td>Route prête</td>
+      <td>Comparer variantes, configurer les arrêts.</td>
+      <td>Recherche stations ou nouvelle demande.</td>
+    </tr>
+    <tr>
+      <td>Recherche stations</td>
+      <td>Conserver la route visible, annuler la recherche.</td>
+      <td>Résultats, partiel ou panne carburants.</td>
+    </tr>
+    <tr>
+      <td>Résultats</td>
+      <td>Ouvrir des fiches, trier, choisir un arrêt.</td>
+      <td>Vérification du trajet avec arrêt.</td>
+    </tr>
+    <tr>
+      <td>Arrêt confirmé</td>
+      <td>Consulter le trajet, retirer l’arrêt, exporter si compatible.</td>
+      <td>Retour référence ou nouveau calcul.</td>
+    </tr>
+    <tr>
+      <td>Données périmées</td>
+      <td>Voir un instantané explicitement daté.</td>
+      <td>Rafraîchir ou modifier ; pas de confirmation basée sur données invalidées.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>ERR-01 :</strong> chaque calcul porte <code class="language-plaintext highlighter-rouge">requestId</code> et révision ; toute réponse d’une révision dépassée est ignorée, même si l’annulation réseau a échoué.</p>
+
+<p><strong>ERR-02 :</strong> un échec carburant ne supprime pas la route valide. Un échec de carte ne détruit pas la liste. Un schéma de secours est nommé comme tel, pas présenté comme une carte routière complète.</p>
+
+<p><strong>ERR-03 :</strong> une nouvelle recherche invalide les anciens résultats avant d’en afficher d’autres. Une erreur de recalcul d’arrêt ne confirme pas cet arrêt ; l’état précédent est conservé comme précédent.</p>
+
+<p><strong>ERR-04 :</strong> les réponses partielles sont identifiables. Pas de « tout va bien » global si la moitié des recherches station a échoué.</p>
+
+<p><strong>ERR-05 :</strong> erreurs 429/quotas, délais dépassés et absence de résultat ont des messages distincts. Respecter <code class="language-plaintext highlighter-rouge">Retry-After</code> lorsqu’il existe, limiter les tentatives et éviter les boucles automatiques.</p>
+
+<p><strong>ERR-06 :</strong> valeurs infinies, négatives impossibles, géométries vides, caractères HTML et réponses hors schéma sont rejetés ou neutralisés. Ne jamais injecter le contenu d’une source dans du HTML exécutable.</p>
+
+<h2 id="22-fournisseurs-et-architecture-dhébergement">22. Fournisseurs et Architecture d’Hébergement</h2>
+
+<h3 id="fournisseurs-et-arbitrages">Fournisseurs et Arbitrages</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Besoin</th>
+      <th>Base actuelle / candidat</th>
+      <th>Décision de ce cahier</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Site et aperçus</td>
+      <td>GitHub Pages / Actions</td>
+      <td>CONFIRMÉ : conserver.</td>
+    </tr>
+    <tr>
+      <td>Carte</td>
+      <td>Leaflet + tuiles OpenStreetMap</td>
+      <td>Présent ; vérifier conditions et charge avant ouverture large.</td>
+    </tr>
+    <tr>
+      <td>Géocodage</td>
+      <td>Nominatim public</td>
+      <td>Présent ; respecter politique, mise en cache adaptée et limitations.</td>
+    </tr>
+    <tr>
+      <td>Routage</td>
+      <td>Serveur public OSRM</td>
+      <td>Présent ; exclusions péages/autoroutes non opérationnelles dans le prototype testé.</td>
+    </tr>
+    <tr>
+      <td>Routage contraint</td>
+      <td>Adaptateur serveur OpenRouteService développé</td>
+      <td>Activation ouverte : hébergement, clé d’exploitation, conditions, quotas, coût et couverture. Aucun fournisseur payant engagé.</td>
+    </tr>
+    <tr>
+      <td>Alternative France</td>
+      <td>Géoplateforme IGN</td>
+      <td>Piste étudiée ; capacités consultées : exclusions autoroute/tunnel/pont, pas d’option péage identifiée dans les ressources examinées. Ne résout pas à elle seule toute la demande.</td>
+    </tr>
+    <tr>
+      <td>Carburants</td>
+      <td>Flux officiel prix des carburants</td>
+      <td>Présent ; données déclaratives et couverture partielle possibles.</td>
+    </tr>
+    <tr>
+      <td>CO₂e</td>
+      <td>Impact CO₂ / ADEME, cité dans la présentation</td>
+      <td>Candidat à contractualiser : unité, version, licence, conditions et cache.</td>
+    </tr>
+    <tr>
+      <td>Collectif</td>
+      <td>Flux référencés transport.data.gouv.fr / SNCF</td>
+      <td>Sources candidates ; moteur d’itinéraires nécessaire en plus de l’accès aux fichiers.</td>
+    </tr>
+    <tr>
+      <td>Covoiturage / vélo partagé / recharge</td>
+      <td>Non connectés</td>
+      <td>Étude par fournisseur avant toute promesse de couverture.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>La documentation ORS expose l’évitement des péages/autoroutes et des restrictions dimensionnelles pour certains profils. Cela ne prouve ni l’adéquation d’un profil caravane, ni la disponibilité gratuite d’un volume d’usage, ni l’application des mêmes options à une matrice. Ces points nécessitent une recette fournisseur.</p>
+
+<h3 id="api-à-clé-et-hébergement-github">API à Clé et Hébergement GitHub</h3>
+
+<p><strong>ARC-01 :</strong> un site statique ne protège pas un secret distribué à ses visiteurs. Une clé injectée dans un fichier JavaScript reste lisible ; la placer dans un secret GitHub Actions puis la compiler côté navigateur ne la rend pas secrète.</p>
+
+<p><strong>ARC-02 : EXIGENCE CONFIRMÉE.</strong> L’expérience publique ne demande aucune clé API ni compte technique aux visiteurs. L’ancienne saisie de clé personnelle est retirée du parcours. Les secrets d’exploitation restent côté serveur, hors dépôt, liens, journaux, captures et exports.</p>
+
+<p><strong>ARC-03 :</strong> pour un service public sans clé utilisateur, choisir soit un fournisseur autorisant une clé publique limitée, soit une architecture serveur approuvée. Un serveur protège le secret mais constitue une décision d’infrastructure ; ne pas ajouter Cloudflare ou un autre hébergement sans accord.</p>
+
+<p><strong>ARC-04 :</strong> chaque adaptateur expose ses capacités et limites : modes, exclusions, variantes, étapes, dates, gabarit, matrice, attribution, quotas, couverture. L’interface se fonde sur ce contrat de capacités, pas sur des boutons hardcodés optimistes.</p>
+
+<p><strong>ARC-05 :</strong> le remplacement d’un fournisseur passe par des tests de contrat et une vérification de ses conditions. Aucun changement silencieux qui transfère davantage de données à un tiers.</p>
+
+<h2 id="23-fraîcheur-cache-et-fiabilité">23. Fraîcheur, Cache et Fiabilité</h2>
+
+<p>Les seuils ci-dessous sont des <strong>PROPOSITIONS produit</strong>, pas des garanties des sources. Ils seront ajustés et versionnés après tests réels.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Donnée</th>
+      <th>Règle initiale proposée</th>
+      <th>Conséquence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Prix carburant</td>
+      <td>Date propre au prix ; avertissement à plus de 48 h ; exclu du classement principal après 7 jours, consultable séparément.</td>
+      <td>Seuils visibles dans l’aide de la donnée ; prix non daté considéré non vérifiable.</td>
+    </tr>
+    <tr>
+      <td>Horaires/services</td>
+      <td>Conserver date si fournie ; sinon date de consultation seulement.</td>
+      <td>Ne jamais conclure à une ouverture garantie à l’arrivée.</td>
+    </tr>
+    <tr>
+      <td>Route</td>
+      <td>Mettre en cache selon fournisseur, contraintes, profil, points et version.</td>
+      <td>Pas de réutilisation d’une route voiture pour un camion ou d’une route à péage pour « sans péages ».</td>
+    </tr>
+    <tr>
+      <td>Temps réel transport / disponibilité</td>
+      <td>Validité selon source, pas seuil universel inventé.</td>
+      <td>Si trop ancien ou non daté, retirer le statut temps réel.</td>
+    </tr>
+    <tr>
+      <td>Facteur CO₂e</td>
+      <td>Version stable enregistrée avec chaque estimation.</td>
+      <td>Mise à jour contrôlée, historique reproductible.</td>
+    </tr>
+    <tr>
+      <td>Favori</td>
+      <td>Identifiant et données stables persistés ; dynamique rafraîchie.</td>
+      <td>Un favori n’est pas un instantané tarifaire utilisable indéfiniment.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>DAT-01 :</strong> tester une source vivante avant activation, puis régulièrement selon son importance, avec fréquence approuvée. Les tests automatisés déterministes n’envoient pas de recherches massives aux services publics.</p>
+
+<p><strong>DAT-02 :</strong> un diagnostic indique les composants indépendants : carte, géocodage, routage, carburants, autres sources. Un succès réseau n’atteste pas la justesse métier.</p>
+
+<p><strong>DAT-03 :</strong> limites de débit respectées par fournisseur et par périmètre applicable. Un délai dans un navigateur ne garantit pas à lui seul le respect d’un quota global pour tous les visiteurs.</p>
+
+<h2 id="24-accessibilité-sécurité-et-qualité">24. Accessibilité, Sécurité et Qualité</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Exigence proposée</th>
+      <th>Preuve attendue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>QUA-01</td>
+      <td>Objectif d’accessibilité WCAG 2.2 AA, avec contrôle manuel complémentaire.</td>
+      <td>Audit automatique, navigation clavier, lecteur d’écran sur parcours critiques ; zéro violation détectée n’est pas une certification.</td>
+    </tr>
+    <tr>
+      <td>QUA-02</td>
+      <td>Zoom texte 200 %, petite largeur et orientation paysage.</td>
+      <td>Pas de champ ou bouton essentiel inaccessible ; absence de défilement horizontal de la page, sauf tableaux documentaires identifiés.</td>
+    </tr>
+    <tr>
+      <td>QUA-03</td>
+      <td>Contraste des textes et composants ; information non fondée seulement sur couleur.</td>
+      <td>Route sélectionnée et stations compréhensibles sans distinguer les couleurs.</td>
+    </tr>
+    <tr>
+      <td>QUA-04</td>
+      <td>Cibles principales proposées 44 × 44 pixels CSS minimum.</td>
+      <td>Mesure sur mobile, notamment marqueurs et fermeture des fenêtres.</td>
+    </tr>
+    <tr>
+      <td>QUA-05</td>
+      <td>Texte externe traité comme donnée ; liens autorisés et fichiers importés validés.</td>
+      <td>Cas d’injection dans nom, adresse, service, favori et fichier d’import.</td>
+    </tr>
+    <tr>
+      <td>QUA-06</td>
+      <td>Aucune clé/adresse personnelle dans les rapports publics, captures ou URL d’aperçu.</td>
+      <td>Jeux fictifs, inspection des artefacts et journaux.</td>
+    </tr>
+    <tr>
+      <td>QUA-07</td>
+      <td>Aucune télémétrie non indispensable par défaut proposée.</td>
+      <td>Inventaire des requêtes réseau ; ajout d’analyse d’usage soumis à décision.</td>
+    </tr>
+    <tr>
+      <td>QUA-08</td>
+      <td>Dépendances versionnées et mises à jour contrôlées.</td>
+      <td>Tests de non-régression après changement ; vérification de sécurité distincte d’un simple audit de syntaxe.</td>
+    </tr>
+    <tr>
+      <td>QUA-09</td>
+      <td>Retour visuel à une action en moins de 200 ms sur appareil de référence proposé.</td>
+      <td>Mesure locale ; les temps d’API sont présentés séparément.</td>
+    </tr>
+    <tr>
+      <td>QUA-10</td>
+      <td>Délais réseau bornés, annulation et retry utilisables.</td>
+      <td>Objectifs initiaux : route 20 s, recherche de stations 45 s avant état explicite ; à ajuster au fournisseur, sans attente infinie.</td>
+    </tr>
+    <tr>
+      <td>QUA-11</td>
+      <td>Carte interactive fluide avec le volume maximal prévu.</td>
+      <td>Test de 100 points ; regrouper les marqueurs seulement si nécessaire, sans perdre accès à chaque station.</td>
+    </tr>
+    <tr>
+      <td>QUA-12</td>
+      <td>Navigateur cible : versions stables actuelles Chrome, Firefox, Safari et Safari iOS, sous réserve de bancs disponibles.</td>
+      <td>Matrice de compatibilité remplie ; ne pas déduire Safari d’un test Chromium.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>La signalisation, les circonstances réelles et les vérifications du conducteur restent déterminantes. Le produit ne doit pas transformer des données routières potentiellement incomplètes en promesse de sécurité, d’ouverture ou de conformité réglementaire.</p>
+
+<h2 id="25-plan-de-recette-exécutable">25. Plan de Recette Exécutable</h2>
+
+<p>Chaque exigence d’un lot reçoit : test associé, type de preuve, résultat et commit. Les cas ci-dessous forment le noyau obligatoire ; ils ne remplacent pas les critères dans les tables précédentes.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Test</th>
+      <th>Entrée / action</th>
+      <th>Résultat attendu</th>
+      <th>Exigences</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>T01</td>
+      <td>Départ vide puis calcul</td>
+      <td>Erreur liée au champ, aucun appel routage.</td>
+      <td>GEO-01</td>
+    </tr>
+    <tr>
+      <td>T02</td>
+      <td>Ville ambiguë</td>
+      <td>Choix du lieu avant route, pas premier résultat silencieux.</td>
+      <td>GEO-02/03</td>
+    </tr>
+    <tr>
+      <td>T03</td>
+      <td>GPS refusé</td>
+      <td>Saisie manuelle intacte.</td>
+      <td>GEO-04</td>
+    </tr>
+    <tr>
+      <td>T04</td>
+      <td>Changer destination pendant calcul A, lancer B</td>
+      <td>A ne remplace jamais B.</td>
+      <td>GEO-07, ERR-01</td>
+    </tr>
+    <tr>
+      <td>T05</td>
+      <td>Réponse avec trois routes dont doublon exact</td>
+      <td>Variantes dédupliquées, principal visible, aucune troisième inventée.</td>
+      <td>TRA-02/06</td>
+    </tr>
+    <tr>
+      <td>T06</td>
+      <td>Choisir variante B après résultats de stations A</td>
+      <td>Résumé/carte changés, résultats A invalidés.</td>
+      <td>TRA-03</td>
+    </tr>
+    <tr>
+      <td>T07</td>
+      <td>Sans péages actif, route et détour station</td>
+      <td>Contrainte présente et appliquée aux deux calculs.</td>
+      <td>TRA-09/11</td>
+    </tr>
+    <tr>
+      <td>T08</td>
+      <td>Sans autoroutes + péages indépendamment puis ensemble</td>
+      <td>Paramètres indépendants ; aucun indicateur ignoré.</td>
+      <td>TRA-09</td>
+    </tr>
+    <tr>
+      <td>T09</td>
+      <td>Fournisseur refuse une contrainte</td>
+      <td>Aucun résultat présenté comme conforme ; choix conservé.</td>
+      <td>TRA-10/11</td>
+    </tr>
+    <tr>
+      <td>T10</td>
+      <td>Caravane avec dimensions manquantes</td>
+      <td>Pas de « gabarit vérifié » ; saisie ou limite explicite.</td>
+      <td>VEH-03/05</td>
+    </tr>
+    <tr>
+      <td>T11</td>
+      <td>Station de l’autre côté d’une autoroute</td>
+      <td>Accès réel, pas distance aérienne.</td>
+      <td>STA-05</td>
+    </tr>
+    <tr>
+      <td>T12</td>
+      <td>Cible 100 km, tolérance 20</td>
+      <td>Bornes 80–120 ; accès/détour séparés ; pas de station à 150 sans action.</td>
+      <td>STA-02/03</td>
+    </tr>
+    <tr>
+      <td>T13</td>
+      <td>Station déjà dépassée mais bon marché</td>
+      <td>Pas de classement « en aval » ; retour expliqué si consulté.</td>
+      <td>STA-08</td>
+    </tr>
+    <tr>
+      <td>T14</td>
+      <td>Prix null, 0 incohérent, rupture, prix trop ancien</td>
+      <td>Pas de victoire par faux zéro ; statuts corrects.</td>
+      <td>STA-09, DAT-01</td>
+    </tr>
+    <tr>
+      <td>T15</td>
+      <td>Station gagnante sur trois critères</td>
+      <td>Une fiche, trois badges, un point.</td>
+      <td>CAL-12</td>
+    </tr>
+    <tr>
+      <td>T16</td>
+      <td>Deux stations ex æquo</td>
+      <td>Deux identités conservées ; égalité visible.</td>
+      <td>CAL-07/08</td>
+    </tr>
+    <tr>
+      <td>T17</td>
+      <td>Exemple A de la section calculs</td>
+      <td>Achat 72,00 ; détour 0,67 ; sous-total 72,67 EUR.</td>
+      <td>CAL-01/03</td>
+    </tr>
+    <tr>
+      <td>T18</td>
+      <td>Variante choisie puis station</td>
+      <td>Variante préservée hors détour ou changement explicitement proposé avant confirmation.</td>
+      <td>ARR-01/04</td>
+    </tr>
+    <tr>
+      <td>T19</td>
+      <td>Temps de route via station inférieur significativement à la référence</td>
+      <td>Pas de clamp silencieux ; incohérence traitée.</td>
+      <td>CAL-04</td>
+    </tr>
+    <tr>
+      <td>T20</td>
+      <td>Panne carburant / carte</td>
+      <td>Route ou liste restantes utilisables, état partiel exact.</td>
+      <td>ERR-02/04</td>
+    </tr>
+    <tr>
+      <td>T21</td>
+      <td>Ouvrir A puis B, réponse A tardive</td>
+      <td>Fiche B reste cohérente.</td>
+      <td>FIC-08</td>
+    </tr>
+    <tr>
+      <td>T22</td>
+      <td>Automate 24 h/24, boutique fermée</td>
+      <td>Deux informations distinctes.</td>
+      <td>FIC-02</td>
+    </tr>
+    <tr>
+      <td>T23</td>
+      <td>Favori rechargé, API indisponible</td>
+      <td>Adresse sauvegardée visible ; pas d’ancien prix présenté comme actuel.</td>
+      <td>FIC-06</td>
+    </tr>
+    <tr>
+      <td>T24</td>
+      <td>Profil sauvegardé, stockage bloqué</td>
+      <td>Aucun faux succès ; formulaire conservé.</td>
+      <td>PRO-03</td>
+    </tr>
+    <tr>
+      <td>T25</td>
+      <td>Import invalide / version future / fichier trop gros</td>
+      <td>Ancien profil intact.</td>
+      <td>PRO-04/05</td>
+    </tr>
+    <tr>
+      <td>T26</td>
+      <td>Effacer profil d’aperçu</td>
+      <td>Profil public et autres applications intacts.</td>
+      <td>PRO-06/07</td>
+    </tr>
+    <tr>
+      <td>T27</td>
+      <td>40 L à acheter mais carburant restant absent</td>
+      <td>Autonomie inconnue, pas calculée depuis 40 L.</td>
+      <td>VEH-02, AUT-01</td>
+    </tr>
+    <tr>
+      <td>T28</td>
+      <td>5 L restants, 5 L/100, réserve 30 km</td>
+      <td>Théorique 100 km, utile estimée 70 ; limites visibles.</td>
+      <td>AUT-02/03</td>
+    </tr>
+    <tr>
+      <td>T29</td>
+      <td>Offre de covoiturage absente</td>
+      <td>Lien externe ou état vide, aucun faux prix.</td>
+      <td>COV-02</td>
+    </tr>
+    <tr>
+      <td>T30</td>
+      <td>Horaire théorique et prix absent</td>
+      <td>Horaire utilisable, prix inconnu, pas 0 EUR.</td>
+      <td>TC-04/05</td>
+    </tr>
+    <tr>
+      <td>T31</td>
+      <td>Correspondance à minuit / changement de jour</td>
+      <td>Dates et durée cohérentes, calendrier de service correct.</td>
+      <td>TC-03</td>
+    </tr>
+    <tr>
+      <td>T32</td>
+      <td>Facteur CO₂e par passager-km</td>
+      <td>Pas de seconde division par occupants.</td>
+      <td>EMP-02</td>
+    </tr>
+    <tr>
+      <td>T33</td>
+      <td>Calculer puis sélectionner un trajet</td>
+      <td>Aucune entrée automatique au journal.</td>
+      <td>JOU-01</td>
+    </tr>
+    <tr>
+      <td>T34</td>
+      <td>Confirmer deux fois le même déplacement</td>
+      <td>Une seule entrée ; correction et suppression recalculent les totaux.</td>
+      <td>JOU-02/03</td>
+    </tr>
+    <tr>
+      <td>T35</td>
+      <td>Boussole avec prix manquant pour une option</td>
+      <td>Groupe incomplet signalé ; inconnu pas meilleur.</td>
+      <td>BOU-02/07</td>
+    </tr>
+    <tr>
+      <td>T36</td>
+      <td>Tous les poids à zéro / tous les coûts égaux</td>
+      <td>Aucun NaN ni vainqueur artificiel.</td>
+      <td>BOU-08/09</td>
+    </tr>
+    <tr>
+      <td>T37</td>
+      <td>Mode hors ligne après trajet sauvegardé</td>
+      <td>Instantané daté ; aucun nouveau prix annoncé.</td>
+      <td>OFF-01/02</td>
+    </tr>
+    <tr>
+      <td>T38</td>
+      <td>Clavier, zoom, mobile, fiche longue</td>
+      <td>Focus correct, fermeture accessible, pas de chevauchement.</td>
+      <td>UX-01/07, QUA-01/04</td>
+    </tr>
+    <tr>
+      <td>T39</td>
+      <td>Adresse contenant du HTML malveillant</td>
+      <td>Texte inerte, aucune exécution.</td>
+      <td>ERR-06, QUA-05</td>
+    </tr>
+    <tr>
+      <td>T40</td>
+      <td>Export/navigation externe sans transfert possible des contraintes</td>
+      <td>Avertissement préalable et lien correctement encodé.</td>
+      <td>ARR-07</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="niveaux-de-preuve">Niveaux de Preuve</h3>
+
+<ol>
+  <li><strong>Unitaires :</strong> formules, filtres, égalités, conversions, validations, migrations, dates et provenance.</li>
+  <li><strong>Contrats fournisseurs :</strong> requêtes construites, capacité et réponse normalisée, erreurs/quotas. Jeux enregistrés anonymisés et versionnés.</li>
+  <li><strong>Navigateur simulé :</strong> parcours reproductibles, clavier, erreurs, stockage, carte réelle avec données simulées.</li>
+  <li><strong>Tests vivants limités :</strong> requêtes réellement acceptées, contraintes réellement prises en compte, fraîcheur/couverture ; cadence respectueuse et aucune donnée privée dans le rapport.</li>
+  <li><strong>Inspection humaine :</strong> lisibilité du tracé et compréhension des coûts, scénario caravane, mobile réel, pertinence des recommandations.</li>
+</ol>
+
+<p>Pour « sans autoroutes », obtenir des attributs de tronçons ou une preuve documentée du fournisseur. Une route différente sur la carte ne suffit pas à prouver l’exclusion. Pour le gabarit, prévoir des cas connus de restriction et vérifier également les limites de couverture ; ne pas faire de tests de conduite risqués.</p>
+
+<h2 id="26-lots-dépendances-et-ordre-de-livraison">26. Lots, Dépendances et Ordre de Livraison</h2>
+
+<p>Les jalons J0–J9 de la présentation décrivent la vision. Ils ne sont ni des jours de travail, ni une estimation de délai. Les lots ci-dessous proposent un ordre de réalisation contrôlable.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Lot</th>
+      <th>Livrable</th>
+      <th>Dépendances</th>
+      <th>Condition de sortie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>L0 · Référence</td>
+      <td>Cahier validé, décisions prioritaires, registre exigences/tests.</td>
+      <td>Présentation et retours utilisateur.</td>
+      <td>Périmètre L1 sans ambiguïté ; points non décidés identifiés.</td>
+    </tr>
+    <tr>
+      <td>L1a · Carte</td>
+      <td>Principal bleu, alternatives réelles, comparaison et sélection accessibles.</td>
+      <td>Contrat RouteOption.</td>
+      <td>TRA-01/08 et tests T01–T06 ; pas de régression des stations.</td>
+    </tr>
+    <tr>
+      <td>L1b · Route contrainte</td>
+      <td>Péages/autoroutes et cohérence des arrêts.</td>
+      <td>Choix fournisseur et accès, méthode de conservation de variante.</td>
+      <td>T07–T09, T11, T18–T20 sur mocks et sources réelles.</td>
+    </tr>
+    <tr>
+      <td>L1c · Caravane</td>
+      <td>Gabarit et limites explicites, accès station.</td>
+      <td>Mapping validé des profils, champs et données.</td>
+      <td>VEH-01/07 et T10 ; aucune garantie infondée.</td>
+    </tr>
+    <tr>
+      <td>L2 · Stations abouties</td>
+      <td>Urgence, distances, coûts, liste complète, favoris/profil fiables.</td>
+      <td>Route contrainte stable.</td>
+      <td>T12–T28 ; écarts connus du prototype fermés.</td>
+    </tr>
+    <tr>
+      <td>L3 · Socle multimodal</td>
+      <td>Tapis Volant voiture/marche/vélo et données communes.</td>
+      <td>Adaptateurs et couverture.</td>
+      <td>Comparaison homogène, trajets multimodaux non fictifs.</td>
+    </tr>
+    <tr>
+      <td>L4 · Empreinte</td>
+      <td>Facteurs sourcés et journal local.</td>
+      <td>Contrat des segments et politique du journal.</td>
+      <td>T32–T34 ; historique reproductible.</td>
+    </tr>
+    <tr>
+      <td>L5 · Collectif pilote</td>
+      <td>Horaires théoriques, puis temps réel.</td>
+      <td>Territoire pilote, moteur éprouvé, flux et licences.</td>
+      <td>T30–T31, TC-01/07 ; périmètre territorial annoncé.</td>
+    </tr>
+    <tr>
+      <td>L6 · Partage</td>
+      <td>Vélo partagé puis covoiturage connecté.</td>
+      <td>Accès autorisé aux fournisseurs, fraîcheur, consentements.</td>
+      <td>COV et DOU applicables ; aucun paiement implicite.</td>
+    </tr>
+    <tr>
+      <td>L7 · Boussole</td>
+      <td>Pondérations et filtres éthico-pratiques.</td>
+      <td>Données comparables et barèmes approuvés.</td>
+      <td>T35–T36 et explication de chaque classement.</td>
+    </tr>
+    <tr>
+      <td>L8 · Extensions</td>
+      <td>Recharge, hors ligne réel, intégrations navigation.</td>
+      <td>Études dédiées et décisions infrastructure.</td>
+      <td>Recettes propres ; aucune promesse déduite du cache PWA.</td>
+    </tr>
+    <tr>
+      <td>L9 · Commun</td>
+      <td>API publique éventuelle, gouvernance, modèle économique.</td>
+      <td>Besoin réel et règles de contribution/modération.</td>
+      <td>Conditions, licences, coûts et responsabilités documentés.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Le premier cycle de développement donne priorité à la fiabilité du routage et des arrêts. Les autres modules sont intégrés par lots successifs. L’identité OùQuandQui peut être harmonisée progressivement sans retarder les corrections utiles de DragonRoute.</p>
+
+<h2 id="27-registre-des-arbitrages">27. Registre des Arbitrages</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Sujet</th>
+      <th>Proposition</th>
+      <th>Effet si non décidé</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DEC-01</td>
+      <td>Fournisseur péages/autoroutes</td>
+      <td>Évaluer ORS sur les besoins réels, sans supposer l’équivalence de tous ses services.</td>
+      <td>Bloque l’activation fiable de ces options.</td>
+    </tr>
+    <tr>
+      <td>DEC-02</td>
+      <td>Accès public CONFIRMÉ</td>
+      <td>Aucun compte technique ni clé visiteur. Contrat serveur développé ; hébergement et activation à autoriser.</td>
+      <td>Site sur GitHub Pages ; aucune clé privée distribuée.</td>
+    </tr>
+    <tr>
+      <td>DEC-03</td>
+      <td>France CONFIRMÉE</td>
+      <td>Premier territoire national ; couverture effective à qualifier par source, métropole et outre-mer.</td>
+      <td>Aucun engagement d’exhaustivité nationale sans preuves.</td>
+    </tr>
+    <tr>
+      <td>DEC-04</td>
+      <td>Variantes et arrêts</td>
+      <td>Préserver la variante choisie ; annoncer et confirmer tout changement nécessaire.</td>
+      <td>Pas de sélection de variante présentée comme durable si les arrêts l’annulent.</td>
+    </tr>
+    <tr>
+      <td>DEC-05</td>
+      <td>Urgence</td>
+      <td>Trois intentions distinctes, cible et tolérance éditables ; pas de suivi continu initial.</td>
+      <td>Référence de distance à afficher explicitement.</td>
+    </tr>
+    <tr>
+      <td>DEC-06</td>
+      <td>Détour maximal</td>
+      <td>Valeur initiale proposée 10 km et 15 min, modifiable ; contraintes cumulatives si les deux sont actives.</td>
+      <td>Pas de seuil caché.</td>
+    </tr>
+    <tr>
+      <td>DEC-07</td>
+      <td>Autonomie</td>
+      <td>Facultative, réserve proposée 30 km, entrées déclarées.</td>
+      <td>Pas d’indication d’atteignabilité.</td>
+    </tr>
+    <tr>
+      <td>DEC-08</td>
+      <td>Véhicules CONFIRMÉS</td>
+      <td>Véhicule léger et poids lourd sélectionnables ; gabarit requis pour HGV. Un véhicule mémorisé, plusieurs profils ultérieurement.</td>
+      <td>Caravane non assimilée au camion ; revêtement traité séparément.</td>
+    </tr>
+    <tr>
+      <td>DEC-09</td>
+      <td>« Optimal »</td>
+      <td>Renommer « Meilleur coût comparé » et afficher le périmètre.</td>
+      <td>Terme potentiellement trompeur à expliquer dans l’essai.</td>
+    </tr>
+    <tr>
+      <td>DEC-10</td>
+      <td>Prix anciens</td>
+      <td>Alerte 48 h, exclusion principale 7 jours proposée.</td>
+      <td>Conserver la date, pas de label fiable sans politique.</td>
+    </tr>
+    <tr>
+      <td>DEC-11</td>
+      <td>Covoiturage</td>
+      <td>Liens externes d’abord, annonces seulement avec raccordement autorisé.</td>
+      <td>Pas d’invention d’offres ni de réservation.</td>
+    </tr>
+    <tr>
+      <td>DEC-12</td>
+      <td>Journal</td>
+      <td>Désactivé par défaut, ajout volontaire après trajet effectué.</td>
+      <td>Aucune collecte automatique.</td>
+    </tr>
+    <tr>
+      <td>DEC-13</td>
+      <td>Collectif pilote</td>
+      <td>Choisir un territoire après audit de ses flux.</td>
+      <td>Pas d’intégration nationale promise immédiatement.</td>
+    </tr>
+    <tr>
+      <td>DEC-14</td>
+      <td>Boussole</td>
+      <td>Critères numériques d’abord ; barèmes vie privée/liberté à construire séparément.</td>
+      <td>Pas de note pseudo-objective.</td>
+    </tr>
+    <tr>
+      <td>DEC-15</td>
+      <td>Identité visible</td>
+      <td>OùQuandQui comme produit, DragonRoute comme module, URLs existantes conservées.</td>
+      <td>Éviter changement de marque sans contexte.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Il n’est pas nécessaire de résoudre les quinze décisions pour corriger la carte. En revanche, DEC-01/02/04 doivent être réglées avant d’annoncer routes contraintes et alternatives fiables avec stations.</p>
+
+<h2 id="28-critères-dachèvement-et-livrables">28. Critères d’Achèvement et Livrables</h2>
+
+<p>Une fonctionnalité est terminée seulement lorsque son comportement, ses erreurs, ses limites et sa preuve sont présents. Un bouton, une maquette ou un test qui ne vérifie que le chargement ne suffisent pas.</p>
+
+<h3 id="contenu-obligatoire-de-chaque-pr">Contenu Obligatoire de Chaque PR</h3>
+
+<ul>
+  <li>Identifiants d’exigences et décisions concernés ; périmètre inclus/exclu.</li>
+  <li>Implémentation et éventuelle migration de données ; aucune modification étrangère au lot.</li>
+  <li>Tests déterministes et contrôles des contraintes métier.</li>
+  <li>Rapport lié au commit exact, aperçu identifiable et captures ordinateur/mobile.</li>
+  <li>Preuves de données vivantes lorsque la fonctionnalité dépend d’une nouvelle capacité externe.</li>
+  <li>Résultat des contrôles accessibilité et limites des navigateurs effectivement testés.</li>
+  <li>Sources, dates, conditions d’utilisation et risques résiduels.</li>
+  <li>Procédure de retour à la version précédente sans effacer les profils.</li>
+  <li>Validation éditoriale et fonctionnelle des changements d’expérience par la responsable du produit ; les tests automatisés ne valent pas autorisation de publication.</li>
+</ul>
+
+<p><strong>LIV-01 :</strong> l’aperçu doit afficher son numéro de PR et son commit. <strong>LIV-02 :</strong> le rapport doit concerner exactement cette version. <strong>LIV-03 :</strong> une publication ne peut pas déclarer vert un rapport d’un ancien commit. <strong>LIV-04 :</strong> l’échec d’un test obligatoire bloque la publication concernée. <strong>LIV-05 :</strong> aucun original documentaire écrasé ; versions datées conservées.</p>
+
+<h3 id="gabarit-de-ticket">Gabarit de Ticket</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Titre : [ID] Verbe + résultat utilisateur
+Origine : EXIGENCE / VISION / PROPOSITION validée par DEC-xx
+Situation initiale :
+Comportement attendu :
+Entrées, unités, valeurs autorisées :
+Sorties et provenance :
+Contraintes et dépendances :
+Erreurs et données manquantes :
+Effets sur les autres écrans et données persistées :
+Critères d'acceptation :
+Tests / captures / requêtes vivantes :
+Hors périmètre :
+PR et commit livrés :
+Validation du produit : en attente / validé / à corriger
+</code></pre></div></div>
+
+<h2 id="29-traçabilité-des-exigences">29. Traçabilité des Exigences</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Conservation dans ce cahier</th>
+      <th>Précision ajoutée</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Présentation §01 · Changement d’échelle</td>
+      <td>Vision et parcours, sections 02–04.</td>
+      <td>Périmètre initial distinct du produit final.</td>
+    </tr>
+    <tr>
+      <td>§02 · Cinq modules</td>
+      <td>Sections 02 et 15–19.</td>
+      <td>Responsabilités, exclusions et dépendances.</td>
+    </tr>
+    <tr>
+      <td>§03 · Tapis Volant</td>
+      <td>Sections 05 et 17.</td>
+      <td>Écrans, contraintes avant classement, données non comparables.</td>
+    </tr>
+    <tr>
+      <td>§04 · Coûts et Boussole</td>
+      <td>Sections 10 et 17.</td>
+      <td>Formules, périmètres, égalités, valeurs absentes.</td>
+    </tr>
+    <tr>
+      <td>§05 · Empreinte</td>
+      <td>Section 18.</td>
+      <td>Unités des facteurs, occupants, confirmation des trajets, historique.</td>
+    </tr>
+    <tr>
+      <td>§06 · Briques ouvertes</td>
+      <td>Sections 20–23.</td>
+      <td>Contrats internes, capacités, clés, quotas, cache et couverture.</td>
+    </tr>
+    <tr>
+      <td>§07 · Existant DragonRoute</td>
+      <td>Section 03.</td>
+      <td>Écart entre ambition et état réel de la PR 4, notamment autonomie.</td>
+    </tr>
+    <tr>
+      <td>§08 · J0–J9</td>
+      <td>Section 26.</td>
+      <td>Lots, dépendances et conditions de sortie ; pas de calendrier fictif.</td>
+    </tr>
+    <tr>
+      <td>§09 · Règles du Je-u</td>
+      <td>Sections 14, 17, 23–24.</td>
+      <td>Tests de confidentialité, données inconnues, choix explicite.</td>
+    </tr>
+    <tr>
+      <td>§10 · Sources</td>
+      <td>Section 30.</td>
+      <td>Sources de vision distinguées des capacités vérifiées et à revalider.</td>
+    </tr>
+    <tr>
+      <td>Exigence · trajet avant arrêts</td>
+      <td>Sections 04–07.</td>
+      <td>Séquence et invalidation des étapes.</td>
+    </tr>
+    <tr>
+      <td>Exigences · stations, urgence et coûts</td>
+      <td>Sections 09–13.</td>
+      <td>Projection, accès routier, formules, badges, autonomie distincte.</td>
+    </tr>
+    <tr>
+      <td>Exigences · profil et favoris</td>
+      <td>Sections 08, 13–14.</td>
+      <td>Persistance locale, rafraîchissement, import/export et séparation des aperçus.</td>
+    </tr>
+    <tr>
+      <td>Exigences · lisibilité, alternatives et péages</td>
+      <td>Sections 07, 11, 22.</td>
+      <td>Tracé visible, sélection cohérente et décisions fournisseur.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="30-sources-et-journal-des-versions">30. Sources et Journal des Versions</h2>
+
+<h3 id="références-du-produit">Références du Produit</h3>
+
+<ul>
+  <li><strong>Présentation de OùQuandQui</strong>, édition initiale du 16 septembre 2026 : vision du produit, modules et feuille de route. Consultable dans l’onglet Présentation de ce dossier.</li>
+  <li><strong>Exigences routières :</strong> calculer le trajet avant les arrêts ; proposer l’évitement des péages et des autoroutes ; prendre en compte le véhicule et le gabarit ; chercher des stations selon l’urgence ou une distance cible ; regrouper les badges ; afficher des points de station avec leurs fiches ; enregistrer adresses et favoris ; distinguer le trajet principal en bleu des alternatives en bleu clair.</li>
+  <li><a href="https://github.com/Agdistys/Atlas-Conscience/pull/4">PR 4 DragonRoute</a>, état de référence <code class="language-plaintext highlighter-rouge">ab129e4</code> ; code source et fiches <code class="language-plaintext highlighter-rouge">DragonRoute-Trajet-Arrets.md</code>, <code class="language-plaintext highlighter-rouge">DragonRoute-Profil-Stations.md</code>.</li>
+</ul>
+
+<h3 id="références-techniques--17-septembre-2026">Références Techniques · 17 septembre 2026</h3>
+
+<ul>
+  <li><a href="https://project-osrm.org/docs/v5.24.0/api/">OSRM : API de routage et alternatives</a>. Une capacité de l’API n’atteste pas son activation dans chaque instance.</li>
+  <li><a href="https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/routing-options">OpenRouteService : options et restrictions</a>. Source des capacités candidates ; compte, contrat, profil caravane et combinaison des opérations restent à vérifier.</li>
+  <li><a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/">IGN : calcul d’itinéraire</a> et <a href="https://data.geopf.fr/navigation/getcapabilities">capacités du service</a>. Options réellement examinées avant proposition d’un raccordement.</li>
+  <li><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap : politique d’utilisation des tuiles</a>. Référence à vérifier lors de toute évolution de cache ou de hors ligne.</li>
+  <li><a href="https://www.w3.org/TR/WCAG22/">W3C : WCAG 2.2</a>. Référence de l’objectif d’accessibilité ; la cible de confort 44 × 44 pixels proposée ici ne doit pas être confondue avec le minimum de tous les critères AA.</li>
+</ul>
+
+<h3 id="références-complémentaires--validation-par-lot">Références Complémentaires · Validation par Lot</h3>
+
+<ul>
+  <li><a href="https://impactco2.fr/outils/transport">Impact CO₂ : transport</a> et <a href="https://impactco2.fr/outils/api">API</a>.</li>
+  <li><a href="https://transport.data.gouv.fr/datasets/horaires-sncf">Données horaires SNCF référencées</a> et <a href="https://transport.data.gouv.fr/">transport.data.gouv.fr</a>.</li>
+  <li><a href="https://github.com/organicmaps/organicmaps">Organic Maps</a>.</li>
+  <li><a href="https://operations.osmfoundation.org/policies/nominatim/">Politique du service Nominatim public</a> : conditions d’utilisation à vérifier avant toute évolution du géocodage.</li>
+  <li><a href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/information/">Flux officiel des prix des carburants</a> : source déjà utilisée par le prototype ; contrats et fraîcheur à contrôler avant extension.</li>
+</ul>
+
+<p>Les prix, quotas, offres gratuites et droits d’utilisation des fournisseurs ne sont pas figés ici. Ils doivent être vérifiés à la date du raccordement ; aucun abonnement ou service payant n’est autorisé par ce cahier seul.</p>
+
+<h3 id="journal">Journal</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Version</th>
+      <th>Date</th>
+      <th>Contenu</th>
+      <th>Validation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>V1</td>
+      <td>17 septembre 2026</td>
+      <td>Référentiel initial : exigences, calculs, données, tests, lots et arbitrages.</td>
+      <td>Document de conception.</td>
+    </tr>
+    <tr>
+      <td>V2</td>
+      <td>17 septembre 2026</td>
+      <td>Édition publique : exigences explicites, rédaction impersonnelle, intégration au dossier et harmonisation avec la Charte de Communication aMi.</td>
+      <td>Arbitrages techniques ouverts, recensés en section 27.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Règle de maintenance :</strong> une nouvelle idée est ajoutée au registre et rattachée à un lot ; elle ne modifie pas silencieusement le périmètre d’une PR en cours. Une décision validée précise qui l’a validée, quand, les exigences touchées et le motif.</p>
+
+<h2 id="31-accès-public-france-et-véhicules">31. Accès Public, France et Véhicules</h2>
+
+<h3 id="décisions-confirmées">Décisions Confirmées</h3>
+
+<p><strong>PUB-01 :</strong> application destinée à un usage personnel et public. Préparer un trajet ne nécessite ni compte technique ni clé fournie par un visiteur. Les données personnelles du profil restent locales tant qu’aucune synchronisation consentie n’est développée.</p>
+
+<p><strong>PUB-02 :</strong> territoire initial : France. La couverture s’évalue par fonction et par fournisseur ; aucune carte mondiale ni réponse ponctuelle ne constitue une preuve d’exhaustivité. Les écarts métropole/outre-mer et les zones sans données doivent rester visibles.</p>
+
+<p><strong>PUB-03 :</strong> véhicules légers et poids lourds distincts. Une caravane ne devient pas un poids lourd par une conversion implicite. Tant que son profil n’est pas validé, le calcul est refusé explicitement plutôt que remplacé par un trajet voiture. Un utilitaire exige également un profil qualifié avant toute promesse de gabarit.</p>
+
+<p><strong>PUB-04 :</strong> poids lourd : cinq valeurs strictement positives exigées, hauteur, largeur et longueur totale en mètres, poids en charge et charge maximale par essieu en tonnes. Charge par essieu inférieure ou égale au poids total. Bornes techniques de la première implémentation : 6 m, 6 m, 40 m, 100 t, 30 t respectivement. Ces bornes ne sont pas des limites réglementaires ni des validations de conformité. Matières dangereuses et transport exceptionnel hors de ce lot.</p>
+
+<p><strong>PUB-05 :</strong> les mêmes exclusions et valeurs de gabarit sont transmises au trajet direct, aux alternatives et à chaque trajet via station. Un champ manquant, une réponse incohérente, une limitation de quota ou un accès refusé ne déclenche jamais un retour silencieux au routage voiture.</p>
+
+<p><strong>PUB-06 :</strong> routes non revêtues : piste de préférence à instruire, pas troisième catégorie de véhicule. Aucun filtre fictif, aucune promesse de franchissement, de droit d’accès ou d’état du chemin. Un fournisseur et des données adaptés restent nécessaires.</p>
+
+<h3 id="contrat-daccès-et-activation">Contrat d’Accès et Activation</h3>
+
+<p><strong>PUB-07 :</strong> <code class="language-plaintext highlighter-rouge">POST /api/route</code> accepte uniquement deux ou trois points GeoJSON, les exclusions péages/autoroutes/ferries, un véhicule léger ou HGV et la demande booléenne d’alternatives. Pas d’URL amont libre ni de clé client. Le serveur reconstruit la requête vers une destination fixe et ne renvoie que géométrie, distances, durées et segments validés.</p>
+
+<p><strong>PUB-08 :</strong> aucun secret de routage dans le navigateur, les exports ou les rapports. Les coordonnées et le gabarit sont transmis au service puis au fournisseur ; la finalité est indiquée avant le calcul. Les historiques d’adresses ne sont pas envoyés en bloc. Politique de conservation des tiers à qualifier avant ouverture.</p>
+
+<p><strong>PUB-09 :</strong> GitHub reste l’hébergement du site et des aperçus. L’exécution d’un service secret ne relève pas de GitHub Pages. Le code serveur est préparé sans hébergeur imposé, compte créé ni dépense engagée. L’activation exige un choix d’infrastructure approuvé et les conditions d’usage des fournisseurs vérifiées.</p>
+
+<p><strong>PUB-10 :</strong> plafonds de requêtes avant ouverture, absence de dépassement payant non autorisé et surveillance des quotas. Les limites en mémoire du prototype ne constituent pas une protection financière durable : compteur partagé persistant ou plafond fournisseur dur, protections anti-abus et contrôle des redémarrages sont des préalables. CORS n’est pas une authentification.</p>
+
+<p><strong>PUB-11 :</strong> lorsque le service n’est pas activé, le routage léger standard demeure disponible sans exclusions. Une option avancée bloque avant géocodage avec un état explicite. Le nombre d’alternatives dépend du moteur ; absence d’alternative et indisponibilité de sa recherche sont distinguées.</p>
+
+<h3 id="démonstration-et-évolutions">Démonstration et Évolutions</h3>
+
+<p><strong>PUB-12 : PROPOSITION COMMERCIALE.</strong> Une période de démonstration d’un mois ou davantage, puis une éventuelle facturation, sont envisagées. Durée, prix, conversion, conditions et budget restent à décider. Aucun paiement, abonnement, expiration automatique ni promesse d’essai illimité ne sont implémentés. Les coûts d’exploitation doivent être connus avant l’ouverture, pas découverts après la démonstration.</p>
+
+<p><strong>Condition d’hébergement commercial :</strong> GitHub Pages ne doit pas être utilisé pour héberger un site principalement destiné à fournir un logiciel commercial en ligne. Avant une offre payante, prévoir une solution d’hébergement conforme et explicitement approuvée ; le dépôt peut rester sur GitHub. L’hébergement actuel du prototype n’est pas modifié. Source : <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits">limites officielles de GitHub Pages</a>, consultées le 18 septembre 2026.</p>
+
+<p><strong>PUB-13 :</strong> recharge de véhicules électriques reportée aux évolutions ultérieures ; le premier module carburant n’implique pas une couverture des bornes. Transports publics, covoiturage connecté, mobilités douces, Boussole et Empreinte restent dans le cahier global et leurs lots respectifs, sans données inventées.</p>
+
+<h3 id="critères-de-recette-complémentaires">Critères de Recette Complémentaires</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Cas</th>
+      <th>Résultat attendu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Service public absent</td>
+      <td>Aucune clé demandée ; contraintes avancées bloquées sans appel de géocodage.</td>
+    </tr>
+    <tr>
+      <td>Poids lourd incomplet</td>
+      <td>Aucun trajet calculé ; champs requis identifiables avec leurs unités.</td>
+    </tr>
+    <tr>
+      <td>HGV avec arrêt</td>
+      <td>Cinq valeurs et exclusions identiques au calcul direct.</td>
+    </tr>
+    <tr>
+      <td>Profil ancien sans gabarit</td>
+      <td>Chargement conservé ; saisie obligatoire avant un calcul poids lourd.</td>
+    </tr>
+    <tr>
+      <td>Clé serveur factice</td>
+      <td>Jamais renvoyée, même dans une erreur, métadonnée ou redirection fournisseur.</td>
+    </tr>
+    <tr>
+      <td>Origine ou schéma non autorisé</td>
+      <td>Rejet avant appel au fournisseur ; pas de relais HTTP arbitraire.</td>
+    </tr>
+    <tr>
+      <td>Limite globale atteinte</td>
+      <td>Réponse explicite ; pas de nouvelle consommation ni repli.</td>
+    </tr>
+    <tr>
+      <td>Changement de trajet avec stations</td>
+      <td>Confirmation ; refus préserve route et résultats ; accord invalide les anciennes comparaisons.</td>
+    </tr>
+    <tr>
+      <td>Retrait d’un arrêt</td>
+      <td>Carte du trajet choisi restaurée ; état sélectionné effacé.</td>
+    </tr>
+    <tr>
+      <td>Déploiement avancé</td>
+      <td>Tests réels et conditions d’exploitation validés en plus des tests simulés.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Édition V3 du cahier / V4 du dossier centralisé, 18 septembre 2026 : accès public, France et véhicules confirmés ; architecture sans clé visiteur, activation séparée, hypothèse commerciale et critères de recette ajoutés. Les originaux restent conservés.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

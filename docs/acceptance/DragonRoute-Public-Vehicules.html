@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>DragonRoute : acces public et vehicules | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="DragonRoute : acces public et vehicules" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Public-Vehicules.html" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Public-Vehicules.html" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="DragonRoute : acces public et vehicules" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)","headline":"DragonRoute : acces public et vehicules","url":"https://agdistys.github.io/Atlas-Conscience/docs/acceptance/DragonRoute-Public-Vehicules.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=76d0f8c54ee8a7668f9a1c24dc5f8876e51dd36b">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="dragonroute--acces-public-et-vehicules">DragonRoute : acces public et vehicules</h1>
+
+<p>Date : 18 septembre 2026. Succede a la fiche Options-Routage, dont la saisie de cle personnelle n’est plus le parcours cible.</p>
+
+<h2 id="decisions-produit">Decisions produit</h2>
+
+<p>Application publique, usage personnel et partage, sans cle technique visiteur. France comme territoire de depart ; couverture reelle a qualifier source par source, notamment outre-mer. Poids leger et poids lourd distincts. Un chemin non revetu est une propriete de route, pas un type de vehicule. Recharge electrique reportee. Aucun compte payant, abonnement, paiement ou hebergement cree.</p>
+
+<h2 id="modification-realisee">Modification realisee</h2>
+
+<ul>
+  <li>Suppression de la cle personnelle et du choix technique de fournisseur dans l’interface.</li>
+  <li>Options visibles des l’ouverture. Absence de service public clairement signalee ; pas de repli ignorant une contrainte.</li>
+  <li>Contrat serveur strict, cle uniquement cote serveur, cible ORS fixe, limitations de charge et erreurs non sensibles.</li>
+  <li>Poids lourd avec cinq valeurs declarees ; transmission identique au trajet direct, aux alternatives et aux arrets. Pas de garantie de passage physique.</li>
+  <li>Gabarit enregistrable dans le profil local, anciens profils sans gabarit toujours lisibles. Plages de consommation et d’achat adaptees jusqu’a 100 L/100 km et 2000 L (bornes techniques, pas prescriptions).</li>
+  <li>Caravane/utilitaire : type conserve, calcul specifique bloque plutot que voiture substituee.</li>
+  <li>Alternatives selectionnables avec distances/durees ; carte et corridor recalcules. Stations precedentes effacees apres confirmation ; refus preserve l’etat.</li>
+  <li>Retrait de l’arret : restauration du trajet choisi sans nouvelle requete et suppression du statut selectionne.</li>
+  <li>Detours negatifs OSRM egalement exclus du classement, au lieu d’etre presentes comme nuls. Un trajet plus court/rapide signale un changement de reference : comparaison complete a ameliorer dans un lot suivant.</li>
+</ul>
+
+<h2 id="recette-et-limites">Recette et limites</h2>
+
+<p>Recette locale terminee : 96 tests navigateur sur quatre tailles, 18 tests Node dont onze du service, 5 tests d’assemblage. Les 24 audits axe n’ont detecte aucune violation. Scenarios : camion valide/invalide, profil, arrets, quotas, absence de service public, alternatives et annulation. Aucun secret reel utilise. Essai reel OSRM Lyon-Valence : 102 km, 78 min, 20 stations comparees parmi 160 recues ; un seul trajet propose, aucune erreur de page.</p>
+
+<p>Avant facturation, une autre decision d’hebergement sera necessaire : <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits">GitHub Pages n’autorise pas un service principalement SaaS commercial</a>. Aucune infrastructure modifiee ou souscrite.</p>
+
+<p>Le service public n’est PAS active dans l’apercu : <code class="language-plaintext highlighter-rouge">routingApi</code> vide. Voir <code class="language-plaintext highlighter-rouge">server/README.md</code> pour les prealables d’ouverture, notamment quota durable et conditions des fournisseurs.</p>
+
+<p>Alternatives : uniquement celles du fournisseur ; limite de requete alternative ORS a 100 km appliquee par le client. Une recherche peut ne fournir qu’une seule route.</p>
+
+<p>Restent hors de cette livraison : activation/reception sur route reelle du service, couverture complete France/outre-mer, caravane, chemins, autonomie, geocodage ambigu, transport public, offres de covoiturage connectees, journal, CO2e, facturation et compte synchronise. Le cahier des charges global n’est pas declare termine.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

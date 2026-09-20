@@ -1,5 +1,7 @@
 # Options de routage : integration personnelle OpenRouteService
 
+Historique du lot du 17 septembre. Le parcours avec cle personnelle est remplace dans le lot suivant par [l'acces public et les vehicules](DragonRoute-Public-Vehicules.md). Les limites et preuves ci-dessous concernent l'ancienne integration, pas l'activation du nouveau service.
+
 ## Statut
 
 Integration optionnelle preparee, avec tests simules. La validation terrain avec
