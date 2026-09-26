@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Ancrage aMi — Instagram & Facebook → HTML</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121923; --panel2:#0f151e; --line:#283342;
+      --text:#f1f5f9; --muted:#9aa9ba; --gold:#ffd45c; --green:#76e6a8;
+      --red:#ff7a89; --blue:#77b7ff; --shadow:0 18px 55px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg);color-scheme:dark}
+    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+      radial-gradient(900px 540px at 15% -10%,rgba(119,183,255,.10),transparent 60%),
+      radial-gradient(760px 500px at 100% 0%,rgba(255,212,92,.08),transparent 60%),var(--bg);color:var(--text)}
+    button,input,textarea{font:inherit}
+    .wrap{width:min(780px,100%);margin:auto;padding:24px 16px 64px}
+    header{padding:18px 4px 16px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .mark{width:46px;height:46px;border:1px solid #3a4656;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#192331,#0d131c);box-shadow:var(--shadow);font-size:23px}
+    h1{font-size:clamp(1.55rem,6vw,2.35rem);margin:0;letter-spacing:-.035em}
+    .sub{margin:7px 0 0;color:var(--muted);line-height:1.45;font-size:.96rem}
+    .card{background:rgba(18,25,35,.92);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+    label{font-weight:750;display:block;margin-bottom:8px}
+    textarea{width:100%;min-height:118px;resize:vertical;border:1px solid #354357;border-radius:16px;background:#0a1018;color:var(--text);padding:14px;outline:none;line-height:1.45}
+    textarea:focus{border-color:#62748a;box-shadow:0 0 0 3px rgba(119,183,255,.08)}
+    .actions{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:11px}
+    button{border:0;border-radius:14px;padding:12px 14px;font-weight:800;cursor:pointer;min-height:46px}
+    .primary{background:var(--gold);color:#17130a}
+    .secondary{background:#202b39;color:var(--text);border:1px solid #364354}
+    .ghost{background:transparent;color:var(--muted);border:1px solid #2b3644}
+    .primary:active,.secondary:active,.ghost:active{transform:translateY(1px)}
+    .status{margin-top:12px;display:none;border-radius:14px;padding:11px 12px;line-height:1.4;font-size:.92rem}
+    .status.ok{display:block;background:rgba(118,230,168,.09);border:1px solid rgba(118,230,168,.25);color:#c8f7dc}
+    .status.err{display:block;background:rgba(255,122,137,.09);border:1px solid rgba(255,122,137,.25);color:#ffd4d9}
+    .result{margin-top:14px;display:none}
+    .result.on{display:block}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+    .pill{padding:6px 9px;border-radius:999px;border:1px solid #344255;background:#111923;color:#c8d4df;font-size:.78rem;font-weight:750}
+    .pill.platform{color:#111;background:var(--green);border-color:transparent}
+    .section{margin-top:14px}
+    .section-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px}
+    .section h2{font-size:1rem;margin:0}
+    .code{position:relative;background:#080d13;border:1px solid #26313e;border-radius:15px;padding:13px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:#dce7ef;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;max-height:260px}
+    .copy{padding:8px 10px;min-height:auto;border-radius:10px;background:#253244;color:#f5f7fa;font-size:.78rem}
+    .tip{font-size:.86rem;color:var(--muted);line-height:1.45;margin:10px 2px 0}
+    .preview{margin-top:15px;border:1px dashed #344153;border-radius:16px;padding:12px;background:#0b1119}
+    .preview a{color:var(--blue);word-break:break-all}
+    details{margin-top:16px;background:rgba(15,21,30,.76);border:1px solid #273240;border-radius:18px;padding:12px 14px}
+    summary{cursor:pointer;font-weight:800}
+    details p,details li{color:var(--muted);font-size:.9rem;line-height:1.5}
+    .history{margin-top:16px}
+    .history-list{display:grid;gap:8px;margin-top:8px}
+    .hist{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#0c121a;border:1px solid #26313e;border-radius:13px;padding:9px 10px}
+    .hist-main{min-width:0}
+    .hist-title{font-size:.85rem;font-weight:800}
+    .hist-url{font-size:.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+    .mini{padding:7px 9px;min-height:auto;font-size:.75rem;background:#1d2836;color:var(--text)}
+    .footer{margin-top:18px;text-align:center;color:#667587;font-size:.78rem}
+    @media (max-width:520px){
+      .wrap{padding:14px 12px 40px}.card{padding:13px;border-radius:19px}.actions{grid-template-columns:1fr 1fr}.actions .primary{grid-column:1/-1}.mark{width:42px;height:42px;border-radius:14px}.sub{font-size:.9rem}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="brand"><div class="mark">🔗</div><div><h1>Ancrage aMi</h1><p class="sub">Un lien Instagram ou Facebook → un bloc HTML prêt à coller dans Webnode.</p></div></div>
+    </header>
+
+    <section class="card">
+      <label for="url">Colle le lien du post / Reel</label>
+      <textarea id="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.instagram.com/reel/...\nou\nhttps://www.facebook.com/.../posts/..."></textarea>
+      <div class="actions">
+        <button class="primary" id="make">⚡ Générer l’ancrage</button>
+        <button class="secondary" id="paste">📋 Coller</button>
+        <button class="ghost" id="clear">Effacer</button>
+      </div>
+      <div id="status" class="status"></div>
+
+      <div id="result" class="result">
+        <div class="meta">
+          <span id="platform" class="pill platform">Plateforme</span>
+          <span id="kind" class="pill">Type</span>
+          <span class="pill">Lien nettoyé</span>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><h2>🔗 URL propre</h2><button class="copy" data-copy="clean">Copier</button></div>
+          <div class="code" id="clean"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><h2>🧩 Code HTML pour Webnode</h2><button class="copy" data-copy="html">Copier HTML</button></div>
+          <div class="code" id="html"></div>
+          <p class="tip" id="tip"></p>
+        </div>
+
+        <div class="preview">
+          <strong>Contrôle rapide</strong>
+          <p class="tip">Ouvre le contenu original avant publication pour vérifier qu’il est toujours public et intégrable.</p>
+          <a id="openLink" target="_blank" rel="noopener noreferrer">Ouvrir le post ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <details>
+      <summary>ℹ️ Ce que fait l’outil</summary>
+      <ul>
+        <li>retire les paramètres de partage et de pistage inutiles ;</li>
+        <li>reconnaît Instagram / Facebook et le type de lien quand c’est possible ;</li>
+        <li>génère l’intégration côté navigateur, sans envoyer ton lien à un serveur tiers ;</li>
+        <li>conserve seulement les derniers liens dans le stockage local de ton téléphone.</li>
+      </ul>
+      <p>Une intégration peut cesser de s’afficher si le contenu devient privé, est supprimé, ou si Meta modifie ses règles d’intégration.</p>
+    </details>
+
+    <section class="history" id="historyBox" hidden>
+      <div class="section-head"><h2>🕘 Récents</h2><button class="copy" id="eraseHistory">Vider</button></div>
+      <div class="history-list" id="history"></div>
+    </section>
+
+    <div class="footer">V1 · outil local · Instagram + Facebook</div>
+  </main>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const input = $('#url'), result = $('#result'), status = $('#status');
+  let current = { clean:'', html:'' };
+
+  const escapeHtml = s => s.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const escapeAttr = s => escapeHtml(s);
+
+  function normalize(raw){
+    raw = (raw || '').trim();
+    if (!raw) throw new Error('Colle d’abord un lien Instagram ou Facebook.');
+    if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+    let u;
+    try { u = new URL(raw); } catch { throw new Error('Ce lien ne semble pas valide.'); }
+    let host = u.hostname.toLowerCase().replace(/^www\./,'').replace(/^m\./,'');
+
+    let platform = null;
+    if (host === 'instagram.com' || host.endsWith('.instagram.com')) platform = 'Instagram';
+    if (host === 'facebook.com' || host.endsWith('.facebook.com') || host === 'fb.watch') platform = 'Facebook';
+    if (!platform) throw new Error('Pour cette V1, utilise un lien Instagram ou Facebook.');
+
+    // Remove common tracking/share parameters but keep parameters that can identify FB content.
+    const trash = ['igsh','igshid','fbclid','mibextid','utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','ref','refsrc','share_url'];
+    trash.forEach(k => u.searchParams.delete(k));
+    if (platform === 'Instagram') {
+      u.hostname = 'www.instagram.com';
+      // Canonicalize recognized content paths.
+      const m = u.pathname.match(/^\/(p|reel|reels|tv)\/([^/?#]+)/i);
+      if (m) {
+        const type = m[1].toLowerCase() === 'p' ? 'Post' : (m[1].toLowerCase() === 'tv' ? 'Vidéo' : 'Reel');
+        u.pathname = `/${m[1].toLowerCase()}/${m[2]}/`;
+        u.search = '';
+        u.hash = '';
+        return { platform, type, url:u.toString() };
+      }
+      throw new Error('Lien Instagram reconnu, mais pas comme post/Reel public. Ouvre le contenu puis copie son lien de partage.');
+    }
+
+    // Facebook: preserve useful query params (story_fbid, id, v) when present.
+    u.hostname = 'www.facebook.com';
+    u.hash = '';
+    let type = /\/(reel|watch|videos?)\//i.test(u.pathname) || u.searchParams.has('v') ? 'Vidéo / Reel' : 'Post';
+    return { platform, type, url:u.toString() };
+  }
+
+  function makeInstagram(url){
+    return `<blockquote class="instagram-media" data-instgrm-permalink="${escapeAttr(url)}" data-instgrm-version="14" style="background:#fff; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,.5),0 1px 10px 0 rgba(0,0,0,.15); margin:1px; max-width:540px; min-width:326px; padding:0; width:calc(100% - 2px);"></blockquote>\n<script async src="https://www.instagram.com/embed.js"><\/script>`;
+  }
+
+  function makeFacebook(url, type){
+    const endpoint = type === 'Vidéo / Reel' ? 'video.php' : 'post.php';
+    const params = new URLSearchParams({href:url, width:'500', show_text:type === 'Vidéo / Reel' ? 'false' : 'true'});
+    const src = `https://www.facebook.com/plugins/${endpoint}?${params.toString()}`;
+    return `<div style="width:100%;max-width:500px;margin:0 auto;overflow:hidden;">\n  <iframe src="${escapeAttr(src)}" width="500" height="680" style="border:none;overflow:hidden;max-width:100%;width:100%;" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>\n</div>`;
+  }
+
+  function generate(){
+    try{
+      const info = normalize(input.value);
+      const html = info.platform === 'Instagram' ? makeInstagram(info.url) : makeFacebook(info.url, info.type);
+      current = {clean:info.url, html};
+      $('#platform').textContent = info.platform;
+      $('#kind').textContent = info.type;
+      $('#clean').textContent = info.url;
+      $('#html').textContent = html;
+      $('#openLink').href = info.url;
+      $('#openLink').textContent = `Ouvrir sur ${info.platform} ↗`;
+      $('#tip').textContent = info.platform === 'Instagram'
+        ? 'Dans Webnode, colle tout le bloc HTML, y compris le script Instagram. Si le même script est déjà chargé ailleurs sur ta page, le doublon est généralement sans conséquence.'
+        : 'Le lecteur Facebook fonctionne pour les contenus publics que Facebook autorise à intégrer. La hauteur peut être ajustée si ton post est très court ou très long.';
+      result.classList.add('on');
+      setStatus(`✓ ${info.platform} détecté · code prêt à copier.`, 'ok');
+      addHistory(info);
+    }catch(e){
+      current = {clean:'',html:''}; result.classList.remove('on'); setStatus(e.message || 'Impossible de traiter ce lien.', 'err');
+    }
+  }
+
+  function setStatus(msg, kind){ status.textContent = msg; status.className = `status ${kind}`; }
+  async function copyText(text, button){
+    if (!text) return;
+    try{ await navigator.clipboard.writeText(text); }
+    catch{
+      const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    }
+    const old=button.textContent; button.textContent='✓ Copié'; setTimeout(()=>button.textContent=old,1200);
+  }
+
+  $('#make').addEventListener('click', generate);
+  input.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generate(); });
+  $('#clear').addEventListener('click', ()=>{ input.value=''; result.classList.remove('on'); status.className='status'; input.focus(); });
+  $('#paste').addEventListener('click', async ()=>{
+    try { input.value = await navigator.clipboard.readText(); generate(); }
+    catch { setStatus('Ton navigateur bloque la lecture directe du presse-papiers. Fais un appui long → Coller dans le champ.', 'err'); }
+  });
+  document.addEventListener('click', e => {
+    const b=e.target.closest('[data-copy]'); if(!b) return;
+    copyText(current[b.dataset.copy] || '', b);
+  });
+
+  const HKEY='ancrage_ami_history_v1';
+  function readHistory(){ try{return JSON.parse(localStorage.getItem(HKEY)||'[]')}catch{return[]} }
+  function addHistory(info){
+    let h=readHistory().filter(x=>x.url!==info.url);
+    h.unshift({url:info.url, platform:info.platform, type:info.type, ts:Date.now()});
+    h=h.slice(0,8); localStorage.setItem(HKEY,JSON.stringify(h)); renderHistory();
+  }
+  function renderHistory(){
+    const h=readHistory(), box=$('#historyBox'), list=$('#history');
+    if(!h.length){box.hidden=true;list.innerHTML='';return}
+    box.hidden=false; list.innerHTML='';
+    h.forEach(x=>{
+      const row=document.createElement('div'); row.className='hist';
+      const main=document.createElement('div'); main.className='hist-main';
+      const title=document.createElement('div'); title.className='hist-title'; title.textContent=`${x.platform} · ${x.type}`;
+      const url=document.createElement('div'); url.className='hist-url'; url.textContent=x.url;
+      main.append(title,url);
+      const b=document.createElement('button'); b.className='mini'; b.textContent='Réutiliser';
+      b.addEventListener('click',()=>{input.value=x.url;generate();window.scrollTo({top:0,behavior:'smooth'})});
+      row.append(main,b); list.appendChild(row);
+    });
+  }
+  $('#eraseHistory').addEventListener('click',()=>{localStorage.removeItem(HKEY);renderHistory()});
+  renderHistory();
+})();
+</script>
+</body>
+</html>
