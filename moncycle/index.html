@@ -6031,9 +6031,10 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.MC22
     startDate.oninput=function(){st.rangeDraftStart=startDate.value;};endDate.oninput=function(){st.rangeDraftEnd=endDate.value;};
     var hint=node('p',tr('Choisis les deux dates : le premier et le dernier jour seront inclus dans les graphiques et la frise.','Choose both dates: the first and last day will be included in the charts and timeline.'),'mc223-note');hint.id='mc228-range-hint';startDate.setAttribute('aria-describedby',hint.id);endDate.setAttribute('aria-describedby',hint.id);
     var error=node('p');error.id='mc227-range-error';error.setAttribute('role','alert');
-    var apply=button(tr('Afficher cette période','Show this range'),function(){},'mc227-range-apply');apply.type='submit';form.noValidate=true;
-    form.onsubmit=function(ev){ev.preventDefault();try{C.range(startDate.value,'custom',endDate.value);}catch(e){error.textContent=tr('Choisis deux dates valides, avec une fin égale ou postérieure au début.','Choose two valid dates, with the end on or after the start.');return;}
-      st.customStart=startDate.value;st.customEnd=endDate.value;st.view='custom';st.rangeDraftStart=null;st.rangeDraftEnd=null;rerender();};
+    var apply=button(tr('Afficher cette période','Show this range'),applyRange,'mc227-range-apply');apply.type='button';form.noValidate=true;
+    function applyRange(ev){if(ev)ev.preventDefault();try{C.range(startDate.value,'custom',endDate.value);}catch(e){error.textContent=tr('Choisis deux dates valides, avec une fin égale ou postérieure au début.','Choose two valid dates, with the end on or after the start.');return;}
+      st.customStart=startDate.value;st.customEnd=endDate.value;st.view='custom';st.rangeDraftStart=null;st.rangeDraftEnd=null;rerender();}
+    form.onsubmit=applyRange;
     form.append(startLabel,endLabel,apply,hint,error);controls.prepend(form);host.append(controls);
 
 
