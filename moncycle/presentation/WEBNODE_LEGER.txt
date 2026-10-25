@@ -1,0 +1,6 @@
+<!-- Mon Cycle · Présentation V124 · Bloc Webnode léger · Coller dans un bloc HTML puis PUBLIER -->
+<div id="moncycle-presentation-embed" style="width:100%;margin:0;background:#09090e;border-radius:14px;overflow:hidden">
+<iframe title="Mon Cycle — Présentation et démonstration" src="https://agdistys.github.io/Atlas-Conscience/moncycle/presentation/?v=124&amp;embed=webnode" style="display:block;width:100%;height:1200px;border:0" loading="lazy" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals"></iframe>
+<p style="margin:0;padding:12px;text-align:center"><a href="https://agdistys.github.io/Atlas-Conscience/moncycle/presentation/?v=124" target="_blank" rel="noopener" style="color:#e7c779">↗ Ouvrir la Présentation en Plein Écran</a></p>
+</div>
+<script>(()=>{const root=document.getElementById('moncycle-presentation-embed'),frame=root.querySelector('iframe');window.addEventListener('message',e=>{if(e.source!==frame.contentWindow||e.origin!=='https://agdistys.github.io'||e.data?.type!=='mc-presentation-height')return;const h=Number(e.data.height);if(Number.isFinite(h)&&h>0&&h<100000)frame.style.height=Math.ceil(h+8)+'px';});})();</script>
