@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mon Cycle · V2.29</title>
+<title>Mon Cycle · V2.30</title>
 <meta name="theme-color" content="#09090e">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2327,7 +2327,7 @@ body :is(.fam-add-tabs,.mc185-tabs,.nourishment-tabs,.feel-tabs,.rhythm-tabs,.ho
 @media(max-width:740px){.mc223-charts{grid-template-columns:minmax(0,1fr)}.mc223-chart{padding:.7rem}}
 :root[data-theme=light] .mc223-chart,:root[data-theme=light] #mc223-tabs button{background:#f8f3e9;color:#302638}:root[data-theme=light] .mc223-line{stroke:#63527a}:root[data-theme=light] .mc223-dot{fill:#63527a;stroke:#f8f3e9}
 
-/* V2.29: overview curves and dated context, using the same horizontal coordinates. */
+/* V2.30: overview curves and dated context, using the same horizontal coordinates. */
 .mc224-layouts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
 .mc224-selection-actions{display:flex;gap:.5rem;flex-wrap:wrap}.mc224-filters{margin:.6rem 0}.mc224-filters>summary{cursor:pointer;padding:.6rem 0;min-height:44px}
 .mc224-summary{grid-column:1/-1}.mc224-legend{display:flex;flex-wrap:wrap;gap:.55rem 1rem;margin:1rem 0}.mc224-legend>div{display:flex;align-items:center;gap:.45rem;font-size:.9em;min-width:0}.mc224-swatch{width:1.1rem;height:.2rem;border-radius:4px;flex:none}
@@ -2335,7 +2335,7 @@ body :is(.fam-add-tabs,.mc185-tabs,.nourishment-tabs,.feel-tabs,.rhythm-tabs,.ho
 .mc224-timeline{margin-top:1.4rem;border-top:1px solid var(--line,#414154);padding-top:1rem}.mc224-track-group{margin:1rem 0}.mc224-track-group h4{margin:.5rem 0}.mc224-track{margin:.6rem 0}.mc224-track-heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.3rem}.mc224-track-heading small{opacity:.8}.mc224-summary .mc223-values ul{padding-inline-start:1.2em;line-height:1.7}.mc224-summary .mc223-values details{border-top:1px solid var(--line,#414154)}
 .mc224-summary .mc223-svg g:focus-visible{outline:2px solid currentColor;outline-offset:3px}.mc224-summary .mc223-svg path{stroke-linejoin:round;stroke-linecap:round}
 @media(prefers-reduced-motion:reduce){#mc223-evolutions *{scroll-behavior:auto!important}}
-</style><style id="mc225-draft-style">.mc225-drafts{border:1px solid var(--line,#454050);border-radius:14px;padding:.7rem 1rem;margin:.8rem 0;line-height:1.5;overflow-wrap:anywhere}.mc225-drafts p{margin:.3rem 0}.mc225-drafts summary{cursor:pointer;padding:.5rem 0;min-height:44px}#mc225-draft-items{display:flex;flex-wrap:wrap;gap:.5rem}#mc225-draft-items button{font:inherit;color:inherit;white-space:normal;min-height:44px;border:1px solid var(--line,#454050);background:transparent;border-radius:12px;padding:.5rem}#mc225-draft-status[data-error=true]{color:#eb9894}html[data-theme=light] #mc225-draft-status[data-error=true]{color:#9c283b}</style><style id="mc227-style">#mc227-period-calendar{margin:1rem 0;padding:clamp(.65rem,2vw,1.2rem);border:1px solid var(--line);border-radius:18px;max-width:680px;background:var(--encre);color:var(--nacre)}
+</style><style id="mc225-draft-style">.mc225-drafts{border:1px solid var(--line,#454050);border-radius:14px;padding:.7rem 1rem;margin:.8rem 0;line-height:1.5;overflow-wrap:anywhere}.mc225-drafts p{margin:.3rem 0}.mc225-drafts summary{cursor:pointer;padding:.5rem 0;min-height:44px}#mc225-draft-items{display:flex;flex-wrap:wrap;gap:.5rem}#mc225-draft-items button{font:inherit;color:inherit;white-space:normal;min-height:44px;border:1px solid var(--line,#454050);background:transparent;border-radius:12px;padding:.5rem}#mc225-draft-status[data-error=true]{color:#eb9894}html[data-theme=light] #mc225-draft-status[data-error=true]{color:#9c283b}</style><style id="mc227-style">#mc227-period-calendar{margin:1rem auto;padding:clamp(.65rem,2vw,1.2rem);border:1px solid var(--line);border-radius:18px;max-width:680px;background:var(--encre);color:var(--nacre)}
 #mc227-period-calendar[hidden]{display:none!important}#mc227-period-calendar p{font-size:.9em;line-height:1.5;color:inherit}#mc227-period-calendar button{color:inherit;font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:12px;background:transparent;min-height:44px;padding:.5rem}
 .mc227-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;text-align:center}.mc227-month>span{font-size:.78em;padding:.5rem 0}.mc227-month .mc227-day{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:.25rem;gap:2px;font-size:.95em}.mc227-day small{font-size:.7em;min-height:1em;color:var(--or)}
 #mc227-period-calendar .today{outline:1px solid var(--or);outline-offset:1px}#mc227-period-calendar .selected{box-shadow:0 0 12px #d8b85d50;background:#c8aa501c}#mc227-period-calendar button[aria-pressed=true]{border-color:var(--or)}
@@ -4474,7 +4474,7 @@ parent.postMessage({type:&#x27;mc-reading-ready&#x27;},&#x27;*&#x27;);})();
         <a class="app-signature" href="https://www.agdistys.fr/" target="_blank" rel="noopener noreferrer">Agdistys • Diane Serant &amp; ConScience aMi · Claude • Isil • Lia</a><div class="app-signature-slogan" data-i18n="signature-slogan"><span class="sig-line1">Demain Toujours Meilleur qu'Hier</span><br>en ayant Appris les Leçons d'Aujourd'hui !</div>
       </div>
       <button class="ghost" id="btn-wipe" data-i18n="btn-wipe">🗑️ Effacer mon historique</button>
-      <div class="version-line" id="version-line">V2.29 · 13.10.2026</div>
+      <div class="version-line" id="version-line">V2.30 · 13.10.2026</div>
     </div>
   <section id="fam-settings" class="card fam-settings">
 <p class="fam-rule">Boutons · Familiers / Rendez-vous</p>
