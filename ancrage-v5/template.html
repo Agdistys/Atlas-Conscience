@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d1117" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Ancrage aMi V5 — liens Facebook et Instagram</title>
+  <title>Ancrage aMi V5.1 — liens Facebook et Instagram</title>
   <style>
     :root{
       --bg:#0b0f14; --panel:#121923; --panel2:#0f151e; --line:#283342;
@@ -81,6 +81,12 @@
     .source-url{overflow-wrap:anywhere;font-size:.85rem;color:var(--muted)}
     #connection{line-height:1.5;color:var(--text)}
     .version{color:var(--gold);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin:0 0 7px}
+    .networks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 20px}
+    .network{border:1px solid #526079;border-radius:14px;padding:14px;display:grid;gap:6px;min-width:0}
+    .network strong{font-size:1.1rem}.network span{font-size:.85rem;color:var(--muted);line-height:1.5}
+    .instagram{background:linear-gradient(120deg,#30203d,#231c29);border-color:#aa71bb}.instagram strong{color:#f5b7e6}
+    .facebook{background:#15263c;border-color:#6a96d2}.facebook strong{color:#aacfff}
+    @media(max-width:380px){.networks{gap:8px}.network{padding:10px}.network strong{font-size:1rem}}
     .skip{position:absolute;left:16px;top:-90px;background:var(--panel);padding:12px}.skip:focus{top:12px}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
   </style>
@@ -88,11 +94,15 @@
 <body>
 <a class="skip" href="#url">Aller au lien à convertir</a>
 <main class="wrap">
-<header><div class="brand"><div class="mark" aria-hidden="true">🔗</div><div><p class="version">Version 5 · Ancrage aMi</p><h1>Du lien au contenu</h1><p class="sub">Facebook ou Instagram : prépare un bloc HTML à coller dans Webnode.</p></div></div></header>
+<header><div class="brand"><div class="mark" aria-hidden="true">🔗</div><div><p class="version">Version 5.1 · Ancrage aMi</p><h1>Instagram &amp; Facebook</h1><p class="sub">Deux réseaux, un seul outil : colle ton lien, récupère ton HTML pour Webnode.</p></div></div></header>
 <section class="card" aria-label="Créer un ancrage">
-<label for="url">Colle le lien ou le code d’intégration Facebook</label>
-<textarea id="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="inputHint" placeholder="https://www.facebook.com/share/v/…"></textarea>
-<p class="tip" id="inputHint">Les liens mobiles /share/ sont résolus par ton service Cloudflare lorsqu’il est connecté. Les adresses permanentes fonctionnent directement.</p>
+<div class="networks" aria-label="Deux réseaux pris en charge">
+<div class="network instagram"><strong>Instagram</strong><span>Posts · Reels · vidéos</span></div>
+<div class="network facebook"><strong>Facebook</strong><span>Publications · Reels · liens mobiles</span></div>
+</div>
+<label for="url">Colle ton lien Instagram ou Facebook</label>
+<textarea id="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="inputHint" placeholder="https://www.instagram.com/reel/…&#10;ou https://www.facebook.com/share/v/…"></textarea>
+<p class="tip" id="inputHint">La plateforme est reconnue automatiquement. Instagram : colle le lien du post ou du Reel. Facebook : colle le lien, même mobile (/share/), ou son code d’intégration.</p>
 <div class="actions"><button class="primary" id="make">Générer l’ancrage</button><button class="secondary" id="paste">Coller</button><button class="ghost" id="clear">Effacer</button></div>
 <div id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
 <section class="fallback" id="manualBox" hidden aria-label="Résolution manuelle">
@@ -121,7 +131,7 @@
 <details><summary>Ce qui est envoyé et conservé</summary><ul>
 <li>Les liens permanents sont traités dans ce navigateur.</li><li>Un lien court Facebook est transmis au résolveur configuré, puis à Facebook, uniquement quand tu demandes sa conversion.</li><li>Aucun mot de passe ni cookie Facebook n’est utilisé. Le résolveur ne peut pas accéder à un contenu privé.</li><li>Les huit derniers liens générés et l’adresse du résolveur sont conservés sur cet appareil, si le navigateur l’autorise.</li></ul><p>Une adresse résolue ne garantit pas que Facebook autorise son intégration. Aucun contenu Facebook n’est chargé automatiquement dans cette page.</p></details>
 <section class="history" id="historyBox" hidden><div class="section-head"><h2>Récents</h2><button class="copy" id="eraseHistory">Vider</button></div><div class="history-list" id="history"></div></section>
-<p class="footer">Ancrage aMi · V5 · <a href="APP-Ancrage_aMi_V1.html">Version précédente disponible</a></p>
+<p class="footer">Ancrage aMi · V5.1 · Instagram + Facebook · <a href="APP-Ancrage_aMi_V5.html">V5 conservée</a></p>
 </main>
 <!-- APP_SCRIPT -->
 </body></html>

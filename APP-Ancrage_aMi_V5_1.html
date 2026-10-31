@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Ancrage aMi V5.1 — liens Facebook et Instagram</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121923; --panel2:#0f151e; --line:#283342;
+      --text:#f1f5f9; --muted:#9aa9ba; --gold:#ffd45c; --green:#76e6a8;
+      --red:#ff7a89; --blue:#77b7ff; --shadow:0 18px 55px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg);color-scheme:dark}
+    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+      radial-gradient(900px 540px at 15% -10%,rgba(119,183,255,.10),transparent 60%),
+      radial-gradient(760px 500px at 100% 0%,rgba(255,212,92,.08),transparent 60%),var(--bg);color:var(--text)}
+    button,input,textarea{font:inherit}
+    .wrap{width:min(780px,100%);margin:auto;padding:24px 16px 64px}
+    header{padding:18px 4px 16px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .mark{width:46px;height:46px;border:1px solid #3a4656;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#192331,#0d131c);box-shadow:var(--shadow);font-size:23px}
+    h1{font-size:clamp(1.55rem,6vw,2.35rem);margin:0;letter-spacing:-.035em}
+    .sub{margin:7px 0 0;color:var(--muted);line-height:1.45;font-size:.96rem}
+    .card{background:rgba(18,25,35,.92);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+    label{font-weight:750;display:block;margin-bottom:8px}
+    textarea{width:100%;min-height:118px;resize:vertical;border:1px solid #354357;border-radius:16px;background:#0a1018;color:var(--text);padding:14px;outline:none;line-height:1.45}
+    textarea:focus{border-color:#62748a;box-shadow:0 0 0 3px rgba(119,183,255,.08)}
+    .actions{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:11px}
+    button{border:0;border-radius:14px;padding:12px 14px;font-weight:800;cursor:pointer;min-height:46px}
+    .primary{background:var(--gold);color:#17130a}
+    .secondary{background:#202b39;color:var(--text);border:1px solid #364354}
+    .ghost{background:transparent;color:var(--muted);border:1px solid #2b3644}
+    .primary:active,.secondary:active,.ghost:active{transform:translateY(1px)}
+    .status{margin-top:12px;display:none;border-radius:14px;padding:11px 12px;line-height:1.4;font-size:.92rem}
+    .status.ok{display:block;background:rgba(118,230,168,.09);border:1px solid rgba(118,230,168,.25);color:#c8f7dc}
+    .status.err{display:block;background:rgba(255,122,137,.09);border:1px solid rgba(255,122,137,.25);color:#ffd4d9}
+    .result{margin-top:14px;display:none}
+    .result.on{display:block}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+    .pill{padding:6px 9px;border-radius:999px;border:1px solid #344255;background:#111923;color:#c8d4df;font-size:.78rem;font-weight:750}
+    .pill.platform{color:#111;background:var(--green);border-color:transparent}
+    .section{margin-top:14px}
+    .section-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px}
+    .section h2{font-size:1rem;margin:0}
+    .code{position:relative;background:#080d13;border:1px solid #26313e;border-radius:15px;padding:13px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:#dce7ef;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;max-height:260px}
+    .copy{padding:8px 10px;min-height:auto;border-radius:10px;background:#253244;color:#f5f7fa;font-size:.78rem}
+    .tip{font-size:.86rem;color:var(--muted);line-height:1.45;margin:10px 2px 0}
+    .preview{margin-top:15px;border:1px dashed #344153;border-radius:16px;padding:12px;background:#0b1119}
+    .preview a{color:var(--blue);word-break:break-all}
+    details{margin-top:16px;background:rgba(15,21,30,.76);border:1px solid #273240;border-radius:18px;padding:12px 14px}
+    summary{cursor:pointer;font-weight:800}
+    details p,details li{color:var(--muted);font-size:.9rem;line-height:1.5}
+    .history{margin-top:16px}
+    .history-list{display:grid;gap:8px;margin-top:8px}
+    .hist{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#0c121a;border:1px solid #26313e;border-radius:13px;padding:9px 10px}
+    .hist-main{min-width:0}
+    .hist-title{font-size:.85rem;font-weight:800}
+    .hist-url{font-size:.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+    .mini{padding:7px 9px;min-height:auto;font-size:.75rem;background:#1d2836;color:var(--text)}
+    .footer{margin-top:18px;text-align:center;color:#667587;font-size:.78rem}
+    @media (max-width:520px){
+      .wrap{padding:14px 12px 40px}.card{padding:13px;border-radius:19px}.actions{grid-template-columns:1fr 1fr}.actions .primary{grid-column:1/-1}.mark{width:42px;height:42px;border-radius:14px}.sub{font-size:.9rem}
+    }
+  
+    [hidden]{display:none!important}
+    .result{display:block}
+    :focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+    button:disabled{opacity:.65;cursor:wait}
+    .copy,.mini{min-height:44px}
+    input{width:100%;min-height:48px;background:#0a1018;color:var(--text);border:1px solid #62748a;border-radius:12px;padding:12px}
+    a{color:var(--blue)}
+    .footer{color:var(--muted)}
+    .fallback{margin-top:18px;border:1px solid #ab7c45;padding:16px;border-radius:16px;background:#211c17}
+    .fallback h2{font-size:1.1rem;margin-top:0}
+    .fallback p{line-height:1.6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .source-url{overflow-wrap:anywhere;font-size:.85rem;color:var(--muted)}
+    #connection{line-height:1.5;color:var(--text)}
+    .version{color:var(--gold);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin:0 0 7px}
+    .networks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 20px}
+    .network{border:1px solid #526079;border-radius:14px;padding:14px;display:grid;gap:6px;min-width:0}
+    .network strong{font-size:1.1rem}.network span{font-size:.85rem;color:var(--muted);line-height:1.5}
+    .instagram{background:linear-gradient(120deg,#30203d,#231c29);border-color:#aa71bb}.instagram strong{color:#f5b7e6}
+    .facebook{background:#15263c;border-color:#6a96d2}.facebook strong{color:#aacfff}
+    @media(max-width:380px){.networks{gap:8px}.network{padding:10px}.network strong{font-size:1rem}}
+    .skip{position:absolute;left:16px;top:-90px;background:var(--panel);padding:12px}.skip:focus{top:12px}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+<a class="skip" href="#url">Aller au lien à convertir</a>
+<main class="wrap">
+<header><div class="brand"><div class="mark" aria-hidden="true">🔗</div><div><p class="version">Version 5.1 · Ancrage aMi</p><h1>Instagram &amp; Facebook</h1><p class="sub">Deux réseaux, un seul outil : colle ton lien, récupère ton HTML pour Webnode.</p></div></div></header>
+<section class="card" aria-label="Créer un ancrage">
+<div class="networks" aria-label="Deux réseaux pris en charge">
+<div class="network instagram"><strong>Instagram</strong><span>Posts · Reels · vidéos</span></div>
+<div class="network facebook"><strong>Facebook</strong><span>Publications · Reels · liens mobiles</span></div>
+</div>
+<label for="url">Colle ton lien Instagram ou Facebook</label>
+<textarea id="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="inputHint" placeholder="https://www.instagram.com/reel/…&#10;ou https://www.facebook.com/share/v/…"></textarea>
+<p class="tip" id="inputHint">La plateforme est reconnue automatiquement. Instagram : colle le lien du post ou du Reel. Facebook : colle le lien, même mobile (/share/), ou son code d’intégration.</p>
+<div class="actions"><button class="primary" id="make">Générer l’ancrage</button><button class="secondary" id="paste">Coller</button><button class="ghost" id="clear">Effacer</button></div>
+<div id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
+<section class="fallback" id="manualBox" hidden aria-label="Résolution manuelle">
+<h2>Continuer avec l’adresse permanente</h2>
+<p>Ouvre le contenu sur Facebook, puis copie l’adresse affichée dans le navigateur après la redirection. Tu peux aussi coller son code « Intégrer ».</p>
+<a id="originalLink" target="_blank" rel="noopener noreferrer">Ouvrir le lien d’origine ↗</a><p id="originalText" class="source-url"></p>
+<label for="manual">Adresse permanente ou iframe Facebook</label><textarea id="manual" spellcheck="false" placeholder="https://www.facebook.com/reel/…"></textarea>
+<div class="row"><button class="primary" id="useManual">Utiliser cette adresse</button><button class="secondary" id="copyLink">Copier un simple lien HTML</button></div>
+<p class="tip">Le simple lien ouvre Facebook ; il ne prétend pas afficher un lecteur intégré. Le lien d’origine reste conservé dans le champ du haut.</p>
+</section>
+<section id="result" class="result" hidden aria-label="Ancrage généré">
+<div class="meta"><span id="platform" class="pill platform"></span><span id="kind" class="pill"></span></div>
+<div class="section"><div class="section-head"><h2>Adresse permanente</h2><button class="copy" data-copy="clean">Copier l’adresse</button></div><div class="code" id="clean"></div></div>
+<div class="section"><div class="section-head"><h2>Code pour Webnode</h2><button class="copy" data-copy="html">Copier HTML</button></div><div class="code" id="html"></div><p class="tip" id="tip"></p></div>
+<div class="preview"><strong>Vérifier le contenu</strong><p class="tip">Le contenu doit être public et autorisé à l’intégration. Un lecteur peut être refusé même si l’adresse est correcte.</p><a id="openLink" target="_blank" rel="noopener noreferrer">Ouvrir le contenu ↗</a></div>
+</section>
+<div id="copyFallback" hidden><label for="copyText">Texte à copier manuellement</label><textarea id="copyText" readonly></textarea></div>
+</section>
+<details id="settings"><summary>Connexion du résolveur Facebook</summary>
+<p>Ce service doit être déployé sur ton compte Cloudflare. Aucune connexion Facebook ni clé Cloudflare n’est demandée dans cet outil.</p>
+<label for="endpoint">Adresse du service Cloudflare</label><input id="endpoint" type="url" autocomplete="off" spellcheck="false" placeholder="Adresse HTTPS de ton Worker" aria-describedby="connection">
+<div class="row"><button class="secondary" id="saveEndpoint">Enregistrer</button><button class="secondary" id="testEndpoint">Tester la connexion</button><button class="ghost" id="resetEndpoint">Effacer l’adresse locale</button></div>
+<p id="connection" role="status" aria-live="polite"></p>
+<p><a href="https://github.com/Agdistys/Atlas-Conscience/tree/main/ancrage-v5/worker" target="_blank" rel="noopener noreferrer">Installation sur mon compte Cloudflare ↗</a></p>
+</details>
+<details><summary>Ce qui est envoyé et conservé</summary><ul>
+<li>Les liens permanents sont traités dans ce navigateur.</li><li>Un lien court Facebook est transmis au résolveur configuré, puis à Facebook, uniquement quand tu demandes sa conversion.</li><li>Aucun mot de passe ni cookie Facebook n’est utilisé. Le résolveur ne peut pas accéder à un contenu privé.</li><li>Les huit derniers liens générés et l’adresse du résolveur sont conservés sur cet appareil, si le navigateur l’autorise.</li></ul><p>Une adresse résolue ne garantit pas que Facebook autorise son intégration. Aucun contenu Facebook n’est chargé automatiquement dans cette page.</p></details>
+<section class="history" id="historyBox" hidden><div class="section-head"><h2>Récents</h2><button class="copy" id="eraseHistory">Vider</button></div><div class="history-list" id="history"></div></section>
+<p class="footer">Ancrage aMi · V5.1 · Instagram + Facebook · <a href="APP-Ancrage_aMi_V5.html">V5 conservée</a></p>
+</main>
+<script>
+(()=>{
+// Shared by the standalone page and the Worker. No network or DOM dependency.
+const FB_HOSTS = new Set(['facebook.com','www.facebook.com','m.facebook.com','mbasic.facebook.com','web.facebook.com','fb.watch','www.fb.watch']);
+function safeFacebookURL(value, base) {
+  let u; try { u = new URL(value, base); } catch { throw new Error('Adresse Facebook invalide.'); }
+  if (u.protocol !== 'https:' || !FB_HOSTS.has(u.hostname) || u.username || u.password || u.port || u.href.length > 4096)
+    throw new Error('Seules les adresses HTTPS Facebook reconnues sont acceptées.');
+  u.hash = ''; return u;
+}
+function classifyFacebook(value) {
+  const u = safeFacebookURL(value), p = u.pathname;
+  const result = (path, type, params = '') => ({platform:'Facebook', type, url:`https://www.facebook.com${path}${params}`, needsResolution:false});
+  if (u.hostname.endsWith('fb.watch')) {
+    if (!/^\/[A-Za-z0-9_-]+\/?$/.test(p)) throw new Error('Lien fb.watch non reconnu.');
+    return {platform:'Facebook',type:'Lien à résoudre',url:`https://fb.watch${p}`,needsResolution:true};
+  }
+  if (/^\/share\/(?:[rvp]\/)?[A-Za-z0-9_-]+\/?$/.test(p))
+    return {platform:'Facebook',type:'Lien à résoudre',url:`https://www.facebook.com${p}`,needsResolution:true};
+  let m;
+  if ((m = p.match(/^\/reels?\/(\d+)\/?$/))) return result(`/reel/${m[1]}/`,'Reel');
+  if ((m = p.match(/^\/(?:[A-Za-z0-9._-]+\/)?videos\/(\d+)\/?$/))) return result(`/watch/`,'Vidéo',`?v=${m[1]}`);
+  if (/^\/(?:watch\/?|video.php)$/.test(p) && /^\d+$/.test(u.searchParams.get('v') || ''))
+    return result('/watch/','Vidéo',`?v=${u.searchParams.get('v')}`);
+  if ((m = p.match(/^\/([A-Za-z0-9._-]+)\/posts\/([A-Za-z0-9]+)\/?$/))) return result(`/${m[1]}/posts/${m[2]}/`,'Publication');
+  if ((m = p.match(/^\/groups\/([A-Za-z0-9._-]+)\/(posts|permalink)\/(\d+)\/?$/))) return result(`/groups/${m[1]}/${m[2]}/${m[3]}/`,'Publication');
+  if (/^\/(?:permalink.php|story.php)$/.test(p) && /^[A-Za-z0-9]+$/.test(u.searchParams.get('story_fbid') || '') && /^\d+$/.test(u.searchParams.get('id') || ''))
+    return result('/permalink.php','Publication',`?story_fbid=${u.searchParams.get('story_fbid')}&id=${u.searchParams.get('id')}`);
+  if (/^\/(?:photo.php|photo\/?)$/.test(p) && /^\d+$/.test(u.searchParams.get('fbid') || ''))
+    return result('/photo/','Photo',`?fbid=${u.searchParams.get('fbid')}`);
+  throw new Error('Adresse permanente non reconnue. Colle le lien du contenu ou le code d’intégration fourni par Facebook.');
+}
+function normalize(raw) {
+  let value = String(raw || '').trim();
+  if (!value) throw new Error('Colle d’abord un lien Instagram ou Facebook.');
+  if (!/^https?:\/\//i.test(value)) value = 'https://' + value;
+  let u; try { u = new URL(value); } catch { throw new Error('Ce lien ne semble pas valide.'); }
+  if (u.protocol !== 'https:' || u.username || u.password || u.port || value.length > 4096) throw new Error('Utilise une adresse HTTPS sans identifiants.');
+  if (FB_HOSTS.has(u.hostname)) return classifyFacebook(u.href);
+  if (['instagram.com','www.instagram.com','m.instagram.com'].includes(u.hostname)) {
+    const m = u.pathname.match(/^\/(p|reels?|tv)\/([A-Za-z0-9_-]+)\/?$/);
+    if (!m) throw new Error('Lien Instagram reconnu, mais ce n’est pas un post ou un Reel.');
+    const kind=m[1]==='reels'?'reel':m[1];
+    return {platform:'Instagram',type:kind==='p'?'Publication':kind==='tv'?'Vidéo':'Reel',url:`https://www.instagram.com/${kind}/${m[2]}/`,needsResolution:false};
+  }
+  throw new Error('Utilise un lien Instagram ou Facebook.');
+}
+const escapeHtml = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function makeEmbed(info) {
+  // Re-validate even server-returned URLs; a share link never becomes an embed.
+  info = normalize(info.url);
+  if (info.needsResolution) throw new Error('Le lien de partage doit être résolu avant de créer un lecteur.');
+  if (info.platform==='Instagram') return `<blockquote class="instagram-media" data-instgrm-permalink="${escapeHtml(info.url)}" data-instgrm-version="14" style="background:#fff;border:0;margin:0 auto;max-width:540px;width:100%;"></blockquote>\n<script async src="https://www.instagram.com/embed.js"><\/script>`;
+  const video=['Reel','Vidéo'].includes(info.type), reel=info.type==='Reel';
+  const width=reel?267:500, height=reel?476:video?281:680;
+  const params=new URLSearchParams({href:info.url,width:String(width),height:String(height),show_text:video?'false':'true'});
+  if(video)params.set('t','0');
+  const src=`https://www.facebook.com/plugins/${video?'video':'post'}.php?${params}`;
+  return `<div style="width:100%;max-width:${width}px;margin:0 auto;">\n  <iframe title="${escapeHtml(info.type)} Facebook" src="${escapeHtml(src)}" width="${width}" height="${height}" style="border:none;overflow:hidden;max-width:100%;" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" loading="lazy"></iframe>\n  <p><a href="${escapeHtml(info.url)}" target="_blank" rel="noopener noreferrer">Voir sur Facebook</a></p>\n</div>`;
+}
+
+const $=s=>document.querySelector(s),input=$('#url'),status=$('#status');
+let current={clean:'',html:''},pending=null,sequence=0,original='',defaultEndpoint='';
+const HKEY='ancrage_ami_history_v1',EKEY='ancrage_ami_resolver_v5';
+const storage={get(k){try{return localStorage.getItem(k);}catch{return null;}},set(k,v){try{localStorage.setItem(k,v);return true;}catch{return false;}},remove(k){try{localStorage.removeItem(k);}catch{}}};
+function setStatus(text,kind='ok'){status.textContent=text;status.className=`status ${kind}`;}
+function invalidate(){sequence++;pending?.abort();pending=null;current={clean:'',html:''};$('#result').hidden=true;$('#manualBox').hidden=true;$('#copyFallback').hidden=true;$('#make').disabled=false;$('#make').textContent='Générer l’ancrage';}
+function endpoint(value){const u=new URL(value);if(u.protocol!=='https:'||u.username||u.password||u.port||u.search||u.hash||u.pathname!=='/')throw new Error('Colle seulement l’adresse HTTPS du service, sans chemin ni clé.');return u.origin;}
+function serviceURL(){const s=storage.get(EKEY)||defaultEndpoint;return s?endpoint(s):'';}
+function updateConnection(){let url='';try{url=serviceURL();}catch{}$('#endpoint').value=url;$('#connection').textContent=url?'Résolveur configuré · à vérifier':'Résolveur non connecté · liens permanents utilisables';}
+const configReady=location.protocol==='file:'?Promise.resolve():fetch('ancrage-v5/config.json',{cache:'no-store',credentials:'omit'}).then(r=>r.ok?r.json():{}).then(c=>{if(c.resolverUrl)defaultEndpoint=endpoint(c.resolverUrl);}).catch(()=>{}).finally(updateConnection);
+updateConnection();
+function extractInput(raw){
+  const value=raw.trim();if(!value.startsWith('<'))return value;
+  const doc=new DOMParser().parseFromString(value,'text/html');
+  const frame=doc.querySelector('iframe[src]');
+  if(!frame)throw new Error('Colle une adresse ou le code iframe d’intégration Facebook.');
+  const u=new URL(frame.getAttribute('src'));
+  if(u.protocol!=='https:'||u.hostname!=='www.facebook.com'||u.username||u.password||u.port||!/^\/plugins\/(video|post)\.php$/.test(u.pathname))throw new Error('Ce n’est pas un code d’intégration Facebook reconnu.');
+  return u.searchParams.get('href')||'';
+}
+function render(info,message){
+  current={clean:info.url,html:makeEmbed(info)};
+  $('#platform').textContent=info.platform;$('#kind').textContent=info.type;
+  $('#clean').textContent=current.clean;$('#html').textContent=current.html;
+  $('#openLink').href=info.url;$('#openLink').textContent=`Ouvrir sur ${info.platform} ↗`;
+  $('#tip').textContent=info.platform==='Instagram'?'Colle le bloc entier dans Webnode, y compris le script Instagram.':'Le code est prêt. Seul Facebook décide si le contenu peut être affiché. Le lien « Voir sur Facebook » reste disponible si le lecteur refuse.';
+  $('#result').hidden=false;$('#manualBox').hidden=true;
+  setStatus(message||'Adresse reconnue · code prêt à copier.');addHistory(info);
+}
+function manual(info,message){
+  original=info.url;$('#originalLink').href=original;$('#originalText').textContent=original;$('#manual').value='';
+  $('#manualBox').hidden=false;setStatus(message,'err');
+}
+async function generate(){
+  invalidate();const ticket=sequence;
+  try{
+    const info=normalize(extractInput(input.value));
+    if(!info.needsResolution){render(info);return;}
+    await configReady;if(ticket!==sequence)return;
+    const base=serviceURL();
+    if(!base){manual(info,'Lien de partage mobile détecté. Connecte le résolveur Cloudflare ci-dessous, ou colle l’adresse permanente.');return;}
+    const controller=new AbortController();pending=controller;const timer=setTimeout(()=>controller.abort(),11000);
+    $('#make').disabled=true;$('#make').textContent='Recherche de l’adresse…';setStatus('Recherche de l’adresse permanente auprès de Facebook…');
+    try{
+      const response=await fetch(`${base}/resolve?${new URLSearchParams({url:info.url})}`,{signal:controller.signal,credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer'});
+      const data=await response.json();if(ticket!==sequence)return;
+      if(!response.ok||!data.ok||data.service!=='ancrage-ami-resolver'||data.schemaVersion!==1)throw new Error(data.error?.message||'Le service n’a pas pu résoudre ce lien.');
+      const resolved=normalize(data.url);
+      if(resolved.platform!=='Facebook'||resolved.needsResolution||!['redirect','metadata'].includes(data.evidence))throw new Error('Le service n’a pas fourni une adresse Facebook permanente vérifiable.');
+      render(resolved,data.evidence==='redirect'?'Redirection Facebook reçue · adresse permanente retrouvée.':'Adresse permanente trouvée dans les métadonnées Facebook.');
+    }catch(e){if(ticket===sequence)manual(info,e.name==='AbortError'?'Le service ne répond pas assez vite. Réessaie ou utilise l’adresse permanente.':e instanceof TypeError?'Résolveur inaccessible : connexion réseau ou origine non autorisée. Tu peux utiliser le lien permanent.':e.message);}
+    finally{clearTimeout(timer);if(ticket===sequence){pending=null;$('#make').disabled=false;$('#make').textContent='Générer l’ancrage';}}
+  }catch(e){if(ticket===sequence)setStatus(e.message,'err');}
+}
+async function copyText(text,button){
+  if(!text)return;let copied=false;
+  try{await navigator.clipboard.writeText(text);copied=true;}catch{
+    const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';document.body.append(ta);ta.select();ta.setSelectionRange(0,text.length);
+    try{copied=document.execCommand('copy')===true;}catch{}ta.remove();
+  }
+  if(copied){const label=button.textContent;button.textContent='Copié ✓';setTimeout(()=>button.textContent=label,1500);}
+  else{$('#copyFallback').hidden=false;$('#copyText').value=text;$('#copyText').focus();$('#copyText').select();setStatus('La copie automatique est bloquée. Le texte est sélectionné ci-dessous : utilise Copier dans ton navigateur.','err');}
+}
+$('#make').addEventListener('click',generate);
+input.addEventListener('input',()=>{invalidate();status.className='status';});
+input.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')generate();});
+$('#clear').addEventListener('click',()=>{invalidate();input.value='';status.className='status';input.focus();});
+$('#paste').addEventListener('click',async()=>{try{input.value=await navigator.clipboard.readText();generate();}catch{setStatus('Fais un appui long dans le champ, puis Coller.','err');input.focus();}});
+$('#useManual').addEventListener('click',()=>{try{const info=normalize(extractInput($('#manual').value));if(info.platform!=='Facebook'||info.needsResolution)throw new Error('Il faut une adresse Facebook permanente ou son code d’intégration, pas un autre lien /share/.');render(info,'Adresse fournie manuellement · code prêt à copier.');}catch(e){setStatus(e.message,'err');}});
+$('#copyLink').addEventListener('click',e=>copyText(`<a href="${escapeHtml(original)}" target="_blank" rel="noopener noreferrer">Voir sur Facebook</a>`,e.currentTarget));
+document.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(b)copyText(current[b.dataset.copy],b);});
+$('#saveEndpoint').addEventListener('click',async()=>{
+  await configReady;
+  try{const url=endpoint($('#endpoint').value.trim());invalidate();const saved=storage.set(EKEY,url);defaultEndpoint=url;updateConnection();$('#connection').textContent=saved?'Adresse enregistrée. Utilise « Tester la connexion ».':'Adresse active pour cette session (stockage indisponible).';}catch(e){$('#connection').textContent=e.message;}
+});
+$('#resetEndpoint').addEventListener('click',async()=>{await configReady;storage.remove(EKEY);defaultEndpoint='';invalidate();updateConnection();$('#connection').textContent='Adresse locale effacée. La configuration publiée sera relue au prochain chargement.';});
+$('#testEndpoint').addEventListener('click',async e=>{
+  const b=e.currentTarget;await configReady;b.disabled=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+  try{const base=endpoint($('#endpoint').value.trim());const r=await fetch(`${base}/health`,{signal:controller.signal,credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer'});const data=await r.json();if(!r.ok||!data.ok||data.service!=='ancrage-ami-resolver'||data.schemaVersion!==1)throw new Error();$('#connection').textContent='Le résolveur V5 répond. Enregistre l’adresse si ce n’est pas encore fait. Ce test ne garantit pas l’accès à tous les contenus Facebook.';}catch{$('#connection').textContent='Connexion non vérifiée. Vérifie l’adresse, le réseau et les origines autorisées du Worker.';}finally{clearTimeout(timer);b.disabled=false;}
+});
+function readHistory(){try{const list=JSON.parse(storage.get(HKEY)||'[]');return Array.isArray(list)?list.filter(x=>typeof x?.url==='string'&&typeof x?.platform==='string').slice(0,8):[];}catch{return [];}}
+function addHistory(info){const list=readHistory().filter(x=>x.url!==info.url);list.unshift({url:info.url,platform:info.platform,type:info.type});storage.set(HKEY,JSON.stringify(list.slice(0,8)));renderHistory();}
+function renderHistory(){const h=readHistory();$('#historyBox').hidden=!h.length;$('#history').replaceChildren();for(const item of h){const row=document.createElement('div');row.className='hist';const main=document.createElement('div');main.className='hist-main';const title=document.createElement('div');title.className='hist-title';title.textContent=`${item.platform} · ${item.type||'Lien'}`;const url=document.createElement('div');url.className='hist-url';url.textContent=item.url;main.append(title,url);const button=document.createElement('button');button.className='mini';button.textContent='Réutiliser';button.addEventListener('click',()=>{input.value=item.url;generate();window.scrollTo({top:0,behavior:'auto'});});row.append(main,button);$('#history').append(row);}}
+$('#eraseHistory').addEventListener('click',()=>{storage.remove(HKEY);renderHistory();});renderHistory();
+
+})();
+</script>
+</body></html>
