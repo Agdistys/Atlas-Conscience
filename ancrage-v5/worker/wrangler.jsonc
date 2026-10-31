@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ancrage-ami-resolver-v5",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": { "ALLOWED_ORIGINS": "https://agdistys.github.io" },
+  "ratelimits": [{ "name": "RATE_LIMITER", "namespace_id": "2026103105", "simple": { "limit": 30, "period": 60 } }],
+  "observability": { "enabled": false }
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Résolveur Facebook — compte Cloudflare de Diane | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Résolveur Facebook — compte Cloudflare de Diane" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/ancrage-v5/worker/" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/ancrage-v5/worker/" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Résolveur Facebook — compte Cloudflare de Diane" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)","headline":"Résolveur Facebook — compte Cloudflare de Diane","url":"https://agdistys.github.io/Atlas-Conscience/ancrage-v5/worker/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=c4f274674fb4083ff569c4fd7f1cb310b68a5153">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="résolveur-facebook--compte-cloudflare-de-diane">Résolveur Facebook — compte Cloudflare de Diane</h1>
+
+<p>Le code est prêt à déployer sous le nom <code class="language-plaintext highlighter-rouge">ancrage-ami-resolver-v5</code>. Il ne se connecte pas à un compte Facebook. Il ne contourne pas les contenus privés ni les demandes de connexion.</p>
+
+<h2 id="installation-avec-la-session-cloudflare">Installation avec la session Cloudflare</h2>
+
+<p>Depuis ce dossier :</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install
+</span>npx wrangler login
+npx wrangler <span class="nb">whoami
+</span>npm run deploy
+</code></pre></div></div>
+
+<p>La connexion se fait sur le site officiel Cloudflare. Vérifier le compte affiché avant le déploiement ; en cas de plusieurs comptes, sélectionner celui souhaité avec <code class="language-plaintext highlighter-rouge">CLOUDFLARE_ACCOUNT_ID</code>. Ne pas utiliser une option de déploiement dans un compte temporaire. Le nom du Worker est réservé à cette V5 : ne pas le remplacer par le nom d’un autre service existant.</p>
+
+<p>Le déploiement retourne l’adresse réelle en <code class="language-plaintext highlighter-rouge">workers.dev</code>. Ouvrir son chemin <code class="language-plaintext highlighter-rouge">/health</code> : le JSON doit annoncer <code class="language-plaintext highlighter-rouge">service: "ancrage-ami-resolver"</code>, <code class="language-plaintext highlighter-rouge">version: 5</code>, <code class="language-plaintext highlighter-rouge">schemaVersion: 1</code>, <code class="language-plaintext highlighter-rouge">ok: true</code>. Tester ensuite le lien réel, depuis l’application, et vérifier la destination avant de remplir <code class="language-plaintext highlighter-rouge">../config.json</code> avec l’origine du Worker. Une réponse de santé ne prouve pas l’accès à Facebook depuis Cloudflare.</p>
+
+<p>Une fois <code class="language-plaintext highlighter-rouge">config.json</code> publié sur GitHub Pages, la connexion est automatique. Autre possibilité, limitée à l’appareil courant : ouvrir « Connexion du résolveur Facebook », coller l’origine HTTPS, enregistrer et tester. Ne jamais coller une clé API dans ce champ.</p>
+
+<h2 id="permissions-et-limites">Permissions et limites</h2>
+
+<p>Le compte doit autoriser la publication de Workers et l’usage du sous-domaine <code class="language-plaintext highlighter-rouge">workers.dev</code>. Le projet n’utilise ni domaine personnalisé, ni stockage, ni navigateur distant, ni service payant ajouté. Aucune modification de forfait n’est nécessaire dans le code. La consommation reste soumise aux quotas et au forfait du compte Cloudflare utilisé.</p>
+
+<ul>
+  <li>Origine navigateur autorisée par défaut : <code class="language-plaintext highlighter-rouge">https://agdistys.github.io</code>. Ajouter d’autres origines exactes à <code class="language-plaintext highlighter-rouge">ALLOWED_ORIGINS</code>, séparées par des virgules, seulement si l’outil doit y être hébergé. Pas de joker ni d’origine <code class="language-plaintext highlighter-rouge">null</code>.</li>
+  <li>Limitation indicative de 30 demandes par minute et adresse IP, par centre Cloudflare ; les utilisateurs d’un même réseau peuvent partager cette limite. Ce n’est pas un plafond global de consommation. Le namespace <code class="language-plaintext highlighter-rouge">2026103105</code> doit rester distinct d’un éventuel autre limiteur du compte.</li>
+  <li>Délai total de résolution : 8 secondes ; page lue : 512 Kio maximum ; cinq redirections maximum.</li>
+  <li>Les redirections vers des hôtes externes, HTTP, des ports non standards ou des URL contenant des identifiants sont refusées.</li>
+  <li>Pas de transfert des en-têtes ou cookies du visiteur vers Facebook. Pas de cache des liens ni de journalisation applicative ; l’observabilité Worker est désactivée. Les fournisseurs conservent leurs propres traitements opérationnels.</li>
+  <li>CORS limite les navigateurs ; ce n’est pas une authentification du service public.</li>
+</ul>
+
+<h2 id="sources-de-mise-en-œuvre">Sources de mise en œuvre</h2>
+
+<p><a href="https://developers.cloudflare.com/workers/runtime-apis/request/">Redirections manuelles dans Workers</a>, <a href="https://developers.cloudflare.com/workers/get-started/guide/">déployer avec Wrangler</a>, <a href="https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/">limitation de débit</a>.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Ancrage aMi V5 | Atlas-Conscience</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Ancrage aMi V5" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<meta property="og:description" content="Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)" />
+<link rel="canonical" href="https://agdistys.github.io/Atlas-Conscience/ancrage-v5/" />
+<meta property="og:url" content="https://agdistys.github.io/Atlas-Conscience/ancrage-v5/" />
+<meta property="og:site_name" content="Atlas-Conscience" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Ancrage aMi V5" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Cette carte est une visualisation interactive d’un Atlas Cognitif profond, construit à partir du corpus du site Agdistys.fr, dans le cadre du projet ConScience aMi du système Ouroboros. En evolution… Mon Discord : https://discord.gg/7Qmc44hxF © Agdistys • Diane Serant - Lien de ma Galerie : https://Agdistys.Schemas/ (CC BY-SA 4.0)","headline":"Ancrage aMi V5","url":"https://agdistys.github.io/Atlas-Conscience/ancrage-v5/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/Atlas-Conscience/assets/css/style.css?v=c4f274674fb4083ff569c4fd7f1cb310b68a5153">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/Atlas-Conscience/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://agdistys.github.io/Atlas-Conscience/">Atlas-Conscience</a></h1>
+      
+
+      <h1 id="ancrage-ami-v5">Ancrage aMi V5</h1>
+
+<p>V5 ajoute la résolution des liens mobiles Facebook <code class="language-plaintext highlighter-rouge">/share/</code> et <code class="language-plaintext highlighter-rouge">fb.watch</code>, avec un service Cloudflare propre à la propriétaire. La page autonome conserve Instagram et accepte aussi les iframes Facebook officiels. Aucune adresse de résolveur fictive n’est fournie.</p>
+
+<ul>
+  <li>Application : <a href="/Atlas-Conscience/APP-Ancrage_aMi_V5.html">APP-Ancrage_aMi_V5.html</a></li>
+  <li><a href="/Atlas-Conscience/ancrage-v5/worker/">Installation du Worker</a></li>
+  <li><a href="/Atlas-Conscience/ancrage-v5/VERIFICATION.html">État des vérifications</a></li>
+</ul>
+
+<p>La V1 du dépôt reste inchangée. Les V2–V4 n’ont pas été retrouvées dans la branche principale ni parmi les fichiers locaux examinés ; aucune de ces versions n’a été écrasée ou recréée artificiellement.</p>
+
+<h2 id="fonctionnement">Fonctionnement</h2>
+
+<p>Une adresse permanente reconnue est traitée localement. Pour un lien court, la page appelle <code class="language-plaintext highlighter-rouge">/resolve?url=…</code> sur le Worker configuré. Le Worker suit au plus cinq redirections HTTPS limitées aux hôtes Facebook autorisés. Il accepte une destination permanente observée ou les métadonnées explicites de l’en-tête HTML (<code class="language-plaintext highlighter-rouge">canonical</code>, <code class="language-plaintext highlighter-rouge">og:url</code>), jamais un identifiant vidéo trouvé au hasard dans la page. Des métadonnées contradictoires sont refusées.</p>
+
+<p>Un refus, une demande de connexion, une boucle, une réponse trop volumineuse ou une expiration déclenchent un message et un recours manuel. Le lien d’origine reste disponible. Un lecteur n’est jamais construit à partir d’un lien court non résolu. L’adresse du service peut être enregistrée localement et testée sans envoyer de lien Facebook.</p>
+
+<p>La résolution d’une adresse ne prouve ni que le contenu est public, ni que son propriétaire autorise l’intégration. Le navigateur ne permet pas à cet outil de lire le résultat interne d’un lecteur Facebook d’une autre origine ; aucun événement <code class="language-plaintext highlighter-rouge">load</code> n’est présenté comme une preuve de lecture. Le code généré comprend un lien de repli vers Facebook.</p>
+
+<h2 id="développement">Développement</h2>
+
+<p>Depuis la racine du dépôt, avec Node 22 ou version compatible :</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node ancrage-v5/build.mjs
+node <span class="nt">--test</span> ancrage-v5/tests/<span class="k">*</span>.test.mjs
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">template.html</code>, <code class="language-plaintext highlighter-rouge">app.js</code> et <code class="language-plaintext highlighter-rouge">core.mjs</code> produisent le fichier autonome versionné. Le Worker importe le même <code class="language-plaintext highlighter-rouge">core.mjs</code>. Les tests utilisent des réponses simulées pour les cas négatifs ; les essais réseau sont séparés dans le bilan. Ne jamais remplacer les fichiers des versions précédentes.</p>
+
+<h2 id="configuration-publiée">Configuration publiée</h2>
+
+<p><code class="language-plaintext highlighter-rouge">ancrage-v5/config.json</code> contient uniquement <code class="language-plaintext highlighter-rouge">resolverUrl</code>, vide tant que le Worker n’a pas été déployé et vérifié. Après déploiement, y enregistrer l’origine HTTPS réellement retournée par Cloudflare. Cela connecte automatiquement les nouvelles sessions de la page, sans réglage par appareil. Un réglage local explicite a priorité. Aucune clé, aucun jeton et aucun identifiant de compte ne doivent être inscrits dans ce fichier ni dans le HTML.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
