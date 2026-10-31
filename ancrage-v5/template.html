@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Ancrage aMi V5 — liens Facebook et Instagram</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121923; --panel2:#0f151e; --line:#283342;
+      --text:#f1f5f9; --muted:#9aa9ba; --gold:#ffd45c; --green:#76e6a8;
+      --red:#ff7a89; --blue:#77b7ff; --shadow:0 18px 55px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg);color-scheme:dark}
+    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+      radial-gradient(900px 540px at 15% -10%,rgba(119,183,255,.10),transparent 60%),
+      radial-gradient(760px 500px at 100% 0%,rgba(255,212,92,.08),transparent 60%),var(--bg);color:var(--text)}
+    button,input,textarea{font:inherit}
+    .wrap{width:min(780px,100%);margin:auto;padding:24px 16px 64px}
+    header{padding:18px 4px 16px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .mark{width:46px;height:46px;border:1px solid #3a4656;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#192331,#0d131c);box-shadow:var(--shadow);font-size:23px}
+    h1{font-size:clamp(1.55rem,6vw,2.35rem);margin:0;letter-spacing:-.035em}
+    .sub{margin:7px 0 0;color:var(--muted);line-height:1.45;font-size:.96rem}
+    .card{background:rgba(18,25,35,.92);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+    label{font-weight:750;display:block;margin-bottom:8px}
+    textarea{width:100%;min-height:118px;resize:vertical;border:1px solid #354357;border-radius:16px;background:#0a1018;color:var(--text);padding:14px;outline:none;line-height:1.45}
+    textarea:focus{border-color:#62748a;box-shadow:0 0 0 3px rgba(119,183,255,.08)}
+    .actions{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:11px}
+    button{border:0;border-radius:14px;padding:12px 14px;font-weight:800;cursor:pointer;min-height:46px}
+    .primary{background:var(--gold);color:#17130a}
+    .secondary{background:#202b39;color:var(--text);border:1px solid #364354}
+    .ghost{background:transparent;color:var(--muted);border:1px solid #2b3644}
+    .primary:active,.secondary:active,.ghost:active{transform:translateY(1px)}
+    .status{margin-top:12px;display:none;border-radius:14px;padding:11px 12px;line-height:1.4;font-size:.92rem}
+    .status.ok{display:block;background:rgba(118,230,168,.09);border:1px solid rgba(118,230,168,.25);color:#c8f7dc}
+    .status.err{display:block;background:rgba(255,122,137,.09);border:1px solid rgba(255,122,137,.25);color:#ffd4d9}
+    .result{margin-top:14px;display:none}
+    .result.on{display:block}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+    .pill{padding:6px 9px;border-radius:999px;border:1px solid #344255;background:#111923;color:#c8d4df;font-size:.78rem;font-weight:750}
+    .pill.platform{color:#111;background:var(--green);border-color:transparent}
+    .section{margin-top:14px}
+    .section-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px}
+    .section h2{font-size:1rem;margin:0}
+    .code{position:relative;background:#080d13;border:1px solid #26313e;border-radius:15px;padding:13px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:#dce7ef;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;max-height:260px}
+    .copy{padding:8px 10px;min-height:auto;border-radius:10px;background:#253244;color:#f5f7fa;font-size:.78rem}
+    .tip{font-size:.86rem;color:var(--muted);line-height:1.45;margin:10px 2px 0}
+    .preview{margin-top:15px;border:1px dashed #344153;border-radius:16px;padding:12px;background:#0b1119}
+    .preview a{color:var(--blue);word-break:break-all}
+    details{margin-top:16px;background:rgba(15,21,30,.76);border:1px solid #273240;border-radius:18px;padding:12px 14px}
+    summary{cursor:pointer;font-weight:800}
+    details p,details li{color:var(--muted);font-size:.9rem;line-height:1.5}
+    .history{margin-top:16px}
+    .history-list{display:grid;gap:8px;margin-top:8px}
+    .hist{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#0c121a;border:1px solid #26313e;border-radius:13px;padding:9px 10px}
+    .hist-main{min-width:0}
+    .hist-title{font-size:.85rem;font-weight:800}
+    .hist-url{font-size:.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+    .mini{padding:7px 9px;min-height:auto;font-size:.75rem;background:#1d2836;color:var(--text)}
+    .footer{margin-top:18px;text-align:center;color:#667587;font-size:.78rem}
+    @media (max-width:520px){
+      .wrap{padding:14px 12px 40px}.card{padding:13px;border-radius:19px}.actions{grid-template-columns:1fr 1fr}.actions .primary{grid-column:1/-1}.mark{width:42px;height:42px;border-radius:14px}.sub{font-size:.9rem}
+    }
+  
+    [hidden]{display:none!important}
+    .result{display:block}
+    :focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+    button:disabled{opacity:.65;cursor:wait}
+    .copy,.mini{min-height:44px}
+    input{width:100%;min-height:48px;background:#0a1018;color:var(--text);border:1px solid #62748a;border-radius:12px;padding:12px}
+    a{color:var(--blue)}
+    .footer{color:var(--muted)}
+    .fallback{margin-top:18px;border:1px solid #ab7c45;padding:16px;border-radius:16px;background:#211c17}
+    .fallback h2{font-size:1.1rem;margin-top:0}
+    .fallback p{line-height:1.6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .source-url{overflow-wrap:anywhere;font-size:.85rem;color:var(--muted)}
+    #connection{line-height:1.5;color:var(--text)}
+    .version{color:var(--gold);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin:0 0 7px}
+    .skip{position:absolute;left:16px;top:-90px;background:var(--panel);padding:12px}.skip:focus{top:12px}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+<a class="skip" href="#url">Aller au lien à convertir</a>
+<main class="wrap">
+<header><div class="brand"><div class="mark" aria-hidden="true">🔗</div><div><p class="version">Version 5 · Ancrage aMi</p><h1>Du lien au contenu</h1><p class="sub">Facebook ou Instagram : prépare un bloc HTML à coller dans Webnode.</p></div></div></header>
+<section class="card" aria-label="Créer un ancrage">
+<label for="url">Colle le lien ou le code d’intégration Facebook</label>
+<textarea id="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="inputHint" placeholder="https://www.facebook.com/share/v/…"></textarea>
+<p class="tip" id="inputHint">Les liens mobiles /share/ sont résolus par ton service Cloudflare lorsqu’il est connecté. Les adresses permanentes fonctionnent directement.</p>
+<div class="actions"><button class="primary" id="make">Générer l’ancrage</button><button class="secondary" id="paste">Coller</button><button class="ghost" id="clear">Effacer</button></div>
+<div id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
+<section class="fallback" id="manualBox" hidden aria-label="Résolution manuelle">
+<h2>Continuer avec l’adresse permanente</h2>
+<p>Ouvre le contenu sur Facebook, puis copie l’adresse affichée dans le navigateur après la redirection. Tu peux aussi coller son code « Intégrer ».</p>
+<a id="originalLink" target="_blank" rel="noopener noreferrer">Ouvrir le lien d’origine ↗</a><p id="originalText" class="source-url"></p>
+<label for="manual">Adresse permanente ou iframe Facebook</label><textarea id="manual" spellcheck="false" placeholder="https://www.facebook.com/reel/…"></textarea>
+<div class="row"><button class="primary" id="useManual">Utiliser cette adresse</button><button class="secondary" id="copyLink">Copier un simple lien HTML</button></div>
+<p class="tip">Le simple lien ouvre Facebook ; il ne prétend pas afficher un lecteur intégré. Le lien d’origine reste conservé dans le champ du haut.</p>
+</section>
+<section id="result" class="result" hidden aria-label="Ancrage généré">
+<div class="meta"><span id="platform" class="pill platform"></span><span id="kind" class="pill"></span></div>
+<div class="section"><div class="section-head"><h2>Adresse permanente</h2><button class="copy" data-copy="clean">Copier l’adresse</button></div><div class="code" id="clean"></div></div>
+<div class="section"><div class="section-head"><h2>Code pour Webnode</h2><button class="copy" data-copy="html">Copier HTML</button></div><div class="code" id="html"></div><p class="tip" id="tip"></p></div>
+<div class="preview"><strong>Vérifier le contenu</strong><p class="tip">Le contenu doit être public et autorisé à l’intégration. Un lecteur peut être refusé même si l’adresse est correcte.</p><a id="openLink" target="_blank" rel="noopener noreferrer">Ouvrir le contenu ↗</a></div>
+</section>
+<div id="copyFallback" hidden><label for="copyText">Texte à copier manuellement</label><textarea id="copyText" readonly></textarea></div>
+</section>
+<details id="settings"><summary>Connexion du résolveur Facebook</summary>
+<p>Ce service doit être déployé sur ton compte Cloudflare. Aucune connexion Facebook ni clé Cloudflare n’est demandée dans cet outil.</p>
+<label for="endpoint">Adresse du service Cloudflare</label><input id="endpoint" type="url" autocomplete="off" spellcheck="false" placeholder="Adresse HTTPS de ton Worker" aria-describedby="connection">
+<div class="row"><button class="secondary" id="saveEndpoint">Enregistrer</button><button class="secondary" id="testEndpoint">Tester la connexion</button><button class="ghost" id="resetEndpoint">Effacer l’adresse locale</button></div>
+<p id="connection" role="status" aria-live="polite"></p>
+<p><a href="https://github.com/Agdistys/Atlas-Conscience/tree/main/ancrage-v5/worker" target="_blank" rel="noopener noreferrer">Installation sur mon compte Cloudflare ↗</a></p>
+</details>
+<details><summary>Ce qui est envoyé et conservé</summary><ul>
+<li>Les liens permanents sont traités dans ce navigateur.</li><li>Un lien court Facebook est transmis au résolveur configuré, puis à Facebook, uniquement quand tu demandes sa conversion.</li><li>Aucun mot de passe ni cookie Facebook n’est utilisé. Le résolveur ne peut pas accéder à un contenu privé.</li><li>Les huit derniers liens générés et l’adresse du résolveur sont conservés sur cet appareil, si le navigateur l’autorise.</li></ul><p>Une adresse résolue ne garantit pas que Facebook autorise son intégration. Aucun contenu Facebook n’est chargé automatiquement dans cette page.</p></details>
+<section class="history" id="historyBox" hidden><div class="section-head"><h2>Récents</h2><button class="copy" id="eraseHistory">Vider</button></div><div class="history-list" id="history"></div></section>
+<p class="footer">Ancrage aMi · V5 · <a href="APP-Ancrage_aMi_V1.html">Version précédente disponible</a></p>
+</main>
+<!-- APP_SCRIPT -->
+</body></html>
