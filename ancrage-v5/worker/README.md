@@ -1,6 +1,6 @@
 # Résolveur Facebook — compte Cloudflare de Diane
 
-Le code est prêt à déployer sous le nom `ancrage-ami-resolver-v5`. Il ne se connecte pas à un compte Facebook. Il ne contourne pas les contenus privés ni les demandes de connexion.
+Le Worker `ancrage-ami-resolver-v5` est déployé sur le compte Cloudflare de Diane : [vérifier son état](https://ancrage-ami-resolver-v5.d-serant.workers.dev/health). La V5 publiée sur GitHub Pages est déjà raccordée ; les étapes ci-dessous servent à une réinstallation ou à une mise à jour. Il ne se connecte pas à un compte Facebook. Il ne contourne pas les contenus privés ni les demandes de connexion.
 
 ## Installation avec la session Cloudflare
 
