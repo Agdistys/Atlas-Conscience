@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFile} from 'node:fs/promises';
-const script=(await readFile(new URL('../../APP-Ancrage_aMi_V5.html',import.meta.url),'utf8')).match(/<script>([\s\S]*)<\/script>/)[1];
+const script=(await readFile(new URL('../../APP-Ancrage_aMi_V5_1.html',import.meta.url),'utf8')).match(/<script>([\s\S]*)<\/script>/)[1];
 const share='https://www.facebook.com/share/v/1DVM55EzSR/',reel='https://www.facebook.com/reel/2197532477774605/';
 function setup({fetcher,stored={},brokenStorage=false,clipboardFail=false,copyFallback=false}={}){
   const elements=new Map(),events={};let copied='';

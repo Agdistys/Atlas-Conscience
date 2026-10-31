@@ -1,8 +1,9 @@
-# Ancrage aMi V5
+# Ancrage aMi V5.1
 
 V5 ajoute la résolution des liens mobiles Facebook `/share/` et `fb.watch`, avec un service Cloudflare propre à la propriétaire. La page autonome conserve Instagram et accepte aussi les iframes Facebook officiels. Aucune adresse de résolveur fictive n'est fournie.
 
-- Application : [APP-Ancrage_aMi_V5.html](../APP-Ancrage_aMi_V5.html)
+- Application : [Instagram et Facebook réunis — V5.1](../APP-Ancrage_aMi_V5_1.html)
+- [V5 conservée](../APP-Ancrage_aMi_V5.html)
 - [Installation du Worker](worker/README.md)
 - [État des vérifications](VERIFICATION.md)
 
@@ -30,3 +31,7 @@ node --test ancrage-v5/tests/*.test.mjs
 ## Configuration publiée
 
 `ancrage-v5/config.json` contient uniquement `resolverUrl`, vide tant que le Worker n'a pas été déployé et vérifié. Après déploiement, y enregistrer l'origine HTTPS réellement retournée par Cloudflare. Cela connecte automatiquement les nouvelles sessions de la page, sans réglage par appareil. Un réglage local explicite a priorité. Aucune clé, aucun jeton et aucun identifiant de compte ne doivent être inscrits dans ce fichier ni dans le HTML.
+
+## Présentation V5.1
+
+Instagram et Facebook sont désormais nommés dans le titre, dans deux encarts visibles et dans le champ commun. La plateforme reste détectée automatiquement. La génération Instagram et le résolveur Facebook sont conservés ; aucune modification du Worker. 32 tests réussis.
