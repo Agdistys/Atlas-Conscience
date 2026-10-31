@@ -1,0 +1,80 @@
+[
+  {
+    "path": "/health",
+    "origin": "https://agdistys.github.io",
+    "status": 200,
+    "allow_origin": "https://agdistys.github.io",
+    "body": {
+      "service": "ancrage-ami-resolver",
+      "version": 5,
+      "schemaVersion": 1,
+      "ok": true
+    }
+  },
+  {
+    "path": "/resolve?url=https%3A%2F%2Fwww.facebook.com%2Fshare%2Fv%2F1DVM55EzSR%2F",
+    "origin": "https://agdistys.github.io",
+    "status": 200,
+    "allow_origin": "https://agdistys.github.io",
+    "body": {
+      "service": "ancrage-ami-resolver",
+      "version": 5,
+      "schemaVersion": 1,
+      "ok": true,
+      "platform": "Facebook",
+      "type": "Reel",
+      "url": "https://www.facebook.com/reel/2197532477774605/",
+      "needsResolution": false,
+      "evidence": "redirect"
+    }
+  },
+  {
+    "path": "/resolve?url=https%3A%2F%2Fwww.facebook.com%2Fshare%2Fr%2F1FaGCQWJSS%2F",
+    "origin": "https://agdistys.github.io",
+    "status": 200,
+    "allow_origin": "https://agdistys.github.io",
+    "body": {
+      "service": "ancrage-ami-resolver",
+      "version": 5,
+      "schemaVersion": 1,
+      "ok": true,
+      "platform": "Facebook",
+      "type": "Reel",
+      "url": "https://www.facebook.com/reel/1308103627490851/",
+      "needsResolution": false,
+      "evidence": "redirect"
+    }
+  },
+  {
+    "path": "/resolve?url=https%3A%2F%2Fexample.com%2F",
+    "origin": "https://agdistys.github.io",
+    "status": 400,
+    "allow_origin": "https://agdistys.github.io",
+    "body": {
+      "service": "ancrage-ami-resolver",
+      "version": 5,
+      "schemaVersion": 1,
+      "ok": false,
+      "error": {
+        "code": "invalid_url",
+        "message": "Lien Facebook HTTPS invalide."
+      }
+    }
+  },
+  {
+    "path": "/health",
+    "origin": "https://not-allowed.example",
+    "status": 403,
+    "allow_origin": null,
+    "body": {
+      "service": "ancrage-ami-resolver",
+      "version": 5,
+      "schemaVersion": 1,
+      "ok": false,
+      "error": {
+        "code": "origin_denied",
+        "message": "Cette origine n’est pas autorisée."
+      }
+    }
+  }
+]
