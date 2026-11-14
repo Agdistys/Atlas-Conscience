@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   inspect:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
       INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -76,7 +76,7 @@ jobs:
   pages-dry-run:
     name: Pages assembly without publication
     needs: inspect
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
