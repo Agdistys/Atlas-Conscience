@@ -7,6 +7,8 @@ let map=null, routeLayer=null, markerLayer=null, currentPos=null, activeAbort=nu
 let trip=null, compared=[], busy=false;
 let mapView=null,currentStation=null,detailSequence=0;
 let orsLastRequest=-Infinity;
+let ignLastRequest=-Infinity;
+const ignCache=new Map();
 let geoLastRequest=-Infinity,placePending=null,selectedStop=null,budgetReference=null,rangeMeasuredAt=null;
 const geoCache=new Map();
 const dimensionFields={height:"truckHeight",width:"truckWidth",length:"truckLength",weight:"truckWeight",axleload:"truckAxleload"};
@@ -232,20 +234,26 @@ function updateVehicleRouting(){
     option.disabled=option.value!=="car"&&(option.value!=="truck"||!advanced);
     if(option.value==="truck")option.textContent=advanced?"Poids lourd":"Poids lourd · indisponible";
   }
-  document.querySelectorAll('.avoid-options input').forEach(el=>el.disabled=busy||!advanced);
-  $("avoidAvailability").textContent=advanced?"":"Indisponible";
+  document.querySelectorAll('.avoid-options input').forEach(el=>{
+    const available=advanced||(C.ignRouting===true&&type==="car"&&el.value==="highways");
+    el.disabled=busy||!available;
+    const label=el.closest('label').querySelector('.availability');
+    if(label)label.textContent=available?"":"Indisponible";
+  });
+  $("avoidAvailability").textContent="";
   $("goBtn").disabled=busy||!["car",...(advanced?["truck"]:[])].includes(type);
   $("truckDimensions").hidden=type!=="truck";
   $("vehicleRoutingNote").hidden=type==="car";
   $("vehicleRoutingNote").textContent=type==="truck"?"Restrictions calculées selon le gabarit déclaré et les données cartographiques. La signalisation et les conditions réelles restent prioritaires. Transport exceptionnel ou de matières dangereuses non pris en charge.":"Le routage spécifique aux caravanes et utilitaires n’est pas encore validé. Aucun trajet voiture ne sera substitué automatiquement.";
-  $("routingAvailability").textContent=advanced?"Service public configuré : coordonnées et gabarit transmis au service de calcul puis à OpenRouteService. Aucun compte technique requis.":"Évitements et poids lourds indisponibles : service non activé. Trajet léger standard disponible ; aucune clé à fournir.";
+  $("routingAvailability").textContent=advanced?"Service public configuré : coordonnées et gabarit transmis au service de calcul puis à OpenRouteService. Aucun compte technique requis.":C.ignRouting===true?"Sans autoroute disponible en véhicule léger avec l’IGN, aucune clé à fournir. Les coordonnées du trajet et des arrêts sont transmises à l’IGN lors de la recherche.":"Évitements et poids lourds indisponibles : service non activé. Trajet léger standard disponible ; aucune clé à fournir.";
 }
 function routingPreferences(){
   const type=$("routeVehicle").value;
-  return {provider:routingEndpoint()?"ors":"osrm",avoid:[...document.querySelectorAll('.avoid-options input:checked')].map(el=>el.value),vehicle:{type,...(type==="truck"?{dimensions:routeDimensions()}:{})}};
+  const avoid=[...document.querySelectorAll('.avoid-options input:checked')].map(el=>el.value);
+  return {provider:routingEndpoint()?"ors":C.ignRouting===true&&avoid.includes("highways")?"ign":"osrm",avoid,vehicle:{type,...(type==="truck"?{dimensions:routeDimensions()}:{})}};
 }
 function routingLabel(settings){
-  return (settings.provider==="ors"?"OpenRouteService · service public":"OSRM")+(settings.vehicle.type==="truck"?" · poids lourd · "+dimensionLabel(settings.vehicle.dimensions):" · véhicule léger")+(settings.avoid.length?" · exclusions : "+settings.avoid.map(x=>avoidLabels[x]).join(", "):" · sans exclusions");
+  return (settings.provider==="ors"?"OpenRouteService · service public":settings.provider==="ign"?"IGN · BD TOPO":"OSRM")+(settings.vehicle.type==="truck"?" · poids lourd · "+dimensionLabel(settings.vehicle.dimensions):" · véhicule léger")+(settings.avoid.length?" · exclusions : "+settings.avoid.map(x=>avoidLabels[x]).join(", "):" · sans exclusions");
 }
 function invalidateRouting(){
   clearResults();updateVehicleRouting();
@@ -253,6 +261,7 @@ function invalidateRouting(){
 }
 function ensureRouting(settings){
   if(!["car","truck"].includes(settings.vehicle.type))throw new Error("Routage spécifique non validé pour ce véhicule. Aucun trajet voiture ne sera substitué.");
+  if(settings.provider==="ign"&&(settings.vehicle.type!=="car"||settings.avoid.length!==1||settings.avoid[0]!=="highways"))throw new Error("L’IGN est activé uniquement pour un véhicule léger sans autoroute. Les autres restrictions ne seront pas ignorées.");
   if(settings.provider==="osrm"&&(settings.avoid.length||settings.vehicle.type==="truck"))throw new Error("Service public de routage avancé non activé. Ces options ne seront pas ignorées. Le trajet standard reste disponible pour un véhicule léger sans exclusions.");
 }
 function hasRouteGeometry(r){
@@ -288,8 +297,53 @@ async function orsRoutes(points,settings,alternatives=false){
     throw e;
   }finally{t.done()}
 }
+async function ignRoute(points,settings){
+  ensureRouting(settings);
+  const key=JSON.stringify([points,settings.avoid]),cached=ignCache.get(key);
+  if(activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
+  if(cached&&performance.now()-cached.at<300000)return structuredClone(cached.route);
+  // Calls are sequential in run/scoreConstrainedCandidates. Below 5 requests/s/IP;
+  // other tabs/users on the same IP may still trigger a quota: never auto-retry.
+  await sleep(Math.max(0,550-(performance.now()-ignLastRequest)));
+  if(activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
+  ignLastRequest=performance.now();
+  const constraint={constraintType:"banned",key:"waytype",operator:"=",value:"autoroute"};
+  const query=new URLSearchParams({resource:"bdtopo-osrm",profile:"car",optimization:"fastest",start:[...points[0]].reverse().join(","),end:[...points.at(-1)].reverse().join(","),geometryFormat:"geojson",crs:"EPSG:4326",distanceUnit:"meter",timeUnit:"second",getSteps:"false",getBbox:"false",constraints:JSON.stringify(constraint)});
+  if(points.length>2)query.set("intermediates",points.slice(1,-1).map(([lat,lon])=>`${lon},${lat}`).join("|"));
+  let data;
+  try{data=await getJSON(`https://data.geopf.fr/navigation/itineraire?${query}`,"IGN",25000)}
+  catch(e){
+    health("hRoute","err","routage ✕");
+    if(e.message.includes("HTTP 429"))throw new Error("Limite du service IGN atteinte. Réessayer plus tard. L’exclusion des autoroutes est conservée.");
+    throw new Error(`${e.message}. Aucun trajet avec autoroute ne sera substitué.`);
+  }
+  if(activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
+  const r={geometry:data.geometry,distance:data.distance,duration:data.duration,legs:data.portions,alternatives:[],resourceVersion:data.resourceVersion};
+  const exclusions=data.constraints;
+  const echoed=Array.isArray(exclusions)&&exclusions.length===1&&exclusions[0].type==="banned"&&exclusions[0].key==="waytype"&&exclusions[0].operator==="="&&exclusions[0].value==="autoroute";
+  const legs=Array.isArray(r.legs)&&r.legs.length===points.length-1&&r.legs.every(hasRouteMetrics)&&Math.abs(r.legs.reduce((s,l)=>s+l.distance,0)-r.distance)<=2&&Math.abs(r.legs.reduce((s,l)=>s+l.duration,0)-r.duration)<=2;
+  const endpoints=legs&&r.legs.every((leg,i)=>[leg.start,leg.end].every((value,j)=>{
+    if(typeof value!=="string"||!/^[-\d.]+,[-\d.]+$/.test(value))return false;
+    const [lon,lat]=value.split(",").map(Number);
+    return Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180&&hav([lat,lon],points[i+j])<=1;
+  }));
+  const geometry=hasRouteGeometry(r)&&hav([...r.geometry.coordinates[0]].slice(0,2).reverse(),points[0])<=1&&hav([...r.geometry.coordinates.at(-1)].slice(0,2).reverse(),points.at(-1))<=1;
+  if(data.resource!=="bdtopo-osrm"||data.profile!=="car"||data.optimization!=="fastest"||data.crs!=="EPSG:4326"||data.distanceUnit!=="meter"||data.timeUnit!=="second"||!echoed||!geometry||!hasRouteMetrics(r)||!legs||!endpoints){
+    health("hRoute","err","routage ✕");
+    throw new Error("Réponse IGN incomplète ou incohérente : unités, accès ou exclusion non confirmés. Aucun trajet de remplacement affiché.");
+  }
+  r.alternativeNotice="Un seul trajet sans autoroute calculé par l’IGN. Le montant des péages reste inconnu, notamment pour les ouvrages payants.";
+  if(ignCache.size>=32)ignCache.delete(ignCache.keys().next().value);
+  ignCache.set(key,{at:performance.now(),route:structuredClone(r)});
+  return r;
+}
 async function route(points,overview=true,alternatives=false,settings=trip?.routing||routingPreferences()){
   health("hRoute","busy","routage…");
+  ensureRouting(settings);
+  if(settings.provider==="ign"){
+    const r=await ignRoute(points,settings);
+    health("hRoute","ok","routage ✓");return r;
+  }
   if(settings.provider==="ors"){
     let base=(await orsRoutes(points,settings))[0];
     if(alternatives&&base.distance<=100000){
@@ -602,7 +656,7 @@ function clearResults(){
   $("tripKm").textContent="—";$("tripTime").textContent="—";
   for(const id of ["routeLine","routeGlow"])$(id).setAttribute("d","");
   $("alternativeRoutes").replaceChildren();$("routeAlternativesNote").hidden=true;
-  $("appliedRouting").hidden=true;$("routingAttribution").textContent="OSRM / OpenRouteService";
+  $("appliedRouting").hidden=true;$("routingAttribution").textContent="OSRM / IGN / OpenRouteService";
   $("stationDots").replaceChildren();
   for(const id of ["startDot","endDot"]){$(id).setAttribute("cx","-50");$(id).setAttribute("cy","-50")}
   $("fallbackLabel").textContent="En attente du nouveau trajet.";
@@ -644,7 +698,8 @@ async function run(){
     $("resolvedPlaces").textContent=`Départ : ${ga.label}. Arrivée : ${gb.label}.`;
     $("resolvedPlaces").hidden=false;
     $("appliedRouting").textContent=routingLabel(routing);$("appliedRouting").hidden=false;
-    $("routingAttribution").innerHTML=routing.provider==="ors"?'<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">© openrouteservice.org by HeiGIT</a> · © OpenStreetMap contributors':"OSRM";
+    $("routingAttribution").innerHTML=routing.provider==="ors"?'<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">© openrouteservice.org by HeiGIT</a> · © OpenStreetMap contributors':routing.provider==="ign"?'<a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/" target="_blank" rel="noopener noreferrer">IGN · BD TOPO · Licence Ouverte 2.0</a>':"OSRM";
+    if(routing.provider==="ign"&&typeof base.resourceVersion==="string")$("routingAttribution").append(document.createTextNode(" · données "+base.resourceVersion));
     showOnMap(coords,[],null,a,b,label);
     $("tripKm").textContent=`${fmt(base.distance/1000,1)} km`;
     $("tripTime").textContent=`${Math.round(base.duration/60)} min`;
@@ -672,7 +727,7 @@ async function searchStations(){
     if(!cands.length)throw new Error(`Aucune station ${fuel} reçue dans la zone demandée.`);
     $("fuelStatus").textContent=`Calcul des accès et détours de ${cands.length} stations…`;
     let scored,note="";
-    if(trip.routing.provider==="ors")({scored,note}=await scoreConstrainedCandidates(cands,liters,cons));
+    if(trip.routing.provider!=="osrm")({scored,note}=await scoreConstrainedCandidates(cands,liters,cons));
     else{const mat=await matrix([trip.a,...cands.map(s=>[s.lat,s.lon]),trip.b]);scored=scoreCandidates(cands,trip.base,mat,liters,cons);if(scored.length<cands.length)note=`${cands.length-scored.length} accès indisponible(s) ou trajet(s) recalculé(s) non comparable(s) : exclus du classement.`}
     if(activeAbort.signal.aborted)throw new Error("Recherche interrompue.");
     compared=scored.filter(s=>s.distanceFromStart>=w.min&&s.distanceFromStart<=w.max);

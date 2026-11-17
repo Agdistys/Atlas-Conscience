@@ -4,6 +4,10 @@ import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
+  'IGN sans autoroute : trajet et stations gardent les exclusions et le cache',
+  'IGN erreurs et reponses incoherentes refusees sans repli',
+  'IGN comparaison interrompue ou en panne preserve seulement le trajet',
+  'IGN restrictions non disponibles jamais ignorees et desactivation possible',
   'service public absent : controles indisponibles avant recherche',
   'geocodage ambigu : choix explicite, libelles, annulation et cache',
   'geocodage : coordonnees invalides refusees et libelle hostile en texte',

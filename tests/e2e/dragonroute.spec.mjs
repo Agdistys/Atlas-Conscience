@@ -20,7 +20,8 @@ async function configureOrs(page){
 test('service public absent : controles indisponibles avant recherche', async ({ page }) => {
   const requests=[];page.on('request',r=>{if(/route\/v1|openrouteservice\/v2|nominatim/.test(r.url()))requests.push(r.url())});
   await page.goto('/DragonRoute/');
-  for(const id of ['avoidTolls','avoidHighways','avoidFerries'])await expect(page.locator('#'+id)).toBeDisabled();
+  for(const id of ['avoidTolls','avoidFerries'])await expect(page.locator('#'+id)).toBeDisabled();
+  await expect(page.locator('#avoidHighways')).toBeEnabled();
   for(const type of ['truck','caravan','van'])await expect(page.locator(`#routeVehicle option[value=${type}]`)).toBeDisabled();
   await expect(page.locator('#goBtn')).toBeEnabled();
   await expect(page.locator('#stops')).toBeHidden();
@@ -223,7 +224,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'goBtn']) {
+  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'goBtn']) {
     await page.keyboard.press('Tab');
     await expect(page.locator('#' + id)).toBeFocused();
     const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);

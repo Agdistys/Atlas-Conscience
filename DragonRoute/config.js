@@ -1,6 +1,8 @@
 window.DRAGONROUTE_CONFIG = Object.freeze({
   // Public URL only, never a credential. Empty until an approved server is activated.
   routingApi: "",
+  // Public IGN service: light vehicles without motorways, no key required.
+  ignRouting: true,
   nominatim: "https://nominatim.openstreetmap.org",
   osrm: "https://router.project-osrm.org",
   fuelApi: "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records",
