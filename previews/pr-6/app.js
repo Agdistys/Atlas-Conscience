@@ -637,6 +637,7 @@ function resetRange(){
   $("rangeMode").value="none";$("rangeValue").value="";$("rangeOnly").checked=false;rangeMeasuredAt=null;updateRange();
 }
 function updateBudget(){
+  $("navigationBtn").hidden=!trip;
   $("tripBudget").hidden=!trip;
   $("useStationPrice").disabled=busy||!selectedStop;
   if(!trip)return;
@@ -646,6 +647,70 @@ function updateBudget(){
   $("budgetRoute").textContent=`${fmt(r.distance/1000,1)} km · ${Math.round(r.duration/60)} min${selectedStop?" · arrêt inclus, hors temps du plein":" · sans arrêt"}`;
   $("budgetFuel").textContent=liters===null?"Consommation à vérifier":`${fmt(liters,2)} L${validPrice?` · ${fmt(liters*price)} €`:" · prix à renseigner"}`;
   $("budgetSource").textContent=validPrice?(budgetReference?`${budgetReference.label} · ${$("fuel").value} · ${fmt(price,3)} €/L · ${budgetReference.at}`:`Prix saisi · ${$("fuel").value} · ${fmt(price,3)} €/L`):"Prix de référence non renseigné ou invalide. Aucun prix moyen supposé.";
+}
+function navigationLinks(){
+  if(!trip||trip.routing.vehicle.type!=="car")return null;
+  const google=new URL("https://www.google.com/maps/dir/");
+  google.search=new URLSearchParams({api:"1",origin:trip.a.join(","),destination:trip.b.join(","),travelmode:"driving"}).toString();
+  if(selectedStop)google.searchParams.set("waypoints",[selectedStop.station.lat,selectedStop.station.lon].join(","));
+  if(trip.routing.avoid.length)google.searchParams.set("avoid",trip.routing.avoid.map(v=>v==="tollways"?"tolls":v).join(","));
+  const waze=point=>{
+    const url=new URL("https://www.waze.com/ul");
+    url.search=new URLSearchParams({ll:point.join(","),navigate:"yes",utm_source:"dragonroute",vehicle_type:"private"}).toString();
+    for(const rule of trip.routing.avoid)url.searchParams.set({tollways:"avoid_tolls",highways:"avoid_freeways",ferries:"avoid_ferries"}[rule],"true");
+    return url.href;
+  };
+  return {google:google.href,arrival:waze(trip.b),station:selectedStop?waze([selectedStop.station.lat,selectedStop.station.lon]):null};
+}
+function clearNavigation(){
+  $("navigationDialog").close();
+  for(const id of ["googleMapsLink","wazeStationLink","wazeArrivalLink"])$(id).removeAttribute("href");
+  $("navigationSummary").textContent="";$("navigationMessage").textContent="";
+}
+function openNavigation(){
+  if(busy||!trip)return;
+  const r=selectedStop?.via||trip.base,links=navigationLinks();
+  $("navigationSummary").textContent=`${trip.places.start} → ${trip.places.end}${selectedStop?" · arrêt : "+selectedStop.station.address:""} · ${fmt(r.distance/1000,1)} km · ${Math.round(r.duration/60)} min, hors temps des arrêts.`;
+  $("navigationCarLinks").hidden=!links;$("navigationVehicleNote").hidden=Boolean(links);
+  for(const [id,url] of [["googleMapsLink",links?.google],["wazeArrivalLink",links?.arrival],["wazeStationLink",links?.station]]){
+    if(url)$(id).href=url;else $(id).removeAttribute("href");
+  }
+  $("wazeStationLink").hidden=!links?.station;
+  $("navigationAvoidNote").textContent=trip.routing.avoid.length?`Préférences transmises : éviter ${trip.routing.avoid.map(v=>avoidLabels[v]).join(", ")}. Ce sont des demandes au service externe, pas une garantie de les exclure.`:"Aucun évitement demandé ici. Vérifier les préférences de l’application externe.";
+  $("navigationMessage").textContent="";$("navigationDialog").showModal();
+}
+function gpxSnapshot(){
+  if(!trip)throw new Error("Calculer un trajet avant de l’exporter.");
+  const r=selectedStop?.via||trip.base;
+  if(!hasRouteGeometry(r)||!hasRouteMetrics(r))throw new Error("Tracé incomplet : export impossible.");
+  const xml=value=>escapeHtml(String(value).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,""));
+  const point=([lon,lat])=>{
+    if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||lon< -180||lon>=180)throw new Error("Coordonnées incompatibles avec le format GPX.");
+    return `lat="${lat.toFixed(8)}" lon="${lon.toFixed(8)}"`;
+  };
+  const title=trip.places.start+" → "+trip.places.end;
+  const description=`Tracé préparé, non relevé GPS. ${routingLabel(trip.routing)}. ${fmt(r.distance/1000,1)} km ; ${Math.round(r.duration/60)} min hors arrêts. Calcul initial : ${trip.calculatedAt}.${selectedStop?" Arrêt confirmé : "+selectedStop.confirmedAt+".":""} Péages non estimés. Les contraintes ne sont pas des réglages de navigation GPX.`;
+  const waypoints=[{coords:[trip.a[1],trip.a[0]],name:"Départ : "+trip.places.start},
+    ...(selectedStop?[{coords:[selectedStop.station.lon,selectedStop.station.lat],name:"Arrêt carburant : "+selectedStop.station.address}]:[]),
+    {coords:[trip.b[1],trip.b[0]],name:"Arrivée : "+trip.places.end}];
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="DragonRoute" xmlns="http://www.topografix.com/GPX/1/1">
+<metadata><name>${xml(title)}</name><desc>${xml(description)}</desc><time>${new Date().toISOString()}</time></metadata>
+${waypoints.map(p=>`<wpt ${point(p.coords)}><name>${xml(p.name)}</name></wpt>`).join("\n")}
+<trk><name>${xml(title)}</name><desc>${xml(description)}</desc><src>${xml(routingLabel(trip.routing))}</src><trkseg>
+${r.geometry.coordinates.map(p=>`<trkpt ${point(p)}></trkpt>`).join("\n")}
+</trkseg></trk></gpx>`;
+}
+function exportGpx(){
+  if(busy)return;
+  try{
+    const content=gpxSnapshot(),blob=new Blob([content],{type:"application/gpx+xml;charset=utf-8"});
+    const url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download="DragonRoute_trajet_"+new Date().toISOString().replace(/[:.]/g,"-")+".gpx";
+    document.body.appendChild(a);
+    try{a.click()}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}
+    $("navigationMessage").textContent="Téléchargement demandé. Ce fichier décrit le trajet préparé ; il ne met pas à jour les conditions de circulation.";
+  }catch(e){$("navigationMessage").textContent=e.message}
 }
 function invalidateStationPrice(){
   if(budgetReference?.stationId){budgetReference=null;$("budgetPrice").value=""}
@@ -684,6 +749,7 @@ function clearStations(){
   updateTripMetrics();updateBudget();
 }
 function clearResults(){
+  clearNavigation();
   trip=null;mapView=null;clearStations();
   renderRouteChoices();
   $("summary").hidden=true;$("stops").hidden=true;
@@ -729,7 +795,7 @@ async function run(){
     const coords=base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
     const label=`${ga.label.split(",")[0]} → ${gb.label.split(",")[0]}`;
     const choices=[base,...base.alternatives];
-    trip={a,b,base,coords,label,routing,choices,choice:0};renderRouteChoices();
+    trip={a,b,base,coords,label,routing,choices,choice:0,places:{start:ga.label,end:gb.label},calculatedAt:new Date().toISOString()};renderRouteChoices();
     $("resolvedPlaces").textContent=`Départ : ${ga.label}. Arrivée : ${gb.label}.`;
     $("resolvedPlaces").hidden=false;
     $("appliedRouting").textContent=routingLabel(routing);$("appliedRouting").hidden=false;
@@ -787,7 +853,7 @@ async function selectStation(id){
     const changed=Math.abs(via.distance-(trip.base.distance+station.extraKm*1000))>100||Math.abs(via.duration-(trip.base.duration+station.extraMin*60))>60;
     if(changed&&!confirm(`Le recalcul diffère de la comparaison : ${fmt(via.distance/1000,1)} km, ${Math.round(via.duration/60)} min. Confirmer ce trajet avec arrêt ?`)){$("fuelStatus").textContent="Arrêt non confirmé. Le trajet précédent est conservé.";return}
     const coords=via.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
-    invalidateStationPrice();selectedStop={station,via};
+    invalidateStationPrice();selectedStop={station,via,confirmedAt:new Date().toISOString()};
     updateTripMetrics();
     showOnMap(coords,compared,station,trip.a,trip.b,`${trip.label} · arrêt ${station.city}`);
     document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===id));
@@ -898,6 +964,9 @@ function bindProfile(){
   });
 }
 function bind(){
+  $("navigationBtn").addEventListener("click",openNavigation);
+  $("exportGpxBtn").addEventListener("click",exportGpx);
+  $("navigationDialog").addEventListener("close",()=>{if(!$("navigationDialog").open)for(const id of ["googleMapsLink","wazeStationLink","wazeArrivalLink"])$(id).removeAttribute("href")});
   $("placeChoices").addEventListener("change",()=>{$("confirmPlace").disabled=false});
   $("confirmPlace").addEventListener("click",()=>{
     const choice=document.querySelector('input[name=placeChoice]:checked');
