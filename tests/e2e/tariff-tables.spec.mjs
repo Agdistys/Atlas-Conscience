@@ -33,6 +33,7 @@ test('grilles : changement de classe, date et expiration invalident le budget',a
  await expect(page.locator('#tariffSegments li')).toHaveCount(0);await expect(page.locator('#tollAmount')).toHaveText('Tarif indisponible');
  await page.locator('#tariffAdd').click();await page.locator('#tariffDate').fill('2027-02-01');await expect(page.locator('#tariffAdd')).toBeDisabled();await expect(page.locator('#tariffSegments li')).toHaveCount(0);
  await page.locator('#tariffDate').fill('2026-01-01');await expect(page.locator('#tariffResult')).toContainText('non proposée');
+ await page.locator('#tariffDate').fill('');await expect(page.locator('#tariffDate')).toHaveValue('');await expect(page.locator('#tariffAdd')).toBeDisabled();
  await page.locator('#tariffDate').fill('2026-11-20');await page.locator('#tariffAdd').click();
  await page.clock.setFixedTime(new Date('2027-01-01T12:00:00Z'));await page.locator('#budgetPrice').fill('2');
  await expect(page.locator('#tariffSegments li')).toHaveCount(0);await expect(page.locator('#tariffAdd')).toBeDisabled();

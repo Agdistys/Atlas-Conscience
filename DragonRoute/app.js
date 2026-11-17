@@ -637,7 +637,7 @@ function resetRange(){
   $("rangeMode").value="none";$("rangeValue").value="";$("rangeOnly").checked=false;rangeMeasuredAt=null;updateRange();
 }
 const tollState={key:'',sequence:0,abort:null,timer:null,expiry:null,quote:null,error:'',loading:false,enabled:false};
-const tableTolls={key:'',segments:[],notice:'',index:new Map()};
+const tableTolls={key:'',segments:[],notice:'',index:new Map(),dateInitialized:false};
 const tariffData=window.DRAGONROUTE_TARIFFS;
 function localDate(){const d=new Date(Date.now()-new Date().getTimezoneOffset()*60000);return d.toISOString().slice(0,10)}
 function tariffDateValid(){
@@ -674,7 +674,7 @@ function clearTableTolls(message=''){
  tableTolls.segments=[];tableTolls.notice=message;$("tariffComplete").checked=false;
 }
 function syncTableTolls(){
- if(!$("tariffDate").value)$("tariffDate").value=localDate();
+ if(!tableTolls.dateInitialized){$("tariffDate").value=localDate();tableTolls.dateInitialized=true}
  const route=selectedStop?.via||trip?.base;
  const key=trip?JSON.stringify([trip.calculatedAt,trip.routing,route.geometry.coordinates,route.distance,selectedStop?.station.id]):'';
  if(key!==tableTolls.key){if(tableTolls.segments.length)clearTableTolls('Trajet modifié : les tronçons ont été retirés du budget.');tableTolls.key=key}
