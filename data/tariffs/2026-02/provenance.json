@@ -1,0 +1,33 @@
+{
+  "dataset": "https://www.data.gouv.fr/datasets/tarifs-autoroutes-aprr",
+  "producer": "Pierlou Ramade",
+  "licence": "Licence Ouverte / Open Licence 2.0",
+  "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+  "operatorPage": "https://voyage.aprr.fr/tarifs-de-peage",
+  "retrievedAt": "2026-11-17",
+  "effectiveFrom": "2026-02-01",
+  "networks": {
+    "APRR": {
+      "csvUrl": "https://static.data.gouv.fr/resources/tarifs-autoroutes-aprr/20260802-131933/2026-02.csv",
+      "resourceUrl": "https://www.data.gouv.fr/api/1/datasets/r/2543d981-1233-4139-b34c-7d6cfd5007b0",
+      "pdfUrl": "https://voyage.aprr.fr/sites/default/files/2026-02/TARIFS_APRR.pdf",
+      "csvSha256": "29557dd814525a36313c5794b8cdc2a60ac3b894f3929912553a81d74054a4fe",
+      "pdfSha256": "f05dfa58cb4ffba8b940b95319186fbf60f86d3791dce6a9df0919946b635d14",
+      "verifiedCsvSha256": "da093a1867ae3b28c5c86fbfe02af30221dc7806499734af219ddd0f5928ff49",
+      "correctedLabelPairs": 9098,
+      "pairs": 21505,
+      "priceDifferences": 0
+    },
+    "AREA": {
+      "csvUrl": "https://static.data.gouv.fr/resources/tarifs-autoroutes-aprr/20260802-131936/2026-02.csv",
+      "resourceUrl": "https://www.data.gouv.fr/api/1/datasets/r/fd2a8c36-c9a3-4015-b259-389ae1db804d",
+      "pdfUrl": "https://voyage.aprr.fr/sites/default/files/2026-02/TARIFS_AREA.pdf",
+      "csvSha256": "d7f9b0b834ca32ffde0129b003e1a8082d5b5d6c93d2f0722a9b0a7868699f3b",
+      "pdfSha256": "e395aa88784cdcd960253213364c0dd4e82237b4b565cb1569a0642af220516b",
+      "verifiedCsvSha256": "c29145c58da6dfa2ecf4104252c66d482b825afc89c7bfce0408e5ba4f825809",
+      "correctedLabelPairs": 1,
+      "pairs": 955,
+      "priceDifferences": 0
+    }
+  }
+}

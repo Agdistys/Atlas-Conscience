@@ -4,6 +4,12 @@ import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
+  'grilles : tarif officiel par classe, sans appel ni compte',
+  'grilles : subtotal partiel puis total declare sans double addition',
+  'grilles : changement de classe, date et expiration invalident le budget',
+  'grilles : variante, station et nouveau depart retirent les anciens troncons',
+  'grilles : entree exacte, nom corrige et aucune sortie supposee',
+  'grilles : calcul manuel et devis automatique ne sont jamais additionnes',
   'peages : interface et serveur HTTP relies sans cle dans le navigateur',
   'peages : service absent visible sans tarif nul ni appel',
   'peages : total carburant et source sans addition du plein',

@@ -80,6 +80,28 @@
           <div><dt>Péages</dt><dd id="tollAmount">Tarif indisponible</dd></div>
           <div><dt>Total carburant + péages</dt><dd id="budgetTotal">Incomplet</dd></div>
         </dl>
+        <details id="tariffCalculator">
+          <summary>Calculer un péage APRR / AREA — gratuit</summary>
+          <p class="note">Choisir les gares de péage réellement empruntées. Ce calcul ne les déduit pas de la carte et ne vérifie pas que le véhicule peut circuler sur ces routes.</p>
+          <fieldset id="tariffFields" class="tariff-fields">
+            <legend>Prix du tronçon choisi</legend>
+            <label for="tariffNetwork">Réseau</label><select id="tariffNetwork"><option value="APRR">APRR</option><option value="AREA">AREA</option></select>
+            <label for="tariffClass">Classe tarifaire du véhicule</label><select id="tariffClass"><option value="">Choisir la classe</option><option value="1">Classe 1</option><option value="2">Classe 2</option><option value="3">Classe 3</option><option value="4">Classe 4</option><option value="5">Classe 5</option></select>
+            <p class="note">La classe dépend notamment de la hauteur, du PTAC et des essieux. Caravane ne signifie pas automatiquement poids lourd. <a href="https://www.autoroutes.fr/FCKeditor/UserFiles/File/ASFA_classes_vehicules_2022.pdf" target="_blank" rel="noopener noreferrer">Identifier sa classe de péage</a>.</p>
+            <label for="tariffDate">Date du trajet</label><input id="tariffDate" type="date" min="2026-02-01" max="2026-12-31">
+            <label for="tariffEntry">Gare d’entrée</label><select id="tariffEntry"><option value="">Choisir une entrée</option></select>
+            <label for="tariffExit">Gare de sortie</label><select id="tariffExit" disabled><option value="">Choisir une sortie</option></select>
+            <p id="tariffResult" class="tariff-result" role="status">Choisir une classe, une entrée et une sortie.</p>
+            <button id="tariffAdd" class="ghost navigation-button" type="button" disabled>Ajouter ce tronçon au budget</button>
+          </fieldset>
+          <p id="tariffSource" class="note"></p>
+          <p class="note"><a id="tariffPdf" href="https://voyage.aprr.fr/tarifs-de-peage" target="_blank" rel="noopener noreferrer">Grille officielle</a> · <a href="https://www.data.gouv.fr/datasets/tarifs-autoroutes-aprr" target="_blank" rel="noopener noreferrer">Données ouvertes, Pierlou Ramade</a> · <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" target="_blank" rel="noopener noreferrer">Licence Ouverte 2.0</a>. Noms de gares corrigés d’après les PDF APRR/AREA.</p>
+          <ul id="tariffSegments" class="tariff-segments"></ul>
+          <label class="check-label"><input id="tariffComplete" type="checkbox" disabled> Ces tronçons correspondent à mon trajet et couvrent tous ses péages.</label>
+          <p class="note">Sans cette confirmation, la somme reste partielle. Vérifier l’absence de double comptage entre tronçons, les autres réseaux et les ouvrages payants. Sans remise ni abonnement.</p>
+          <button id="tariffClear" class="ghost" type="button" hidden>Retirer les tronçons du budget</button>
+          <p id="tariffNotice" class="note" role="status"></p>
+        </details>
         <p id="tollAvailability" class="note">Calcul automatique des péages non activé.</p>
         <fieldset id="tollParameters" class="dimension-fields" hidden>
           <legend>Véhicule pour le tarif</legend>
