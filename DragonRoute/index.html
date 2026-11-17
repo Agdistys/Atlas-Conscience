@@ -63,6 +63,7 @@
         <fieldset id="routeChoices" class="stop-modes" hidden></fieldset>
         <p id="appliedRouting" class="note" hidden></p>
         <p id="resolvedPlaces" class="note" hidden></p>
+        <button id="navigationBtn" class="ghost navigation-button" type="button" hidden>Navigation et tracé GPS</button>
       </section>
       <section id="tripBudget" class="stops-section" hidden aria-labelledby="budgetHeading">
         <h2 id="budgetHeading">Budget du trajet</h2>
@@ -114,6 +115,32 @@
     </section>
   </main>
 </div>
+<dialog id="navigationDialog" aria-labelledby="navigationTitle">
+  <div class="dialog-heading"><h2 id="navigationTitle">Emporter ce trajet</h2><button class="icon-btn close-dialog" type="button" aria-label="Fermer la navigation" title="Fermer">×</button></div>
+  <p id="navigationSummary" class="note"></p>
+  <p id="navigationVehicleNote" class="note" hidden>Les liens voiture ne transmettent pas le gabarit du poids lourd. Utiliser une navigation compatible avec ce véhicule.</p>
+  <div id="navigationCarLinks">
+    <section class="detail-section">
+      <h3>Google Maps</h3>
+      <p class="note">Reçoit le départ, l’arrivée et la station choisie, s’il y en a une. Le parcours est recalculé : la variante affichée ici n’est pas transmise et certains appareils peuvent ignorer l’étape.</p>
+      <a id="googleMapsLink" class="navigation-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Ouvrir le trajet dans Google Maps</a>
+    </section>
+    <section class="detail-section">
+      <h3>Waze</h3>
+      <p class="note">Reçoit une destination à la fois et repart de la position utilisée par Waze. Le départ prévu ici et le trajet complet avec arrêt ne sont pas transmis.</p>
+      <a id="wazeStationLink" class="navigation-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>Waze · vers la station</a>
+      <a id="wazeArrivalLink" class="navigation-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Waze · vers l’arrivée</a>
+    </section>
+    <p id="navigationAvoidNote" class="note"></p>
+    <p class="note">Les points du trajet sont transmis au service choisi uniquement à l’ouverture du lien. Vérifier le parcours et les options dans cette application avant de partir.</p>
+  </div>
+  <section class="detail-section">
+    <h3>Conserver le tracé</h3>
+    <p class="note">Le fichier GPX reprend le parcours affiché et l’arrêt confirmé. Il contient les lieux du trajet et reste sur cet appareil jusqu’à son partage. C’est un tracé préparé, sans guidage vocal ni carte hors ligne ; les contraintes et le gabarit ne seront pas automatiquement appliqués par un autre GPS.</p>
+    <button id="exportGpxBtn" class="ghost navigation-button" type="button">Télécharger le tracé (.gpx)</button>
+    <p id="navigationMessage" class="note" role="status"></p>
+  </section>
+</dialog>
 <dialog id="placeDialog" aria-labelledby="placeTitle">
   <div class="dialog-heading"><h2 id="placeTitle">Choisir le lieu</h2><button id="cancelPlace" class="icon-btn" type="button" aria-label="Annuler le choix du lieu" title="Annuler">×</button></div>
   <fieldset id="placeChoices" class="stop-modes"></fieldset>

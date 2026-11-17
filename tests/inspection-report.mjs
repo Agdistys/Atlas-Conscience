@@ -4,6 +4,10 @@ import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
+  'navigation : liens explicites sans envoi automatique et fermeture clavier',
+  'navigation : variante et arret confirmes dans les liens et le GPX',
+  'navigation : exclusions transmises et poids lourd sans lien voiture',
+  'navigation : XML sur, echec de telechargement et invalidation des anciens liens',
   'adresses IGN : communes homonymes, lieux nommes et coordonnees choisies',
   'adresses IGN : reponses vides ou invalides sans trajet ni repli',
   'adresses IGN : quota respecte, relance manuelle et expiration du cache',
