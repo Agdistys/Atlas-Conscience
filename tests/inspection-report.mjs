@@ -4,6 +4,14 @@ import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
+  'peages : interface et serveur HTTP relies sans cle dans le navigateur',
+  'peages : service absent visible sans tarif nul ni appel',
+  'peages : total carburant et source sans addition du plein',
+  'peages : zero confirme, partiel et devise incorrecte restent distincts',
+  'peages : variante ignore la reponse tardive de lancien trace',
+  'peages : arret complet et retrait recalcules sans double paiement',
+  'peages : panne, reprise manuelle et expiration sans appels repetes',
+
   'navigation : liens explicites sans envoi automatique et fermeture clavier',
   'navigation : variante et arret confirmes dans les liens et le GPX',
   'navigation : exclusions transmises et poids lourd sans lien voiture',

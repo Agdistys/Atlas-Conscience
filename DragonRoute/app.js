@@ -636,15 +636,89 @@ function updateRange(){
 function resetRange(){
   $("rangeMode").value="none";$("rangeValue").value="";$("rangeOnly").checked=false;rangeMeasuredAt=null;updateRange();
 }
+const tollState={key:'',sequence:0,abort:null,timer:null,expiry:null,quote:null,error:'',loading:false,enabled:false};
+function tollEndpoint(){
+ try{const u=new URL(C.tollsApi);return !u.username&&!u.password&&!u.search&&!u.hash&&(u.protocol==='https:'||u.protocol==='http:'&&['localhost','127.0.0.1'].includes(u.hostname))?u.href:null}catch{return null}
+}
+function tollParameters(){
+ const height=Number($("tollHeight").value),weightKg=Number($("tollWeight").value),time=new Date($("tollDeparture").value).getTime();
+ if(!$("tollVehicleConfirmed").checked||!trip||trip.routing.vehicle.type!=="car"||!Number.isFinite(height)||height<0.5||height>2||!Number.isFinite(weightKg)||weightKg<500||weightKg>3500||!Number.isFinite(time)||Math.abs(time-Date.now())>366*86400000)return null;
+ return {vehicle:{type:'car',height,weightKg,axles:2},payment:$("tollPayment").value,departureTime:new Date(time).toISOString()};
+}
+function resetTollQuote(){
+ tollState.sequence++;tollState.abort?.abort();clearTimeout(tollState.timer);clearTimeout(tollState.expiry);
+ tollState.quote=null;tollState.loading=false;tollState.error='';
+}
+function validTollQuote(q,input){
+ const amount=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=10000;
+ return q&&q.requestId===input.requestId&&/^[a-f0-9]{64}$/.test(q.routeHash)&&q.provider==='TollGuru'&&q.currency==='EUR'&&Number.isFinite(Date.parse(q.fetchedAt))&&Math.abs(Date.parse(q.fetchedAt)-Date.now())<5*60000&&q.departureTime===input.departureTime&&q.payment===input.payment&&JSON.stringify(q.vehicle)===JSON.stringify(input.vehicle)&&
+  ['no_tolls','estimated','partial','unavailable'].includes(q.status)&&
+  (q.status==='no_tolls'?q.amountEur===0:q.status==='estimated'?amount(q.amountEur):q.amountEur===null)&&
+  (q.status==='partial'?amount(q.knownSubtotalEur):q.knownSubtotalEur===null)&&
+  (q.tariffValidAt===null||typeof q.tariffValidAt==='string'&&Number.isFinite(Date.parse(q.tariffValidAt)))&&
+  Array.isArray(q.items)&&q.items.length<=500&&q.items.every(x=>x&&typeof x.label==='string'&&x.label.length<=240&&(x.amountEur===null||amount(x.amountEur))&&x.payment===input.payment)&&
+  Array.isArray(q.warnings)&&q.warnings.length<=20&&q.warnings.every(x=>typeof x==='string'&&x.length<=500)&&
+  (!(q.status==='estimated'||q.status==='no_tolls')||q.warnings.length===0)&&
+  (q.status!=='no_tolls'||q.items.length===0)&&
+  (q.status!=='estimated'||q.items.length>0&&q.items.every(x=>amount(x.amountEur))&&Math.abs(q.items.reduce((sum,x)=>sum+x.amountEur,0)-q.amountEur)<0.011)&&
+  (q.status!=='partial'||Math.abs(q.items.reduce((sum,x)=>sum+(x.amountEur??0),0)-q.knownSubtotalEur)<0.011);
+}
+function syncTolls(){
+ const endpoint=tollEndpoint(),supported=trip?.routing.vehicle.type==='car';
+ $("tollParameters").hidden=!endpoint||!supported;
+ $("tollParameters").disabled=busy||!endpoint||!supported;
+ if(endpoint&&trip&&!$("tollDeparture").value){const d=new Date(Date.now()-new Date().getTimezoneOffset()*60000);$("tollDeparture").value=d.toISOString().slice(0,16)}
+ const params=tollParameters(),route=selectedStop?.via||trip?.base;
+ const key=trip?JSON.stringify([trip.calculatedAt,trip.routing,route.geometry.coordinates,route.distance,params]):'';
+ if(key!==tollState.key){resetTollQuote();tollState.key=key}
+ $("tollAvailability").textContent=!endpoint?'Calcul automatique des péages non activé.':!supported?'Tarif de ce véhicule non pris en charge.':'Tarif voiture sans remorque. Le calcul transmet le tracé complet, le gabarit et la date au service tarifaire. Les changements de trajet actualiseront ensuite le devis.';
+ $("tollCalculate").disabled=busy||!endpoint||!params||tollState.loading;
+ $("tollCalculate").textContent=!endpoint?'Calculer les péages — indisponible':tollState.loading?'Calcul des péages…':tollState.enabled?'Actualiser les péages':'Calculer les péages';
+ if(endpoint&&params&&tollState.enabled&&!busy&&!tollState.quote&&!tollState.error&&!tollState.loading){
+  tollState.loading=true;
+  const sequence=tollState.sequence;
+  tollState.timer=setTimeout(()=>fetchTolls(endpoint,params,route,sequence),500);
+  $("tollCalculate").disabled=true;$("tollCalculate").textContent='Calcul des péages…';
+ }
+}
+async function fetchTolls(endpoint,params,route,sequence){
+ if(sequence!==tollState.sequence)return;
+ const abort=new AbortController();tollState.abort=abort;
+ const input={requestId:crypto.randomUUID(),coordinates:route.geometry.coordinates.map(p=>p.slice(0,2)),distance:route.distance,...params};
+ const timeout=setTimeout(()=>abort.abort(),25000);
+ try{
+  const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input),signal:abort.signal,credentials:'omit',referrerPolicy:'no-referrer'});
+  if(!response.ok)throw Error(response.status===429?'Quota tarifaire atteint. Réessayer plus tard.':'Service tarifaire indisponible.');
+  const q=await response.json();if(sequence!==tollState.sequence)return;
+  if(!validTollQuote(q,input))throw Error('Devis non concordant ou incomplet.');
+  tollState.quote=q;
+  tollState.expiry=setTimeout(()=>{if(sequence===tollState.sequence){tollState.quote=null;tollState.error='Estimation expirée. Actualiser les péages.';updateBudget()}},15*60000);
+ }catch(e){if(sequence===tollState.sequence)tollState.error=abort.signal.aborted?'Délai du service tarifaire dépassé.':e instanceof TypeError?'Service tarifaire injoignable. Réessayer plus tard.':e.message}
+ finally{clearTimeout(timeout);if(sequence===tollState.sequence){tollState.loading=false;updateBudget()}}
+}
+function renderTolls(fuelCost){
+ const q=tollState.quote;
+ $("tollAmount").textContent=tollState.loading?'Calcul en cours':q?.status==='no_tolls'?'0,00 € · sans péage confirmé':q?.status==='estimated'?`${fmt(q.amountEur)} € · estimation`:q?.status==='partial'?`${fmt(q.knownSubtotalEur)} € connus · partiel`:'Tarif indisponible';
+ const complete=q&&['estimated','no_tolls'].includes(q.status);
+ $("budgetTotal").textContent=complete&&fuelCost!==null?`${fmt(fuelCost+q.amountEur)} € · estimation`:'Incomplet';
+ $("tollNotice").textContent=tollState.error||(q?.warnings.join(' ')||'');
+ $("tollDetails").hidden=!q;
+ $("tollSource").textContent=q?`${q.provider} · obtenu le ${new Date(q.fetchedAt).toLocaleString('fr-FR')} · départ ${new Date(q.departureTime).toLocaleString('fr-FR')} · ${q.vehicle.height} m · PTAC ${q.vehicle.weightKg} kg · 2 essieux, sans remorque · ${q.payment==='cash'?'espèces':'paiement à la plaque'}. Validité des tarifs ${q.tariffValidAt?new Date(q.tariffValidAt).toLocaleString('fr-FR'):'non fournie'}. Estimation, sans garantie de prix.`:'';
+ $("tollItems").replaceChildren();
+ for(const item of q?.items||[]){const li=document.createElement('li');li.textContent=`${item.label} : ${item.amountEur===null?'tarif inconnu':fmt(item.amountEur)+' €'}`;$("tollItems").append(li)}
+}
+
 function updateBudget(){
   $("navigationBtn").hidden=!trip;
   $("tripBudget").hidden=!trip;
   $("useStationPrice").disabled=busy||!selectedStop;
+  syncTolls();
   if(!trip)return;
   const r=selectedStop?.via||trip.base,cons=Number($("cons").value),price=Number($("budgetPrice").value);
   const liters=Number.isFinite(cons)&&cons>=1&&cons<=100?r.distance/1000*cons/100:null;
   const validPrice=$("budgetPrice").value.trim()&&Number.isFinite(price)&&price>0&&price<=10;
   $("budgetRoute").textContent=`${fmt(r.distance/1000,1)} km · ${Math.round(r.duration/60)} min${selectedStop?" · arrêt inclus, hors temps du plein":" · sans arrêt"}`;
+  renderTolls(validPrice&&liters!==null?liters*price:null);
   $("budgetFuel").textContent=liters===null?"Consommation à vérifier":`${fmt(liters,2)} L${validPrice?` · ${fmt(liters*price)} €`:" · prix à renseigner"}`;
   $("budgetSource").textContent=validPrice?(budgetReference?`${budgetReference.label} · ${$("fuel").value} · ${fmt(price,3)} €/L · ${budgetReference.at}`:`Prix saisi · ${$("fuel").value} · ${fmt(price,3)} €/L`):"Prix de référence non renseigné ou invalide. Aucun prix moyen supposé.";
 }
@@ -689,7 +763,7 @@ function gpxSnapshot(){
     return `lat="${lat.toFixed(8)}" lon="${lon.toFixed(8)}"`;
   };
   const title=trip.places.start+" → "+trip.places.end;
-  const description=`Tracé préparé, non relevé GPS. ${routingLabel(trip.routing)}. ${fmt(r.distance/1000,1)} km ; ${Math.round(r.duration/60)} min hors arrêts. Calcul initial : ${trip.calculatedAt}.${selectedStop?" Arrêt confirmé : "+selectedStop.confirmedAt+".":""} Péages non estimés. Les contraintes ne sont pas des réglages de navigation GPX.`;
+  const description=`Tracé préparé, non relevé GPS. ${routingLabel(trip.routing)}. ${fmt(r.distance/1000,1)} km ; ${Math.round(r.duration/60)} min hors arrêts. Calcul initial : ${trip.calculatedAt}.${selectedStop?" Arrêt confirmé : "+selectedStop.confirmedAt+".":""} Ce fichier ne contient pas de devis de péages. Les contraintes ne sont pas des réglages de navigation GPX.`;
   const waypoints=[{coords:[trip.a[1],trip.a[0]],name:"Départ : "+trip.places.start},
     ...(selectedStop?[{coords:[selectedStop.station.lon,selectedStop.station.lat],name:"Arrêt carburant : "+selectedStop.station.address}]:[]),
     {coords:[trip.b[1],trip.b[0]],name:"Arrivée : "+trip.places.end}];
@@ -964,6 +1038,8 @@ function bindProfile(){
   });
 }
 function bind(){
+  for(const id of ["tollHeight","tollWeight","tollPayment","tollDeparture","tollVehicleConfirmed"])$(id).addEventListener("input",updateBudget);
+  $("tollCalculate").addEventListener("click",()=>{if(busy||!tollEndpoint()||!tollParameters())return;tollState.enabled=true;tollState.key='';updateBudget()});
   $("navigationBtn").addEventListener("click",openNavigation);
   $("exportGpxBtn").addEventListener("click",exportGpx);
   $("navigationDialog").addEventListener("close",()=>{if(!$("navigationDialog").open)for(const id of ["googleMapsLink","wazeStationLink","wazeArrivalLink"])$(id).removeAttribute("href")});

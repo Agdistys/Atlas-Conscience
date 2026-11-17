@@ -77,10 +77,22 @@
         <p id="budgetSource" class="note"></p>
         <dl class="budget-lines" aria-live="polite">
           <div><dt>Carburant consommé estimé</dt><dd id="budgetFuel">À renseigner</dd></div>
-          <div><dt>Péages</dt><dd>Tarif indisponible</dd></div>
-          <div><dt>Total carburant + péages</dt><dd>Incomplet</dd></div>
+          <div><dt>Péages</dt><dd id="tollAmount">Tarif indisponible</dd></div>
+          <div><dt>Total carburant + péages</dt><dd id="budgetTotal">Incomplet</dd></div>
         </dl>
-        <p class="note">Péages non calculés, même sur une route sans exclusion. Stationnement et ferries non compris.</p>
+        <p id="tollAvailability" class="note">Calcul automatique des péages non activé.</p>
+        <fieldset id="tollParameters" class="dimension-fields" hidden>
+          <legend>Véhicule pour le tarif</legend>
+          <div><label for="tollHeight">Hauteur tarifaire (m)</label><input id="tollHeight" type="number" min="0.5" max="2" step="0.01" inputmode="decimal"></div>
+          <div><label for="tollWeight">PTAC (kg, case F.2)</label><input id="tollWeight" type="number" min="500" max="3500" step="1" inputmode="numeric"></div>
+          <div><label for="tollPayment">Moyen de paiement</label><select id="tollPayment"><option value="cash">Espèces</option><option value="licensePlate">Paiement à la plaque</option></select></div>
+          <div><label for="tollDeparture">Départ prévu</label><input id="tollDeparture" type="datetime-local"></div>
+          <label class="toll-confirm"><input id="tollVehicleConfirmed" type="checkbox"> Voiture sans remorque, 2 essieux, hauteur ≤ 2 m, PTAC ≤ 3,5 t.</label>
+        </fieldset>
+        <button id="tollCalculate" class="ghost navigation-button" type="button" disabled>Calculer les péages — indisponible</button>
+        <p id="tollNotice" class="note" role="status"></p>
+        <details id="tollDetails" hidden><summary>Source et détail des péages</summary><p id="tollSource" class="note"></p><ul id="tollItems"></ul></details>
+        <p class="note">Budget d’un aller simple. Stationnement et ferries non compris.</p>
       </section>
       <section id="stops" class="stops-section" hidden aria-labelledby="stopsHeading">
         <h2 id="stopsHeading">Sur mon trajet</h2>

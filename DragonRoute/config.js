@@ -1,6 +1,8 @@
 window.DRAGONROUTE_CONFIG = Object.freeze({
   // Public URL only, never a credential. Empty until an approved server is activated.
   routingApi: "",
+  // Protected toll service; activate only after France tariff qualification. No private key here.
+  tollsApi: "",
   // Public IGN service: light vehicles without motorways, no key required.
   ignRouting: true,
   geocodingApi: "https://data.geopf.fr/geocodage/search",

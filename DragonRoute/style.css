@@ -47,3 +47,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 .map-label{position:absolute;top:12px;left:12px;right:12px;width:fit-content;background:#09090ee8;border:1px solid var(--line);border-radius:6px;padding:8px 10px;color:var(--muted);font-size:11px}
 .leaflet-container{font-family:inherit;background:#dbe2d9}.leaflet-control-attribution{font-size:10px!important;background:#ffffffed!important;color:#333!important}.leaflet-control-attribution a{color:#164f83!important}
 @media(max-width:800px){html,body,#app{height:auto;min-height:100%}.stage{height:auto;display:flex;flex-direction:column}.map{flex:none;height:38svh;min-height:230px;max-height:420px;order:0}.sheet{order:1;overflow:visible;border-right:0;padding:20px 16px}.topbar{height:50px}.settings{gap:6px}.brand strong{font-size:18px}}
+
+.toll-confirm{grid-column:1/-1;display:flex;align-items:flex-start;gap:10px}.toll-confirm input{flex:none}#tollItems{padding-left:20px;font-size:13px;overflow-wrap:anywhere}#tollItems li{margin:8px 0}

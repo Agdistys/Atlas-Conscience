@@ -5,7 +5,8 @@
   "scripts": {
     "test:contract": "node tests/repo-contract.mjs",
     "test:e2e": "playwright test",
-    "test:inspection": "node --test tests/inspection-report.test.mjs tests/service-worker.test.mjs tests/routing-server.test.mjs",
+    "test:inspection": "node --test tests/inspection-report.test.mjs tests/service-worker.test.mjs tests/routing-server.test.mjs tests/tolls-server.test.mjs",
+    "start:tolls": "node server/tolls.mjs",
     "start:routing": "node server/routing.mjs",
     "inspect": "node tests/inspect.mjs",
     "preview:build": "node tests/pages/preview.mjs build",
