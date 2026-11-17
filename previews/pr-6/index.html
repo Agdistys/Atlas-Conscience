@@ -33,9 +33,10 @@
         <h1>Mon trajet</h1>
         <p id="activeVehicle" class="note" hidden></p>
         <div class="route-fields">
-          <div><label for="start">Départ</label><div class="field-row"><input id="start" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div></div>
-          <div><label for="end">Arrivée</label><input id="end" value="Valence" autocomplete="off" placeholder="Ville ou adresse"></div>
+          <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div></div>
+          <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint" value="Valence" autocomplete="off" placeholder="Ville ou adresse"></div>
         </div>
+        <p id="addressHint" class="note">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>
         <details id="routingOptions" class="routing-options" open>
           <summary id="routingOptionsToggle">Options du trajet</summary>
           <label for="routeVehicle">Véhicule pour ce trajet</label>
@@ -110,7 +111,7 @@
         <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · OpenStreetMap/Nominatim · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 52fc0bd · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 034de95 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>

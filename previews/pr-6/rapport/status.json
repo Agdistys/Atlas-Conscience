@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-11-17T18:10:55.658Z",
-  "commit": "52fc0bdd44dd8042ffdfd135ca363c5dc269c912",
+  "generatedAt": "2026-11-17T19:25:33.387Z",
+  "commit": "034de956b8db92923afb9ae35f3831580aba9209",
   "state": "inspection",
-  "passed": 144,
-  "total": 144,
+  "passed": 156,
+  "total": 156,
   "stages": {
     "contract": {
       "exitCode": 0,
@@ -176,6 +176,38 @@
                 "#fallbackLabel"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "17.3pt (23px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1>Mon trajet</h1>",
+              "target": [
+                "h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
             {
               "any": [
@@ -487,7 +519,7 @@
           ]
         }
       ],
-      "rulesPassed": 24
+      "rulesPassed": 27
     },
     {
       "project": "desktop-1440",
@@ -713,6 +745,38 @@
               "html": "<label for=\"end\">Arrivée</label>",
               "target": [
                 "label[for=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"addressHint\" class=\"note\">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>",
+              "target": [
+                "#addressHint"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -2255,7 +2319,7 @@
           ]
         }
       ],
-      "rulesPassed": 30
+      "rulesPassed": 32
     },
     {
       "project": "desktop-1440",
@@ -2449,7 +2513,7 @@
           ]
         }
       ],
-      "rulesPassed": 19
+      "rulesPassed": 20
     },
     {
       "project": "tablet-768",
@@ -2807,7 +2871,7 @@
           ]
         }
       ],
-      "rulesPassed": 24
+      "rulesPassed": 26
     },
     {
       "project": "tablet-768",
@@ -2943,13 +3007,58 @@
           ]
         }
       ],
-      "rulesPassed": 29
+      "rulesPassed": 31
     },
     {
       "project": "tablet-768",
       "state": "accessibilite-fiche-station",
       "violations": [],
-      "incomplete": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscuring",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Informations déclaratives, ouverture et disponibilité à confirmer sur place. Données reçues le 17/09/2026 12:00:00.</p>",
+              "target": [
+                "#stationDetails > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+            }
+          ]
+        }
+      ],
       "rulesPassed": 18
     },
     {
@@ -2957,7 +3066,7 @@
       "state": "accessibilite-profil",
       "violations": [],
       "incomplete": [],
-      "rulesPassed": 19
+      "rulesPassed": 20
     },
     {
       "project": "mobile-390",
@@ -3315,7 +3424,7 @@
           ]
         }
       ],
-      "rulesPassed": 24
+      "rulesPassed": 26
     },
     {
       "project": "mobile-390",
@@ -3451,7 +3560,7 @@
           ]
         }
       ],
-      "rulesPassed": 29
+      "rulesPassed": 31
     },
     {
       "project": "mobile-390",
@@ -3497,6 +3606,31 @@
               "html": "<p>51,0 km depuis le départ · Autonomie inconnue</p>",
               "target": [
                 "#stationDetails > p:nth-child(3)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscuring",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Informations déclaratives, ouverture et disponibilité à confirmer sur place. Données reçues le 17/09/2026 12:00:00.</p>",
+              "target": [
+                "#stationDetails > .note"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
             }
@@ -3722,7 +3856,7 @@
           ]
         }
       ],
-      "rulesPassed": 19
+      "rulesPassed": 20
     },
     {
       "project": "mobile-360",
@@ -4080,7 +4214,7 @@
           ]
         }
       ],
-      "rulesPassed": 24
+      "rulesPassed": 26
     },
     {
       "project": "mobile-360",
@@ -4216,7 +4350,7 @@
           ]
         }
       ],
-      "rulesPassed": 29
+      "rulesPassed": 31
     },
     {
       "project": "mobile-360",
@@ -4314,31 +4448,6 @@
                 "#stationDetails > .note"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscuring",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it partially overlaps other elements"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<button id=\"detailChooseBtn\" class=\"primary\">Choisir cet arrêt</button>",
-              "target": [
-                "#detailChooseBtn"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
             }
           ]
         }
@@ -4562,7 +4671,35 @@
           ]
         }
       ],
-      "rulesPassed": 19
+      "rulesPassed": 20
+    },
+    {
+      "project": "desktop-1440",
+      "state": "accessibilite-ign-adresses",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 15
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-ign-adresses",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 15
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-ign-adresses",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 15
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-ign-adresses",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 15
     },
     {
       "project": "desktop-1440",
@@ -5113,7 +5250,7 @@
       "state": "accessibilite-choix-lieu",
       "violations": [],
       "incomplete": [],
-      "rulesPassed": 14
+      "rulesPassed": 15
     },
     {
       "project": "desktop-1440",
@@ -5298,6 +5435,38 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"addressHint\" class=\"note\">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>",
+              "target": [
+                "#addressHint"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "9.8pt (13px)",
                     "fontWeight": "normal",
                     "messageKey": "elmPartiallyObscured",
@@ -5455,7 +5624,7 @@
           ]
         }
       ],
-      "rulesPassed": 29
+      "rulesPassed": 31
     },
     {
       "project": "desktop-1440",
@@ -5681,6 +5850,38 @@
               "html": "<label for=\"end\">Arrivée</label>",
               "target": [
                 "label[for=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"addressHint\" class=\"note\">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>",
+              "target": [
+                "#addressHint"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -6679,103 +6880,103 @@
           ]
         }
       ],
+      "rulesPassed": 32
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-choix-lieu",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 15
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-budget-trajet",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "imgNode",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
+                      "target": [
+                        "#fallbackLabel"
+                      ]
+                    },
+                    {
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "target": [
+                        "#routeViz"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because element contains an image node"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
+              "target": [
+                "#fallbackLabel"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
+              "target": [
+                "#gpsBtn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
       "rulesPassed": 30
     },
     {
       "project": "tablet-768",
-      "state": "accessibilite-choix-lieu",
-      "violations": [],
-      "incomplete": [],
-      "rulesPassed": 14
-    },
-    {
-      "project": "tablet-768",
-      "state": "accessibilite-budget-trajet",
-      "violations": [],
-      "incomplete": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "tags": [
-            "cat.color",
-            "wcag2aa",
-            "wcag143",
-            "TTv5",
-            "TT13.c",
-            "EN-301-549",
-            "EN-9.1.4.3",
-            "ACT"
-          ],
-          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
-          "nodes": [
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "8.3pt (11px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
-                      "target": [
-                        "#fallbackLabel"
-                      ]
-                    },
-                    {
-                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
-                      "target": [
-                        "#routeViz"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div id=\"fallbackLabel\" class=\"map-label\">Lyon → Valence</div>",
-              "target": [
-                "#fallbackLabel"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "messageKey": "nonBmp"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element content contains only non-text characters"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<button id=\"gpsBtn\" class=\"icon-btn\" title=\"Utiliser ma position\" aria-label=\"Utiliser ma position\">⌖</button>",
-              "target": [
-                "#gpsBtn"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
-            }
-          ]
-        }
-      ],
-      "rulesPassed": 28
-    },
-    {
-      "project": "tablet-768",
       "state": "accessibilite-autonomie",
       "violations": [],
       "incomplete": [
@@ -6908,14 +7109,14 @@
           ]
         }
       ],
-      "rulesPassed": 29
+      "rulesPassed": 31
     },
     {
       "project": "mobile-390",
       "state": "accessibilite-choix-lieu",
       "violations": [],
       "incomplete": [],
-      "rulesPassed": 14
+      "rulesPassed": 15
     },
     {
       "project": "mobile-390",
@@ -7001,7 +7202,7 @@
           ]
         }
       ],
-      "rulesPassed": 28
+      "rulesPassed": 30
     },
     {
       "project": "mobile-390",
@@ -7137,14 +7338,14 @@
           ]
         }
       ],
-      "rulesPassed": 29
+      "rulesPassed": 31
     },
     {
       "project": "mobile-360",
       "state": "accessibilite-choix-lieu",
       "violations": [],
       "incomplete": [],
-      "rulesPassed": 14
+      "rulesPassed": 15
     },
     {
       "project": "mobile-360",
@@ -7230,7 +7431,7 @@
           ]
         }
       ],
-      "rulesPassed": 28
+      "rulesPassed": 30
     },
     {
       "project": "mobile-360",
@@ -7366,7 +7567,7 @@
           ]
         }
       ],
-      "rulesPassed": 29
+      "rulesPassed": 31
     }
   ],
   "diagnostics": [],
