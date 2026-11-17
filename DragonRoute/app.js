@@ -9,7 +9,7 @@ let mapView=null,currentStation=null,detailSequence=0;
 let orsLastRequest=-Infinity;
 let ignLastRequest=-Infinity;
 const ignCache=new Map();
-let geoLastRequest=-Infinity,placePending=null,selectedStop=null,budgetReference=null,rangeMeasuredAt=null;
+let geoLastRequest=-Infinity,geoBlockedUntil=0,placePending=null,selectedStop=null,budgetReference=null,rangeMeasuredAt=null;
 const geoCache=new Map();
 const dimensionFields={height:"truckHeight",width:"truckWidth",length:"truckLength",weight:"truckWeight",axleload:"truckAxleload"};
 const avoidLabels={tollways:"péages",highways:"autoroutes",ferries:"ferries"};
@@ -139,7 +139,13 @@ async function getJSON(url,label,ms=16000){
   const t=makeTimeout(ms);
   try{
     const r=await fetch(url,{signal:t.signal,headers:{Accept:"application/json"}});
-    if(!r.ok) throw new Error(`${label} : HTTP ${r.status}`);
+    if(!r.ok){
+      const error=new Error(`${label} : HTTP ${r.status}`);
+      error.status=r.status;
+      const retry=r.headers.get("Retry-After");
+      error.retryAfterMs=retry==null?0:/^\d+$/.test(retry)?Number(retry)*1000:Date.parse(retry)-Date.now();
+      throw error;
+    }
     return await r.json();
   }catch(e){
     if(e.name==="AbortError") throw new Error(`${label} : délai dépassé`);
@@ -196,23 +202,52 @@ function choosePlace(places,field){
   dialog.showModal();
   return new Promise((resolve,reject)=>{placePending={places,resolve,reject}});
 }
+function geocodedPlace(feature){
+  const coordinates=feature?.geometry?.coordinates,p=feature?.properties;
+  if(feature?.type!=="Feature"||feature.geometry?.type!=="Point"||!Array.isArray(coordinates)||coordinates.length!==2||
+    !coordinates.every(Number.isFinite)||Math.abs(coordinates[0])>180||Math.abs(coordinates[1])>90||!p||!["address","poi"].includes(p._type))return null;
+  const texts=value=>(Array.isArray(value)?value:[value]).filter(x=>typeof x==="string"&&x.trim()).map(x=>x.trim());
+  const label=texts(p._type==="address"?p.label:p.toponym)[0]||texts(p.name)[0];
+  if(!label)return null;
+  const context=texts(p.context),categories=texts(p.category);
+  const details=[...texts(p.postcode),...texts(p.city),...(context.length?context:texts(p.depcode).map(code=>"Département "+code)),
+    ...(p._type==="poi"?(categories.includes("commune")?["commune"]:categories.slice(0,1)):[])];
+  const parts=[label];
+  for(const detail of details)if(!parts.some(part=>part.toLocaleLowerCase("fr-FR").includes(detail.toLocaleLowerCase("fr-FR"))))parts.push(detail);
+  return {lat:coordinates[1],lon:coordinates[0],label:parts.join(" · ")};
+}
 async function geocode(q,field){
   if(q==="__CURRENT__"){
     if(!currentPos) throw new Error("Position GPS non disponible");
     return {lat:currentPos[0],lon:currentPos[1],label:"Ma position"};
   }
-  const key=q.trim().toLocaleLowerCase("fr-FR");
-  let places=geoCache.get(key);
+  const query=q.trim().replace(/\s+/g," "),key=query.toLocaleLowerCase("fr-FR");
+  const cached=geoCache.get(key);
+  let places=cached&&performance.now()-cached.at<300000?cached.places:null;
   if(!places){
-    await sleep(Math.max(0,1100-(performance.now()-geoLastRequest)));
+    const remaining=Math.ceil((geoBlockedUntil-performance.now())/1000);
+    if(remaining>0)throw new Error(`Recherche d’adresses temporairement limitée. Réessayer dans ${remaining} s.`);
+    await sleep(Math.max(0,250-(performance.now()-geoLastRequest)));
+    if(activeAbort?.signal.aborted)throw new Error("Recherche d’adresses annulée.");
     geoLastRequest=performance.now();
-    const p=new URLSearchParams({format:"jsonv2",limit:"5",addressdetails:"1",countrycodes:"fr",q});
-    const d=await getJSON(`${C.nominatim}/search?${p}`,"Géocodage");
-    if(!Array.isArray(d))throw new Error("Réponse de géocodage invalide.");
-    places=[...new Map(d.filter(x=>x.lat!=null&&x.lon!=null&&String(x.lat).trim()!==""&&String(x.lon).trim()!==""&&Number.isFinite(+x.lat)&&Number.isFinite(+x.lon)&&Math.abs(+x.lat)<=90&&Math.abs(+x.lon)<=180&&typeof x.display_name==="string"&&x.display_name.trim()).map(x=>({lat:+x.lat,lon:+x.lon,label:x.display_name})).map(p=>[`${p.lat},${p.lon},${p.label}`,p])).values()].slice(0,5);
-    if(!places.length)throw new Error(`Lieu introuvable : ${q}`);
+    const p=new URLSearchParams({q:query,index:"address,poi",limit:"5",autocomplete:"false"});
+    let d;
+    try{d=await getJSON(`${C.geocodingApi}?${p}`,"Recherche d’adresses IGN")}
+    catch(e){
+      if(e.status===429){
+        const delay=Math.max(5000,Number.isFinite(e.retryAfterMs)?e.retryAfterMs:0);
+        geoBlockedUntil=performance.now()+delay;
+        throw new Error(`Recherche d’adresses temporairement limitée. Réessayer dans ${Math.ceil(delay/1000)} s.`);
+      }
+      throw e;
+    }
+    if(d?.type!=="FeatureCollection"||!Array.isArray(d.features))throw new Error("Réponse de géocodage invalide.");
+    if(!d.features.length)throw new Error(`Lieu introuvable en France : ${query}. Préciser la commune ou le code postal.`);
+    places=[...new Map(d.features.map(geocodedPlace).filter(Boolean).map(p=>[`${p.lat},${p.lon},${p.label}`,p])).values()].slice(0,5);
+    if(!places.length)throw new Error("Réponse de géocodage invalide : aucun lieu exploitable.");
+    geoCache.delete(key);
     if(geoCache.size>=30)geoCache.delete(geoCache.keys().next().value);
-    geoCache.set(key,places);
+    geoCache.set(key,{at:performance.now(),places});
   }
   return places.length===1?places[0]:choosePlace(places,field);
 }

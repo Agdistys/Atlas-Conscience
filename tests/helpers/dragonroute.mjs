@@ -1,5 +1,10 @@
-const lyon={lat:'45.7640',lon:'4.8357',display_name:'Lyon, France'};
-const valence={lat:'44.9334',lon:'4.8924',display_name:'Valence, France'};
+export const geocodingPattern='https://data.geopf.fr/geocodage/search?**';
+export function addressFeature(lon,lat,label,properties={}){
+  return {type:'Feature',geometry:{type:'Point',coordinates:[lon,lat]},properties:{_type:'address',label,...properties}};
+}
+export const placesResponse=(...features)=>({type:'FeatureCollection',features});
+const lyon=addressFeature(4.8357,45.7640,'Lyon, France');
+const valence=addressFeature(4.8924,44.9334,'Valence, France');
 
 export const orsPattern='https://routing.example.test/api/route';
 export async function publicRouting(page){
@@ -31,10 +36,10 @@ export async function mockDragonRoute(page){
   await page.route('https://cdn.jsdelivr.net/**',route=>route.abort());
   await page.route('https://tile.openstreetmap.org/**',route=>route.abort());
 
-  await page.route('https://nominatim.openstreetmap.org/search?**',async route=>{
+  await page.route(geocodingPattern,async route=>{
     const url=new URL(route.request().url());
     const q=(url.searchParams.get('q')||'').toLowerCase();
-    await json(route,[q.includes('valence')?valence:lyon]);
+    await json(route,placesResponse(q.includes('valence')?valence:lyon));
   });
 
   await page.route('https://router.project-osrm.org/route/v1/driving/**',route=>{

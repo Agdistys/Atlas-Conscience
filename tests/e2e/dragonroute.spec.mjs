@@ -18,7 +18,7 @@ async function configureOrs(page){
 }
 
 test('service public absent : controles indisponibles avant recherche', async ({ page }) => {
-  const requests=[];page.on('request',r=>{if(/route\/v1|openrouteservice\/v2|nominatim/.test(r.url()))requests.push(r.url())});
+  const requests=[];page.on('request',r=>{if(/route\/v1|openrouteservice\/v2|geocodage/.test(r.url()))requests.push(r.url())});
   await page.goto('/DragonRoute/');
   for(const id of ['avoidTolls','avoidFerries'])await expect(page.locator('#'+id)).toBeDisabled();
   await expect(page.locator('#avoidHighways')).toBeEnabled();
@@ -241,7 +241,7 @@ test('parcours clavier et mouvement reduit', async ({ page }) => {
 });
 
 test('erreur de geocodage explicite', async ({ page }) => {
-  await page.route('https://nominatim.openstreetmap.org/search?**', route => route.fulfill({ status: 500, body: 'Service indisponible' }));
+  await page.route('https://data.geopf.fr/geocodage/search?**', route => route.fulfill({ status: 500, body: 'Service indisponible' }));
   await page.goto('/DragonRoute/');
   await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('HTTP 500');
@@ -252,7 +252,7 @@ test('erreur de geocodage explicite', async ({ page }) => {
 });
 
 for (const [service, pattern] of [
-  ['geocodage', 'https://nominatim.openstreetmap.org/search?**'],
+  ['geocodage', 'https://data.geopf.fr/geocodage/search?**'],
   ['routage', 'https://router.project-osrm.org/route/v1/driving/**']
 ]) {
   test(`relance apres succes puis panne du ${service} et recuperation`, async ({ page }) => {
@@ -292,7 +292,7 @@ for (const [service, pattern] of [
 test('Entree pendant une recherche ne cree pas de requetes concurrentes', async ({ page }) => {
   let requests = 0;
   page.on('request', request => {
-    if (request.url().startsWith('https://nominatim.openstreetmap.org/search?')) requests++;
+    if (request.url().startsWith('https://data.geopf.fr/geocodage/search?')) requests++;
   });
   await page.goto('/DragonRoute/');
   await page.locator('#goBtn').click();

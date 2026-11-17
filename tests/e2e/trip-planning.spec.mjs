@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mockDragonRoute } from '../helpers/dragonroute.mjs';
+import { mockDragonRoute, geocodingPattern, addressFeature, placesResponse } from '../helpers/dragonroute.mjs';
 import { capture, checkAccessibility, checkOverflow } from '../helpers/inspection.mjs';
 
 test.beforeEach(async ({page}) => { await mockDragonRoute(page); });
@@ -11,14 +11,16 @@ async function ready(page) {
 
 test('geocodage ambigu : choix explicite, libelles, annulation et cache', async ({page}, info) => {
   let requests=0;
-  await page.route('https://nominatim.openstreetmap.org/search?**', r => {
+  await page.route(geocodingPattern, r => {
     requests++;
     const url=new URL(r.request().url());
     expect(url.searchParams.get('limit')).toBe('5');
-    return r.fulfill({json:[
-      {lat:'45.764',lon:'4.8357',display_name:'Lyon, 69001, France'},
-      {lat:'45.75',lon:'4.84',display_name:'Autre lieu, 69002, France'}
-    ]});
+    expect(url.searchParams.get('index')).toBe('address,poi');
+    expect(url.searchParams.get('autocomplete')).toBe('false');
+    return r.fulfill({json:placesResponse(
+      addressFeature(4.8357,45.764,'Lyon, 69001, France'),
+      addressFeature(4.84,45.75,'Autre lieu, 69002, France')
+    )});
   });
   await page.goto('/DragonRoute/');
   await page.locator('#start').fill('Lieu');
@@ -49,12 +51,12 @@ test('geocodage ambigu : choix explicite, libelles, annulation et cache', async 
 });
 
 test('geocodage : coordonnees invalides refusees et libelle hostile en texte', async ({page}) => {
-  await page.route('https://nominatim.openstreetmap.org/search?**',r=>r.fulfill({json:[
-    {lat:'NaN',lon:'4',display_name:'Invalide'},
-    {lat:'91',lon:'4',display_name:'Invalide'},
-    {lat:'45',lon:'4',display_name:'<img src=x onerror=alert(1)>'},
-    {lat:'46',lon:'5',display_name:'Autre lieu'}
-  ]}));
+  await page.route(geocodingPattern,r=>r.fulfill({json:placesResponse(
+    addressFeature(4,'NaN','Invalide'),
+    addressFeature(4,91,'Invalide'),
+    addressFeature(4,45,'<img src=x onerror=alert(1)>'),
+    addressFeature(5,46,'Autre lieu')
+  )}));
   await page.goto('/DragonRoute/');await page.locator('#goBtn').click();
   await expect(page.locator('#placeChoices input')).toHaveCount(2);
   await expect(page.locator('#placeChoices img')).toHaveCount(0);

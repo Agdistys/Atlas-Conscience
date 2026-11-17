@@ -4,6 +4,9 @@ import { pathToFileURL } from 'node:url';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
+  'adresses IGN : communes homonymes, lieux nommes et coordonnees choisies',
+  'adresses IGN : reponses vides ou invalides sans trajet ni repli',
+  'adresses IGN : quota respecte, relance manuelle et expiration du cache',
   'IGN sans autoroute : trajet et stations gardent les exclusions et le cache',
   'IGN erreurs et reponses incoherentes refusees sans repli',
   'IGN comparaison interrompue ou en panne preserve seulement le trajet',
