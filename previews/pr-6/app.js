@@ -120,7 +120,7 @@ function validateCarbon(c){
  if(!c||c.version!=='impact-estimate-v1'||c.status!=='estimated'||c.dataset!==CARBON_DATA.version||!c.input)throw new Error('Version de calcul carbone non reconnue.');
  const i=c.input,input={mode:i.mode,distanceMeters:i.distanceMeters,date:journalDate(i.date),start:journalText(i.start,1000,true),end:journalText(i.end,1000,true)};
  const expected=estimateCarbon(input,c.factor?.id,c.occupants,journalInstant(c.calculatedAt));
- if(JSON.stringify(c.factor)!==JSON.stringify(expected.factor)||c.valueKg!==expected.valueKg||c.vehicleKg!==expected.vehicleKg||c.occupants!==expected.occupants)throw new Error('Estimation carbone incohérente.');
+ if(Object.keys(expected.factor).some(k=>c.factor[k]!==expected.factor[k])||c.valueKg!==expected.valueKg||c.vehicleKg!==expected.vehicleKg||c.occupants!==expected.occupants)throw new Error('Estimation carbone incohérente.');
  return expected;
 }
 function currentCarbon(e){return e.emissions?.status==='estimated'&&JSON.stringify(carbonInput(e))===JSON.stringify(carbonInput(e.emissions.input))}
@@ -170,6 +170,27 @@ function journalMonthly(entries,month){
  const carbonGroups={};for(const e of rows){if(currentCarbon(e)){const scope=e.emissions.factor.scope,g=carbonGroups[scope]??={valueKg:0,count:0};g.valueKg+=e.emissions.valueKg;g.count++}}
  return {count:rows.length,meters:rows.reduce((s,e)=>s+(e.distanceMeters??0),0),unknown:rows.filter(e=>e.distanceMeters===null).length,carbonUnknown:rows.filter(e=>!currentCarbon(e)).length,carbonGroups,modes};
 }
+function planJournalImport(current,incoming,mode,choices={},copyId=i=>'copy-'+i){
+ const base=validateJournal(current),source=validateJournal(incoming);
+ if(!['merge','replace'].includes(mode))throw new Error('Choix d’import invalide.');
+ const entries=mode==='replace'?[]:structuredClone(base.entries),rows=[],byId=new Map(),byIdentity=new Map();
+ function index(e){byId.set(e.id,e);const k=journalIdentity(e),list=byIdentity.get(k)||[];list.push(e);byIdentity.set(k,list)}
+ entries.forEach(index);let added=0,identical=0,skipped=0,unresolved=0,copies=0;
+ source.entries.forEach((e,i)=>{
+  const existing=byId.get(e.id),related=existing?[existing]:(byIdentity.get(journalIdentity(e))||[]);
+  let kind=mode==='replace'?'restore':existing?(JSON.stringify(e)===JSON.stringify(existing)?'identical':'conflict'):related.length?'duplicate':'new',choice=choices[i]??'',accept=false,copy=false;
+  if(['restore','new'].includes(kind))accept=true;
+  else if(kind==='identical')identical++;
+  else if(choice==='skip')skipped++;
+  else if((kind==='conflict'&&choice==='both')||(kind==='duplicate'&&choice==='add')){accept=true;copy=kind==='conflict'}
+  else {choice='';unresolved++}
+  rows.push({entry:e,index:i,kind,choice,related:related.slice(0,3),relatedCount:related.length});
+  if(accept){const next=structuredClone(e);if(copy){next.id=copyId(i);if(byId.has(next.id)||source.entries.some(x=>x.id===next.id))throw new Error('Identifiant de copie déjà utilisé.');copies++}entries.push(next);index(next);added++}
+ });
+ let next=null,error='';try{const validated=validateJournal({version:2,enabled:base.enabled,entries});if(!unresolved)next=validated}catch(e){error=e.message}
+ return {rows,next,error,added,identical,skipped,unresolved,copies,changed:!!next&&JSON.stringify(next)!==JSON.stringify(base)};
+}
+
 // END JOURNAL MODEL
 const JOURNAL_KEY='dragonroute.journal.v2.'+PROFILE_SCOPE,LEGACY_JOURNAL_KEY='dragonroute.journal.v1.'+PROFILE_SCOPE;
 let journal=emptyJournal(),journalSnapshot=null,journalLegacySnapshot=null,journalBlocked=false,journalNotice='',journalDraft=null;
@@ -188,7 +209,7 @@ function writeJournal(next){
 function renderJournal(){
  $('journalEnable').checked=journal.enabled;$('journalEnable').disabled=journalBlocked;
  $('journalNew').disabled=!journal.enabled||journalBlocked;$('journalCopy').disabled=!journal.enabled||journalBlocked||!trip||busy;
- $('journalExport').disabled=journalBlocked;$('journalExportLegacy').hidden=journalLegacySnapshot===null;
+ $('journalExport').disabled=journalBlocked;$('journalImportBtn').disabled=journalBlocked;$('journalExportLegacy').hidden=journalLegacySnapshot===null;
  $('journalState').textContent=journal.enabled?'Journal activé. Chaque ajout reste volontaire.':'Journal désactivé. Les entrées déjà enregistrées restent consultables et exportables.';
  const month=$('journalMonth').value;if(!/^\d{4}-\d{2}$/.test(month)){$('journalSummary').textContent='Choisir un mois valide.';$('journalCarbonSummary').textContent='';$('journalModes').replaceChildren();$('journalEntries').replaceChildren();return}
  const total=journalMonthly(journal.entries,month),km=n=>fmt(n/1000,2)+' km';
@@ -255,8 +276,62 @@ function saveJournalEntry(event){
   if(writeJournal(next)){journalDraft=null;$('journalEditor').hidden=true;$('journalMonth').value=e.date.slice(0,7);renderJournal();$('journalMessage').textContent=d.editing?'Trajet corrigé. Bilan recalculé.':'Trajet effectué enregistré.';$('journalNew').focus()}
  }catch(e){$('journalMessage').textContent=e.message}
 }
+let journalImportSequence=0,pendingJournalImport=null;
+function journalImportEntry(e){
+ return `<p><strong>${escapeHtml(e.start)} → ${escapeHtml(e.end)}</strong></p><p>${escapeHtml(e.date)} · ${JOURNAL_MODES[e.mode]} · ${e.distanceMeters===null?'Distance inconnue':fmt(e.distanceMeters/1000,3)+' km'} · ${currentCarbon(e)?carbonAmount(e.emissions.valueKg)+' estimés':'CO₂e non estimé'}.</p>${e.note?`<p>${escapeHtml(e.note)}</p>`:''}<p class="note">${e.distanceSource==='route'?'Distance issue du trajet préparé':e.distanceSource==='declared'?'Distance déclarée':'Distance non renseignée'} · créé le ${escapeHtml(e.createdAt)} · révision ${e.revision} · mise à jour ${escapeHtml(e.updatedAt)} · ${(e.emissionsHistory??[]).length} estimation(s) historique(s).</p><details><summary>Calcul routier conservé</summary><p>${e.calculation?`${escapeHtml(e.calculation.engine.toUpperCase())} · ${escapeHtml(e.calculation.start)} → ${escapeHtml(e.calculation.end)} · ${fmt(e.calculation.distanceMeters/1000,3)} km · ${escapeHtml(e.calculation.calculatedAt)} · données ${escapeHtml(e.calculation.resourceVersion??'version non fournie')}${e.calculation.stop?' · arrêt : '+escapeHtml(e.calculation.stop):''}`:'Aucun calcul routier associé.'}</p></details>${journalCarbonMarkup(e)}`;
+}
+function refreshJournalImport(){
+ const p=pendingJournalImport;if(!p)return;
+ $('journalImportConfirm').checked=false;$('journalImportApply').disabled=true;
+ try{
+  const mode=$('journalImportMode').value,plan=planJournalImport(journal,p.source,mode,p.choices,i=>p.copyIds[i]);p.plan=plan;
+  const dates=p.source.entries.map(e=>e.date).sort(),unknown=p.source.entries.filter(e=>e.distanceMeters===null).length,estimated=p.source.entries.filter(currentCarbon).length;
+  $('journalImportSummary').textContent=`Fichier : ${p.filename}. ${p.source.entries.length} trajet(s)${dates.length?' du '+dates[0]+' au '+dates.at(-1):''} ; ${unknown} distance(s) inconnue(s), ${estimated} estimation(s) carbone conservée(s). Aucun nouveau calcul. Les champs étrangers au format reconnu ne sont pas repris.`;
+  $('journalImportCurrent').textContent=`Journal actuel : ${journal.entries.length} trajet(s). Il restera ${journal.enabled?'activé':'désactivé'}, indépendamment du fichier. Le profil, les autres aperçus et la copie d’origine restent inchangés.`;
+  $('journalImportOutcome').textContent=mode==='replace'?`Remplacement : les ${journal.entries.length} trajet(s) actuels seront remplacés par les ${p.source.entries.length} du fichier.${!p.source.entries.length?' Ce fichier est vide : le journal courant sera vidé.':''} Exporter le journal actuel permet de conserver une sauvegarde avant confirmation.`:`Ajout : ${plan.added} trajet(s), dont ${plan.copies} copie(s) distincte(s) ; ${plan.identical} déjà identique(s), ${plan.skipped} écarté(s), ${plan.unresolved} choix restant(s). Les trajets actuels sont conservés.`;
+  $('journalImportRows').innerHTML=plan.rows.map(r=>{
+   const names={restore:'À restaurer',new:'À ajouter',identical:'Déjà présent, inchangé',conflict:'Deux versions différentes du même trajet',duplicate:'Doublon possible : même date, lieux, mode et distance'};
+   return `<article class="saved-row"><h3>Trajet ${r.index+1} · ${names[r.kind]}</h3><details><summary>Examiner le trajet du fichier</summary>${journalImportEntry(r.entry)}</details>${r.choice==='both'?'<p>Cette copie sera comptée comme une entrée distincte dans le bilan.</p>':''}${r.relatedCount&&r.kind!=='identical'?`<details><summary>Comparer avec les ${r.relatedCount} trajet(s) déjà retenu(s)</summary>${r.related.map(journalImportEntry).join('<hr>')}${r.relatedCount>3?'<p>Les trois premiers sont affichés. Exporter le journal actuel permet de consulter toutes ses entrées.</p>':''}</details>`:''}${['conflict','duplicate'].includes(r.kind)?`<label for="journalImportChoice${r.index}">Choix pour le trajet ${r.index+1}</label><select id="journalImportChoice${r.index}" data-journal-choice="${r.index}"><option value="">Choisir avant l’import</option><option value="skip" ${r.choice==='skip'?'selected':''}>Conserver uniquement les trajets déjà retenus</option><option value="${r.kind==='conflict'?'both':'add'}" ${['both','add'].includes(r.choice)?'selected':''}>${r.kind==='conflict'?'Conserver aussi cette version comme copie distincte':'Ajouter aussi ce déplacement'}</option></select>`:''}</article>`;
+  }).join('')||'<p>Le fichier ne contient aucun trajet.</p>';
+  $('journalImportMessage').textContent=plan.error||(plan.unresolved?'Résoudre les choix signalés avant de confirmer.':!plan.changed?'Aucun changement à importer.':'Vérifier le résultat, puis confirmer pour enregistrer.');
+  $('journalImportConfirmText').textContent=mode==='replace'?'Je confirme le remplacement du journal actuel par le contenu du fichier.':'Je confirme les ajouts et les choix présentés.';
+  $('journalImportConfirm').disabled=!plan.next||!plan.changed;
+ }catch(e){p.plan=null;$('journalImportMessage').textContent='Import impossible : '+e.message;$('journalImportConfirm').disabled=true}
+}
+function bindJournalImport(){
+ $('journalImportBtn').addEventListener('click',()=>{if(!journalBlocked)$('journalImportFile').click()});
+ $('journalImportCancel').addEventListener('click',()=>$('journalImportDialog').close());
+ $('journalImportDialog').addEventListener('close',()=>{pendingJournalImport=null;journalImportSequence++;$('journalImportFile').value='';if($('journalDialog').open)$('journalImportBtn').focus()});
+ $('journalDialog').addEventListener('close',()=>{journalImportSequence++;pendingJournalImport=null;if($('journalImportDialog').open)$('journalImportDialog').close()});
+ $('journalImportExport').addEventListener('click',()=>{if(!journalBlocked)downloadProfile(journal,'DragonRoute-journal-avant-import.json')});
+ $('journalImportMode').addEventListener('change',refreshJournalImport);
+ $('journalImportRows').addEventListener('change',ev=>{const i=ev.target.dataset.journalChoice;if(i===undefined||!pendingJournalImport)return;pendingJournalImport.choices[i]=ev.target.value;refreshJournalImport();$('journalImportChoice'+i)?.focus()});
+ $('journalImportConfirm').addEventListener('change',()=>{$('journalImportApply').disabled=!$('journalImportConfirm').checked||!pendingJournalImport?.plan?.next||!pendingJournalImport.plan.changed});
+ $('journalImportFile').addEventListener('change',async ev=>{
+  const file=ev.target.files[0];ev.target.value='';if(!file)return;const seq=++journalImportSequence;pendingJournalImport=null;$('journalImportApply').disabled=true;$('journalMessage').textContent='Lecture de la sauvegarde…';
+  try{
+   if(journalBlocked)throw new Error('Le journal actuel ne peut pas être chargé. Son remplacement est bloqué.');
+   if(file.size>2000000)throw new Error('Fichier trop volumineux : limite de 2 Mo.');
+   const source=validateJournal(JSON.parse((await file.text()).replace(/^\uFEFF/,'')));
+   if(seq!==journalImportSequence||!$('journalDialog').open)return;
+   const reserved=new Set([...journal.entries,...source.entries].map(e=>e.id)),copyIds=source.entries.map(()=>{let id;do{id=crypto.randomUUID()}while(reserved.has(id));reserved.add(id);return id});
+   pendingJournalImport={source,filename:file.name.slice(0,200),choices:{},copyIds,base:JSON.stringify(journal),plan:null};$('journalImportMode').value='merge';refreshJournalImport();$('journalMessage').textContent='';if(!$('journalImportDialog').open)$('journalImportDialog').showModal();
+  }catch(e){if(seq===journalImportSequence){$('journalMessage').textContent='Import refusé : '+e.message+' Le journal existant est conservé.';if($('journalImportDialog').open)$('journalImportMessage').textContent=$('journalMessage').textContent}}
+ });
+ $('journalImportApply').addEventListener('click',()=>{
+  const p=pendingJournalImport;if(!p||!$('journalImportConfirm').checked)return;
+  try{
+   if(p.base!==JSON.stringify(journal))throw new Error('Le journal a changé depuis la lecture du fichier. Annuler et reprendre l’import.');
+   const plan=planJournalImport(journal,p.source,$('journalImportMode').value,p.choices,i=>p.copyIds[i]);if(!plan.next||!plan.changed)throw new Error(plan.error||'Résoudre les choix avant de confirmer.');
+   if(!writeJournal(plan.next))throw new Error($('journalMessage').textContent);
+   const latest=journal.entries.map(e=>e.date).sort().at(-1);if(latest)$('journalMonth').value=latest.slice(0,7);
+   pendingJournalImport=null;journalDraft=null;$('journalEditor').hidden=true;$('journalImportDialog').close();renderJournal();$('journalMessage').textContent='Sauvegarde importée. Sources, calculs et historiques conservés ; aucun nouveau calcul.';
+  }catch(e){$('journalImportMessage').textContent=e.message+' Aucun remplacement effectué.'}
+ });
+}
+
 function bindJournal(){
- loadJournal();$('journalBtn').addEventListener('click',openJournal);
+ loadJournal();bindJournalImport();$('journalBtn').addEventListener('click',openJournal);
  $('journalRecordBtn').addEventListener('click',()=>{openJournal();if(journal.enabled)journalForm(null,true);else $('journalMessage').textContent='Activer volontairement le journal, puis reprendre le trajet affiché.'});
  $('journalEnable').addEventListener('change',()=>{if(writeJournal({...journal,enabled:$('journalEnable').checked})){journalDraft=null;$('journalEditor').hidden=true;renderJournal();$('journalMessage').textContent=journal.enabled?'Journal activé. Aucun trajet ajouté automatiquement.':'Journal désactivé. Les données restent conservées.'}else $('journalEnable').checked=journal.enabled});
  $('journalNew').addEventListener('click',()=>journalForm());$('journalCopy').addEventListener('click',()=>journalForm(null,true));

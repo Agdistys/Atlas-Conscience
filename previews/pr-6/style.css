@@ -60,3 +60,6 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 /* Voluntary local mobility journal */
 .journal-toggle{display:flex;gap:10px;align-items:center;margin:14px 0}.journal-toggle input{width:auto;flex:none}#journalDialog textarea{width:100%;resize:vertical;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:10px;font:inherit}#journalDialog h3,#journalDialog p,#journalEntries li{overflow-wrap:anywhere}#journalForm input[type=date],#journalMonth{min-width:0;width:100%}#journalModes{padding-left:20px}#journalDialog .profile-notice label{margin-bottom:0}
 @media(max-width:600px){.topbar{height:auto;min-height:54px;flex-wrap:wrap}.header-actions{justify-content:flex-end}.header-actions .ghost{padding:6px 9px;font-size:12px}}
+
+#journalImportDialog {overflow-wrap:anywhere}
+#journalImportDialog .saved-row {min-width:0}

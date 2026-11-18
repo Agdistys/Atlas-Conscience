@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-11-18T03:40:25.108Z",
-  "commit": "421c08ceeb5a0da09ad01b4cc0abadc69b276dbe",
+  "generatedAt": "2026-11-18T04:10:52.529Z",
+  "commit": "765f36763670a1c626c90f357e2697e7e2d370fc",
   "state": "inspection",
-  "passed": 356,
-  "total": 356,
+  "passed": 388,
+  "total": 388,
   "stages": {
     "contract": {
       "exitCode": 0,
@@ -8011,6 +8011,255 @@
         }
       ],
       "rulesPassed": 31
+    },
+    {
+      "project": "desktop-1440",
+      "state": "accessibilite-journal-import-apercu",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 20
+    },
+    {
+      "project": "desktop-1440",
+      "state": "accessibilite-journal-import-conflit",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 20
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-journal-import-apercu",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscuring",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Distance non renseignée · créé le 2026-11-17T10:00:00.000Z · révision 1 · mise à jour 2026-11-17T10:00:00.000Z · 0 estimation(s) historique(s).</p>",
+              "target": [
+                "article > details[open=\"\"] > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 19
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-journal-import-conflit",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 20
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-journal-import-apercu",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 20
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-journal-import-conflit",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 20
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-journal-import-apercu",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 20
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-journal-import-conflit",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "13.5pt (18px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalImportDialog\" aria-labelledby=\"journalImportTitle\" open=\"\">",
+                      "target": [
+                        "#journalImportDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 id=\"journalImportTitle\">Vérifier la sauvegarde du journal</h2>",
+              "target": [
+                "#journalImportTitle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalImportDialog\" aria-labelledby=\"journalImportTitle\" open=\"\">",
+                      "target": [
+                        "#journalImportDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Le fichier est lu uniquement sur cet appareil. Aucun trajet n’est ajouté avant confirmation. Limites : 2 Mo et 1 000 trajets.</p>",
+              "target": [
+                "#journalImportDialog > .note:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalImportDialog\" aria-labelledby=\"journalImportTitle\" open=\"\">",
+                      "target": [
+                        "#journalImportDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalImportSummary\">Fichier : journal.json. 1 trajet(s) du 2026-11-17 au 2026-11-17 ; 0 distance(s) inconnue(s), 1 estimation(s) carbone conservée(s). Aucun nouveau calcul. Les champs étrangers au format reconnu ne sont pas repris.</p>",
+              "target": [
+                "#journalImportSummary"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalImportDialog\" aria-labelledby=\"journalImportTitle\" open=\"\">",
+                      "target": [
+                        "#journalImportDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalImportCurrent\" class=\"note\">Journal actuel : 1 trajet(s). Il restera activé, indépendamment du fichier. Le profil, les autres aperçus et la copie d’origine restent inchangés.</p>",
+              "target": [
+                "#journalImportCurrent"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 20
     },
     {
       "project": "desktop-1440",

@@ -168,7 +168,7 @@
         <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 421c08c · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 765f367 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -235,7 +235,20 @@
     </form>
   </section>
   <section class="profile-section" aria-labelledby="journalBalanceTitle"><h3 id="journalBalanceTitle">Bilan mensuel</h3><label for="journalMonth">Mois à consulter</label><input id="journalMonth" type="month"><p id="journalSummary" role="status"></p><p id="journalCarbonSummary"></p><ul id="journalModes"></ul><div id="journalEntries" class="saved-list"></div></section>
-  <section class="profile-section"><h3>Mes données de mobilité</h3><p class="note">L’export contient les lieux, dates et notes en clair. Il reste sur cet appareil jusqu’à son partage. Les estimations restent locales. Le journal accepte jusqu’à 1 000 trajets et 50 estimations historiques par trajet ; aucun ancien trajet n’est supprimé automatiquement.</p><div class="dialog-actions"><button id="journalExport" class="ghost" type="button">Exporter le journal</button><button id="journalExportLegacy" class="ghost" type="button" hidden>Exporter le journal d’origine</button><button id="journalErase" class="ghost" type="button">Effacer le journal</button></div></section>
+  <section class="profile-section"><h3>Mes données de mobilité</h3><p class="note">L’export contient les lieux, dates et notes en clair. Il reste sur cet appareil jusqu’à son partage. Les estimations restent locales. Le journal accepte jusqu’à 1 000 trajets et 50 estimations historiques par trajet ; aucun ancien trajet n’est supprimé automatiquement.</p><div class="dialog-actions"><button id="journalExport" class="ghost" type="button">Exporter le journal</button><button id="journalImportBtn" class="ghost" type="button">Importer une sauvegarde</button><input id="journalImportFile" type="file" accept="application/json,.json" hidden><button id="journalExportLegacy" class="ghost" type="button" hidden>Exporter le journal d’origine</button><button id="journalErase" class="ghost" type="button">Effacer le journal</button></div></section>
+</dialog>
+
+<dialog id="journalImportDialog" aria-labelledby="journalImportTitle">
+  <h2 id="journalImportTitle">Vérifier la sauvegarde du journal</h2>
+  <p class="note">Le fichier est lu uniquement sur cet appareil. Aucun trajet n’est ajouté avant confirmation. Limites : 2 Mo et 1 000 trajets.</p>
+  <p id="journalImportSummary"></p><p id="journalImportCurrent" class="note"></p>
+  <label for="journalImportMode">Comment reprendre cette sauvegarde ?</label><select id="journalImportMode"><option value="merge">Ajouter au journal actuel</option><option value="replace">Remplacer le journal actuel</option></select>
+  <p id="journalImportOutcome" class="profile-notice"></p>
+  <button id="journalImportExport" class="ghost" type="button">Exporter le journal actuel avant l’import</button>
+  <div id="journalImportRows" class="saved-list"></div>
+  <p id="journalImportMessage" class="note" role="status" aria-live="polite"></p>
+  <label class="journal-toggle"><input id="journalImportConfirm" type="checkbox"><span id="journalImportConfirmText">Je confirme les choix présentés.</span></label>
+  <div class="dialog-actions"><button id="journalImportApply" class="primary" type="button" disabled>Confirmer l’import</button><button id="journalImportCancel" class="ghost" type="button">Annuler l’import</button></div>
 </dialog>
 
 <dialog id="profileDialog" aria-labelledby="profileTitle">
