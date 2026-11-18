@@ -72,8 +72,8 @@ test('budget carburant distinct du plein et peages inconnus', async ({page},info
   await expect(page.locator('#budgetFuel')).toHaveText('6,45 L · 12,90 €');
   await page.locator('#liters').fill('100');
   await expect(page.locator('#budgetFuel')).toContainText('12,90 €');
-  await expect(page.locator('.budget-lines')).toContainText('Tarif indisponible');
-  await expect(page.locator('.budget-lines')).toContainText('Incomplet');
+  await expect(page.locator('#tripBudget .budget-lines')).toContainText('Tarif indisponible');
+  await expect(page.locator('#tripBudget .budget-lines')).toContainText('Incomplet');
   await expect(page.locator('#useStationPrice')).toBeDisabled();
   await page.locator('input[name=routeChoice][value="1"]').check();
   await expect(page.locator('#budgetFuel')).toHaveText('7,32 L · 14,63 €');
