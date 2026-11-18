@@ -5,7 +5,7 @@
   "scripts": {
     "test:contract": "node tests/repo-contract.mjs",
     "test:e2e": "playwright test",
-    "test:inspection": "node --test tests/inspection-report.test.mjs tests/service-worker.test.mjs tests/routing-server.test.mjs tests/tolls-server.test.mjs tests/tariff-tables.test.mjs tests/toll-guide.test.mjs tests/profile.test.mjs tests/journal.test.mjs tests/carbon.test.mjs tests/journal-import.test.mjs tests/station-hours.test.mjs tests/prepared-trips.test.mjs tests/carpool.test.mjs tests/walking.test.mjs tests/comparison.test.mjs tests/timing.test.mjs",
+    "test:inspection": "node --test tests/inspection-report.test.mjs tests/service-worker.test.mjs tests/routing-server.test.mjs tests/tolls-server.test.mjs tests/tariff-tables.test.mjs tests/toll-guide.test.mjs tests/profile.test.mjs tests/journal.test.mjs tests/carbon.test.mjs tests/journal-import.test.mjs tests/station-hours.test.mjs tests/prepared-trips.test.mjs tests/carpool.test.mjs tests/walking.test.mjs tests/comparison.test.mjs tests/timing.test.mjs tests/prospective-carbon.test.mjs",
     "start:tolls": "node server/tolls.mjs",
     "start:routing": "node server/routing.mjs",
     "inspect": "node tests/inspect.mjs",
