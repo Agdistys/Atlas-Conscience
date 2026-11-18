@@ -800,14 +800,14 @@ function hoursRows(raw){
 function renderStationDetails(s){
   const rows=hoursRows(s.hours);
   $("stationTitle").textContent=s.city?`Station à ${s.city}`:"Station";
-  $("stationDetails").innerHTML=`<p class="detail-address">${escapeHtml(s.address)}</p><p>${Number.isFinite(s.price)?`${escapeHtml(s.fuel)} : ${fmt(s.price,3)} €/L · ${escapeHtml(age(s.updated))}`:"Prix actuel non renseigné pour le carburant choisi."}</p>${Number.isFinite(s.distanceFromStart)?`<p>${fmt(s.distanceFromStart,1)} km depuis le départ · ${escapeHtml(stationRangeText(s.distanceFromStart))}</p>`:""}
+  $("stationDetails").innerHTML=`<p class="detail-address">${escapeHtml(s.address)}</p><p>${Number.isFinite(s.price)?`${escapeHtml(s.fuel)} : ${fmt(s.price,3)} €/L · ${escapeHtml(stationPriceText(s))}`:"Prix actuel non renseigné pour le carburant choisi."}</p>${Number.isFinite(s.distanceFromStart)?`<p>${fmt(s.distanceFromStart,1)} km depuis le départ · ${escapeHtml(stationRangeText(s.distanceFromStart))}</p>`:""}
     <section class="detail-section"><h3>Horaires habituels à l’arrivée</h3><p class="station-opening" data-opening="${stationOpening(s).state}">${escapeHtml(openingText(s))}</p><p class="note">Départ + durée routière jusqu’à cette station, sans pauses ni trafic en direct. Jours fériés, fermetures exceptionnelles et disponibilité du carburant non vérifiés. L’automate déclaré ne précise pas les carburants accessibles.</p><h3>Horaires déclarés du guichet</h3><p class="note">Automate 24 h/24 : ${["Oui","Non"].includes(s.automate)?s.automate:"non renseigné"}. Le guichet, la boutique et l’automate sont distincts.</p>${rows.length?`<ul>${rows.map(row=>`<li>${escapeHtml(row)}</li>`).join("")}</ul>`:"<p>Horaires non renseignés.</p>"}</section>
     <section class="detail-section"><h3>Services déclarés</h3>${s.services?.length?`<ul>${s.services.map(service=>`<li>${escapeHtml(service)}</li>`).join("")}</ul>`:"<p>Services non renseignés.</p>"}</section>
     <p class="note">Source DGCCRF : horaires déclaratifs, sans date de mise à jour des horaires. La date du prix ne date pas les horaires. Ouverture et disponibilité à confirmer sur place.${s.receivedAt?` Données reçues le ${escapeHtml(new Date(s.receivedAt).toLocaleString("fr-FR"))}.`:""}</p><a class="detail-source" href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener noreferrer">Source : données officielles des carburants ↗</a>`;
 }
 async function openStation(id){
   if(busy)return;
-  const sequence=++detailSequence;
+  const sequence=++detailSequence,fuel=$("fuel").value;
   const live=compared.find(s=>s.id===id),saved=profile.stations.find(s=>s.id===id);
   if(!live&&!saved)return;
   currentStation=live||saved;
@@ -820,10 +820,10 @@ async function openStation(id){
     const literal=/^\d+$/.test(id)?id:"'"+id.replaceAll("'","''")+"'";
     const q=new URLSearchParams({limit:"1",where:`id=${literal}`});
     const data=await getJSON(`${C.fuelApi}?${q}`,"Fiche station");
-    if(sequence!==detailSequence)return;
+    if(sequence!==detailSequence||fuel!==$("fuel").value)return;
     const record=data.results?.find(r=>String(r.id)===id);
     if(!record)throw new Error("Station absente de la réponse officielle.");
-    currentStation=stationFrom(record,$("fuel").value)||{...saved,...stationInfo(record)};
+    currentStation=stationFrom(record,fuel)||{...saved,...stationInfo(record),price:null,updated:null,fuel};
     renderStationDetails(currentStation);$("stationMessage").textContent="Fiche actualisée. Recalcule les stations du trajet pour comparer cet arrêt.";
   }catch(e){if(sequence===detailSequence)$("stationMessage").textContent=`Informations actuelles indisponibles : ${e.message}`}
 }
@@ -1313,12 +1313,49 @@ async function scoreConstrainedCandidates(cands,liters,cons){
   }
   return {scored,note:[overLimit?`${overLimit} station(s) au-delà de la limite totale des rencontres : exclues.`:"",unavailable?`${unavailable} station(s) sans accès calculable.`:"",incomparable?`${incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:""].filter(Boolean).join(" ")};
 }
-function age(iso){
-  if(!iso)return "mise à jour inconnue";
-  const d=new Date(iso);if(Number.isNaN(+d))return `maj ${iso}`;
-  const h=Math.max(0,(Date.now()-d)/36e5);
-  return h<2?"mise à jour récente":h<24?`maj il y a ${Math.round(h)} h`:`maj il y a ${Math.round(h/24)} j`;
+// BEGIN PRICE FRESHNESS MODEL
+function priceInstant(value){
+  if(typeof value!=="string")return null;
+  const m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?(Z|([+-])(\d{2}):(\d{2}))$/.exec(value);
+  if(!m)return null;
+  const [y,mo,d,h,mi,se]=m.slice(1,7).map(Number),oh=Number(m[10]||0),om=Number(m[11]||0);
+  if(y<100||mo<1||mo>12||d<1||h>23||mi>59||se>59||oh>14||om>59||oh===14&&om!==0||m[8]==='-00:00')return null;
+  const local=Date.UTC(y,mo-1,d,h,mi,se,Number((m[7]||'').padEnd(3,'0'))),check=new Date(local);
+  if(check.getUTCMonth()!==mo-1||check.getUTCDate()!==d)return null;
+  return local-(m[9]==='-'?-1:1)*(oh*60+om)*60000;
 }
+function priceFreshness(updated,now=Date.now(),receivedAt=null){
+  const at=priceInstant(updated),received=priceInstant(receivedAt);
+  const reason=!Number.isFinite(now)?'clock':!updated?'missing':at===null?'invalid':at>now?'future':received!==null&&received>now?'clock':null;
+  if(reason)return {state:'unknown',eligible:false,reason,at};
+  const hours=(now-at)/3600000;
+  return {state:hours>168?'old':hours>48?'warning':'recent',eligible:hours<=168,reason:null,at,hours};
+}
+// END PRICE FRESHNESS MODEL
+function stationFreshness(s){return priceFreshness(s.updated,Date.now(),s.receivedAt)}
+function priceAgeText(updated,receivedAt=null){
+  const f=priceFreshness(updated,Date.now(),receivedAt);
+  const date=f.at===null?'':` · prix déclaré le ${new Date(f.at).toLocaleString('fr-FR',{timeZone:'Europe/Paris'})} (Paris)`;
+  const labels={missing:'Date du prix absente — non vérifiable',invalid:'Date du prix invalide — non vérifiable',future:'Date du prix future — non vérifiable',clock:'Horloge incohérente — prix non vérifiable'};
+  return (f.reason?labels[f.reason]:f.state==='old'?'Prix ancien — plus de 7 jours, hors classement':f.state==='warning'?'Prix à vérifier — plus de 48 h':'Prix récent — 48 h ou moins')+date;
+}
+function age(iso){return priceAgeText(iso)}
+function stationPriceText(s){return priceAgeText(s.updated,s.receivedAt)}
+let priceViewSignature='';
+function expireStationBudget(){
+  if(!budgetReference?.stationId)return;
+  if(budgetReference.expired||!priceFreshness(budgetReference.updated,Date.now(),budgetReference.receivedAt).eligible||budgetReference.fuel!==$('fuel').value){
+    $('budgetPrice').value='';budgetReference.expired=true;
+  }
+}
+function refreshPriceFreshness(){
+  if(busy)return;
+  expireStationBudget();updateBudget();
+  const signature=JSON.stringify(compared.map(s=>[s.id,stationFreshness(s).state,stationFreshness(s).reason]));
+  if(signature!==priceViewSignature){priceViewSignature=signature;if(stationSearch)renderStations(compared,stopWindow().mode)}
+  if($('stationDialog').open&&currentStation)renderStationDetails(currentStation);
+}
+
 function serviceSelection(){return [...document.querySelectorAll('[data-service]:checked')].map(el=>el.value)}
 function updateServiceChoices(){
   const chosen=new Set(serviceSelection());
@@ -1332,9 +1369,10 @@ function filterStations(stations){
     if($(id).validity.badInput||(raw&&(!Number.isFinite(value)||value<0||value>max)))return {visible:[],error:`Détour maximal ${key==="km"?"en kilomètres":"en minutes"} : saisir une valeur de 0 à ${max}, ou laisser vide.`,excluded:{}};
     limits[key]=raw?value:Infinity;
   }
-  const excluded={detour:0,unknown:0,undeclared:0,range:0,hoursUnknown:0,hoursOutside:0,hoursOther:0};
-  const hoursFilter=$("stationOpeningFilter").value;
+  const excluded={freshness:0,detour:0,unknown:0,undeclared:0,range:0,hoursUnknown:0,hoursOutside:0,hoursOther:0};
+  const hoursFilter=$("stationOpeningFilter").value,priceView=$("stationPriceView").value;
   const visible=stations.filter(s=>{
+    const f=stationFreshness(s);if(priceView==="recent"?!f.eligible:f.state!==priceView){excluded.freshness++;return false}
     if(s.extraKm>limits.km+1e-9||s.extraMin>limits.min+1e-9){excluded.detour++;return false}
     if(services.length&&!s.services.length){excluded.unknown++;return false}
     if(services.some(service=>!s.services.includes(service))){excluded.undeclared++;return false}
@@ -1355,14 +1393,19 @@ function refreshStationMap(visible,fit=false){
   showOnMap(coords,points,chosen||null,trip.a,trip.b,chosen?`${trip.label} · arrêt ${chosen.city}`:trip.label,fit);
 }
 function renderStations(stations,mode,fit=false){
+  priceViewSignature=JSON.stringify(stations.map(s=>[s.id,stationFreshness(s).state,stationFreshness(s).reason]));
   updateResumePreparation();
   const range=rangeEstimate(),{visible,excluded,error}=filterStations(stations);
   $("stationListControls").hidden=!stations.length;
   $("eligibleCount").textContent=String(visible.length);
   $("stationFilterStatus").hidden=false;
-  const reasons=[excluded.hoursUnknown?`${excluded.hoursUnknown} aux horaires inconnus`:"",excluded.hoursOutside?`${excluded.hoursOutside} hors horaires du guichet, sans automate déclaré`:"",excluded.hoursOther?`${excluded.hoursOther} aux horaires compatibles (hors vue choisie)`:"",excluded.detour?`${excluded.detour} au-delà du détour maximal`:"",excluded.unknown?`${excluded.unknown} aux services non renseignés`:"",excluded.undeclared?`${excluded.undeclared} sans tous les services requis déclarés`:"",excluded.range?`${excluded.range} hors portée estimée`:""].filter(Boolean);
+  const reasons=[excluded.freshness?`${excluded.freshness} hors du groupe de fraîcheur choisi`:"",excluded.hoursUnknown?`${excluded.hoursUnknown} aux horaires inconnus`:"",excluded.hoursOutside?`${excluded.hoursOutside} hors horaires du guichet, sans automate déclaré`:"",excluded.hoursOther?`${excluded.hoursOther} aux horaires compatibles (hors vue choisie)`:"",excluded.detour?`${excluded.detour} au-delà du détour maximal`:"",excluded.unknown?`${excluded.unknown} aux services non renseignés`:"",excluded.undeclared?`${excluded.undeclared} sans tous les services requis déclarés`:"",excluded.range?`${excluded.range} hors portée estimée`:""].filter(Boolean);
   const hoursCount=stations.reduce((a,s)=>{a[stationOpening(s).state]++;return a},{compatible:0,outside:0,unknown:0});
   const hoursSummary=` Horaires habituels, avant filtres : ${hoursCount.compatible} compatibles, ${hoursCount.outside} hors guichet sans automate déclaré, ${hoursCount.unknown} inconnus. Aucune ouverture garantie.`;
+  const freshnessCount=stations.reduce((a,s)=>{const f=stationFreshness(s);a[f.eligible?'recent':f.state]++;return a},{recent:0,old:0,unknown:0});
+  $("stationFreshnessStatus").textContent=`Avant filtres : ${freshnessCount.recent} prix de 7 jours ou moins, ${freshnessCount.old} anciens, ${freshnessCount.unknown} non vérifiables. Les autres groupes sont consultables ci-dessus, sans classement de prix.`;
+  const archival=$("stationPriceView").value!=="recent";
+  $("stationRankingControls").hidden=archival;
   const baseText=error||`${visible.length} sur ${stations.length} stations comparées satisfont les filtres.${reasons.length?" Écartées : "+reasons.join(" ; ")+".":""}`+hoursSummary;
   if(!visible.length){
     $("stationFilterStatus").textContent=baseText;
@@ -1370,7 +1413,7 @@ function renderStations(stations,mode,fit=false){
     refreshStationMap([],fit);return;
   }
   const cost=Math.min(...visible.map(s=>Math.round(s.real*100))),price=Math.min(...visible.map(s=>Math.round(s.price*1000))),minutes=Math.min(...visible.map(s=>s.extraMin));
-  const winners=[
+  const winners=archival?[]:[
     ["OPTIMAL",s=>Math.round(s.real*100)===cost],
     ["POMPE",s=>Math.round(s.price*1000)===price],
     ["RAPIDE",s=>Math.abs(s.extraMin-minutes)<1e-9]
@@ -1379,18 +1422,19 @@ function renderStations(stations,mode,fit=false){
   const byDistance=(a,b)=>a.distanceFromStart-b.distanceFromStart||a.number-b.number;
   const sorts={all:byDistance,cost:(a,b)=>Math.round(a.real*100)-Math.round(b.real*100)||byDistance(a,b),price:(a,b)=>Math.round(a.price*1000)-Math.round(b.price*1000)||byDistance(a,b),detour:(a,b)=>a.extraMin-b.extraMin||a.extraKm-b.extraKm||byDistance(a,b)};
   const recommendations=[...new Map(winners.flatMap(([,wins])=>visible.filter(wins).sort(byDistance)).map(s=>[s.id,s])).values()];
-  const list=listMode!=="recommended"?[...visible].sort(sorts[listMode]||byDistance):[...new Map([...(mode==="soon"?[...visible].sort(byDistance).slice(0,3):[]),...recommendations].map(s=>[s.id,s])).values()];
-  $("stationFilterStatus").textContent=baseText+` Carte : ${visible.length} résultats ; liste : ${list.length} fiches. Badges calculés parmi ces ${visible.length} stations, sous les filtres actifs.`;
+  const list=archival?[...visible].sort(byDistance):listMode!=="recommended"?[...visible].sort(sorts[listMode]||byDistance):[...new Map([...(mode==="soon"?[...visible].sort(byDistance).slice(0,3):[]),...recommendations].map(s=>[s.id,s])).values()];
+  $("stationFilterStatus").textContent=baseText+` Carte : ${visible.length} résultats ; liste : ${list.length} fiches. ${archival?"Prix exclus des recommandations et du budget ; arrêts consultables par distance.":`Badges calculés parmi ces ${visible.length} stations, sous les filtres actifs.`}`;
   $("stationCards").innerHTML=list.map(s=>`<article class="result-card" data-station="${escapeHtml(s.id)}">
     <div class="result-badges">${winners.filter(([,winner])=>winner(s)).map(([name])=>`<span class="result-badge">${name}</span>`).join("")}</div>
     <span class="station-index">Point ${s.number}</span><h3>${escapeHtml(s.city||`Station ${s.id}`)}</h3><div class="result-small">${escapeHtml(s.address)}</div>
     <div class="result-line">À ${fmt(s.distanceFromStart,1)} km du départ</div>
     <p class="station-opening" data-opening="${stationOpening(s).state}">${escapeHtml(openingText(s))}</p>
     <p class="range-badge${range?.valid&&s.distanceFromStart>range.useful?" outside":""}">${escapeHtml(stationRangeText(s.distanceFromStart,range))}</p>
-    <div class="price">${fmt(s.real)} € <span class="price-note">achat + carburant du détour</span></div>
-    <div class="result-line"><b>${fmt(s.price,3)} €/L</b> · +${fmt(s.extraKm,1)} km · +${Math.round(s.extraMin)} min</div>
-    <div class="result-small">Achat ${fmt(s.purchase)} € · carburant du détour ${fmt(s.detourFuelCost)} €<br>${escapeHtml(age(s.updated))}</div>
-    <button class="ghost station-detail-link" data-details="${escapeHtml(s.id)}">Infos et favori</button><button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">Choisir cette station</button>
+    ${archival?'<p class="note">Coût non comparé · prix à vérifier.</p>':`<div class="price">${fmt(s.real)} € <span class="price-note">achat + carburant du détour</span></div>`}
+    <div class="result-line"><b>${fmt(s.price,3)} €/L${archival?" déclaré, à vérifier":""}</b> · +${fmt(s.extraKm,1)} km · +${Math.round(s.extraMin)} min</div>
+    ${archival?'':`<div class="result-small">Achat ${fmt(s.purchase)} € · carburant du détour ${fmt(s.detourFuelCost)} €</div>`}
+    <p class="price-freshness" data-freshness="${stationFreshness(s).state}">${escapeHtml(stationPriceText(s))}</p>
+    <button class="ghost station-detail-link" data-details="${escapeHtml(s.id)}">Infos et favori</button><button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">${archival?"Choisir cet arrêt · prix à vérifier":"Choisir cette station"}</button>
     </article>`).join("");
   document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===selectedStop?.station.id));
   document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===selectedStop?.station.id)));
@@ -1419,7 +1463,7 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   const a=P(coords[0]),b=P(coords.at(-1));
   $("startDot").setAttribute("cx",a[0]);$("startDot").setAttribute("cy",a[1]);
   $("endDot").setAttribute("cx",b[0]);$("endDot").setAttribute("cy",b[1]);
-  $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<g class="svg-station" role="button" tabindex="0" data-details="${escapeHtml(s.id)}" aria-label="Voir la station ${s.number} : ${escapeHtml(s.address)} · ${escapeHtml(openingText(s))}"><title>${escapeHtml(openingText(s))}</title><circle class="${cl}" cx="${x}" cy="${y}" r="16"/><text x="${x}" y="${y+5}" text-anchor="middle">${s.number}</text></g>`}).join("");
+  $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<g class="svg-station" role="button" tabindex="0" data-details="${escapeHtml(s.id)}" aria-label="Voir la station ${s.number} : ${escapeHtml(s.address)} · ${escapeHtml(stationPriceText(s))} · ${escapeHtml(openingText(s))}"><title>${escapeHtml(openingText(s))}</title><circle class="${cl}" cx="${x}" cy="${y}" r="16"/><text x="${x}" y="${y+5}" text-anchor="middle">${s.number}</text></g>`}).join("");
   $('meetingDots').innerHTML=trip?.meetings?['pickup','dropoff'].map((key,i)=>{const place=trip.meetings[key],[x,y]=P([place.lat,place.lon]);return `<g><title>${escapeHtml((i?'Dépose : ':'Prise en charge : ')+place.label)}</title><circle cx="${x}" cy="${y}" r="18" fill="#5030a0" stroke="white" stroke-width="3"/><text x="${x}" y="${y+5}" text-anchor="middle" fill="white">${i?'D':'P'}</text></g>`}).join(''):'';
   tollGuide.projection=P;drawTollMarkers();
   $("fallbackLabel").textContent=label||"Visualisation autonome";
@@ -1444,8 +1488,8 @@ function showOnMap(coords,stations,best,start,end,label,fit=true){
   }
   stations.forEach(s=>{
     const isBest=s.id===best?.id;
-    const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({className:"station-marker"+(isBest?" chosen":""),html:String(s.number),iconSize:[32,32],iconAnchor:[16,16]}),title:`Voir la station ${s.number} : ${s.address} · ${openingText(s)}`,keyboard:true}).addTo(markerLayer);
-    marker.getElement().setAttribute("aria-label",`Voir la station ${s.number} : ${s.address} · ${openingText(s)}`);
+    const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({className:"station-marker"+(isBest?" chosen":""),html:String(s.number),iconSize:[32,32],iconAnchor:[16,16]}),title:`Voir la station ${s.number} : ${s.address} · ${stationPriceText(s)} · ${openingText(s)}`,keyboard:true}).addTo(markerLayer);
+    marker.getElement().setAttribute("aria-label",`Voir la station ${s.number} : ${s.address} · ${stationPriceText(s)} · ${openingText(s)}`);
     marker.on("click",()=>openStation(s.id));
   });
   drawTollMarkers();
@@ -1910,6 +1954,7 @@ function bindSharedTolls(){
 let rideFingerprint='',rideRevision=0,rideDraft=null,rideCopying=false,rideEndpoints='';
 const rideMoney=c=>fmt(c/100)+' €';
 function rideBudgetSnapshot(){
+ expireStationBudget();
  if(!trip||trip.routing.vehicle.type==='walk')return null;
  const route=selectedStop?.via||trip.base,cons=Number($('cons').value),price=Number($('budgetPrice').value);
  const fuelEuro=$('cons').validity.valid&&cons>=1&&cons<=100&&$('budgetPrice').value.trim()&&$('budgetPrice').validity.valid&&price>0&&price<=10?route.distance/1000*cons/100*price:null;
@@ -2224,13 +2269,17 @@ function bindComparison(){
 }
 
 function updateBudget(){
+  expireStationBudget();
   updateTripTiming();updateRouteCarbon();updateMeetings();
   $("compareBtn").hidden=!trip;
   $("navigationBtn").hidden=!trip;
   $("journalRecordBtn").hidden=!trip;$("savePreparationBtn").hidden=!trip;
   $("tripBudget").hidden=!trip||trip.routing.vehicle.type==="walk";
   updateWalking();
-  $("useStationPrice").disabled=busy||!selectedStop;
+  const usable=selectedStop&&stationFreshness(selectedStop.station).eligible;
+  $("useStationPrice").disabled=busy||!usable;
+  $("stationPriceBudgetNote").hidden=!selectedStop&&!budgetReference?.expired;
+  $("stationPriceBudgetNote").textContent=budgetReference?.expired?"Prix de station retiré du budget : ancien ou non vérifiable. Rechercher les prix à nouveau, ou saisir une hypothèse personnelle.":selectedStop?stationPriceText(selectedStop.station)+(usable?". Prix déclaré, sans garantie sur place.":". Arrêt conservé ; prix exclu du budget."):"";
   syncTableTolls();syncTolls();
   updateRides();
   if(!trip||trip.routing.vehicle.type==="walk")return;
@@ -2240,7 +2289,7 @@ function updateBudget(){
   $("budgetRoute").textContent=`${fmt(r.distance/1000,1)} km · ${Math.round(r.duration/60)} min${trip.meetings?" · rencontres incluses":""}${selectedStop?" · arrêt inclus, hors temps du plein":trip.meetings?" · sans arrêt carburant":" · sans arrêt"}`;
   renderTolls(validPrice&&liters!==null?liters*price:null);
   $("budgetFuel").textContent=liters===null?"Consommation à vérifier":`${fmt(liters,2)} L${validPrice?` · ${fmt(liters*price)} €`:" · prix à renseigner"}`;
-  $("budgetSource").textContent=validPrice?(budgetReference?`${budgetReference.label} · ${$("fuel").value} · ${fmt(price,3)} €/L · ${budgetReference.at}`:`Prix saisi · ${$("fuel").value} · ${fmt(price,3)} €/L`):"Prix de référence non renseigné ou invalide. Aucun prix moyen supposé.";
+  $("budgetSource").textContent=validPrice?(budgetReference?`${budgetReference.label} · ${$("fuel").value} · ${fmt(price,3)} €/L · ${budgetReference.stationId?priceAgeText(budgetReference.updated,budgetReference.receivedAt):budgetReference.at}`:`Prix saisi · ${$("fuel").value} · ${fmt(price,3)} €/L`):"Prix de référence non renseigné ou invalide. Aucun prix moyen supposé.";
 }
 function navigationLinks(){
   if(!trip||!["car","walk"].includes(trip.routing.vehicle.type))return null;
@@ -2463,6 +2512,8 @@ async function selectStation(id){
     if(trip.meetings){meetingLegs(via,routePlanNodes(station));if(!meetingDetour(via,trip.meetings.reference.base,trip.meetings.limits).allowed)throw new Error("Limite totale de détour des rencontres dépassée.");}
     const changed=Math.abs(via.distance-(trip.base.distance+station.extraKm*1000))>100||Math.abs(via.duration-(trip.base.duration+station.extraMin*60))>60;
     if(changed&&!confirm(`Le recalcul diffère de la comparaison : ${fmt(via.distance/1000,1)} km, ${Math.round(via.duration/60)} min. Confirmer ce trajet avec arrêt ?`)){$("fuelStatus").textContent="Arrêt non confirmé. Le trajet précédent est conservé.";return}
+    const freshness=stationFreshness(station);
+    if(!freshness.eligible&&!confirm(`${stationPriceText(station)}. Conserver uniquement cet arrêt dans le trajet, sans utiliser ce prix dans les recommandations ni dans le budget ?`)){$("fuelStatus").textContent="Arrêt non confirmé. Le trajet précédent est conservé.";renderStations(compared,stopWindow().mode);return}
     invalidateStationPrice();selectedStop={station,via,confirmedAt:new Date().toISOString()};
     updateTripMetrics();
     renderStations(compared,stopWindow().mode,true);
@@ -2682,7 +2733,9 @@ function bind(){
    resetTollQuote();tollState.enabled=false;tableTolls.segments.push(c);$("tariffComplete").checked=false;tableTolls.notice='Tronçon ajouté au budget. Jusqu’à dix tronçons, sans doublon identique. Vérifier les éventuels chevauchements.';updateBudget();
   });
   tariffGates(true);
-  setInterval(()=>{if(tableTolls.segments.length&&!tariffBudgetValid())updateBudget()},60000);
+  setInterval(()=>{if(tableTolls.segments.length&&!tariffBudgetValid())updateBudget();refreshPriceFreshness()},60000);
+  window.addEventListener('focus',refreshPriceFreshness);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshPriceFreshness()});
   $("navigationBtn").addEventListener("click",openNavigation);
   $("exportGpxBtn").addEventListener("click",exportGpx);
   $("navigationDialog").addEventListener("close",()=>{if(!$("navigationDialog").open)for(const id of ["googleMapsLink","wazeStationLink","wazeArrivalLink","wazePickupLink","wazeDropoffLink"])$(id).removeAttribute("href")});
@@ -2702,8 +2755,8 @@ function bind(){
   $("budgetPrice").addEventListener("input",()=>{budgetReference={label:"Prix saisi",at:new Date().toLocaleString("fr-FR")};updateBudget()});
   $("useStationPrice").addEventListener("click",()=>{
     if(!selectedStop)return;
-    const s=selectedStop.station;$("budgetPrice").value=s.price;
-    budgetReference={stationId:s.id,label:`Prix de l’arrêt : ${s.address}`,at:age(s.updated)};updateBudget();
+    const s=selectedStop.station;if(!stationFreshness(s).eligible){refreshPriceFreshness();return}$("budgetPrice").value=s.price;
+    budgetReference={stationId:s.id,label:`Prix de l’arrêt : ${s.address}`,updated:s.updated,receivedAt:s.receivedAt,fuel:s.fuel};updateBudget();
   });
   for(const id of ["rangeMode","rangeValue","reserveKm","rangeOnly"]){
     $(id).addEventListener("input",()=>{
@@ -2711,10 +2764,10 @@ function bind(){
       rangeMeasuredAt=Date.now();updateRange();
     });
   }
-  for(const id of ["maxDetourKm","maxDetourMin","serviceChoices","stationOpeningFilter"]){$(id).addEventListener("input",()=>{if(!busy&&stationSearch)renderStations(compared,stopWindow().mode)})}
+  for(const id of ["maxDetourKm","maxDetourMin","serviceChoices","stationOpeningFilter","stationPriceView"]){$(id).addEventListener("input",()=>{if(!busy&&stationSearch)renderStations(compared,stopWindow().mode)})}
   $("resetStationFilters").addEventListener("click",()=>{
     if(busy)return;
-    $("maxDetourKm").value="";$("maxDetourMin").value="";$("stationOpeningFilter").value="all";$("rangeOnly").checked=false;
+    $("stationPriceView").value="recent";$("maxDetourKm").value="";$("maxDetourMin").value="";$("stationOpeningFilter").value="all";$("rangeOnly").checked=false;
     document.querySelectorAll('[data-service]').forEach(el=>el.checked=false);
     $("stationListMode").value="recommended";
     if(stationSearch)renderStations(compared,stopWindow().mode);

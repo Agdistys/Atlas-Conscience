@@ -82,3 +82,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 
 /* Empreinte par portions : lecture verticale aux petits formats. */
 .carbon-portions{padding-left:1.4rem}.carbon-portions li{margin:1rem 0;padding-left:.3rem}.carbon-portions p{margin:.4rem 0}#routeCarbonSegments{min-width:0;margin-top:1rem}#routeCarbonSegments input{margin-bottom:.8rem}
+
+.price-freshness{font-size:.86rem;line-height:1.5;border-left:3px solid var(--muted,#aaa);padding-left:.65rem}.price-freshness[data-freshness="warning"],.price-freshness[data-freshness="old"],.price-freshness[data-freshness="unknown"]{border-color:#e4bb62;color:#f2d99d}
