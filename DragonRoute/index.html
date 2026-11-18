@@ -134,11 +134,21 @@
             <label class="check-label"><input id="rangeOnly" type="checkbox" disabled> Uniquement dans la portée estimée</label>
           </details>
           <p id="rangeStatus" class="note" role="status">Autonomie inconnue.</p>
+          <details id="stationFilters"><summary>Filtrer les stations</summary>
+            <div class="two-fields"><div><label for="maxDetourKm">Détour maximal (km)</label><input id="maxDetourKm" type="number" min="0" max="1000" step="0.1" inputmode="decimal" placeholder="Sans limite"></div><div><label for="maxDetourMin">Détour maximal (min)</label><input id="maxDetourMin" type="number" min="0" max="1440" step="0.1" inputmode="decimal" placeholder="Sans limite"></div></div>
+            <p class="note">Distance et durée supplémentaires calculées par rapport au trajet choisi, hors temps du plein. Un champ vide ne fixe aucune limite.</p>
+            <fieldset id="serviceFilters"><legend>Services nécessaires</legend><div id="serviceChoices"><p class="note">Les services déclarés apparaîtront après la recherche.</p></div></fieldset>
+            <p class="note">Tous les services cochés sont requis. Une information inconnue ou un service non déclaré ne satisfait pas ce filtre. Les horaires d’ouverture ne sont pas vérifiés ici.</p>
+            <button id="resetStationFilters" class="ghost" type="button">Réinitialiser les filtres</button>
+          </details>
           <button id="stationsBtn" class="primary">Chercher les stations</button>
           <button id="cancelStationsBtn" class="ghost" type="button" hidden>Arrêter la recherche</button>
           <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
-          <div id="stationSummary" class="summary" hidden><div class="metric"><b id="stationCount">—</b><small>stations reçues</small></div><div class="metric"><b id="testedCount">—</b><small>comparées dans la zone</small></div></div>
-          <div id="stationListControls" hidden><label for="stationListMode">Stations affichées</label><select id="stationListMode"><option value="recommended">Sélection selon la recherche</option><option value="all">Toutes, par distance depuis le départ</option></select><p class="note">Comparaison achat + carburant du détour, hors péages et autres frais.</p></div>
+          <div id="stationSummary" class="summary" hidden><div class="metric"><b id="stationCount">—</b><small>stations reçues</small></div><div class="metric"><b id="testedCount">—</b><small>comparées dans la zone</small></div><div class="metric"><b id="eligibleCount">—</b><small>après les filtres</small></div></div>
+          <p id="stationCoverage" class="note" hidden></p>
+          <p id="stationFilterStatus" class="note" role="status" hidden></p>
+          <p id="filteredStopNote" class="note" hidden></p>
+          <div id="stationListControls" hidden><label for="stationListMode">Stations affichées</label><select id="stationListMode"><option value="recommended">Sélection selon la recherche</option><option value="all">Toutes, par distance depuis le départ</option><option value="cost">Toutes, par coût comparé</option><option value="price">Toutes, par prix au litre</option><option value="detour">Toutes, par durée du détour</option></select><p class="note">Comparaison achat + carburant du détour, hors péages et autres frais.</p></div>
           <div id="stationCards" class="cards"></div><p id="selectedStop" class="selection" hidden role="status"></p>
           <button id="removeStopBtn" class="ghost" type="button" hidden>Retirer l’arrêt</button>
         </div>
