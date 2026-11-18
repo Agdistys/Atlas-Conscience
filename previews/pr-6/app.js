@@ -5,6 +5,7 @@ const fuelField={E10:"e10",Gazole:"gazole",SP98:"sp98",SP95:"sp95",E85:"e85",GPL
 const log=[];
 let map=null, routeLayer=null, markerLayer=null, currentPos=null, activeAbort=null, deferredInstall=null;
 let trip=null, compared=[], busy=false,stationSearch=null;
+let comparison=null;
 let mapView=null,currentStation=null,detailSequence=0;
 let orsLastRequest=-Infinity;
 let ignLastRequest=-Infinity;
@@ -1672,7 +1673,118 @@ function bindRides(){
  });
 }
 
+// BEGIN COMPARISON MODEL
+function comparisonNumber(value,min,max,optional=false){
+ if(optional&&(value===''||value===null))return null;
+ const n=typeof value==='number'?value:typeof value==='string'&&value.trim()?Number(value):NaN;
+ if(!Number.isFinite(n)||n<min||n>max)throw new Error('Hypothèse numérique invalide.');return n;
+}
+function comparisonHypotheses(raw){
+ const travelers=comparisonNumber(raw.travelers,1,9);if(!Number.isInteger(travelers))throw new Error('Indiquer un groupe de 1 à 9 personnes.');
+ const departure=raw.departure===''?null:departureInstant(raw.departure);if(departure?.error)throw new Error(departure.error);
+ return {travelers,departure:departure?.instant??null,cons:comparisonNumber(raw.cons,1,100),price:comparisonNumber(raw.price,.001,10,true),maxWalkKm:walkLimit(raw.maxWalkKm)};
+}
+function comparisonCost(mode,distance,h){
+ if(!['car','walk'].includes(mode)||typeof distance!=='number'||!Number.isFinite(distance)||distance<0)throw new Error('Trajet de comparaison invalide.');
+ // No complete budget is available: neither missing tolls nor walking costs are zero.
+ const liters=mode==='car'?distance/1000*h.cons/100:null;
+ const fuel=liters!==null&&h.price!==null?liters*h.price:null;
+ return {status:fuel===null?'unknown':'partial',fuel,liters,total:null,carbonKg:null};
+}
+function orderComparison(entries,criterion){
+ if(!['duration','distance'].includes(criterion))throw new Error('Critère de comparaison indisponible.');
+ const value=e=>e.status==='ready'&&Number.isFinite(e.route?.[criterion])?Math.round(e.route[criterion]/(criterion==='duration'?60:100)):Infinity;
+ return [...entries].sort((a,b)=>value(a)-value(b)||a.mode.localeCompare(b.mode));
+}
+// END COMPARISON MODEL
+const comparisonFields=['comparisonTravelers','comparisonDeparture','comparisonCons','comparisonPrice','comparisonWalkLimit'];
+function comparisonRaw(){return Object.fromEntries(['travelers','departure','cons','price','maxWalkKm'].map((k,i)=>[k,$(comparisonFields[i]).value]))}
+function comparisonSignature(){return JSON.stringify({a:trip?.a,b:trip?.b,fields:['start','end','routeVehicle','cons','fuel','budgetPrice','maxWalkKm','stationDeparture',...comparisonFields].map(id=>$(id).value),avoid:[...document.querySelectorAll('.avoid-options input')].map(el=>[el.value,el.checked])})}
+function comparisonCarSettings(){const avoid=[...document.querySelectorAll('.avoid-options input:checked')].map(el=>el.value);return {provider:routingEndpoint()?'ors':C.ignRouting===true&&avoid.includes('highways')?'ign':'osrm',avoid,vehicle:{type:$('routeVehicle').value}}}
+function clearComparison(message=''){
+ if(comparison?.running){comparison.cancelled=true;comparison.controller?.abort()}
+ comparison=null;$('comparisonCards').replaceChildren();$('comparisonContext').textContent='';$('comparisonSortWrap').hidden=true;
+ $('comparisonStatus').textContent=message;
+ if(!message){$('comparisonPanel').hidden=true;$('compareBtn').setAttribute('aria-expanded','false')}
+}
+function comparisonChanged(){if(comparison)clearComparison('Paramètres modifiés : relancer la comparaison. Les anciens résultats ont été retirés.')}
+function openComparison(){
+ if(busy||!trip)return;
+ if(!$('comparisonPanel').hidden){$('comparisonHeading').focus();return}
+ clearComparison();$('comparisonPanel').hidden=false;$('compareBtn').setAttribute('aria-expanded','true');
+ $('comparisonDeparture').value=$('stationDeparture').value;$('comparisonCons').value=$('cons').value;$('comparisonPrice').value='';$('comparisonWalkLimit').value=$('maxWalkKm').value;
+ $('comparisonStatus').textContent='Vérifier les hypothèses, puis calculer les deux modes. Le trajet affiché reste en place jusqu’au choix.';
+ $('comparisonHeading').focus();
+}
+function renderComparison(op){
+ if(comparison!==op)return;
+ const available=op.entries.filter(e=>e.status==='ready').length;
+ $('comparisonStatus').textContent=op.running?'Calcul des deux modes…':op.cancelled?'Comparaison annulée. Aucun nouveau trajet sélectionné.':`${available}/2 trajets disponibles. ${available===2?'Comparaison des distances et durées disponible.':'Comparaison partielle.'} Coûts totaux et empreintes incomplets.`;
+ $('comparisonSortWrap').hidden=!available;
+ const h=op.hypotheses;
+ $('comparisonContext').textContent=`${op.source.places.start} → ${op.source.places.end}. Aller simple, sans arrêt. Groupe de ${h.travelers} personne(s), capacité du véhicule non vérifiée. ${h.departure===null?'Départ non renseigné.':`Départ souhaité : ${arrivalLabel(h.departure)} (Paris).`} Calculs hors trafic temps réel et pauses ; la date et le nombre de personnes ne sont pas transmis aux moteurs. Résultats obtenus le ${new Date(op.at).toLocaleString('fr-FR')}, cache de calcul possible.`;
+ $('comparisonCards').innerHTML=orderComparison(op.entries,$('comparisonSort').value).map(e=>{
+  const title=e.mode==='car'?'Véhicule léger':'À pied';
+  if(e.status!=='ready')return `<article class="comparison-card" data-compare-mode="${e.mode}"><h3>${title}</h3><p>${escapeHtml(e.status==='pending'?'Calcul en attente…':e.error)}</p></article>`;
+  const cost=comparisonCost(e.mode,e.route.distance,h),w=e.mode==='walk'?walkingDistance(e.route.distance,h.maxWalkKm):null;
+  return `<article class="comparison-card" data-compare-mode="${e.mode}"><h3>${title}</h3><dl class="budget-lines"><div><dt>Distance</dt><dd>${fmt(e.route.distance/1000,1)} km</dd></div><div><dt>Durée estimée</dt><dd>${Math.round(e.route.duration/60)} min</dd></div><div><dt>Carburant du véhicule</dt><dd>${e.mode==='walk'?'Sans objet':cost.fuel===null?'Prix non renseigné':`${fmt(cost.fuel)} € · partiel`}</dd></div><div><dt>Coût total du groupe</dt><dd>${cost.status==='partial'?'Incomplet':'Non estimé'}</dd></div><div><dt>Empreinte CO₂e</dt><dd>Non estimée</dd></div></dl><p class="note">${e.mode==='car'?`${fmt(cost.liters)} L estimés · ${escapeHtml(op.fuel)} · ${h.price===null?'prix absent':`${fmt(h.price,3)} €/L saisi`}. Péages, stationnement et autres frais inconnus. Aucun prix de station ni péage d’un autre tracé repris.`:'Budget de marche non estimé. Pente, escaliers, revêtement et accessibilité non vérifiés.'}</p>${w?`<p class="station-selection">${w.limit===null?'Limite de marche non renseignée.':w.exceeded?`Limite souhaitée dépassée (${fmt(w.limit,1)} km). Le trajet reste sélectionnable.`:`Dans la limite souhaitée de ${fmt(w.limit,1)} km ; difficulté non évaluée.`}</p>`:''}<p class="note">${escapeHtml(routingLabel(e.settings))}${e.route.resourceVersion?' · données '+escapeHtml(e.route.resourceVersion):''}</p><button type="button" class="ghost navigation-button" data-compare-select="${e.mode}" aria-pressed="${op.selected===e.mode}" ${op.running?'disabled':''}>${op.selected===e.mode?'Trajet affiché':'Afficher ce trajet'}</button></article>`;
+ }).join('');
+ $('comparisonCalculate').disabled=op.running;$('comparisonCancel').hidden=!op.running;$('comparisonCancel').disabled=op.cancelled;
+}
+async function runComparison(){
+ if(busy||!trip)return;
+ let hypotheses;try{hypotheses=comparisonHypotheses(comparisonRaw())}catch(e){clearComparison('Vérifier les hypothèses : '+e.message);return}
+ const source={a:[...trip.a],b:[...trip.b],places:{...trip.places}},car=comparisonCarSettings();
+ const op={source,hypotheses,fuel:$('fuel').value,signature:comparisonSignature(),at:new Date().toISOString(),running:true,cancelled:false,entries:[{mode:'car',settings:car,status:'pending'},{mode:'walk',settings:{provider:'ign',avoid:[],vehicle:{type:'walk'}},status:'pending'}],controller:new AbortController()};
+ comparison=op;activeAbort=op.controller;lock(true);renderComparison(op);$('comparisonCancel').disabled=false;
+ let ignQuota=false;
+ try{
+  for(const entry of op.entries){
+   if(op.cancelled||comparison!==op)break;
+   try{
+    if(entry.mode==='car'&&car.vehicle.type!=='car')throw new Error('Comparaison véhicule léger indisponible pour le profil choisi. Aucun poids lourd ou caravane remplacé par une voiture.');
+    if(ignQuota&&entry.settings.provider==='ign')throw new Error('Quota IGN atteint : ce second calcul n’a pas été demandé. Relancer plus tard.');
+    ensureRouting(entry.settings);
+    const r=await route([source.a,source.b],true,false,entry.settings);
+    if(op.cancelled||comparison!==op)break;
+    if(op.signature!==comparisonSignature()){clearComparison('Paramètres modifiés pendant le calcul : relancer la comparaison.');break}
+    entry.route=r;entry.status='ready';
+   }catch(e){if(op.cancelled||comparison!==op)break;entry.status='unavailable';entry.error=e.message;if(e.message.includes('Limite du service IGN'))ignQuota=true}
+  }
+ }finally{
+  op.running=false;op.at=new Date().toISOString();if(activeAbort===op.controller)activeAbort=null;lock(false);
+  if(comparison===op){if(op.cancelled)op.entries=[];renderComparison(op)}
+  $('comparisonCancel').hidden=true;
+ }
+}
+function chooseComparison(mode){
+ const op=comparison;if(busy||!op||op.running||op.cancelled)return;
+ if(op.signature!==comparisonSignature()){comparisonChanged();return}
+ const entry=op.entries.find(e=>e.mode===mode&&e.status==='ready');if(!entry||op.selected===mode)return;
+ if((selectedStop||compared.length||tableTolls.segments.length||tollState.quote)&&!confirm('Afficher ce trajet retire les stations, l’arrêt et les péages précédents. Continuer ?'))return;
+ clearNavigation();tollState.enabled=false;tollState.key='';resetTollQuote();clearTableTolls('Nouveau trajet sélectionné : péages à vérifier.');clearStations();
+ $('travelMode').value=mode==='walk'?'walk':'car';$('activeVehicle').hidden=true;
+ if(mode==='walk')$('maxWalkKm').value=op.hypotheses.maxWalkKm??'';
+ else{$('cons').value=op.hypotheses.cons;$('budgetPrice').value=op.hypotheses.price??'';budgetReference=op.hypotheses.price===null?null:{label:'Prix saisi pour la comparaison',at:new Date(op.at).toLocaleString('fr-FR')}}
+ resumePreparation=null;preparedRangePending=false;$('stationDeparture').value=op.hypotheses.departure===null?'':parisLocal(op.hypotheses.departure);refreshArrival();updateResumePreparation();
+ const base={...structuredClone(entry.route),alternatives:[]};displayTrip(base,structuredClone(entry.settings),op.source.a,op.source.b,{label:op.source.places.start},{label:op.source.places.end});
+ trip.calculatedAt=op.at;op.selected=mode;updateVehicleRouting();updateBudget();op.signature=comparisonSignature();renderComparison(op);
+ setStatus(`Trajet ${mode==='walk'?'à pied':'en véhicule léger'} sélectionné dans la comparaison.`, 'ok');$('compareBtn').focus();
+}
+function bindComparison(){
+ for(const id of ['useStationPrice','stationDepartureNow'])$(id).addEventListener('click',comparisonChanged);
+ $('compareBtn').addEventListener('click',openComparison);$('comparisonCalculate').addEventListener('click',runComparison);
+ $('comparisonClose').addEventListener('click',()=>{if(!busy){clearComparison();$('compareBtn').focus()}});
+ $('comparisonCancel').addEventListener('click',()=>{if(comparison?.running){comparison.cancelled=true;comparison.controller.abort();$('comparisonStatus').textContent='Annulation en cours…';$('comparisonCancel').disabled=true}});
+ $('comparisonSort').addEventListener('change',()=>{if(comparison&&!comparison.running)renderComparison(comparison)});
+ $('comparisonCards').addEventListener('click',e=>{const b=e.target.closest('[data-compare-select]');if(b)chooseComparison(b.dataset.compareSelect)});
+ for(const id of comparisonFields)$(id).addEventListener('input',comparisonChanged);
+ const fields=['start','end','travelMode','routeVehicle','maxWalkKm','fuel','cons','budgetPrice','stationDeparture','tollDeparture','tariffDate','tariffClass'];
+ for(const event of ['input','change'])$('sheet').addEventListener(event,e=>{if(fields.includes(e.target.id)||e.target.matches('.avoid-options input,#truckDimensions input'))comparisonChanged()});
+}
+
 function updateBudget(){
+  $("compareBtn").hidden=!trip;
   $("navigationBtn").hidden=!trip;
   $("journalRecordBtn").hidden=!trip;$("savePreparationBtn").hidden=!trip;
   $("tripBudget").hidden=!trip||trip.routing.vehicle.type==="walk";
@@ -1772,6 +1884,7 @@ function renderRouteChoices(){
 function chooseRoute(index){
   if(busy||!trip||!trip.choices[index]||index===trip.choice)return;
   if(compared.length&&!confirm("Changer de trajet effacera les stations comparées et l’arrêt choisi. Continuer ?")){renderRouteChoices();document.querySelector('input[name=routeChoice]:checked')?.focus();return}
+  clearComparison();
   trip.choice=index;trip.base={...trip.choices[index],alternatives:trip.choices.filter((_,i)=>i!==index)};
   trip.coords=trip.base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
   clearStations();renderRouteChoices();
@@ -1794,6 +1907,7 @@ function clearStations(){
   updateTripMetrics();updateBudget();
 }
 function clearResults(){
+  clearComparison();
   clearNavigation();
   trip=null;mapView=null;clearStations();
   renderRouteChoices();
@@ -1821,22 +1935,7 @@ function updateWindow(){
   $("stopKmLabel").textContent=`${w.target} km`;
   $("windowNote").textContent=w.mode==="soon"?"Stations classées par distance routière depuis le départ.":w.mode==="near"?"Comparaison dans les 50 premiers kilomètres depuis le départ.":`Entre ${w.min} et ${w.max} km depuis le départ. Aucun élargissement automatique.`;
 }
-async function run(){
-  if(busy)return;
-  if(activeAbort)activeAbort.abort();activeAbort=new AbortController();
-  clearResults();lock(true);log.length=0;
-  health("hGeo","","géocodage");health("hRoute","","routage");
-  try{
-    const routing=routingPreferences();ensureRouting(routing);
-    const sv=$("start").value.trim(),ev=$("end").value.trim();
-    if(!sv||!ev)throw new Error("Départ et arrivée requis.");
-    setStatus("Recherche du départ…","busy");health("hGeo","busy","géocodage…");
-    const ga=await resolveTripPlace(sv,"start");
-    setStatus("Recherche de l’arrivée…","busy");const gb=await resolveTripPlace(ev,"end");
-    health("hGeo","ok","géocodage ✓");
-    const a=[ga.lat,ga.lon],b=[gb.lat,gb.lon];
-    setStatus("Calcul du trajet…","busy");
-    const base=await route([a,b],true,true,routing);
+function displayTrip(base,routing,a,b,ga,gb){
     const coords=base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
     const label=`${ga.label.split(",")[0]} → ${gb.label.split(",")[0]}`;
     const choices=[base,...base.alternatives];
@@ -1856,6 +1955,24 @@ async function run(){
     }
     updateWindow();$("rideTrip").textContent=label;
     setStatus(routing.vehicle.type==="walk"?"Trajet prêt · à pied. Vérifier la distance et les conditions du parcours.":"Trajet prêt. Choisis maintenant tes arrêts.","ok");
+}
+async function run(){
+  if(busy)return;
+  if(activeAbort)activeAbort.abort();activeAbort=new AbortController();
+  clearResults();lock(true);log.length=0;
+  health("hGeo","","géocodage");health("hRoute","","routage");
+  try{
+    const routing=routingPreferences();ensureRouting(routing);
+    const sv=$("start").value.trim(),ev=$("end").value.trim();
+    if(!sv||!ev)throw new Error("Départ et arrivée requis.");
+    setStatus("Recherche du départ…","busy");health("hGeo","busy","géocodage…");
+    const ga=await resolveTripPlace(sv,"start");
+    setStatus("Recherche de l’arrivée…","busy");const gb=await resolveTripPlace(ev,"end");
+    health("hGeo","ok","géocodage ✓");
+    const a=[ga.lat,ga.lon],b=[gb.lat,gb.lon];
+    setStatus("Calcul du trajet…","busy");
+    const base=await route([a,b],true,true,routing);
+    displayTrip(base,routing,a,b,ga,gb);
   }catch(e){
     dbg(e.stack||e.message);setStatus(`⚠️ ${e.message}`,"err");$("diagWrap").open=true;
   }finally{lock(false);activeAbort=null}
@@ -2121,7 +2238,7 @@ function bind(){
   }
 }
 
-loadPreparedTrips();makeGrid();bind();bindProfile();bindJournal();bindPreparedTrips();bindRides();applyVehicle();updateRange();initPwa();
+loadPreparedTrips();makeGrid();bind();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindComparison();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
