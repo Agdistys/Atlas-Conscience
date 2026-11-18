@@ -27,11 +27,11 @@ function json(route, body){
   return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
 }
 
-export async function mockDragonRoute(page){
+export async function mockDragonRoute(page,{origin="http://127.0.0.1:4173"}={}){
   await page.clock.setFixedTime(new Date('2026-09-17T10:00:00Z'));
   await page.route('**/*', route => {
     const url = new URL(route.request().url());
-    return url.origin === 'http://127.0.0.1:4173' ? route.continue() : route.abort();
+    return url.origin === origin ? route.continue() : route.abort();
   });
   await page.route('https://cdn.jsdelivr.net/**',route=>route.abort());
   await page.route('https://tile.openstreetmap.org/**',route=>route.abort());

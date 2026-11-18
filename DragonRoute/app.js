@@ -2160,12 +2160,42 @@ function gps(){
   },e=>setStatus(`⚠️ GPS : ${e.message}`,"err"),{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
 }
 function initPwa(){
-  if(document.body.dataset.preview === "true") return;
-  if("serviceWorker" in navigator){
-    navigator.serviceWorker.register("./service-worker.js").then(()=>dbg("Service worker enregistré")).catch(e=>dbg("SW",e.message));
-  }
+  const preview=document.body.dataset.preview==="true";
+  const network=()=>{
+    const offline=navigator.onLine===false;
+    $("connectionNotice").hidden=!offline;
+    $("connectionNotice").textContent="Connexion signalée indisponible. Mes trajets, Mon profil et Mon journal restent consultables. Nouveaux calculs, prix et fonds de carte nécessitent le réseau.";
+    $("networkStatus").textContent=offline?"Le navigateur signale une absence de connexion.":"Le navigateur signale une connexion. La disponibilité de chaque service reste à vérifier lors de son utilisation.";
+  };
+  network();window.addEventListener("online",network);window.addEventListener("offline",network);
+  if(preview){$("pwaStatus").textContent="Version d’essai : installation et préparation au redémarrage hors ligne désactivées. Les données locales restent consultables tant que cette page est chargée.";$("installHelp").hidden=true;return}
+  if(!("serviceWorker" in navigator)||!window.isSecureContext){$("pwaStatus").textContent="Préparation hors ligne indisponible dans ce navigateur ou à cette adresse. La page déjà chargée reste utilisable pour consulter les données locales.";return}
+  const ready=()=>{$("pwaStatus").textContent="Interface préparée pour une réouverture hors ligne dans ce navigateur, tant que ses données sont conservées. Cartes et services en ligne non enregistrés."};
+  navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"}).then(registration=>{
+    const showUpdate=()=>{
+      $("pwaUpdateNotice").hidden=registration.waiting?.state!=="installed";
+      if(!$("pwaUpdateNotice").hidden){$("pwaUpdateNotice").textContent="Nouvelle version prête. Enregistrer les préparations utiles, puis fermer toutes les fenêtres de cette application et la rouvrir. Aucun rechargement imposé ; les données enregistrées sont conservées.";}
+    };
+    const watch=worker=>{if(!worker)return;const changed=()=>{if(worker.state==="activated")ready();if(worker.state==="installed")setTimeout(showUpdate,0);if(worker.state==="redundant"){setTimeout(showUpdate,0);$("pwaStatus").textContent=registration.active?"Préparation de la nouvelle version interrompue. La version déjà installée reste disponible ; réessayer la vérification plus tard.":"L’interface n’a pas pu être préparée pour une réouverture hors ligne. Réessayer avec une connexion disponible."}};worker.addEventListener("statechange",changed);changed()};
+    if(registration.active)ready();else $("pwaStatus").textContent="Préparation de l’interface en cours. Garder cette page ouverte jusqu’à confirmation avant de compter sur une réouverture hors ligne.";
+    const observe=()=>{watch(registration.installing);registration.addEventListener("updatefound",()=>watch(registration.installing))};
+    showUpdate();observe();
+    $("checkUpdateBtn").hidden=false;
+    $("checkUpdateBtn").addEventListener("click",async()=>{
+      if(busy){$("pwaStatus").textContent="Attendre la fin de l’opération en cours avant de vérifier les mises à jour.";return}
+      $("checkUpdateBtn").disabled=true;
+      try{if(!registration.active&&!registration.waiting&&!registration.installing){registration=await navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"});observe()}else await registration.update();showUpdate();if(registration.active&&!registration.waiting&&!registration.installing)$("pwaStatus").textContent="Vérification terminée : aucune nouvelle version détectée. La disponibilité des services de trajet reste indépendante."}
+      catch(e){$("pwaStatus").textContent="Vérification impossible. La version et les données déjà enregistrées restent conservées. Réessayer avec une connexion disponible.";dbg("Mise à jour",e.message)}
+      finally{$("checkUpdateBtn").disabled=false}
+    });
+  }).catch(e=>{$("pwaStatus").textContent="L’interface n’a pas pu être préparée pour une réouverture hors ligne. Les données locales de la page chargée restent consultables.";dbg("SW",e.message)});
   window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;$("installBtn").hidden=false});
-  $("installBtn").addEventListener("click",async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$("installBtn").hidden=true});
+  window.addEventListener("appinstalled",()=>{deferredInstall=null;$("installBtn").hidden=true;$("installHelp").textContent="Installation signalée par le navigateur. L’accès hors ligne dépend de la préparation de l’interface indiquée ci-dessus."});
+  $("installBtn").addEventListener("click",async()=>{
+    if(!deferredInstall)return;const prompt=deferredInstall;deferredInstall=null;$("installBtn").hidden=true;
+    try{await prompt.prompt();const choice=await prompt.userChoice;$("installHelp").textContent=choice.outcome==="accepted"?"Installation demandée. Attendre la confirmation du navigateur.":"Installation non demandée. L’application reste accessible dans le navigateur."}
+    catch(e){$("installHelp").textContent="Installation non proposée pour le moment. Consulter le menu du navigateur."}
+  });
 }
 function bindProfile(){
   $("profileBtn").addEventListener("click",openProfile);

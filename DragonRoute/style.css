@@ -73,3 +73,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 .comparison-card{padding:16px;border:1px solid var(--line);border-radius:12px;margin:12px 0}.comparison-card h3{margin-top:0}.comparison-card button{width:100%}.comparison-card [aria-pressed="true"]{border-color:var(--green)}#comparisonPanel .settings{grid-template-columns:1fr}#comparisonPanel input{max-width:100%;min-width:0}#comparisonHeading:focus{outline:2px solid #f6ca69;outline-offset:4px}
 
 .prospective-options{margin:1rem 0;padding:1rem;border:1px solid var(--line);border-radius:12px;min-width:0}.prospective-carbon{margin-block:1rem}.prospective-carbon details{margin-top:.6rem}
+
+.app-notice{border-left:3px solid var(--gold);background:var(--panel);padding:12px;font-size:13px;line-height:1.5;overflow-wrap:anywhere;margin:0 0 16px}#checkUpdateBtn{min-height:44px}#appAvailability{margin-top:18px}
