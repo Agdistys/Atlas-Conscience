@@ -1,5 +1,5 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
-const ctx={TextEncoder,Intl,Date};vm.createContext(ctx);const source=fs.readFileSync('DragonRoute/app.js','utf8');for(const name of ['STATION HOURS MODEL','PREPARED TRIPS MODEL'])vm.runInContext(source.split('// BEGIN '+name+'\n')[1].split('// END '+name)[0],ctx);
+const ctx={TextEncoder,Intl,Date};vm.createContext(ctx);const source=fs.readFileSync('DragonRoute/app.js','utf8');for(const name of ['STATION HOURS MODEL','TIMING MODEL','PREPARED TRIPS MODEL'])vm.runInContext(source.split('// BEGIN '+name+'\n')[1].split('// END '+name)[0],ctx);
 export const preparedFixture=(p={})=>({id:'test-1',name:'Trajet test',savedAt:'2026-09-17T10:00:00.000Z',places:{start:{label:'Lyon',lat:45.764,lon:4.8357},end:{label:'Valence',lat:44.9334,lon:4.8924}},vehicle:{type:'car',fuel:'E10',cons:6.2,liters:40,dimensions:null},preferences:{avoid:[],departure:'2026-09-18T10:00',stopMode:'around',stopKm:100,rangeMode:'km',rangeValue:180,reserveKm:30,rangeOnly:true,maxDetourKm:10,maxDetourMin:15,services:['Toilettes publiques'],openingFilter:'compatible',listMode:'all'},snapshot:{calculatedAt:'2026-09-17T09:59:00.000Z',engine:'osrm',distanceMeters:104000,durationSeconds:3900,geometry:[[4.8357,45.764],[4.87,45.4],[4.8924,44.9334]],stop:{id:'A',address:'1 route test',city:'Valence',lat:45.4,lon:4.87}},...p});
 const dataset=(entries=[preparedFixture()])=>({kind:'dragonroute-preparations',version:1,entries});
 test('préparations : canonical round trip keeps geometry and unknowns, excludes foreign data',()=>{
@@ -8,7 +8,7 @@ test('préparations : canonical round trip keeps geometry and unknowns, excludes
  const e=preparedFixture();e.preferences.departure=null;e.preferences.maxDetourKm=0;e.snapshot.stop=null;const c=ctx.validatePreparedEntry(e);assert.equal(c.preferences.departure,null);assert.equal(c.preferences.maxDetourKm,0);assert.equal(c.snapshot.stop,null);
 });
 test('préparations : wrong kind, future versions, duplicates and capacities fail closed',()=>{
- for(const d of [{version:1,entries:[]},{...dataset(),version:3},{...dataset(),entries:[preparedFixture(),preparedFixture()]},dataset(Array.from({length:21},(_,i)=>preparedFixture({id:'x-'+i})))])assert.throws(()=>ctx.validatePreparedTrips(d));
+ for(const d of [{version:1,entries:[]},{...dataset(),version:4},{...dataset(),entries:[preparedFixture(),preparedFixture()]},dataset(Array.from({length:21},(_,i)=>preparedFixture({id:'x-'+i})))])assert.throws(()=>ctx.validatePreparedTrips(d));
  const e=preparedFixture();e.snapshot.geometry=Array(25001).fill([4,45]);assert.throws(()=>ctx.validatePreparedEntry(e));
  const big=Array.from({length:20},(_,i)=>{const e=preparedFixture({id:'x-'+i});e.snapshot.geometry=Array(5000).fill([4.1234567,45.1234567]);return e});assert.throws(()=>ctx.validatePreparedTrips(dataset(big)),/2 Mo/);
 });

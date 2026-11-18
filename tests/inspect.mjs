@@ -16,5 +16,5 @@ run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
 run('report-tests', 'npm', ['run', 'test:inspection']);
 // Four screen formats now cover more than 500 scenarios; retain a bounded run.
-run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 720_000);
+run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 900_000);
 process.exitCode = writeReport(process.cwd(), { publishSummary: false }).state === 'inspection' ? 0 : 1;
