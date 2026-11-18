@@ -54,3 +54,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 #serviceFilters{border:0;padding:0;margin:1rem 0}#serviceChoices{max-height:16rem;overflow:auto;padding:.25rem}#stationFilterStatus,#filteredStopNote{border-left:3px solid var(--mint,#91dcb0);padding-left:.7rem}
 
 .toll-marker{background:#e5b4ff;border:2px solid #24122f;border-radius:4px;color:#24122f;text-align:center;font:bold 13px/26px system-ui}.svg-toll rect{fill:#e5b4ff;stroke:#24122f;stroke-width:2}.svg-toll text{fill:#24122f;font:bold 13px system-ui}.toll-gate-card{border:1px solid #665174;border-radius:8px;padding:12px;margin:12px 0}.toll-gate-card h4{margin:0 0 .5rem}.toll-gate-card p{font-size:.85rem;overflow-wrap:anywhere}.toll-gate-card:focus{outline:3px solid #e5b4ff;outline-offset:2px}
+
+.profile-notice{border:1px solid var(--gold);padding:12px;margin:12px 0;border-radius:6px}.profile-notice label{display:flex;align-items:center;gap:10px}.profile-notice input{width:auto}#profileImportNames{padding-left:20px;overflow-wrap:anywhere}#profileImportNames li{margin:8px 0}

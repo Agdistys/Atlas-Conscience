@@ -517,13 +517,14 @@ test('import export et suppression du profil sans toucher les autres donnees', a
   page.on('dialog',dialog=>dialog.accept());
   const profile={version:1,vehicle:{name:'Import test',type:'car',fuel:'E10',cons:7,liters:35},addresses:[{id:'maison',name:'Maison',value:'Lyon'}],stations:[]};
   await page.locator('#importProfileFile').setInputFiles({name:'profil.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(profile))});
+  await expect(page.locator('#profileImportSummary')).toContainText('1 adresse(s)');await page.locator('#confirmProfileImport').click();
   await expect(page.locator('#profileMessage')).toHaveText('Profil importé.');
   await expect(page.locator('#vehicleName')).toHaveValue('Import test');
   const downloadPromise=page.waitForEvent('download');
   await page.locator('#exportProfileBtn').click();
   const download=await downloadPromise;
   expect(download.suggestedFilename()).toBe('DragonRoute-profil.json');
-  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual(profile);
+  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual({...profile,version:2});
   await page.locator('#eraseProfileBtn').click();
   await expect(page.locator('#profileMessage')).toHaveText('Profil local effacé.');
   await expect(page.locator('#savedAddresses')).toContainText('Aucune adresse');
