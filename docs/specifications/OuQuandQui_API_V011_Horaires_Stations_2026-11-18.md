@@ -29,7 +29,7 @@ La déclaration d’automate ne détaille pas les carburants accessibles. Elle n
 - Heure de départ inexistante au printemps ou ambiguë à l’automne : erreur explicite, aucune sélection silencieuse de la première ou de la seconde occurrence.
 - Identifiants officiels des jours 1 à 7. Une journée absente n’est ni ouverte ni fermée. Un nom de jour libre ne remplace pas son identifiant.
 - Plages multiples, début inclus et fin exclue ; fin `24.00` acceptée, début `24.00` refusé. Une fermeture inférieure à l’ouverture signifie une plage nocturne reportée au lendemain. Le report de dimanche vers lundi est pris en compte.
-- Deux heures identiques, plage illisible, jour dupliqué ou drapeau invalide : journée inconnue. Le drapeau officiel « guichet fermé » prime sur les anciens champs horaires restants, effectivement observés dans la source.
+- Deux heures identiques (signalées comme durée ambiguë dans la fiche), plage illisible, jour dupliqué ou drapeau invalide : journée inconnue. Le drapeau officiel « guichet fermé » prime sur les anciens champs horaires restants, effectivement observés dans la source.
 - Une plage nocturne de la veille qui contredit un jour explicitement fermé donne un résultat inconnu. Un jour précédent absent peut empêcher de conclure « hors horaires » ; une plage positive et valide du jour permet néanmoins la compatibilité.
 - Une contradiction entre l’automate brut et le champ dérivé donne un résultat inconnu. Un automate 24 h/24 déclaré peut satisfaire la compatibilité sans horaires de guichet, sauf GPLc.
 
