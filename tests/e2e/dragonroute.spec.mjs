@@ -225,7 +225,7 @@ test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
   let previous;
-  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'travelMode', 'savedVehicleSelect', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore', 'goBtn']) {
+  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'travelMode', 'savedVehicleSelect', 'start', 'gpsBtn', 'end', 'routeOptimization', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore', 'goBtn']) {
     await page.keyboard.press('Tab');
     // Native date inputs expose several keyboard segments inside the same element.
     if (['stationDeparture','routeArriveBy'].includes(previous)) {

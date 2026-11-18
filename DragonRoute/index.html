@@ -44,6 +44,7 @@
           <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p></div>
           <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint endPlaceNote" value="Valence" autocomplete="off" placeholder="Ville ou adresse"><p id="endPlaceNote" class="note" hidden></p></div>
         </div>
+        <label for="routeOptimization">Privilégier pour ce trajet</label><select id="routeOptimization" aria-describedby="optimizationNote"><option value="" disabled>Choisir un critère</option><option value="fastest" selected>Plus rapide — durée estimée</option><option value="shortest">Plus court — distance</option></select><p id="optimizationNote" class="note" role="status"></p>
         <p id="addressHint" class="note">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>
         <details id="routingOptions" class="routing-options" open>
           <summary id="routingOptionsToggle">Options du trajet</summary>
@@ -275,7 +276,7 @@
       <label class="check-label"><input id="preparedConfirm" type="checkbox"> Enregistrer ces informations dans ce navigateur</label><button id="preparedSave" class="primary" type="submit" disabled>Enregistrer</button>
     </form>
   </section>
-  <div class="dialog-actions"><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
+  <div class="dialog-actions"><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
   <div id="preparedList"></div>
   <section id="preparedView" class="detail-section" hidden aria-label="Préparation enregistrée"><div id="preparedDetails"></div><button id="preparedResumeBtn" class="primary" type="button">Préparer à nouveau ce trajet</button></section>
 </dialog>
@@ -287,6 +288,7 @@
 </dialog>
 <dialog id="navigationDialog" aria-labelledby="navigationTitle">
   <div class="dialog-heading"><h2 id="navigationTitle">Emporter ce trajet</h2><button class="icon-btn close-dialog" type="button" aria-label="Fermer la navigation" title="Fermer">×</button></div>
+  <p id="navigationOptimizationNote" class="note"></p>
   <p id="navigationSummary" class="note"></p>
   <p id="navigationVehicleNote" class="note" hidden>Les liens voiture ne transmettent pas le gabarit du poids lourd. Utiliser une navigation compatible avec ce véhicule.</p>
   <div id="navigationCarLinks">
