@@ -39,5 +39,5 @@ test('carbon: explicit update archives the exact calculation, corrections invali
 test('carbon: monthly totals expose missing data and keep different scopes separate',()=>{
  const a=entry(),b=entry({id:'b',mode:'bike'}),c=entry({id:'c',mode:'walk'});a.emissions=ctx.estimateCarbon(a,'voiture-compact-diesel',2,at);b.emissions=ctx.estimateCarbon(b,'velo',null,at);
  const m=ctx.journalMonthly([a,b,c],'2026-11');assert.equal(m.carbonUnknown,1);assert.equal(m.modes.walk.carbonUnknown,1);assert.equal(m.modes.car.carbonGroups['construction-energy'].valueKg,a.emissions.valueKg);assert.equal(m.carbonGroups['construction-energy'].valueKg,a.emissions.valueKg);assert.equal(m.carbonGroups.construction.valueKg,b.emissions.valueKg);assert.equal(Object.keys(m.carbonGroups).length,2);
- const old={version:1,enabled:true,entries:[entry()]},raw=JSON.stringify(old);const migrated=ctx.validateJournal(old);assert.equal(migrated.version,2);assert.equal(migrated.entries[0].emissions.valueKg,null);assert.equal(JSON.stringify(old),raw);
+ const old={version:1,enabled:true,entries:[entry()]},raw=JSON.stringify(old);const migrated=ctx.validateJournal(old);assert.equal(migrated.version,3);assert.equal(migrated.entries[0].emissions.valueKg,null);assert.equal(JSON.stringify(old),raw);
 });

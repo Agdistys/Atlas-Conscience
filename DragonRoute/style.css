@@ -97,3 +97,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 #preparedDialog .tabs button{flex:1;min-height:44px;white-space:normal}#preparedDialog [role="tab"][aria-selected="true"]{color:var(--green);border-bottom:3px solid var(--green)}#savedTransitPanel .dialog-actions,#savedTransitPanel .row-actions{flex-wrap:wrap}#savedTransitPanel button,#savedTransitPanel input{max-width:100%}#savedTransitDetails,#savedTransitImportDetails{overflow-wrap:anywhere}#savedTransitEditor{margin:16px 0}
 
 #transitCarbon{border-top:1px solid var(--line);margin-top:1rem;padding-top:1rem} .transit-carbon-step{margin:1rem 0;padding:.8rem;min-width:0} .transit-carbon-step select{width:100%;min-width:0} #transitCarbonResult li{margin:.65rem 0} #transitCarbon code{overflow-wrap:anywhere}
+
+#journalCollectiveSteps fieldset{min-width:0}#journalCollectiveSteps input,#journalCollectiveSteps select{max-width:100%;min-width:0}#journalEntries details{overflow-wrap:anywhere}

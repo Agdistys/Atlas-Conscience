@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import fs from 'node:fs';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
-const key='dragonroute.journal.v2.public',legacy='dragonroute.journal.v1.public';
+const key='dragonroute.journal.v3.public',legacy='dragonroute.journal.v1.public';
 const oldEntry={id:'original',date:'2026-11-17',mode:'car',distanceMeters:100000,distanceSource:'declared',start:'Lyon',end:'Valence',note:'',revision:1,createdAt:'2026-11-17T10:00:00.000Z',updatedAt:'2026-11-17T10:00:00.000Z',calculation:null,emissions:{version:'unavailable-v1',status:'unavailable',valueKg:null,factor:null}};
 async function read(page){return page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key)}
 async function manual(page,mode='car',distance='100'){
@@ -35,7 +35,7 @@ test('carbone : train sans double division, vélo non nul, marche et distance in
 });
 test('carbone : migration sans écriture ni recalcul et export de la copie originale',async({page})=>{
  const original=JSON.stringify({version:1,enabled:true,entries:[oldEntry]});await page.addInitScript(([k,v])=>localStorage.setItem(k,v),[legacy,original]);await page.goto('/DragonRoute/');expect(await read(page)).toBeNull();await page.locator('#journalBtn').click();await expect(page.locator('#journalMessage')).toContainText('copie d’origine');await page.locator('#journalMonth').fill('2026-11');await expect(page.locator('#journalSummary')).toContainText('CO₂e non estimé');
- await page.locator('[data-journal-edit]').click();await estimate(page);await page.locator('#journalConfirm').check();await save(page);expect((await read(page)).version).toBe(2);expect(await page.evaluate(k=>localStorage.getItem(k),legacy)).toBe(original);
+ await page.locator('[data-journal-edit]').click();await estimate(page);await page.locator('#journalConfirm').check();await save(page);expect((await read(page)).version).toBe(3);expect(await page.evaluate(k=>localStorage.getItem(k),legacy)).toBe(original);
  const pending=page.waitForEvent('download');await page.locator('#journalExportLegacy').click();expect(JSON.parse(fs.readFileSync(await (await pending).path(),'utf8'))).toEqual(JSON.parse(original));page.once('dialog',d=>d.accept());await page.locator('#journalErase').click();expect(await read(page)).toBeNull();expect(await page.evaluate(k=>localStorage.getItem(k),legacy)).toBeNull();
 });
 test('carbone : erreur de stockage et modification concurrente ne perdent pas l’estimation',async({page})=>{

@@ -26,7 +26,7 @@ jobs:
   inspect:
     runs-on: ubuntu-24.04
     # Reserve setup and evidence-upload time around the bounded browser suite.
-    timeout-minutes: 30
+    timeout-minutes: 40
     env:
       INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:

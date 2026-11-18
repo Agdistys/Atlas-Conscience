@@ -15,7 +15,7 @@ function run(name, command, args, timeout = 600_000) {
 run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
 run('report-tests', 'npm', ['run', 'test:inspection']);
-// Four formats and 896 scenarios: allow completion after a measured 18-minute cutoff.
-// Keep eight minutes of the 30-minute job for setup, report and artifact upload.
-run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 1_320_000);
+// Four formats: the previous 1,012 scenarios took 20 minutes. The expanded suite
+// has a 28-minute bound; the 40-minute job retains setup/report/upload time.
+run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 1_680_000);
 process.exitCode = writeReport(process.cwd(), { publishSummary: false }).state === 'inspection' ? 0 : 1;
