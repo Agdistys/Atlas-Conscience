@@ -25,7 +25,8 @@ concurrency:
 jobs:
   inspect:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # Reserve setup and evidence-upload time around the bounded browser suite.
+    timeout-minutes: 20
     env:
       INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
