@@ -168,7 +168,7 @@
         <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · c751aa7 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 421c08c · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -224,13 +224,18 @@
       <label for="journalEnd">Arrivée</label><input id="journalEnd" maxlength="1000" required>
       <label for="journalDistance">Distance effectuée (km, facultatif)</label><input id="journalDistance" type="number" inputmode="decimal" min="0" max="40000" step="0.001" aria-describedby="journalDistanceNote"><p id="journalDistanceNote" class="note">Laisser vide si la distance est inconnue. Zéro indique une distance déclarée de zéro kilomètre.</p>
       <label for="journalNote">Note personnelle (facultatif)</label><textarea id="journalNote" maxlength="500" rows="2"></textarea>
+      <fieldset class="profile-section"><legend>Estimation carbone facultative</legend><p id="carbonAvailability" class="note"></p>
+        <label class="journal-toggle"><input id="carbonCalculate" type="checkbox"> Calculer ou actualiser l’empreinte de ce trajet</label>
+        <div id="carbonFields" hidden><label for="carbonFactor">Véhicule ou transport réellement utilisé</label><select id="carbonFactor"></select><p class="note">Les modèles voiture ne couvrent pas les caravanes, utilitaires, poids lourds, E85 ou GPL. Ne pas leur substituer un autre carburant.</p><div id="carbonOccupantsWrap" hidden><label for="carbonOccupants">Occupants, conducteur compris</label><input id="carbonOccupants" type="number" min="1" max="9" step="1" value="1"></div></div>
+        <div id="carbonPreview" class="note" role="status" aria-live="polite"></div>
+      </fieldset>
       <label class="journal-toggle"><input id="journalConfirm" type="checkbox" required><span id="journalConfirmText">J’ai effectué ce trajet.</span></label>
       <div id="journalDuplicate" class="profile-notice" hidden><p id="journalDuplicateText"></p><label class="journal-toggle"><input id="journalRepeat" type="checkbox" aria-describedby="journalDuplicateText"> Il s’agit d’un autre déplacement.</label></div>
       <div class="dialog-actions"><button class="primary" id="journalSave" type="submit">Enregistrer dans le journal</button><button id="journalCancel" class="ghost" type="button">Annuler</button></div>
     </form>
   </section>
-  <section class="profile-section" aria-labelledby="journalBalanceTitle"><h3 id="journalBalanceTitle">Bilan mensuel</h3><label for="journalMonth">Mois à consulter</label><input id="journalMonth" type="month"><p id="journalSummary" role="status"></p><ul id="journalModes"></ul><div id="journalEntries" class="saved-list"></div></section>
-  <section class="profile-section"><h3>Mes données de mobilité</h3><p class="note">L’export contient les lieux, dates et notes en clair. Il reste sur cet appareil jusqu’à son partage. Le journal accepte jusqu’à 1 000 trajets ; aucun ancien trajet n’est supprimé automatiquement.</p><div class="dialog-actions"><button id="journalExport" class="ghost" type="button">Exporter le journal</button><button id="journalErase" class="ghost" type="button">Effacer le journal</button></div></section>
+  <section class="profile-section" aria-labelledby="journalBalanceTitle"><h3 id="journalBalanceTitle">Bilan mensuel</h3><label for="journalMonth">Mois à consulter</label><input id="journalMonth" type="month"><p id="journalSummary" role="status"></p><p id="journalCarbonSummary"></p><ul id="journalModes"></ul><div id="journalEntries" class="saved-list"></div></section>
+  <section class="profile-section"><h3>Mes données de mobilité</h3><p class="note">L’export contient les lieux, dates et notes en clair. Il reste sur cet appareil jusqu’à son partage. Les estimations restent locales. Le journal accepte jusqu’à 1 000 trajets et 50 estimations historiques par trajet ; aucun ancien trajet n’est supprimé automatiquement.</p><div class="dialog-actions"><button id="journalExport" class="ghost" type="button">Exporter le journal</button><button id="journalExportLegacy" class="ghost" type="button" hidden>Exporter le journal d’origine</button><button id="journalErase" class="ghost" type="button">Effacer le journal</button></div></section>
 </dialog>
 
 <dialog id="profileDialog" aria-labelledby="profileTitle">

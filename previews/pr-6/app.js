@@ -76,6 +76,67 @@ function downloadProfile(data,filename='DragonRoute-profil.json'){
  const link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 // BEGIN JOURNAL MODEL
+/* Impact CO2 data attribution and license:
+MIT License
+
+Copyright (c) 2022 Datagir
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+// The bundled Impact CO2 factors are frozen, attributed and licensed below.
+const CARBON_DATA={"version":"impactco2-2026-11-18-bece7af","publisher":"ADEME / Impact CO₂","retrievedAt":"2026-11-18","sourceCommit":"bece7af7e3daa41c7f2233e03d169c33e82530c2","sourceURL":"https://github.com/incubateur-ademe/impactco2/blob/bece7af7e3daa41c7f2233e03d169c33e82530c2/src/data/categories/deplacement.ts","license":"MIT","sourceSha256":"d0cf114a19cf098c726dc4bab5d79a8bc477e6f14309686d1f7726cf6b440ef2","factors":[{"id":"tgv","mode":"train","label":"TGV","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00063,"energy":0.0023,"source":"https://impactco2.fr/outils/transport/tgv"},{"id":"intercites","mode":"train","label":"Intercités","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00318,"energy":0.0058,"source":"https://impactco2.fr/outils/transport/intercites"},{"id":"autocar","mode":"bus","label":"Autocar thermique","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00442,"energy":0.03314,"source":"https://impactco2.fr/outils/transport/autocar"},{"id":"velo","mode":"bike","label":"Vélo mécanique","unit":"kgCO2e/person-km","scope":"construction","construction":0.00017,"energy":0,"source":"https://impactco2.fr/outils/transport/velo"},{"id":"veloelectrique","mode":"bike","label":"Vélo électrique","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00872,"energy":0.00223,"source":"https://impactco2.fr/outils/transport/veloelectrique"},{"id":"busthermique","mode":"bus","label":"Bus thermique","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00892,"energy":0.1135,"source":"https://impactco2.fr/outils/transport/busthermique"},{"id":"tramway","mode":"train","label":"Tramway","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00048,"energy":0.0038,"source":"https://impactco2.fr/outils/transport/tramway"},{"id":"metro","mode":"train","label":"Métro","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00024,"energy":0.0042,"source":"https://impactco2.fr/outils/transport/metro"},{"id":"rer","mode":"train","label":"RER / Transilien","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00318,"energy":0.0066,"source":"https://impactco2.fr/outils/transport/rer"},{"id":"ter","mode":"train","label":"TER","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.00479,"energy":0.0229,"source":"https://impactco2.fr/outils/transport/ter"},{"id":"buselectrique","mode":"bus","label":"Bus électrique","unit":"kgCO2e/person-km","scope":"construction-energy","construction":0.0122,"energy":0.0095,"source":"https://impactco2.fr/outils/transport/buselectrique"},{"id":"voiture-citadine-essence","mode":"car","label":"Petite — Essence E5 / E10","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.027733695652173936,"energy":0.1169810600556303,"source":"https://impactco2.fr/outils/transport/voiture-citadine-essence"},{"id":"voiture-citadine-diesel","mode":"car","label":"Petite — Diesel B7 / B10","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.027733695652173936,"energy":0.09416971630563031,"source":"https://impactco2.fr/outils/transport/voiture-citadine-diesel"},{"id":"voiture-citadine-electrique","mode":"car","label":"Petite — Électrique","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.046089130434782626,"energy":0.011504485055630311,"source":"https://impactco2.fr/outils/transport/voiture-citadine-electrique"},{"id":"voiture-citadine-hybride","mode":"car","label":"Petite — Hybride non rechargeable","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.02919796195652175,"energy":0.1060514350556303,"source":"https://impactco2.fr/outils/transport/voiture-citadine-hybride"},{"id":"voiture-citadine-hybriderechargeable","mode":"car","label":"Petite — Hybride rechargeable","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.03677027173913044,"energy":0.09211716005563031,"source":"https://impactco2.fr/outils/transport/voiture-citadine-hybriderechargeable"},{"id":"voiture-compact-essence","mode":"car","label":"Moyenne — Essence E5 / E10","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.03169565217391306,"energy":0.1380123725556303,"source":"https://impactco2.fr/outils/transport/voiture-compact-essence"},{"id":"voiture-compact-diesel","mode":"car","label":"Moyenne — Diesel B7 / B10","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.03169565217391306,"energy":0.1105577600556303,"source":"https://impactco2.fr/outils/transport/voiture-compact-diesel"},{"id":"voiture-compact-electrique","mode":"car","label":"Moyenne — Électrique","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.05527690217391306,"energy":0.01208836005563031,"source":"https://impactco2.fr/outils/transport/voiture-compact-electrique"},{"id":"voiture-compact-hybride","mode":"car","label":"Moyenne — Hybride non rechargeable","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.03315991847826087,"energy":0.1134194350556303,"source":"https://impactco2.fr/outils/transport/voiture-compact-hybride"},{"id":"voiture-compact-hybriderechargeable","mode":"car","label":"Moyenne — Hybride rechargeable","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.04073222826086956,"energy":0.0931681350556303,"source":"https://impactco2.fr/outils/transport/voiture-compact-hybriderechargeable"},{"id":"voiture-berline-essence","mode":"car","label":"Berline — Essence E5 / E10","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.03961956521739131,"energy":0.1496510600556303,"source":"https://impactco2.fr/outils/transport/voiture-berline-essence"},{"id":"voiture-berline-diesel","mode":"car","label":"Berline — Diesel B7 / B10","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.03961956521739131,"energy":0.1437828350556303,"source":"https://impactco2.fr/outils/transport/voiture-berline-diesel"},{"id":"voiture-berline-electrique","mode":"car","label":"Berline — Électrique","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.0759790760869565,"energy":0.014735260055630313,"source":"https://impactco2.fr/outils/transport/voiture-berline-electrique"},{"id":"voiture-berline-hybride","mode":"car","label":"Berline — Hybride non rechargeable","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.041083831521739125,"energy":0.12976718505563029,"source":"https://impactco2.fr/outils/transport/voiture-berline-hybride"},{"id":"voiture-berline-hybriderechargeable","mode":"car","label":"Berline — Hybride rechargeable","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.048656141304347804,"energy":0.11580859130563032,"source":"https://impactco2.fr/outils/transport/voiture-berline-hybriderechargeable"},{"id":"voiture-grandeberline-essence","mode":"car","label":"SUV — Essence E5 / E10","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.03961956521739131,"energy":0.2066193725556303,"source":"https://impactco2.fr/outils/transport/voiture-grandeberline-essence"},{"id":"voiture-grandeberline-diesel","mode":"car","label":"SUV — Diesel B7 / B10","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.03961956521739131,"energy":0.1300887163056303,"source":"https://impactco2.fr/outils/transport/voiture-grandeberline-diesel"},{"id":"voiture-grandeberline-electrique","mode":"car","label":"SUV — Électrique","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.08024456521739132,"energy":0.014112460055630311,"source":"https://impactco2.fr/outils/transport/voiture-grandeberline-electrique"},{"id":"voiture-grandeberline-hybride","mode":"car","label":"SUV — Hybride non rechargeable","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.041083831521739125,"energy":0.1408191850556303,"source":"https://impactco2.fr/outils/transport/voiture-grandeberline-hybride"},{"id":"voiture-grandeberline-hybriderechargeable","mode":"car","label":"SUV — Hybride rechargeable","unit":"kgCO2e/vehicle-km","scope":"construction-energy","construction":0.048656141304347804,"energy":0.1373241350556303,"source":"https://impactco2.fr/outils/transport/voiture-grandeberline-hybriderechargeable"}]};
+const CARBON_SCOPES={'construction-energy':'Construction et énergie modélisées','construction':'Construction seule (vélo mécanique)'};
+function unavailableCarbon(){return {version:'unavailable-v1',status:'unavailable',valueKg:null,factor:null}}
+function carbonInput(e){return {mode:e.mode,distanceMeters:e.distanceMeters,start:e.start,end:e.end,date:e.date}}
+function estimateCarbon(entry,factorId,occupants,at){
+ const factor=CARBON_DATA.factors.find(f=>f.id===factorId&&f.mode===entry.mode);
+ if(!factor)throw new Error('Choisir un facteur compatible avec le mode.');
+ if(entry.distanceMeters===null)throw new Error('Renseigner la distance pour estimer les émissions.');
+ journalNumber(entry.distanceMeters,40000000);journalDate(entry.date);journalInstant(at);
+ const vehicle=factor.unit==='kgCO2e/vehicle-km';
+ if(vehicle&&(!Number.isInteger(occupants)||occupants<1||occupants>9))throw new Error('Indiquer de 1 à 9 occupants, conducteur compris.');
+ const total=(entry.distanceMeters/1000)*(factor.construction+factor.energy);
+ return {version:'impact-estimate-v1',status:'estimated',dataset:CARBON_DATA.version,factor:structuredClone(factor),input:carbonInput(entry),occupants:vehicle?occupants:null,vehicleKg:vehicle?total:null,valueKg:vehicle?total/occupants:total,calculatedAt:at};
+}
+function validateCarbon(c){
+ if(c?.version==='unavailable-v1'&&c.status==='unavailable'&&c.valueKg===null&&c.factor===null)return unavailableCarbon();
+ if(!c||c.version!=='impact-estimate-v1'||c.status!=='estimated'||c.dataset!==CARBON_DATA.version||!c.input)throw new Error('Version de calcul carbone non reconnue.');
+ const i=c.input,input={mode:i.mode,distanceMeters:i.distanceMeters,date:journalDate(i.date),start:journalText(i.start,1000,true),end:journalText(i.end,1000,true)};
+ const expected=estimateCarbon(input,c.factor?.id,c.occupants,journalInstant(c.calculatedAt));
+ if(JSON.stringify(c.factor)!==JSON.stringify(expected.factor)||c.valueKg!==expected.valueKg||c.vehicleKg!==expected.vehicleKg||c.occupants!==expected.occupants)throw new Error('Estimation carbone incohérente.');
+ return expected;
+}
+function currentCarbon(e){return e.emissions?.status==='estimated'&&JSON.stringify(carbonInput(e))===JSON.stringify(carbonInput(e.emissions.input))}
+function reviseCarbon(entry,previous,choice,at){
+ entry.emissions=structuredClone(previous.emissions);entry.emissionsHistory=structuredClone(previous.emissionsHistory??[]);
+ const changed=previous.emissions.status==='estimated'&&!currentCarbon(entry);
+ if(choice||changed){
+  if(entry.emissions.status==='estimated'){
+   if(entry.emissionsHistory.length>=50)throw new Error('Limite de 50 estimations historiques atteinte. Exporter cette entrée avant une nouvelle révision.');
+   entry.emissionsHistory.push({archivedAt:at,reason:choice?'Actualisation demandée':'Correction des données du trajet',estimate:entry.emissions});
+  }
+  entry.emissions=choice?estimateCarbon(entry,choice.factorId,choice.occupants,at):unavailableCarbon();
+ }
+ return entry;
+}
+
 const JOURNAL_MODES={car:'Voiture',truck:'Poids lourd',train:'Train',bus:'Bus / car',bike:'Vélo',walk:'Marche',other:'Autre'};
 function journalDay(date=new Date()){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-')}
 function journalDate(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value)||value<'1900-01-01'||!Number.isFinite(Date.parse(value+'T12:00:00Z'))||new Date(value+'T12:00:00Z').toISOString().slice(0,10)!==value)throw new Error('Date invalide.');return value}
@@ -83,52 +144,87 @@ function journalText(value,max,required=false){if(typeof value!=='string'||value
 function journalNumber(value,max){if(typeof value!=='number'||!Number.isFinite(value)||value<0||value>max)throw new Error('Distance invalide.');return value}
 function journalInstant(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(value)||!Number.isFinite(Date.parse(value))||new Date(value).toISOString()!==value)throw new Error('Horodatage invalide.');return value}
 function journalIdentity(e){const norm=s=>s.trim().replace(/\s+/g,' ').toLocaleLowerCase('fr-FR');return JSON.stringify([e.date,e.mode,norm(e.start),norm(e.end),e.distanceMeters])}
-function emptyJournal(){return {version:1,enabled:false,entries:[]}}
+function emptyJournal(){return {version:2,enabled:false,entries:[]}}
 function validateJournal(data){
- if(!data||data.version!==1||typeof data.enabled!=='boolean'||!Array.isArray(data.entries)||data.entries.length>1000)throw new Error('Format ou capacité du journal invalide.');
+ if(!data||![1,2].includes(data.version)||typeof data.enabled!=='boolean'||!Array.isArray(data.entries)||data.entries.length>1000)throw new Error('Format ou capacité du journal invalide.');
  const entries=data.entries.map(e=>{
   if(!e||!Object.hasOwn(JOURNAL_MODES,e.mode)||!['route','declared','unknown'].includes(e.distanceSource)||!Number.isSafeInteger(e.revision)||e.revision<1||e.revision>100000)throw new Error('Entrée de journal invalide.');
   const clean={id:journalText(e.id,80,true),date:journalDate(e.date),start:journalText(e.start,1000,true),end:journalText(e.end,1000,true),mode:e.mode,distanceMeters:e.distanceMeters===null?null:journalNumber(e.distanceMeters,40000000),distanceSource:e.distanceSource,note:journalText(e.note,500),createdAt:journalInstant(e.createdAt),updatedAt:journalInstant(e.updatedAt),revision:e.revision,calculation:null,emissions:{version:'unavailable-v1',status:'unavailable',valueKg:null,factor:null}};
   if(!/^[A-Za-z0-9-]+$/.test(clean.id)||clean.updatedAt<clean.createdAt||(clean.distanceMeters===null)!==(clean.distanceSource==='unknown'))throw new Error('Entrée incohérente.');
   if(e.calculation!==null){const c=e.calculation;if(!c||c.version!=='route-snapshot-v1'||!['car','truck'].includes(c.mode)||!['ign','osrm','ors'].includes(c.engine))throw new Error('Calcul historique inconnu.');clean.calculation={version:c.version,engine:c.engine,start:journalText(c.start,1000,true),end:journalText(c.end,1000,true),resourceVersion:c.resourceVersion===null?null:journalText(c.resourceVersion,150,true),calculatedAt:journalInstant(c.calculatedAt),mode:c.mode,distanceMeters:journalNumber(c.distanceMeters,40000000),stop:c.stop===null?null:journalText(c.stop,500,true)}}
   if(clean.distanceSource==='route'&&(!clean.calculation||clean.distanceMeters!==clean.calculation.distanceMeters||clean.mode!==clean.calculation.mode||clean.start!==clean.calculation.start||clean.end!==clean.calculation.end))throw new Error('Distance incohérente avec le calcul.');
-  if(!e.emissions||e.emissions.version!=='unavailable-v1'||e.emissions.status!=='unavailable'||e.emissions.valueKg!==null||e.emissions.factor!==null)throw new Error('Version de calcul carbone non reconnue.');
+  if(data.version===1&&e.emissions?.version!=='unavailable-v1')throw new Error('Ancien journal incohérent.');
+  clean.emissions=validateCarbon(e.emissions);
+  if(clean.emissions.status==='estimated'&&!currentCarbon(clean))throw new Error('Estimation non conforme au trajet.');
+  const history=e.emissionsHistory??[];
+  if(!Array.isArray(history)||history.length>50)throw new Error('Historique carbone invalide.');
+  clean.emissionsHistory=history.map(h=>{const estimate=validateCarbon(h.estimate),archivedAt=journalInstant(h.archivedAt);if(estimate.status!=='estimated'||archivedAt<estimate.calculatedAt||!['Actualisation demandée','Correction des données du trajet'].includes(h.reason))throw new Error('Historique carbone incohérent.');return {archivedAt,reason:h.reason,estimate}});
   return clean;
  });
  if(new Set(entries.map(e=>e.id)).size!==entries.length)throw new Error('Identifiants de journal dupliqués.');
- const clean={version:1,enabled:data.enabled,entries};if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>2000000)throw new Error('Journal trop volumineux : exporter avant de libérer de la place.');return clean;
+ const clean={version:2,enabled:data.enabled,entries};if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>2000000)throw new Error('Journal trop volumineux : exporter avant de libérer de la place.');return clean;
 }
 function journalMonthly(entries,month){
  const rows=entries.filter(e=>e.date.slice(0,7)===month),modes={};
- for(const e of rows){const m=modes[e.mode]??={count:0,meters:0,unknown:0};m.count++;if(e.distanceMeters===null)m.unknown++;else m.meters+=e.distanceMeters}
- return {count:rows.length,meters:rows.reduce((s,e)=>s+(e.distanceMeters??0),0),unknown:rows.filter(e=>e.distanceMeters===null).length,carbonUnknown:rows.length,modes};
+ for(const e of rows){const m=modes[e.mode]??={count:0,meters:0,unknown:0};m.count++;if(e.distanceMeters===null)m.unknown++;else m.meters+=e.distanceMeters;m.carbonGroups??={};m.carbonUnknown??=0;if(currentCarbon(e)){const g=m.carbonGroups[e.emissions.factor.scope]??={valueKg:0,count:0};g.valueKg+=e.emissions.valueKg;g.count++}else m.carbonUnknown++}
+ const carbonGroups={};for(const e of rows){if(currentCarbon(e)){const scope=e.emissions.factor.scope,g=carbonGroups[scope]??={valueKg:0,count:0};g.valueKg+=e.emissions.valueKg;g.count++}}
+ return {count:rows.length,meters:rows.reduce((s,e)=>s+(e.distanceMeters??0),0),unknown:rows.filter(e=>e.distanceMeters===null).length,carbonUnknown:rows.filter(e=>!currentCarbon(e)).length,carbonGroups,modes};
 }
 // END JOURNAL MODEL
-const JOURNAL_KEY='dragonroute.journal.v1.'+PROFILE_SCOPE;
-let journal=emptyJournal(),journalSnapshot=null,journalBlocked=false,journalNotice='',journalDraft=null;
+const JOURNAL_KEY='dragonroute.journal.v2.'+PROFILE_SCOPE,LEGACY_JOURNAL_KEY='dragonroute.journal.v1.'+PROFILE_SCOPE;
+let journal=emptyJournal(),journalSnapshot=null,journalLegacySnapshot=null,journalBlocked=false,journalNotice='',journalDraft=null;
 function loadJournal(){
  journal=emptyJournal();journalBlocked=false;journalNotice='';
- try{journalSnapshot=localStorage.getItem(JOURNAL_KEY);if(journalSnapshot!==null)journal=validateJournal(JSON.parse(journalSnapshot))}
+ try{journalSnapshot=localStorage.getItem(JOURNAL_KEY);journalLegacySnapshot=localStorage.getItem(LEGACY_JOURNAL_KEY);const raw=journalSnapshot??journalLegacySnapshot;if(raw!==null)journal=validateJournal(JSON.parse(raw));if(journalSnapshot===null&&journalLegacySnapshot!==null)journalNotice='Ancien journal repris. Sa copie d’origine reste conservée ; aucune émission historique n’est recalculée automatiquement.'}
  catch{journalBlocked=true;journalNotice='Journal non chargé : format inconnu, données invalides ou stockage inaccessible. L’original est conservé. Recharger avec une version compatible ou effacer explicitement le journal.'}
 }
 function writeJournal(next){
  try{
   if(journalBlocked)throw new Error('Journal non chargé : écriture bloquée.');
-  if(localStorage.getItem(JOURNAL_KEY)!==journalSnapshot)throw new Error('Journal modifié dans un autre onglet. Recharger avant de réessayer.');
+  if(localStorage.getItem(JOURNAL_KEY)!==journalSnapshot||localStorage.getItem(LEGACY_JOURNAL_KEY)!==journalLegacySnapshot)throw new Error('Journal modifié dans un autre onglet. Recharger avant de réessayer.');
   const clean=validateJournal(next),raw=JSON.stringify(clean);localStorage.setItem(JOURNAL_KEY,raw);journalSnapshot=raw;journal=clean;journalNotice='';return true;
  }catch(e){$('journalMessage').textContent='Enregistrement impossible. '+(journalBlocked||e.message.includes('autre onglet')||e.message.includes('volumineux')?e.message:'Stockage indisponible, plein ou données invalides. Le formulaire et les données précédentes sont conservés.');return false}
 }
 function renderJournal(){
  $('journalEnable').checked=journal.enabled;$('journalEnable').disabled=journalBlocked;
  $('journalNew').disabled=!journal.enabled||journalBlocked;$('journalCopy').disabled=!journal.enabled||journalBlocked||!trip||busy;
- $('journalExport').disabled=journalBlocked;
+ $('journalExport').disabled=journalBlocked;$('journalExportLegacy').hidden=journalLegacySnapshot===null;
  $('journalState').textContent=journal.enabled?'Journal activé. Chaque ajout reste volontaire.':'Journal désactivé. Les entrées déjà enregistrées restent consultables et exportables.';
- const month=$('journalMonth').value;if(!/^\d{4}-\d{2}$/.test(month)){$('journalSummary').textContent='Choisir un mois valide.';$('journalModes').replaceChildren();$('journalEntries').replaceChildren();return}
+ const month=$('journalMonth').value;if(!/^\d{4}-\d{2}$/.test(month)){$('journalSummary').textContent='Choisir un mois valide.';$('journalCarbonSummary').textContent='';$('journalModes').replaceChildren();$('journalEntries').replaceChildren();return}
  const total=journalMonthly(journal.entries,month),km=n=>fmt(n/1000,2)+' km';
- $('journalSummary').textContent=`${total.count} trajet(s) confirmé(s) · ${km(total.meters)} renseignés${total.unknown?` · bilan partiel : ${total.unknown} distance(s) non renseignée(s)`:''}. ${total.count?'CO₂e non estimé : aucun facteur qualifié disponible pour ces entrées.':'Aucun déplacement confirmé ce mois-ci.'}`;
- $('journalModes').replaceChildren();for(const [mode,m] of Object.entries(total.modes)){const li=document.createElement('li');li.textContent=`${JOURNAL_MODES[mode]} : ${m.count} trajet(s), ${km(m.meters)} renseignés${m.unknown?`, ${m.unknown} distance(s) manquante(s)`:''}. CO₂e non estimé.`;$('journalModes').append(li)}
- $('journalEntries').innerHTML=journal.entries.filter(e=>e.date.slice(0,7)===month).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)||a.id.localeCompare(b.id)).map(e=>`<article class="saved-row"><h3>${escapeHtml(e.start)} → ${escapeHtml(e.end)}</h3><p>${escapeHtml(e.date.split('-').reverse().join('/'))} · ${JOURNAL_MODES[e.mode]} · ${e.distanceMeters===null?'Distance non renseignée':km(e.distanceMeters)}</p><p>${e.distanceSource==='route'?'Distance issue du trajet préparé, confirmée par la personne':e.distanceSource==='declared'?'Distance déclarée par la personne':'Distance à compléter'} · CO₂e non estimé.</p>${e.note?`<p>${escapeHtml(e.note)}</p>`:''}<details><summary>Provenance et révision</summary><p>Confirmé le ${escapeHtml(new Date(e.createdAt).toLocaleString('fr-FR'))}. Révision ${e.revision}, mise à jour ${escapeHtml(new Date(e.updatedAt).toLocaleString('fr-FR'))}.</p><p>${e.calculation?`Calcul d’origine ${escapeHtml(e.calculation.start)} → ${escapeHtml(e.calculation.end)} · ${escapeHtml(e.calculation.engine.toUpperCase())} · ${escapeHtml(e.calculation.calculatedAt)} · ${km(e.calculation.distanceMeters)} · données ${escapeHtml(e.calculation.resourceVersion??'version non fournie')}${e.calculation.stop?' · arrêt '+escapeHtml(e.calculation.stop):''}. Ce calcul ne prouve pas le déplacement effectué.`:'Saisie manuelle, sans calcul d’itinéraire associé.'}</p><p>Empreinte non estimée : aucun facteur disponible. Les corrections conservent le calcul d’origine.</p></details><div class="dialog-actions"><button class="ghost" data-journal-edit="${e.id}" ${!journal.enabled?'disabled':''}>Modifier</button><button class="ghost" data-journal-delete="${e.id}">Supprimer</button></div></article>`).join('')||'<p class="note">Aucun trajet dans ce mois.</p>';
+ $('journalSummary').textContent=`${total.count} trajet(s) confirmé(s) · ${km(total.meters)} renseignés${total.unknown?` · bilan partiel : ${total.unknown} distance(s) non renseignée(s)`:''}. ${total.count?(total.carbonUnknown===total.count?'CO₂e non estimé.':`Empreinte partielle : ${total.count-total.carbonUnknown}/${total.count} trajet(s) estimé(s).`):'Aucun déplacement confirmé ce mois-ci.'}`;
+ $('journalCarbonSummary').textContent=Object.entries(total.carbonGroups).map(([scope,g])=>`${CARBON_SCOPES[scope]} : ${carbonAmount(g.valueKg)} pour ${g.count} trajet(s), part individuelle.`).join(' ') + (total.count?` ${total.carbonUnknown} trajet(s) sans estimation. Périmètres présentés séparément ; ce bilan ne constitue pas une empreinte complète.`:'');
+ $('journalModes').replaceChildren();for(const [mode,m] of Object.entries(total.modes)){const li=document.createElement('li');li.textContent=`${JOURNAL_MODES[mode]} : ${m.count} trajet(s), ${km(m.meters)} renseignés${m.unknown?`, ${m.unknown} distance(s) manquante(s)`:''}. ${Object.entries(m.carbonGroups).map(([scope,g])=>`${CARBON_SCOPES[scope]} : ${carbonAmount(g.valueKg)} pour une personne`).join(' ; ')}${m.carbonUnknown?' · '+m.carbonUnknown+' trajet(s) sans estimation':''}.`;$('journalModes').append(li)}
+ $('journalEntries').innerHTML=journal.entries.filter(e=>e.date.slice(0,7)===month).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)||a.id.localeCompare(b.id)).map(e=>`<article class="saved-row"><h3>${escapeHtml(e.start)} → ${escapeHtml(e.end)}</h3><p>${escapeHtml(e.date.split('-').reverse().join('/'))} · ${JOURNAL_MODES[e.mode]} · ${e.distanceMeters===null?'Distance non renseignée':km(e.distanceMeters)}</p><p>${e.distanceSource==='route'?'Distance issue du trajet préparé, confirmée par la personne':e.distanceSource==='declared'?'Distance déclarée par la personne':'Distance à compléter'} · ${currentCarbon(e)?carbonAmount(e.emissions.valueKg)+' estimés pour une personne':'CO₂e non estimé'}.</p>${e.note?`<p>${escapeHtml(e.note)}</p>`:''}<details><summary>Provenance et révision</summary><p>Confirmé le ${escapeHtml(new Date(e.createdAt).toLocaleString('fr-FR'))}. Révision ${e.revision}, mise à jour ${escapeHtml(new Date(e.updatedAt).toLocaleString('fr-FR'))}.</p><p>${e.calculation?`Calcul d’origine ${escapeHtml(e.calculation.start)} → ${escapeHtml(e.calculation.end)} · ${escapeHtml(e.calculation.engine.toUpperCase())} · ${escapeHtml(e.calculation.calculatedAt)} · ${km(e.calculation.distanceMeters)} · données ${escapeHtml(e.calculation.resourceVersion??'version non fournie')}${e.calculation.stop?' · arrêt '+escapeHtml(e.calculation.stop):''}. Ce calcul ne prouve pas le déplacement effectué.`:'Saisie manuelle, sans calcul d’itinéraire associé.'}</p><p>Les corrections conservent le calcul routier d’origine.</p></details>${journalCarbonMarkup(e)}<div class="dialog-actions"><button class="ghost" data-journal-edit="${e.id}" ${!journal.enabled?'disabled':''}>Modifier</button><button class="ghost" data-journal-delete="${e.id}">Supprimer</button></div></article>`).join('')||'<p class="note">Aucun trajet dans ce mois.</p>';
 }
+function carbonAmount(n){return n===0?'0 kg CO₂e':n<0.001?'< 0,001 kg CO₂e':fmt(n,3)+' kg CO₂e'}
+function carbonDetails(c){
+ if(c.status!=='estimated')return '<p>CO₂e non estimé. Une distance et un facteur compatible sont nécessaires.</p>';
+ const f=c.factor,vehicle=f.unit==='kgCO2e/vehicle-km',rate=f.construction+f.energy;
+ return `<p><strong>Part individuelle estimée : ${carbonAmount(c.valueKg)}</strong></p><p>${escapeHtml(f.label)} · ${fmt(c.input.distanceMeters/1000,3)} km × ${fmt(rate,6)} ${vehicle?'kg CO₂e / véhicule-km':'kg CO₂e / personne-km'}${vehicle?' ÷ '+c.occupants+' occupant(s), conducteur compris':''}.</p>${vehicle?`<p>Véhicule entier : ${carbonAmount(c.vehicleKg)}. Partage à parts égales ; ce total n’est pas ajouté à la part individuelle.</p>`:'<p>Facteur déjà exprimé par personne : aucune nouvelle division par le nombre de voyageurs.</p>'}<p>${CARBON_SCOPES[f.scope]} : fabrication ${fmt(f.construction,6)}, énergie ${fmt(f.energy,6)} kg CO₂e/km. Valeurs moyennes ; aucune correction selon la consommation réelle, la météo ou le chargement.${f.mode==='bike'?' Alimentation humaine exclue pour le vélo.':''} Aucune empreinte totale du mode n’est revendiquée.</p><p><a href="${f.source}" target="_blank" rel="noopener noreferrer">Source : ADEME / Impact CO₂</a> · jeu figé ${CARBON_DATA.retrievedAt} · version ${escapeHtml(c.dataset)} · calcul ${escapeHtml(c.calculatedAt)}.</p>`;
+}
+function journalCarbonMarkup(e){
+ const history=e.emissionsHistory??[];
+ return `<details><summary>Empreinte et méthode${history.length?' · '+history.length+' estimation(s) conservée(s)':''}</summary>${carbonDetails(e.emissions)}${history.map(h=>`<details><summary>Estimation précédente — ${escapeHtml(h.archivedAt)}</summary><p>${escapeHtml(h.reason)} · ${escapeHtml(h.estimate.input.start)} → ${escapeHtml(h.estimate.input.end)} · ${escapeHtml(h.estimate.input.date)}. Exclue du bilan courant.</p>${carbonDetails(h.estimate)}</details>`).join('')}</details>`;
+}
+function carbonDraftInput(){return {mode:$('journalMode').value,distanceMeters:$('journalDistance').value.trim()===''?null:Number($('journalDistance').value)*1000,start:$('journalStart').value.trim(),end:$('journalEnd').value.trim(),date:$('journalDate').value}}
+function refreshCarbonChoices(){
+ const mode=$('journalMode').value,factors=CARBON_DATA.factors.filter(f=>f.mode===mode),old=$('carbonFactor').value;
+ $('carbonFactor').replaceChildren(new Option('Choisir le véhicule ou le transport',''),...factors.map(f=>new Option(f.label,f.id)));
+ if(factors.some(f=>f.id===old))$('carbonFactor').value=old;
+ $('carbonCalculate').disabled=!factors.length;if(!factors.length)$('carbonCalculate').checked=false;
+ $('carbonAvailability').textContent=factors.length?'Estimation facultative, calculée sur cet appareil. Choisir le modèle correspondant au déplacement, indépendamment du profil enregistré.':'Aucun facteur qualifié pour ce mode. Les émissions restent non estimées, y compris pour la marche.';
+ updateCarbonPreview();
+}
+function updateCarbonPreview(){
+ const enabled=$('carbonCalculate').checked,factor=CARBON_DATA.factors.find(f=>f.id===$('carbonFactor').value),vehicle=factor?.unit==='kgCO2e/vehicle-km';
+ $('carbonFields').hidden=!enabled;$('carbonFactor').disabled=!enabled;$('carbonFactor').required=enabled;
+ $('carbonOccupantsWrap').hidden=!vehicle;$('carbonOccupants').disabled=!enabled||!vehicle;$('carbonOccupants').required=enabled&&vehicle;
+ if(!enabled){const old=journalDraft?.entry;$('carbonPreview').textContent=old?.emissions.status==='estimated'?'L’estimation précédente sera conservée si les données du trajet restent identiques. Une correction de date, de lieux, de mode ou de distance l’archivera et retirera sa valeur du bilan.':'Aucune estimation ne sera ajoutée sans demande explicite.';return}
+ try{const c=estimateCarbon(carbonDraftInput(),$('carbonFactor').value,Number($('carbonOccupants').value),new Date().toISOString());$('carbonPreview').innerHTML=carbonDetails(c)+'<p>Ce calcul sera enregistré après confirmation du trajet. Toute estimation précédente sera conservée dans son historique.</p>'}
+ catch(e){$('carbonPreview').textContent=e.message}
+}
+
 function openJournal(){if(!$('journalMonth').value)$('journalMonth').value=journalDay().slice(0,7);$('journalMessage').textContent=journalNotice;renderJournal();if(!$('journalDialog').open)$('journalDialog').showModal()}
 function journalForm(entry=null,fromRoute=false){
  if(!journal.enabled||journalBlocked)return;
@@ -140,6 +236,7 @@ function journalForm(entry=null,fromRoute=false){
  $('journalConfirm').checked=false;$('journalRepeat').checked=false;$('journalDuplicate').hidden=true;
  $('journalConfirmText').textContent=entry?'Je confirme ces corrections.':'J’ai effectué ce trajet.';
  $('journalOrigin').textContent=e.calculation?`Distance du trajet préparé (${e.calculation.engine.toUpperCase()})${e.calculation.stop?' avec arrêt : '+e.calculation.stop:''}. Ajuster si le déplacement réellement effectué diffère.`:'Saisie manuelle. La distance peut rester vide si elle est inconnue. Aucune émission n’est supposée nulle.';
+ $('carbonCalculate').checked=false;refreshCarbonChoices();$('carbonFactor').value=e.emissions.status==='estimated'?e.emissions.factor.id:'';$('carbonOccupants').value=String(e.emissions.occupants??1);updateCarbonPreview();
  $('journalMessage').textContent='';$('journalDate').focus();
 }
 function saveJournalEntry(event){
@@ -153,6 +250,7 @@ function saveJournalEntry(event){
   if(e.distanceSource==='route')e.distanceMeters=e.calculation.distanceMeters;
   const candidates=journal.entries.filter(x=>x.id!==e.id&&journalIdentity(x)===journalIdentity(e));
   if(candidates.length&&!$('journalRepeat').checked){$('journalDuplicate').hidden=false;$('journalDuplicateText').textContent=`${candidates.length} trajet(s) identique(s) déjà enregistré(s) à cette date. Modifier l’entrée existante ou confirmer un autre déplacement.`;$('journalRepeat').focus();return}
+  reviseCarbon(e,d.entry,$('carbonCalculate').checked?{factorId:$('carbonFactor').value,occupants:Number($('carbonOccupants').value)}:null,e.updatedAt);
   const next={...journal,entries:d.editing?journal.entries.map(x=>x.id===e.id?e:x):[...journal.entries,e]};validateJournal(next);
   if(writeJournal(next)){journalDraft=null;$('journalEditor').hidden=true;$('journalMonth').value=e.date.slice(0,7);renderJournal();$('journalMessage').textContent=d.editing?'Trajet corrigé. Bilan recalculé.':'Trajet effectué enregistré.';$('journalNew').focus()}
  }catch(e){$('journalMessage').textContent=e.message}
@@ -163,15 +261,17 @@ function bindJournal(){
  $('journalEnable').addEventListener('change',()=>{if(writeJournal({...journal,enabled:$('journalEnable').checked})){journalDraft=null;$('journalEditor').hidden=true;renderJournal();$('journalMessage').textContent=journal.enabled?'Journal activé. Aucun trajet ajouté automatiquement.':'Journal désactivé. Les données restent conservées.'}else $('journalEnable').checked=journal.enabled});
  $('journalNew').addEventListener('click',()=>journalForm());$('journalCopy').addEventListener('click',()=>journalForm(null,true));
  $('journalMonth').addEventListener('change',renderJournal);$('journalForm').addEventListener('submit',saveJournalEntry);
- $('journalForm').addEventListener('input',e=>{if(e.target.id!=='journalRepeat'){$('journalRepeat').checked=false;$('journalDuplicate').hidden=true}});
- $('journalMode').addEventListener('change',()=>{if(journalDraft&&$('journalMode').value!==journalDraft.entry.mode){$('journalDistance').value='';$('journalOrigin').textContent='Mode modifié : renseigner la distance effectivement parcourue dans ce mode. Le calcul routier d’origine reste conservé comme référence.'}});
+ $('journalForm').addEventListener('input',e=>{updateCarbonPreview();if(e.target.id!=='journalRepeat'){$('journalRepeat').checked=false;$('journalDuplicate').hidden=true}});
+ $('journalMode').addEventListener('change',()=>{refreshCarbonChoices();if(journalDraft&&$('journalMode').value!==journalDraft.entry.mode){$('journalDistance').value='';$('journalOrigin').textContent='Mode modifié : renseigner la distance effectivement parcourue dans ce mode. Le calcul routier d’origine reste conservé comme référence.'}});
+ $('carbonCalculate').addEventListener('change',updateCarbonPreview);$('carbonFactor').addEventListener('change',updateCarbonPreview);$('journalMode').addEventListener('change',updateCarbonPreview);
+ $('journalExportLegacy').addEventListener('click',()=>{if(journalLegacySnapshot!==null){try{downloadProfile(JSON.parse(journalLegacySnapshot),'DragonRoute-journal-origine.json')}catch{$('journalMessage').textContent='Ancienne copie illisible, conservée dans le navigateur.'}}});
  $('journalCancel').addEventListener('click',()=>{journalDraft=null;$('journalEditor').hidden=true;$('journalNew').focus()});
  $('journalDialog').addEventListener('close',()=>{journalDraft=null;$('journalEditor').hidden=true});
  $('journalEntries').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const e=journal.entries.find(x=>x.id===(b.dataset.journalEdit||b.dataset.journalDelete));if(!e)return;if(b.dataset.journalEdit)journalForm(e);else if(confirm('Supprimer ce trajet confirmé ? Le bilan sera recalculé.')&&writeJournal({...journal,entries:journal.entries.filter(x=>x.id!==e.id)})){journalDraft=null;$('journalEditor').hidden=true;renderJournal();$('journalMessage').textContent='Trajet supprimé. Bilan recalculé.'}});
  $('journalExport').addEventListener('click',()=>{if(!journalBlocked)downloadProfile(journal,'DragonRoute-journal.json')});
  $('journalErase').addEventListener('click',()=>{
   if(!confirm('Effacer uniquement le journal de cet environnement ? Le profil et les autres aperçus seront conservés.'))return;
-  try{if(localStorage.getItem(JOURNAL_KEY)!==journalSnapshot)throw new Error('Journal modifié dans un autre onglet : recharger avant de l’effacer.');localStorage.removeItem(JOURNAL_KEY);loadJournal();journalDraft=null;$('journalEditor').hidden=true;renderJournal();$('journalMessage').textContent='Journal effacé et désactivé.'}catch(e){$('journalMessage').textContent='Effacement impossible. '+e.message}
+  try{if(localStorage.getItem(JOURNAL_KEY)!==journalSnapshot||localStorage.getItem(LEGACY_JOURNAL_KEY)!==journalLegacySnapshot)throw new Error('Journal modifié dans un autre onglet : recharger avant de l’effacer.');localStorage.removeItem(LEGACY_JOURNAL_KEY);localStorage.removeItem(JOURNAL_KEY);loadJournal();journalDraft=null;$('journalEditor').hidden=true;renderJournal();$('journalMessage').textContent='Journal effacé et désactivé.'}catch(e){$('journalMessage').textContent='Effacement impossible. '+e.message}
  });
 }
 
