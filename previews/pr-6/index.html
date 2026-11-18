@@ -22,7 +22,7 @@
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
       <div id="mapFallback" class="fallback-map">
         <svg id="routeViz" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Schéma du trajet, sans fond cartographique">
-          <g id="grid"></g><g id="alternativeRoutes"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="stationDots"></g>
+          <g id="grid"></g><g id="alternativeRoutes"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="stationDots"></g><g id="tollDots"></g>
           <circle id="startDot" class="endpoint" r="7" cx="-50" cy="-50"></circle><circle id="endDot" class="endpoint" r="7" cx="-50" cy="-50"></circle>
         </svg>
         <div id="fallbackLabel" class="map-label">Chargement de la carte…</div>
@@ -84,6 +84,16 @@
         <details id="tariffCalculator">
           <summary>Calculer un péage APRR / AREA — gratuit</summary>
           <p class="note">Choisir les gares de péage réellement empruntées. Ce calcul ne les déduit pas de la carte et ne vérifie pas que le véhicule peut circuler sur ces routes.</p>
+          <details id="tollLocator"><summary>Repérer les gares proches du trajet</summary>
+            <p class="note">Inventaire du 1er janvier 2025. Les points P sont des gares candidates, pas des passages confirmés ni des montants à payer.</p>
+            <label for="tollGuideRadius">Distance maximale au tracé, à vol d’oiseau</label><select id="tollGuideRadius"><option value="0.1">100 mètres</option><option value="0.3" selected>300 mètres</option><option value="1">1 kilomètre</option></select>
+            <button id="tollLocate" class="ghost navigation-button" type="button">Repérer les gares</button>
+            <button id="tollGuideToggle" class="ghost" type="button" hidden>Masquer les gares sur la carte</button>
+            <p id="tollGuideStatus" class="note" role="status">Calculer un trajet pour repérer les gares.</p>
+            <p class="note">Une route parallèle ou un autre sens peut être proche. Un repère n’est affiché qu’une fois, même si le tracé repasse à proximité. Le repérage reste sur cet appareil.</p>
+            <div id="tollGateList"></div><p id="tollGuideChoice" class="note" role="status"></p>
+            <p class="note">Positions : <a href="https://www.data.gouv.fr/datasets/gares-de-peage-du-reseau-routier-national-concede" target="_blank" rel="noopener noreferrer">Ministère de la Transition écologique, Gares de péage du réseau concédé</a> · <a href="https://opendatacommons.org/licenses/by/1-0/" target="_blank" rel="noopener noreferrer">ODC-By 1.0</a>. Projection Lambert-93 convertie ; inventaire daté, sans vérification terrain actuelle.</p>
+          </details>
           <fieldset id="tariffFields" class="tariff-fields">
             <legend>Prix du tronçon choisi</legend>
             <label for="tariffNetwork">Réseau</label><select id="tariffNetwork"><option value="APRR">APRR</option><option value="AREA">AREA</option></select>
@@ -93,6 +103,7 @@
             <label for="tariffEntry">Gare d’entrée</label><select id="tariffEntry"><option value="">Choisir une entrée</option></select>
             <label for="tariffExit">Gare de sortie</label><select id="tariffExit" disabled><option value="">Choisir une sortie</option></select>
             <p id="tariffResult" class="tariff-result" role="status">Choisir une classe, une entrée et une sortie.</p>
+            <label id="tariffGateConfirmation" class="check-label" hidden><input id="tariffGateConfirmed" type="checkbox"> Ces gares proposées sont bien celles de mon passage.</label>
             <button id="tariffAdd" class="ghost navigation-button" type="button" disabled>Ajouter ce tronçon au budget</button>
           </fieldset>
           <p id="tariffSource" class="note"></p>
@@ -156,7 +167,7 @@
         <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 773f5c2 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · dd08239 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
