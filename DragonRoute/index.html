@@ -21,7 +21,7 @@
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
       <div id="mapFallback" class="fallback-map">
         <svg id="routeViz" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Schéma du trajet, sans fond cartographique">
-          <g id="grid"></g><g id="alternativeRoutes"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="stationDots"></g><g id="tollDots"></g>
+          <g id="grid"></g><g id="alternativeRoutes"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="meetingDots"></g><g id="stationDots"></g><g id="tollDots"></g>
           <circle id="startDot" class="endpoint" r="7" cx="-50" cy="-50"></circle><circle id="endDot" class="endpoint" r="7" cx="-50" cy="-50"></circle>
         </svg>
         <div id="fallbackLabel" class="map-label">Chargement de la carte…</div>
@@ -78,6 +78,8 @@
         <button id="goBtn" class="primary">Trouver mon trajet</button>
         <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
         <div id="summary" class="summary" hidden><div class="metric"><b id="tripKm">—</b><small>trajet affiché</small></div><div class="metric"><b id="tripTime">—</b><small>durée estimée</small></div></div>
+        <section id="meetingSummary" class="selection" hidden aria-label="Rencontres sur le trajet"><h3>Rencontres sur le trajet</h3><p id="meetingOrder"></p><p id="meetingMetrics"></p><button id="meetingEdit" class="ghost" type="button">Modifier les rencontres</button><button id="meetingRemove" class="ghost" type="button">Retirer les rencontres</button></section>
+        <p id="meetingPending" class="selection" hidden>Des rencontres sont en préparation, mais ne sont pas incluses dans le trajet affiché. <button id="meetingReview" class="ghost" type="button">Vérifier les rencontres</button></p>
         <p id="tripTiming" class="selection" role="status" hidden></p>
         <p id="walkingStatus" class="selection" role="status" hidden></p>
         <p id="routeAlternativesNote" class="note" hidden></p>
@@ -234,15 +236,24 @@
           <fieldset class="stop-modes"><legend>Rôle pour ce trajet</legend><label><input type="radio" name="rideRole" value="driver" checked> Je conduis</label><label><input type="radio" name="rideRole" value="passenger"> Je cherche une place</label></fieldset>
           <label for="rideDeparture">Départ prévu (heure de Paris)</label><input id="rideDeparture" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59" aria-describedby="rideDepartureNote"><p id="rideDepartureNote" class="note"></p>
           <div id="rideDriver">
+            <section class="detail-section" aria-labelledby="meetingTitle"><h4 id="meetingTitle">Prise en charge et dépose</h4>
+            <p class="note">Un groupe rejoint le conducteur puis quitte le trajet. Choisir des points accessibles et convenir de la rencontre. Les lieux servent au calcul ; ils ne sont jamais recopiés dans le texte à partager.</p>
+            <label for="meetingPickup">Lieu de prise en charge</label><input id="meetingPickup" maxlength="300" autocomplete="off">
+            <label for="meetingDropoff">Lieu de dépose</label><input id="meetingDropoff" maxlength="300" autocomplete="off">
+            <div class="ride-counts"><div><label for="meetingMaxKm">Détour maximal total (km)</label><input id="meetingMaxKm" type="number" min="0" max="1000" step="any" value="30"></div><div><label for="meetingMaxMin">Temps ajouté maximal (min)</label><input id="meetingMaxMin" type="number" min="0" max="1440" step="any" value="45"></div></div>
+            <label for="meetingStationPosition">Si un arrêt carburant est ajouté</label><select id="meetingStationPosition"><option value="before">Avant la prise en charge</option><option value="during">Avec les passagers, avant la dépose</option><option value="after">Après la dépose</option></select>
+            <p class="note">Limites comparées au trajet initial, rencontres et détour carburant compris. Le moteur conserve les options du trajet ; il peut proposer d’autres routes. Pas de durée d’embarquement incluse.</p>
+            <button id="meetingCalculate" class="ghost navigation-button" type="button">Calculer ces rencontres</button><button id="meetingCancel" class="ghost" type="button" hidden>Annuler le calcul des rencontres</button><p id="meetingStatus" class="note" role="status"></p><button id="meetingApply" class="primary" type="button" hidden>Adopter le trajet avec rencontres</button><button id="meetingDiscard" class="ghost" type="button">Effacer les rencontres préparées</button>
+            </section>
             <div class="ride-counts"><div><label for="rideSeats">Places proposées, hors conducteur</label><input id="rideSeats" type="number" min="1" max="8" step="1" value="1"></div><div><label for="ridePassengers">Passagers prévus pour la simulation</label><input id="ridePassengers" type="number" min="0" max="8" step="1" value="1"></div></div>
-            <p class="note">Places à confirmer avec le véhicule. Hypothèse de partage sur tout le trajet, sans embarquement intermédiaire.</p>
+            <p class="note">Places à confirmer avec le véhicule. Sans rencontres ajoutées, le partage porte sur tout le trajet. Avec des rencontres, il porte uniquement sur la portion commune.</p>
             <h4>Proposition de partage des frais</h4><dl id="rideCostLines" class="budget-lines"></dl><p id="rideCostNote" class="note" role="status"></p>
             <p class="note">Carburant consommé et péages de l’aller simple. Plein acheté, stationnement, ferries et autres coûts exclus. Partage à convenir ; aucun tarif d’offre ni paiement.</p>
             <a class="external-link" href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000041969704" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Cadre du partage des frais ↗</a>
           </div>
           <div id="ridePassenger" hidden><label for="rideWanted">Places recherchées pour le groupe</label><input id="rideWanted" type="number" min="1" max="8" step="1" value="1"><p id="ridePassengerNote" class="note" role="status"></p></div>
           <details id="rideSharing"><summary>Préparer un récapitulatif à partager</summary>
-            <p class="note">Saisir uniquement les secteurs ou points publics à communiquer. Les adresses du trajet et du profil ne sont pas recopiées. Ces lieux ne sont pas vérifiés sur la carte et aucun détour de prise en charge n’est calculé.</p>
+            <p class="note">Saisir uniquement les secteurs ou points publics à communiquer. Les adresses du trajet et du profil ne sont pas recopiées. Ces libellés à partager restent distincts des points de rencontre calculés sur la carte.</p>
             <label for="rideFrom">Secteur de départ à partager</label><input id="rideFrom" maxlength="160" autocomplete="off" placeholder="Commune ou point public">
             <label for="rideTo">Secteur d’arrivée à partager</label><input id="rideTo" maxlength="160" autocomplete="off" placeholder="Commune ou point public">
             <label for="rideNeeds">Besoins ou conditions à convenir</label><input id="rideNeeds" maxlength="300" autocomplete="off" placeholder="Bagages, accessibilité… à confirmer">
@@ -250,7 +261,7 @@
             <div id="rideShare" hidden><label for="rideText">Texte à relire avant copie</label><textarea id="rideText" rows="12" readonly></textarea><label class="check-label"><input id="rideConsent" type="checkbox"> J’ai vérifié les lieux et les informations à copier.</label><button id="rideCopy" class="primary" type="button" disabled>Copier ce récapitulatif</button></div>
             <p id="rideMessage" class="note" role="status"></p>
           </details>
-          <p class="note">Préparation conservée seulement pendant cette session. Aucune offre de covoiturage connectée pour le moment. Recherche, publication d’une offre, contact et réservation restent chez le fournisseur.</p><a id="rideExternal" class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Ouvrir BlaBlaCar ↗</a><p class="note">Ce lien ouvre le site sans lui transmettre les paramètres du trajet.</p>
+          <p class="note">Le récapitulatif reste dans cette session. Les rencontres peuvent être conservées par un enregistrement explicite dans Mes trajets. Aucune offre de covoiturage connectée pour le moment. Recherche, publication d’une offre, contact et réservation restent chez le fournisseur.</p><a id="rideExternal" class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Ouvrir BlaBlaCar ↗</a><p class="note">Ce lien ouvre le site sans lui transmettre les paramètres du trajet.</p>
         </div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
@@ -276,7 +287,7 @@
       <label class="check-label"><input id="preparedConfirm" type="checkbox"> Enregistrer ces informations dans ce navigateur</label><button id="preparedSave" class="primary" type="submit" disabled>Enregistrer</button>
     </form>
   </section>
-  <div class="dialog-actions"><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
+  <div class="dialog-actions"><button id="preparedV4Export" class="ghost" type="button" hidden>Exporter l’original format 4</button><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
   <div id="preparedList"></div>
   <section id="preparedView" class="detail-section" hidden aria-label="Préparation enregistrée"><div id="preparedDetails"></div><button id="preparedResumeBtn" class="primary" type="button">Préparer à nouveau ce trajet</button></section>
 </dialog>
@@ -298,7 +309,7 @@
       <a id="googleMapsLink" class="navigation-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Ouvrir le trajet dans Google Maps</a>
     </section>
     <section id="navigationWaze" class="detail-section">
-      <h3>Waze</h3>
+      <h3>Waze</h3><p class="note">Chaque lien vise une seule étape. Suivre l’ordre indiqué ci-dessus ; aucune chaîne d’étapes automatique.</p><a id="wazePickupLink" class="external-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>Vers la prise en charge ↗</a><a id="wazeDropoffLink" class="external-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>Vers la dépose ↗</a>
       <p class="note">Reçoit une destination à la fois et repart de la position utilisée par Waze. Le départ prévu ici et le trajet complet avec arrêt ne sont pas transmis.</p>
       <a id="wazeStationLink" class="navigation-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>Waze · vers la station</a>
       <a id="wazeArrivalLink" class="navigation-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Waze · vers l’arrivée</a>

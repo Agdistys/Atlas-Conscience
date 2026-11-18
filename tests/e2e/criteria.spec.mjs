@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
 
-const pattern='https://data.geopf.fr/navigation/itineraire?**',key='dragonroute.prepared.v4.public',oldKey='dragonroute.prepared.v3.public';
+const pattern='https://data.geopf.fr/navigation/itineraire?**',key='dragonroute.prepared.v5.public',oldKey='dragonroute.prepared.v3.public';
 function responseFor(url){
  const p=new URL(url).searchParams,points=[p.get('start'),...(p.get('intermediates')?.split('|')||[]),p.get('end')],short=p.get('optimization')==='shortest',walk=p.get('profile')==='pedestrian';
  const distance=(walk?2000:short?100000:120000)+(points.length>2?10000:0),duration=(walk?1600:short?9600:8400)+(points.length>2?600:0);
@@ -47,7 +47,7 @@ test('critères : incompatibilité et service désactivé demandent un choix exp
 });
 
 test('critères : sauvegarde, import, reprise et GPX conservent le choix et le tracé',async({page},info)=>{
- const calls=await setup(page);await page.locator('#routeOptimization').selectOption('shortest');await go(page);const data=await save(page);expect(data.version).toBe(4);expect(data.entries[0].optimization).toBe('shortest');expect(JSON.parse(await download(page,'#preparedExport'))).toEqual(data);
+ const calls=await setup(page);await page.locator('#routeOptimization').selectOption('shortest');await go(page);const data=await save(page);expect(data.version).toBe(5);expect(data.entries[0].optimization).toBe('shortest');expect(JSON.parse(await download(page,'#preparedExport'))).toEqual(data);
  await page.locator('#preparedImportFile').setInputFiles({name:'trajet.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});await page.locator('#preparedImportConfirm').check();await page.locator('#preparedImportApply').click();await page.reload();await page.locator('#preparedBtn').click();await page.locator('[data-prepared-show]').click();await expect(page.locator('#preparedDetails')).toContainText('Plus court');await page.locator('#preparedResumeBtn').click();await expect(page.locator('#routeOptimization')).toHaveValue('shortest');const geo=calls.geo;await go(page);expect(calls.geo).toBe(geo);
  await page.locator('#navigationBtn').click();await expect(page.locator('#navigationOptimizationNote')).toContainText('ne transmettent pas ce critère');const gpx=await download(page,'#exportGpxBtn');expect(gpx).toContain('Plus court');expect(gpx.match(/<trkpt /g)).toHaveLength(3);expect(gpx).toContain('lon="4.87000000"');await capture(page,info,'critere-navigation');await checkAccessibility(page,info,'critere-navigation');
  expect(await page.evaluate(()=>Object.keys(localStorage).filter(k=>/^dragonroute\.(profile|journal)/.test(k)))).toEqual([]);

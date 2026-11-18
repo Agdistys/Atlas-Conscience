@@ -8,7 +8,7 @@ test('préparations : canonical round trip keeps geometry and unknowns, excludes
  const e=preparedFixture();e.preferences.departure=null;e.preferences.maxDetourKm=0;e.snapshot.stop=null;const c=ctx.validatePreparedEntry(e);assert.equal(c.preferences.departure,null);assert.equal(c.preferences.maxDetourKm,0);assert.equal(c.snapshot.stop,null);
 });
 test('préparations : wrong kind, future versions, duplicates and capacities fail closed',()=>{
- for(const d of [{version:1,entries:[]},{...dataset(),version:5},{...dataset(),entries:[preparedFixture(),preparedFixture()]},dataset(Array.from({length:21},(_,i)=>preparedFixture({id:'x-'+i})))])assert.throws(()=>ctx.validatePreparedTrips(d));
+ for(const d of [{version:1,entries:[]},{...dataset(),version:6},{...dataset(),entries:[preparedFixture(),preparedFixture()]},dataset(Array.from({length:21},(_,i)=>preparedFixture({id:'x-'+i})))])assert.throws(()=>ctx.validatePreparedTrips(d));
  const e=preparedFixture();e.snapshot.geometry=Array(25001).fill([4,45]);assert.throws(()=>ctx.validatePreparedEntry(e));
  const big=Array.from({length:20},(_,i)=>{const e=preparedFixture({id:'x-'+i});e.snapshot.geometry=Array(5000).fill([4.1234567,45.1234567]);return e});assert.throws(()=>ctx.validatePreparedTrips(dataset(big)),/2 Mo/);
 });
@@ -26,7 +26,7 @@ test('préparations : duplicate warning by name or complete parameters, rename e
 test('préparations : critère explicite en format 4, migration historique sans invention',()=>{
  for(const version of [1,2,3]){
   const e=preparedFixture({optimization:'shortest',timing:{departure:'2026-09-18T10:00',arriveBy:null,onlyBefore:false}}),old={kind:'dragonroute-preparations',version,entries:[e]},before=JSON.stringify(old);
-  const clean=ctx.validatePreparedTrips(old);assert.equal(clean.version,4);assert.equal(clean.entries[0].optimization,null);assert.equal(JSON.stringify(old),before);assert.equal(JSON.stringify(ctx.validatePreparedTrips(JSON.parse(JSON.stringify(clean)))),JSON.stringify(clean));
+  const clean=ctx.validatePreparedTrips(old);assert.equal(clean.version,5);assert.equal(clean.entries[0].optimization,null);assert.equal(JSON.stringify(old),before);assert.equal(JSON.stringify(ctx.validatePreparedTrips(JSON.parse(JSON.stringify(clean)))),JSON.stringify(clean));
  }
  const data=ctx.validatePreparedTrips(dataset());
  for(const criterion of ['fastest','shortest',null]){data.entries[0].optimization=criterion;assert.equal(ctx.validatePreparedTrips(data).entries[0].optimization,criterion)}
@@ -35,4 +35,10 @@ test('préparations : critère explicite en format 4, migration historique sans 
 test('préparations : deux critères distinguent les paramètres malgré les mêmes lieux',()=>{
  const a=preparedFixture({optimization:'fastest'}),b=preparedFixture({id:'other',name:'Autre',optimization:'shortest'});
  assert.equal(ctx.preparedDuplicates(b,[a]).length,0);b.optimization='fastest';assert.equal(ctx.preparedDuplicates(b,[a]).length,1);b.optimization=null;assert.equal(ctx.preparedDuplicates(b,[a]).length,0);
+});
+test('préparations : format 5 garde les rencontres sans résultat obsolète ni migration inventée',()=>{
+ const e=ctx.validatePreparedTrips(dataset()).entries[0];e.optimization='shortest';e.meetings={pickup:{label:'P',lat:45.5,lon:4.8},dropoff:{label:'D',lat:45.2,lon:4.9},limits:{km:30,minutes:45},stationPosition:'during',reference:{private:'exclude'}};
+ const d={kind:'dragonroute-preparations',version:5,entries:[e]},clean=ctx.validatePreparedTrips(d);assert.equal(clean.entries[0].meetings.stationPosition,'during');assert.equal(clean.entries[0].meetings.reference,undefined);
+ const old={...d,version:4},before=JSON.stringify(old),migrated=ctx.validatePreparedTrips(old);assert.equal(migrated.entries[0].meetings,null);assert.equal(migrated.entries[0].optimization,'shortest');assert.equal(JSON.stringify(old),before);
+ delete e.meetings;assert.throws(()=>ctx.validatePreparedTrips(d),/rencontres/);e.meetings=null;assert.equal(ctx.validatePreparedTrips(d).entries[0].meetings,null);
 });

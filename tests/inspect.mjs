@@ -15,6 +15,6 @@ function run(name, command, args, timeout = 600_000) {
 run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
 run('report-tests', 'npm', ['run', 'test:inspection']);
-// Four screen formats now cover more than 500 scenarios; retain a bounded run.
-run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 900_000);
+// Four formats, including complete encounter workflows; retain a bounded run.
+run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 1_080_000);
 process.exitCode = writeReport(process.cwd(), { publishSummary: false }).state === 'inspection' ? 0 : 1;
