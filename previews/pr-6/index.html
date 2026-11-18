@@ -142,7 +142,8 @@
           <div><label for="budgetPrice">Prix de référence €/L</label><input id="budgetPrice" type="number" min="0.001" max="10" step="0.001" placeholder="À renseigner" inputmode="decimal"></div>
         </div>
         <button id="useStationPrice" class="ghost" type="button" disabled>Reprendre le prix de l’arrêt choisi</button>
-        <p id="budgetSource" class="note"></p>
+        <p id="stationPriceBudgetNote" class="note" role="status" hidden></p>
+          <p id="budgetSource" class="note"></p>
         <dl class="budget-lines" aria-live="polite">
           <div><dt>Carburant consommé estimé</dt><dd id="budgetFuel">À renseigner</dd></div>
           <div><dt>Péages</dt><dd id="tollAmount">Tarif indisponible</dd></div>
@@ -234,7 +235,10 @@
           <p id="stationCoverage" class="note" hidden></p>
           <p id="stationFilterStatus" class="note" role="status" hidden></p>
           <p id="filteredStopNote" class="note" hidden></p>
-          <div id="stationListControls" hidden><label for="stationListMode">Stations affichées</label><select id="stationListMode"><option value="recommended">Sélection selon la recherche</option><option value="all">Toutes, par distance depuis le départ</option><option value="cost">Toutes, par coût comparé</option><option value="price">Toutes, par prix au litre</option><option value="detour">Toutes, par durée du détour</option></select><p class="note">Comparaison achat + carburant du détour, hors péages et autres frais.</p></div>
+          <div id="stationListControls" hidden>
+            <label for="stationPriceView">Fraîcheur des prix</label><select id="stationPriceView" aria-describedby="stationFreshnessPolicy stationFreshnessStatus"><option value="recent">Prix de 7 jours ou moins — comparer</option><option value="old">Prix anciens — consulter les arrêts</option><option value="unknown">Dates non vérifiables — consulter les arrêts</option></select>
+            <p id="stationFreshnessPolicy" class="note">Avertissement après 48 heures ; au-delà de 7 jours, prix exclus du classement et du budget. Date absente, invalide ou future : non vérifiable. La date concerne le carburant choisi ; la consultation ne la remet pas à zéro. Règle de l’application, aucune garantie de disponibilité.</p><p id="stationFreshnessStatus" class="note" role="status"></p>
+            <div id="stationRankingControls"><label for="stationListMode">Stations affichées</label><select id="stationListMode"><option value="recommended">Sélection selon la recherche</option><option value="all">Toutes, par distance depuis le départ</option><option value="cost">Toutes, par coût comparé</option><option value="price">Toutes, par prix au litre</option><option value="detour">Toutes, par durée du détour</option></select><p class="note">Comparaison achat + carburant du détour, hors péages et autres frais.</p></div></div>
           <div id="stationCards" class="cards"></div><p id="selectedStop" class="selection" hidden role="status"></p>
           <button id="removeStopBtn" class="ghost" type="button" hidden>Retirer l’arrêt</button>
         </div>
@@ -287,7 +291,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 2f302d8 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 9d96125 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
