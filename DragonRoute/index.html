@@ -38,6 +38,7 @@
           <p id="walkingPreference" class="note">Repère personnel : le dépassement sera signalé, sans modifier le tracé. Laisser vide si la limite est inconnue. Coordonnées envoyées à l’IGN lors du calcul.</p>
           <p class="note">Pente, escaliers, revêtement, fermetures et accessibilité ne sont pas vérifiés. La durée du moteur reste une estimation, hors pauses.</p>
         </div>
+        <div id="vehiclePicker"><label for="savedVehicleSelect">Véhicule mémorisé pour ce trajet</label><select id="savedVehicleSelect" aria-describedby="activeVehicle"><option value="">Réglages ponctuels</option></select></div>
         <p id="activeVehicle" class="note" hidden></p>
         <div class="route-fields">
           <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p></div>
@@ -367,14 +368,24 @@
   <div class="dialog-heading"><h2 id="profileTitle">Mon profil</h2><button class="icon-btn close-dialog" aria-label="Fermer le profil" title="Fermer">×</button></div>
   <p class="note">Enregistré dans ce navigateur uniquement, sans compte ni synchronisation. Le profil d’essai est séparé du profil public.</p>
   <p id="profileMessage" class="note" role="status" aria-live="polite"></p>
+  <section class="profile-section"><h3>Mes véhicules</h3><p class="note">Jusqu’à dix véhicules. Enregistrer un gabarit ne valide pas son passage sur les routes. Les options de routage disponibles restent indiquées dans le trajet.</p><div id="savedVehicles" class="saved-list"></div><button id="newVehicleBtn" class="ghost" type="button">Ajouter un véhicule</button></section>
   <form id="vehicleForm" class="profile-section">
-    <h3>Mon véhicule</h3>
+    <h3 id="vehicleEditorTitle">Ajouter un véhicule</h3>
     <label for="vehicleName">Nom du véhicule</label><input id="vehicleName" maxlength="80" placeholder="Ma voiture, ma caravane…">
     <label for="vehicleType">Type</label><select id="vehicleType"><option value="car">Voiture</option><option value="caravan">Voiture avec caravane</option><option value="van">Utilitaire</option><option value="truck">Camion</option></select>
     <p class="note">Le type sélectionné est appliqué au prochain trajet. Un poids lourd exige un gabarit complet ; une caravane n’est pas assimilée à un camion.</p>
-    <button id="saveTruckDimensions" class="ghost" type="button">Mémoriser le gabarit du trajet</button>
+    <details id="vehicleDimensionsEditor"><summary>Gabarit et charges facultatifs</summary><p class="note">Laisser tous les champs vides si le gabarit est inconnu. Sinon renseigner les cinq valeurs pour l’ensemble avec sa remorque. Ces bornes sont celles du calculateur, pas une autorisation de circulation.</p><div class="dimension-fields">
+      <div><label for="vehicleDim-height">Hauteur totale (m)</label><input id="vehicleDim-height" type="number" min="0.01" max="6" step="any"></div>
+      <div><label for="vehicleDim-width">Largeur totale (m)</label><input id="vehicleDim-width" type="number" min="0.01" max="6" step="any"></div>
+      <div><label for="vehicleDim-length">Longueur totale (m)</label><input id="vehicleDim-length" type="number" min="0.01" max="40" step="any"></div>
+      <div><label for="vehicleDim-weight">Poids en charge (t)</label><input id="vehicleDim-weight" type="number" min="0.01" max="100" step="any"></div>
+      <div><label for="vehicleDim-axleload">Charge maximale par essieu (t)</label><input id="vehicleDim-axleload" type="number" min="0.01" max="30" step="any"></div>
+    </div><button id="clearVehicleDimensions" class="ghost" type="button">Retirer le gabarit du formulaire</button></details>
+    <button id="saveTruckDimensions" class="ghost" type="button">Reprendre le gabarit du trajet</button>
     <p id="savedDimensionsNote" class="note"></p>
     <div class="settings"><div><label for="vehicleFuel">Carburant</label><select id="vehicleFuel"><option>E10</option><option>Gazole</option><option>SP98</option><option>SP95</option><option>E85</option><option>GPLc</option></select></div><div><label for="vehicleCons">Conso. L/100 km</label><input id="vehicleCons" type="number" min="1" max="100" step="0.1" required></div><div><label for="vehicleLiters">Litres par défaut</label><input id="vehicleLiters" type="number" min="1" max="2000" step="1" required></div></div>
+    <div id="vehicleDuplicates" class="profile-notice" hidden><p id="vehicleDuplicateNote"></p><label><input id="allowVehicleDuplicate" type="checkbox"> Conserver ce nom déjà utilisé</label></div>
+    <p class="note">L’enregistrement choisit aussi ce véhicule pour le trajet et les prochains démarrages. Les résultats actuels seront à recalculer ; le journal et les préparations sauvegardées restent conservés. Les litres à acheter ne représentent pas le carburant restant.</p>
     <button class="primary" type="submit">Enregistrer le véhicule</button>
   </form>
   <section class="profile-section"><h3>Mes adresses</h3><div id="savedAddresses" class="saved-list"></div>
@@ -386,13 +397,14 @@
     </form>
   </section>
   <section class="profile-section"><h3>Mes stations</h3><div id="savedStations" class="saved-list"></div></section>
-  <section class="profile-section"><h3>Mes données</h3><p class="note">Le journal de mobilité s’exporte et s’efface séparément depuis Mon journal.</p><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="exportLegacyProfileBtn" class="ghost" hidden>Exporter le profil d’origine</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
+  <section class="profile-section"><h3>Mes données</h3><p class="note">Le journal de mobilité s’exporte et s’efface séparément depuis Mon journal.</p><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="exportLegacyProfileBtn" class="ghost" hidden>Exporter le profil d’origine v1</button><button id="exportV2ProfileBtn" class="ghost" hidden>Exporter le profil d’origine v2</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
 </dialog>
 <dialog id="profileImportDialog" aria-labelledby="profileImportTitle" aria-describedby="profileImportSummary profileImportCurrent">
   <div class="dialog-heading"><h2 id="profileImportTitle">Vérifier le profil à importer</h2><button id="cancelProfileImport" class="icon-btn" type="button" aria-label="Annuler l’import">×</button></div>
   <p id="profileImportSummary"></p><p id="profileImportCurrent" class="note"></p>
   <p class="note">Les lieux mémorisés et leur provenance viennent du fichier choisi ; ils ne sont pas vérifiés auprès du géocodeur pendant l’import. Les anciennes adresses sans point seront recherchées lors d’un trajet.</p>
-  <details><summary>Adresses contenues dans le fichier</summary><ul id="profileImportNames"></ul></details>
+  <details id="profileImportVehiclesDetails"><summary>Véhicules contenus dans le fichier</summary><ul id="profileImportVehicles"></ul></details>
+  <details id="profileImportAddressesDetails"><summary>Adresses contenues dans le fichier</summary><ul id="profileImportNames"></ul></details>
   <p id="profileImportMessage" class="note" role="status"></p>
   <div class="dialog-actions"><button id="exportBeforeImport" class="ghost" type="button">Exporter le profil actuel</button><button id="confirmProfileImport" class="primary" type="button">Remplacer mon profil</button></div>
 </dialog>

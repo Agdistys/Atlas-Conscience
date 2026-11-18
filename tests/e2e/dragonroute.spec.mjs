@@ -541,7 +541,7 @@ test('import export et suppression du profil sans toucher les autres donnees', a
   await page.locator('#exportProfileBtn').click();
   const download=await downloadPromise;
   expect(download.suggestedFilename()).toBe('DragonRoute-profil.json');
-  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual({...profile,version:2});
+  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual({version:3,vehicles:[{id:'legacy-vehicle',...profile.vehicle}],activeVehicleId:'legacy-vehicle',addresses:profile.addresses,stations:profile.stations});
   await page.locator('#eraseProfileBtn').click();
   await expect(page.locator('#profileMessage')).toHaveText('Profil local effacé.');
   await expect(page.locator('#savedAddresses')).toContainText('Aucune adresse');

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import {pwaServer} from '../helpers/pwa-server.mjs';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
-const prepared='dragonroute.prepared.v3.public',profile='dragonroute.profile.v2.public',journal='dragonroute.journal.v2.public';
+const prepared='dragonroute.prepared.v3.public',profile='dragonroute.profile.v3.public',journal='dragonroute.journal.v2.public';
 const suite=test.extend({
  pwa:async({browser},use,info)=>{
   const server=await pwaServer();const context=await browser.newContext({serviceWorkers:'allow',viewport:info.project.use.viewport,locale:'fr-FR',timezoneId:'Europe/Paris',hasTouch:info.project.use.hasTouch||false});

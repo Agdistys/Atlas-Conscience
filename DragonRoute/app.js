@@ -15,12 +15,15 @@ const geoCache=new Map();
 const dimensionFields={height:"truckHeight",width:"truckWidth",length:"truckLength",weight:"truckWeight",axleload:"truckAxleload"};
 const avoidLabels={tollways:"péages",highways:"autoroutes",ferries:"ferries"};
 const PROFILE_SCOPE=document.body.dataset.preview==="true"?"preview:"+new URL('.',location.href).pathname:"public";
-const PROFILE_KEY="dragonroute.profile.v2."+PROFILE_SCOPE,LEGACY_PROFILE_KEY="dragonroute.profile.v1."+PROFILE_SCOPE;
-let profile,storageNotice="",profileSnapshot=null,legacySnapshot=null,profileWriteBlocked=false,legacyProfile=null;
+const PROFILE_KEY="dragonroute.profile.v3."+PROFILE_SCOPE;
+const PROFILE_SOURCES=[3,2,1].map(version=>({version,key:`dragonroute.profile.v${version}.${PROFILE_SCOPE}`}));
+let profile,storageNotice="",profileSnapshots={},profileWriteBlocked=false,legacyProfiles=[];
+let tripVehicleId=null,vehicleDraftId=null;
 let addressDraft=null,addressLookupSequence=0,profileImportSequence=0,pendingProfileImport=null;
 const rememberedInputs={start:null,end:null},favoriteInputs={start:null,end:null};
 // BEGIN PROFILE VALIDATION
-function emptyProfile(){return {version:2,vehicle:{name:"",type:"car",fuel:"E10",cons:6.2,liters:40},addresses:[],stations:[]}}
+function defaultVehicle(){return {name:"",type:"car",fuel:"E10",cons:6.2,liters:40}}
+function emptyProfile(){return {version:3,vehicles:[],activeVehicleId:null,addresses:[],stations:[]}}
 function profileText(value,max){if(typeof value!=="string"||value.length>max)throw new Error("Texte de profil invalide");return value.trim()}
 function profileNumber(value,min,max){if(typeof value!=="number"||!Number.isFinite(value)||value<min||value>max)throw new Error("Valeur de profil invalide");return value}
 function addressKey(value){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr-FR')}
@@ -32,44 +35,58 @@ function validateSavedPlace(place){
  return {lat:profileNumber(place.lat,-90,90),lon:profileNumber(place.lon,-180,180),label,source:'ign',resolvedAt};
 }
 function validateProfile(data){
- if(!data||![1,2].includes(data.version)||!data.vehicle||!Array.isArray(data.addresses)||!Array.isArray(data.stations)||data.addresses.length>50||data.stations.length>100)throw new Error("Format de profil invalide");
- const v=data.vehicle;
- if(!["car","caravan","van","truck"].includes(v.type)||!Object.hasOwn(fuelField,v.fuel))throw new Error("Véhicule invalide");
+ if(!data||![1,2,3].includes(data.version)||!Array.isArray(data.addresses)||!Array.isArray(data.stations)||data.addresses.length>50||data.stations.length>100)throw new Error("Format de profil invalide");
+ if(data.version===3&&(!Array.isArray(data.vehicles)||data.vehicles.length>10))throw new Error('Conserver au maximum dix véhicules par profil.');
+ const vehicles=data.version===3?data.vehicles.map(v=>({...validateVehicle(v),id:profileText(v.id,80)})):[{...validateVehicle(data.vehicle),id:'legacy-vehicle'}];
+ if(vehicles.some(v=>!v.id)||new Set(vehicles.map(v=>v.id)).size!==vehicles.length)throw new Error('Identifiants de véhicules invalides.');
+ const activeVehicleId=data.version===3?data.activeVehicleId:'legacy-vehicle';
+ if(activeVehicleId!==null&&(typeof activeVehicleId!=='string'||!vehicles.some(v=>v.id===activeVehicleId)))throw new Error('Véhicule actif absent du profil.');
  const addresses=data.addresses.map(a=>{
   const entry={id:profileText(a.id,80),name:profileText(a.name,80),value:profileText(a.value,250)};
-  if(data.version===2&&a.place!=null){if(temporaryAddress(entry.value))throw new Error('Position GPS temporaire non réutilisable');entry.place=validateSavedPlace(a.place)}
+  if(data.version>=2&&a.place!=null){if(temporaryAddress(entry.value))throw new Error('Position GPS temporaire non réutilisable');entry.place=validateSavedPlace(a.place)}
   return entry;
  });
  const stations=data.stations.map(s=>({id:profileText(s.id,80),address:profileText(s.address,300),city:profileText(s.city,100),lat:profileNumber(s.lat,-90,90),lon:profileNumber(s.lon,-180,180)}));
  for(const list of [addresses,stations]){if(list.some(x=>!x.id)||new Set(list.map(x=>x.id)).size!==list.length)throw new Error("Identifiants invalides")}
  if(addresses.some(a=>!a.name||!a.value))throw new Error("Adresse incomplète");
- const dimensions=v.dimensions==null?undefined:validateDimensions(v.dimensions);
- const clean={version:2,vehicle:{name:profileText(v.name,80),type:v.type,fuel:v.fuel,cons:profileNumber(v.cons,1,100),liters:profileNumber(v.liters,1,2000),...(dimensions?{dimensions}:{})},addresses,stations};
+ const clean={version:3,vehicles,activeVehicleId,addresses,stations};
  if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>100000)throw new Error('Profil trop volumineux');
  return clean;
 }
+function validateVehicle(v){
+ if(!v||!["car","caravan","van","truck"].includes(v.type)||!Object.hasOwn(fuelField,v.fuel))throw new Error('Véhicule invalide');
+ const dimensions=v.dimensions==null?undefined:validateDimensions(v.dimensions);
+ return {name:profileText(v.name,80),type:v.type,fuel:v.fuel,cons:profileNumber(v.cons,1,100),liters:profileNumber(v.liters,1,2000),...(dimensions?{dimensions}:{})};
+}
+function legacyProfileExport(data){
+ if(![1,2].includes(data?.version))throw new Error('Ancien format non reconnu.');
+ const clean=validateProfile(data),{id,...vehicle}=clean.vehicles[0];
+ return {version:data.version,vehicle,addresses:clean.addresses,stations:clean.stations};
+}
+function duplicateVehicles(v,vehicles){return v.name.trim()?vehicles.filter(x=>x.id!==v.id&&addressKey(x.name)===addressKey(v.name)):[]}
 function duplicateAddresses(entry,addresses){
  return addresses.filter(a=>a.id!==entry.id&&(addressKey(a.name)===addressKey(entry.name)||(a.place&&entry.place?Math.abs(a.place.lat-entry.place.lat)<1e-6&&Math.abs(a.place.lon-entry.place.lon)<1e-6:addressKey(a.value)===addressKey(entry.value))));
 }
 function duplicateAddressCount(addresses){return addresses.reduce((n,a,i)=>n+duplicateAddresses(a,addresses.slice(0,i)).length,0)}
 // END PROFILE VALIDATION
 function loadProfile(){
- profile=emptyProfile();storageNotice="";profileWriteBlocked=false;legacyProfile=null;
+ profile=emptyProfile();storageNotice="";profileWriteBlocked=false;legacyProfiles=[];profileSnapshots={};
  try{
-  profileSnapshot=localStorage.getItem(PROFILE_KEY);legacySnapshot=localStorage.getItem(LEGACY_PROFILE_KEY);
-  const raw=profileSnapshot??legacySnapshot;
-  if(raw!==null)profile=validateProfile(JSON.parse(raw));
-  if(legacySnapshot!==null){try{const data=JSON.parse(legacySnapshot);if(data.version===1)legacyProfile={...validateProfile(data),version:1}}catch{}}
-  if(profileSnapshot===null&&legacyProfile)storageNotice="Ancien profil repris. La copie d’origine reste conservée dans ce navigateur et peut être exportée.";
+  for(const {key} of PROFILE_SOURCES)profileSnapshots[key]=localStorage.getItem(key);
+  for(const {key,version} of PROFILE_SOURCES.slice(1)){try{const data=JSON.parse(profileSnapshots[key]);if(data?.version===version)legacyProfiles.push(legacyProfileExport(data))}catch{}}
+  const source=PROFILE_SOURCES.find(({key})=>profileSnapshots[key]!==null);
+  if(source){const data=JSON.parse(profileSnapshots[source.key]);if(data.version!==source.version)throw new Error('Version incohérente avec le stockage.');profile=validateProfile(data)}
+  if(source&&source.version<3)storageNotice="Ancien profil repris. Les copies d’origine restent conservées dans ce navigateur et peuvent être exportées.";
  }catch{profileWriteBlocked=true;storageNotice="Profil non chargé : format inconnu, données invalides ou stockage inaccessible. L’original est conservé ; aucun enregistrement ne le remplacera. Réouvrir avec une version compatible, ou effacer explicitement ce profil pour repartir."}
 }
 loadProfile();
+function profileUnchanged(){return PROFILE_SOURCES.every(({key})=>localStorage.getItem(key)===profileSnapshots[key])}
 function saveProfile(next){
  try{
   if(profileWriteBlocked)throw new Error('Profil non chargé : remplacement bloqué.');
-  if(localStorage.getItem(PROFILE_KEY)!==profileSnapshot||localStorage.getItem(LEGACY_PROFILE_KEY)!==legacySnapshot)throw new Error('Profil modifié dans un autre onglet. Recharger avant de réessayer.');
+  if(!profileUnchanged())throw new Error('Profil modifié dans un autre onglet. Recharger avant de réessayer.');
   const clean=validateProfile(next),raw=JSON.stringify(clean);
-  localStorage.setItem(PROFILE_KEY,raw);profileSnapshot=raw;profile=clean;storageNotice="";renderSaved();updateFavorite();return true;
+  localStorage.setItem(PROFILE_KEY,raw);profileSnapshots[PROFILE_KEY]=raw;profile=clean;storageNotice="";renderSaved();updateFavorite();return true;
  }catch(e){const message="Enregistrement impossible. "+(e.message.includes('autre onglet')||profileWriteBlocked?e.message:'Stockage indisponible, plein ou données invalides.');$("profileMessage").textContent=message;$("stationMessage").textContent=message;return false}
 }
 function downloadProfile(data,filename='DragonRoute-profil.json'){
@@ -379,28 +396,64 @@ async function resolveAddressDraft(){
  }catch(e){if(current()){$('profileMessage').textContent=e.message;updateAddressDraft()}}
  finally{if(current())$('resolveAddressBtn').disabled=false}
 }
+function activeProfileVehicle(){return profile.vehicles.find(v=>v.id===profile.activeVehicleId)||defaultVehicle()}
+function vehicleLabel(v){return (v.name||'Sans nom')+' · '+({car:'voiture',caravan:'voiture avec caravane',van:'utilitaire',truck:'camion'})[v.type]+' · '+v.fuel}
+function renderVehiclePicker(){
+ const select=$('savedVehicleSelect');select.replaceChildren(new Option('Réglages ponctuels',''),...profile.vehicles.map(v=>new Option(vehicleLabel(v),v.id)));
+ const saved=profile.vehicles.find(v=>v.id===tripVehicleId);select.value=saved?.id||'';select.disabled=busy||profileWriteBlocked;
+ $('vehiclePicker').hidden=isWalking();$('activeVehicle').hidden=isWalking();
+ $('activeVehicle').textContent=saved?`Véhicule mémorisé appliqué : ${vehicleLabel(saved)}.`:'Réglages pour ce trajet uniquement. Les véhicules mémorisés restent inchangés.';
+}
+function detachTripVehicle(){tripVehicleId=null;renderVehiclePicker()}
 function applyVehicle(){
-  resetProspective();
-  if($("fuel").value!==profile.vehicle.fuel){$("budgetPrice").value="";budgetReference=null}
-  $("fuel").value=profile.vehicle.fuel;$("cons").value=profile.vehicle.cons;$("liters").value=profile.vehicle.liters;
-  $("routeVehicle").value=profile.vehicle.type;
-  for(const [key,id] of Object.entries(dimensionFields))$(id).value=profile.vehicle.dimensions?.[key]??"";
-  updateVehicleRouting();
-  $("activeVehicle").hidden=isWalking()||(!profile.vehicle.name&&profile.vehicle.type==="car");
-  $("activeVehicle").textContent=(profile.vehicle.name||"Mon véhicule")+" · "+profile.vehicle.fuel;
-  if(trip){clearResults();setStatus("Véhicule modifié. Trajet à recalculer.")}
-  updateRange();
+ const v=activeProfileVehicle(),hadTrip=Boolean(trip);
+ clearResults();resetProspective();resetRange();resumePreparation=null;preparedRangePending=false;updateResumePreparation();
+ $('tariffClass').value='';$('tollHeight').value='';$('tollWeight').value='';$('tollVehicleConfirmed').checked=false;
+ $('budgetPrice').value='';budgetReference=null;
+ $('fuel').value=v.fuel;$('cons').value=v.cons;$('liters').value=v.liters;$('routeVehicle').value=v.type;
+ for(const [key,id] of Object.entries(dimensionFields))$(id).value=v.dimensions?.[key]??'';
+ tripVehicleId=profile.activeVehicleId;updateVehicleRouting();updateRange();updateBudget();renderVehiclePicker();
+ if(hadTrip)setStatus('Véhicule modifié. Trajet à recalculer.');
+}
+function useSavedVehicle(id){
+ if(busy)return;
+ if(!id){detachTripVehicle();return}
+ if(!profile.vehicles.some(v=>v.id===id)){renderVehiclePicker();return}
+ const next=structuredClone(profile);next.activeVehicleId=id;
+ if(saveProfile(next)){$('travelMode').value='car';applyVehicle();setStatus('Véhicule choisi. Calculer un nouveau trajet.');$('profileMessage').textContent='Véhicule choisi pour ce trajet et les prochains démarrages.'}
+ else{renderVehiclePicker();setStatus($('profileMessage').textContent,true)}
+}
+function resetVehicleDuplicate(){$('allowVehicleDuplicate').checked=false;$('vehicleDuplicates').hidden=true}
+function vehicleFormDimensions(){
+ const raw=Object.fromEntries(Object.keys(dimensionFields).map(k=>[k,$('vehicleDim-'+k).value]));
+ if(Object.values(raw).every(v=>v===''))return undefined;
+ return validateDimensions(Object.fromEntries(Object.entries(raw).map(([k,v])=>[k,Number(v)])));
+}
+function showVehicleDimensions(d){
+ for(const k of Object.keys(dimensionFields))$('vehicleDim-'+k).value=d?.[k]??'';
+ $('savedDimensionsNote').textContent=d?'Gabarit dans le formulaire : '+dimensionLabel(d)+'. Enregistrer pour le conserver.':'Aucun gabarit renseigné.';
+}
+function editVehicle(id=null){
+ const v=profile.vehicles.find(x=>x.id===id)||defaultVehicle();vehicleDraftId=v.id||null;
+ for(const [el,key] of [['vehicleName','name'],['vehicleType','type'],['vehicleFuel','fuel'],['vehicleCons','cons'],['vehicleLiters','liters']])$(el).value=v[key];
+ $('vehicleEditorTitle').textContent=vehicleDraftId?'Modifier un véhicule':'Ajouter un véhicule';showVehicleDimensions(v.dimensions);resetVehicleDuplicate();
+}
+function renderVehicles(){
+ $('savedVehicles').innerHTML=profile.vehicles.length?profile.vehicles.map(v=>`<div class="saved-row"><strong>${escapeHtml(vehicleLabel(v))}</strong><p>${v.cons} L/100 km · ${v.liters} L à acheter par défaut${v.id===profile.activeVehicleId?' · Choisi au démarrage':''}</p><p>${v.dimensions?escapeHtml(dimensionLabel(v.dimensions)):'Gabarit non renseigné.'}</p><div class="dialog-actions"><button class="ghost" data-vehicle-use="${escapeHtml(v.id)}">Utiliser ce véhicule</button><button class="ghost" data-vehicle-edit="${escapeHtml(v.id)}">Modifier le véhicule</button><button class="ghost" data-vehicle-remove="${escapeHtml(v.id)}">Supprimer le véhicule</button></div></div>`).join(''):'<p class="note">Aucun véhicule enregistré. La préparation reste disponible avec des réglages ponctuels.</p>';
+ $('newVehicleBtn').disabled=busy||profile.vehicles.length>=10;
+ renderVehiclePicker();
 }
 function renderSaved(){
+  renderVehicles();
   $("savedAddresses").innerHTML=profile.addresses.length?profile.addresses.map(a=>`<div class="saved-row"><strong>${escapeHtml(a.name)}</strong><p>${escapeHtml(a.value)}</p><p>${a.place?`Lieu mémorisé : ${escapeHtml(placeDescription(a.place))}`:temporaryAddress(a.value)?"Adresse GPS temporaire à remplacer.":"Lieu à rechercher lors du trajet."}</p><div class="dialog-actions"><button class="ghost" data-address-start="${escapeHtml(a.id)}">Départ</button><button class="ghost" data-address-end="${escapeHtml(a.id)}">Arrivée</button><button class="ghost" data-address-edit="${escapeHtml(a.id)}">Modifier</button><button class="ghost" data-address-remove="${escapeHtml(a.id)}">Supprimer</button></div></div>`).join(""):"<p class=note>Aucune adresse enregistrée.</p>";
   $("savedStations").innerHTML=profile.stations.length?profile.stations.map(s=>`<div class="saved-row"><strong>${escapeHtml(s.city||"Station")}</strong><p>${escapeHtml(s.address)}</p><div class="dialog-actions"><button class="ghost" data-favorite-open="${escapeHtml(s.id)}">Voir la station</button><button class="ghost" data-favorite-remove="${escapeHtml(s.id)}">Retirer</button></div></div>`).join(""):"<p class=note>Aucune station enregistrée.</p>";
 }
 function openProfile(){
   if(busy)return;
   $("profileMessage").textContent=storageNotice;
-  for(const [id,key] of [["vehicleName","name"],["vehicleType","type"],["vehicleFuel","fuel"],["vehicleCons","cons"],["vehicleLiters","liters"]])$(id).value=profile.vehicle[key];
-  $("savedDimensionsNote").textContent=profile.vehicle.dimensions?"Gabarit mémorisé : "+dimensionLabel(profile.vehicle.dimensions):"Aucun gabarit mémorisé.";
-  $("exportProfileBtn").disabled=profileWriteBlocked;$("exportLegacyProfileBtn").hidden=!legacyProfile;
+  editVehicle(profile.activeVehicleId);
+  $('exportProfileBtn').disabled=profileWriteBlocked;
+  for(const [id,version] of [['exportLegacyProfileBtn',1],['exportV2ProfileBtn',2]])$(id).hidden=!legacyProfiles.some(p=>p.version===version);
   renderSaved();if(!$("profileDialog").open)$("profileDialog").showModal();
 }
 function updateFavorite(){
@@ -635,7 +688,7 @@ function updatePreparedDuplicates(){
 }
 function resumePreparedTrip(e){
  if(busy)return;if(trip&&!confirm('Remplacer les paramètres du trajet affiché par cette préparation ? Les résultats actuels seront effacés.'))return;
- clearResults();resetProspective();resetRememberedInputs();
+ clearResults();resetProspective();resetRememberedInputs();detachTripVehicle();
  const timing=resumeTiming(e.timing,Date.now());$('stationDeparture').value=timing.departure??'';$('routeArriveBy').value=timing.arriveBy??'';$('routeOnlyBefore').checked=timing.onlyBefore;
  const p=e.preferences,walking=e.vehicle.type==='walk';$('travelMode').value=walking?'walk':'car';
  for(const field of ['start','end']){const place=e.places[field];$(field).value=place.label;preparationInputs[field]={value:place.label,place:{lat:place.lat,lon:place.lon,label:place.label}};$(field+'PlaceNote').hidden=false;$(field+'PlaceNote').textContent='Point de la préparation sauvegardée, repris sans nouvelle recherche d’adresse.'}
@@ -707,7 +760,10 @@ function bindPreparedTrips(){
  });
  $('preparedImportConfirm').addEventListener('change',()=>{$('preparedImportApply').disabled=!preparedImport||!$('preparedImportConfirm').checked});
  $('preparedImportApply').addEventListener('click',()=>{if(!preparedImport||!$('preparedImportConfirm').checked)return;if(writePreparedTrips(preparedImport)){preparedImport=null;preparedSelected=null;preparedDraft=null;$('preparedEditor').hidden=true;renderPreparedTrips();$('preparedImportDialog').close();$('preparedMessage').textContent='Sauvegarde de préparations restaurée. Aucun trajet recalculé.'}else $('preparedImportMessage').textContent=$('preparedMessage').textContent});
- $('preparedImportDialog').addEventListener('close',()=>{preparedSequence++;preparedImport=null;$('preparedImportFile').focus()});
+ const cancelPreparedImport=()=>{preparedSequence++;preparedImport=null};
+ $('preparedImportDialog').addEventListener('cancel',cancelPreparedImport);
+ $('preparedImportDialog').querySelector('.close-dialog').addEventListener('click',cancelPreparedImport);
+ $('preparedImportDialog').addEventListener('close',()=>{if($('preparedImportDialog').open)return;preparedImport=null;if($('preparedDialog').open)$('preparedImportFile').focus()});
  $('preparedDialog').addEventListener('close',()=>{preparedSequence++;preparedImport=null;preparedDraft=null});
 }
 
@@ -936,6 +992,7 @@ function updateWalking(){
 }
 function updateVehicleRouting(){
   updateWalking();
+  renderVehiclePicker();
   if(isWalking()){
     document.querySelectorAll('#routingOptions input,#routingOptions select,#routingOptions button').forEach(el=>el.disabled=true);
     $('goBtn').disabled=busy||C.ignRouting!==true;
@@ -2225,13 +2282,36 @@ function bindProfile(){
   });
   $("detailChooseBtn").addEventListener("click",()=>{const id=currentStation?.id;$("stationDialog").close();if(id)selectStation(id)});
   $("vehicleForm").addEventListener("submit",e=>{
-    e.preventDefault();const next=structuredClone(profile);
-    next.vehicle={...next.vehicle,name:$("vehicleName").value.trim(),type:$("vehicleType").value,fuel:$("vehicleFuel").value,cons:Number($("vehicleCons").value),liters:Number($("vehicleLiters").value)};
-    if(saveProfile(next)){applyVehicle();$("profileMessage").textContent="Véhicule enregistré. Paramètres carburant appliqués."}
+    e.preventDefault();if(busy)return;
+    try{
+      const dimensions=vehicleFormDimensions(),next=structuredClone(profile);
+      const vehicle={id:vehicleDraftId||crypto.randomUUID(),...validateVehicle({name:$('vehicleName').value.trim(),type:$('vehicleType').value,fuel:$('vehicleFuel').value,cons:Number($('vehicleCons').value),liters:Number($('vehicleLiters').value),...(dimensions?{dimensions}:{})})};
+      const duplicates=duplicateVehicles(vehicle,next.vehicles);
+      if(duplicates.length&&!$('allowVehicleDuplicate').checked){$('vehicleDuplicates').hidden=false;$('vehicleDuplicateNote').textContent='Ce nom existe déjà. Les véhicules resteront distincts ; aucun ne sera remplacé.';$('allowVehicleDuplicate').focus();return}
+      const index=next.vehicles.findIndex(v=>v.id===vehicle.id);if(index<0)next.vehicles.push(vehicle);else next.vehicles[index]=vehicle;
+      next.activeVehicleId=vehicle.id;
+      if(saveProfile(next)){$('travelMode').value='car';applyVehicle();editVehicle(vehicle.id);$('profileMessage').textContent='Véhicule enregistré et choisi. Paramètres appliqués, trajet à recalculer.'}
+    }catch(err){$('profileMessage').textContent='Enregistrement impossible : '+err.message}
   });
   $("saveTruckDimensions").addEventListener("click",()=>{
-    try{const next=structuredClone(profile);next.vehicle.dimensions=routeDimensions();if(saveProfile(next)){$("savedDimensionsNote").textContent="Gabarit mémorisé : "+dimensionLabel(next.vehicle.dimensions);$("profileMessage").textContent="Gabarit du trajet enregistré."}}
+    try{showVehicleDimensions(routeDimensions());resetVehicleDuplicate();$('profileMessage').textContent='Gabarit repris dans le formulaire. Enregistrer le véhicule pour le conserver.'}
     catch(e){$("profileMessage").textContent=e.message}
+  });
+  $('newVehicleBtn').addEventListener('click',()=>{editVehicle();$('vehicleName').focus();$('profileMessage').textContent='Nouveau véhicule. Les autres restent conservés.'});
+  $('clearVehicleDimensions').addEventListener('click',()=>{showVehicleDimensions();resetVehicleDuplicate()});
+  $('vehicleForm').addEventListener('input',e=>{if(e.target.id!=='allowVehicleDuplicate')resetVehicleDuplicate()});
+  $('savedVehicleSelect').addEventListener('change',e=>useSavedVehicle(e.target.value));
+  $('savedVehicles').addEventListener('click',e=>{
+    if(busy)return;const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.vehicleUse){useSavedVehicle(b.dataset.vehicleUse);editVehicle(profile.activeVehicleId)}
+    if(b.dataset.vehicleEdit){editVehicle(b.dataset.vehicleEdit);$('vehicleName').focus()}
+    if(b.dataset.vehicleRemove){
+      const id=b.dataset.vehicleRemove,v=profile.vehicles.find(v=>v.id===id);if(!v)return;
+      const active=id===profile.activeVehicleId;
+      if(!confirm(`Supprimer « ${v.name||'Sans nom'} » ?${active?' Les réglages ponctuels par défaut remplaceront ce véhicule et le trajet sera à recalculer.':''} Les préparations et le journal restent conservés.`))return;
+      const next=structuredClone(profile);next.vehicles=next.vehicles.filter(v=>v.id!==id);if(active)next.activeVehicleId=null;
+      if(saveProfile(next)){if(active)applyVehicle();if(vehicleDraftId===id)editVehicle(profile.activeVehicleId);$('profileMessage').textContent='Véhicule supprimé. Aucun autre véhicule sélectionné automatiquement.'}
+    }
   });
   $('profileDialog').addEventListener('close',()=>{addressLookupSequence++;profileImportSequence++;$('resolveAddressBtn').disabled=false;updateAddressDraft()});
   $('cancelAddressEdit').addEventListener('click',resetAddressForm);
@@ -2271,11 +2351,12 @@ function bindProfile(){
     if(button.dataset.favoriteRemove){const next=structuredClone(profile);next.stations=next.stations.filter(s=>s.id!==button.dataset.favoriteRemove);if(saveProfile(next))$("profileMessage").textContent="Station retirée des favoris."}
   });
   $('exportProfileBtn').addEventListener('click',()=>{if(!profileWriteBlocked)downloadProfile(profile)});
-  $('exportLegacyProfileBtn').addEventListener('click',()=>{if(legacyProfile)downloadProfile(legacyProfile,'DragonRoute-profil-origine-v1.json')});
+  for(const [id,version] of [['exportLegacyProfileBtn',1],['exportV2ProfileBtn',2]])$(id).addEventListener('click',()=>{const original=legacyProfiles.find(p=>p.version===version);if(original)downloadProfile(original,`DragonRoute-profil-origine-v${version}.json`)});
   $('importProfileBtn').addEventListener('click',()=>$('importProfileFile').click());
   $('exportBeforeImport').addEventListener('click',()=>{if(!profileWriteBlocked)downloadProfile(profile)});
-  $('cancelProfileImport').addEventListener('click',()=>$('profileImportDialog').close());
-  $('profileImportDialog').addEventListener('close',()=>{pendingProfileImport=null;profileImportSequence++;if($('profileDialog').open)$('importProfileBtn').focus()});
+  $('cancelProfileImport').addEventListener('click',()=>{pendingProfileImport=null;profileImportSequence++;$('profileImportDialog').close()});
+  $('profileImportDialog').addEventListener('cancel',()=>{pendingProfileImport=null;profileImportSequence++});
+  $('profileImportDialog').addEventListener('close',()=>{if($('profileImportDialog').open)return;pendingProfileImport=null;if($('profileDialog').open)$('importProfileBtn').focus()});
   $('importProfileFile').addEventListener('change',async e=>{
     const file=e.target.files[0];if(!file)return;const seq=++profileImportSequence;addressLookupSequence++;$('resolveAddressBtn').disabled=false;
     try{
@@ -2285,8 +2366,10 @@ function bindProfile(){
       if(profileWriteBlocked)throw new Error('Le profil existant n’a pas pu être chargé. Son remplacement est bloqué.');
       pendingProfileImport=next;
       const duplicates=duplicateAddressCount(next.addresses),located=next.addresses.filter(a=>a.place).length;
-      $('profileImportSummary').textContent=`${next.addresses.length} adresse(s), dont ${located} avec un lieu mémorisé ; ${next.stations.length} station(s) favorite(s). Véhicule : ${next.vehicle.name||'Sans nom'} · ${({car:'voiture',caravan:'voiture avec caravane',van:'utilitaire',truck:'camion'})[next.vehicle.type]} · ${next.vehicle.fuel}, ${next.vehicle.cons} L/100 km ; ${next.vehicle.liters} L par défaut${next.vehicle.dimensions?", gabarit : "+dimensionLabel(next.vehicle.dimensions):""}. ${duplicates?duplicates+' doublon(s) possible(s) dans les adresses.':'Aucun doublon apparent dans les adresses.'}`;
-      $('profileImportCurrent').textContent=`Le profil actuel contient ${profile.addresses.length} adresse(s) et ${profile.stations.length} station(s). Il sera remplacé après confirmation.`;
+      const active=next.vehicles.find(v=>v.id===next.activeVehicleId),vehicleDuplicates=next.vehicles.reduce((n,v,i)=>n+duplicateVehicles(v,next.vehicles.slice(0,i)).length,0);
+      $('profileImportSummary').textContent=`${next.addresses.length} adresse(s), dont ${located} avec un lieu mémorisé ; ${next.stations.length} station(s) favorite(s). ${next.vehicles.length} véhicule(s), actif au démarrage : ${active?vehicleLabel(active):'aucun, réglages ponctuels'}. ${vehicleDuplicates} nom(s) de véhicules répété(s), conservés distincts. ${duplicates?duplicates+' doublon(s) possible(s) dans les adresses.':'Aucun doublon apparent dans les adresses.'}`;
+      $('profileImportCurrent').textContent=`Le profil actuel contient ${profile.vehicles.length} véhicule(s), ${profile.addresses.length} adresse(s) et ${profile.stations.length} station(s). Il sera remplacé après confirmation.`;
+      $('profileImportVehicles').replaceChildren(...next.vehicles.map(v=>{const li=document.createElement('li');li.textContent=vehicleLabel(v)+` · ${v.cons} L/100 km, ${v.liters} L à acheter par défaut`+(v.dimensions?' · '+dimensionLabel(v.dimensions):' · Gabarit inconnu')+(v.id===next.activeVehicleId?' · Actif':'');return li}));
       $('profileImportNames').replaceChildren(...next.addresses.map(a=>{const li=document.createElement('li');li.textContent=a.name+' — '+a.value+(a.place?' · Lieu mémorisé : '+a.place.label:'');return li}));
       $('profileImportMessage').textContent='';$('profileImportDialog').showModal();
     }catch(e){if(seq===profileImportSequence)$('profileMessage').textContent='Import refusé : '+e.message+'. Le profil existant est conservé.'}
@@ -2298,14 +2381,16 @@ function bindProfile(){
     else $('profileImportMessage').textContent=$('profileMessage').textContent+' Le profil précédent est conservé.';
   });
   $('eraseProfileBtn').addEventListener('click',()=>{
-    if(!confirm('Effacer le véhicule, les adresses et les stations de ce profil local, ainsi que sa copie d’origine ? Les autres applications et aperçus seront conservés.'))return;
+    if(!confirm('Effacer les véhicules, les adresses et les stations de ce profil local, ainsi que ses copies d’origine ? Le journal, les préparations, les autres applications et aperçus seront conservés.'))return;
     try{
-      if(localStorage.getItem(PROFILE_KEY)!==profileSnapshot||localStorage.getItem(LEGACY_PROFILE_KEY)!==legacySnapshot)throw new Error('Profil modifié dans un autre onglet. Recharger avant de réessayer.');
-      localStorage.removeItem(LEGACY_PROFILE_KEY);localStorage.removeItem(PROFILE_KEY);loadProfile();resetRememberedInputs();applyVehicle();resetAddressForm();openProfile();$('profileMessage').textContent='Profil local effacé.';
+      if(!profileUnchanged())throw new Error('Profil modifié dans un autre onglet. Recharger avant de réessayer.');
+      for(const {key} of [...PROFILE_SOURCES].reverse())localStorage.removeItem(key);
+      loadProfile();resetRememberedInputs();applyVehicle();resetAddressForm();openProfile();$('profileMessage').textContent='Profil local effacé.';
     }catch(e){loadProfile();resetRememberedInputs();applyVehicle();resetAddressForm();openProfile();$('profileMessage').textContent='Suppression non terminée : '+e.message+'. Vérifier les données restantes avant de réessayer.'}
   });
 }
 function bind(){
+  for(const id of ['fuel','cons','liters','routeVehicle',...Object.values(dimensionFields)])$(id).addEventListener('input',()=>{if(!busy)detachTripVehicle()});
   $('travelMode').addEventListener('change',()=>{if(busy)return;resumePreparation=null;preparedRangePending=false;invalidateRouting();setStatus(isWalking()?(C.ignRouting===true?'Mode à pied choisi. Calculer un nouveau trajet.':'Calcul à pied indisponible : service IGN non activé.'):'Mode véhicule choisi. Options conservées ; calculer un nouveau trajet.')});
   $('maxWalkKm').addEventListener('input',updateWalking);
   for(const id of ["tollHeight","tollWeight","tollPayment","tollDeparture","tollVehicleConfirmed"])$(id).addEventListener("input",updateBudget);

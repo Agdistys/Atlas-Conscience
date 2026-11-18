@@ -2,8 +2,8 @@ import {test,expect} from '@playwright/test';
 import fs from 'node:fs';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
-const key='dragonroute.profile.v2.public',oldKey='dragonroute.profile.v1.public';
-const sample=(version=2)=>({version,vehicle:{name:'Voiture de test',type:'car',fuel:'E10',cons:7,liters:35},addresses:[{id:'a',name:'École',value:'Valence'}],stations:[]});
+const key='dragonroute.profile.v3.public',oldKey='dragonroute.profile.v1.public';
+const sample=(version=3)=>{const vehicle={name:'Voiture de test',type:'car',fuel:'E10',cons:7,liters:35},rest={addresses:[{id:'a',name:'École',value:'Valence'}],stations:[]};return version<3?{version,vehicle,...rest}:{version,vehicles:[{id:'legacy-vehicle',...vehicle}],activeVehicleId:'legacy-vehicle',...rest}};
 const place={lat:44.922579,lon:4.921827,label:'Valence · 26000 · Drôme',source:'ign',resolvedAt:'2026-09-17T10:00:00.000Z'};
 const file=data=>({name:'profil.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
 async function open(page){await page.goto('/DragonRoute/');await page.locator('#profileBtn').click()}
@@ -35,10 +35,10 @@ test('profil : vérifier un lieu, renommer sans perte et confirmer les doublons'
 
 test('profil : aperçu import, annulation au clavier, export propre et confirmation',async({page},info)=>{
  await seed(page,{[key]:sample()});await open(page);const previous=await stored(page);
- const incoming=sample();incoming.vehicle.name='Véhicule importé';incoming.addresses[0].place={...place,token:'secret-marker-profile'};incoming.apiKey='secret-marker-profile';incoming.addresses.push({id:'b',name:'<img src=x onerror=alert(1)>',value:'Autre adresse'});
+ const incoming=sample();incoming.vehicles[0].name='Véhicule importé';incoming.addresses[0].place={...place,token:'secret-marker-profile'};incoming.apiKey='secret-marker-profile';incoming.addresses.push({id:'b',name:'<img src=x onerror=alert(1)>',value:'Autre adresse'});
  await page.locator('#importProfileFile').setInputFiles(file(incoming));await expect(page.locator('#profileImportSummary')).toContainText('2 adresse(s), dont 1');await expect(page.locator('#profileImportSummary')).toContainText('Véhicule importé');await expect(page.locator('#profileImportDialog')).toHaveAccessibleDescription(/2 adresse.*profil actuel/s);expect(await stored(page)).toBe(previous);
  await page.locator('#profileImportDialog').press('Escape');await expect(page.locator('#profileImportDialog')).toBeHidden();await expect(page.locator('#importProfileBtn')).toBeFocused();expect(await stored(page)).toBe(previous);
- await page.locator('#importProfileFile').setInputFiles(file(incoming));await page.locator('#profileImportDialog details').evaluate(e=>e.open=true);await expect(page.locator('#profileImportNames img')).toHaveCount(0);await expect(page.locator('#profileImportNames')).toContainText('<img src=x');expect(await exported(page,'#exportBeforeImport')).toEqual(sample());
+ await page.locator('#importProfileFile').setInputFiles(file(incoming));await page.locator('#profileImportAddressesDetails').evaluate(e=>e.open=true);await expect(page.locator('#profileImportNames img')).toHaveCount(0);await expect(page.locator('#profileImportNames')).toContainText('<img src=x');expect(await exported(page,'#exportBeforeImport')).toEqual(sample());
  await checkAccessibility(page,info,'profil-import');await checkOverflow(page);await capture(page,info,'profil-import');await page.locator('#confirmProfileImport').click();await expect(page.locator('#profileMessage')).toHaveText('Profil importé.');
  const out=await exported(page);expect(out.addresses).toHaveLength(2);expect(JSON.stringify(out)).not.toContain('secret-marker-profile');expect(await page.locator('body').innerText()).not.toContain('secret-marker-profile');
 });
@@ -46,7 +46,7 @@ test('profil : aperçu import, annulation au clavier, export propre et confirmat
 test('profil : migration réversible, copie d’origine et version future préservée',async({page})=>{
  const original=sample(1);original.extraKey='secret-marker-profile';await seed(page,{[oldKey]:original});await open(page);const raw=await stored(page,oldKey);expect(await stored(page)).toBeNull();await expect(page.locator('#profileMessage')).toContainText('Ancien profil repris');
  const backup=await exported(page,'#exportLegacyProfileBtn');expect(backup).toEqual(sample(1));
- await page.locator('#vehicleName').fill('V2');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();expect(await stored(page,oldKey)).toBe(raw);expect(JSON.parse(await stored(page)).version).toBe(2);
+ await page.locator('#vehicleName').fill('V2');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();expect(await stored(page,oldKey)).toBe(raw);expect(JSON.parse(await stored(page)).version).toBe(3);
  const future='{"version":999,"privateData":"preserve"}';await page.evaluate(([k,v])=>localStorage.setItem(k,v),[key,future]);await page.reload();await page.locator('#profileBtn').click();await expect(page.locator('#profileMessage')).toContainText('Profil non chargé');await expect(page.locator('#exportProfileBtn')).toBeDisabled();
  await page.locator('#vehicleName').fill('Ne pas remplacer');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();await expect(page.locator('#profileMessage')).toContainText('Enregistrement impossible');expect(await stored(page)).toBe(future);expect(await stored(page,oldKey)).toBe(raw);
  await page.locator('#importProfileFile').setInputFiles(file(sample()));await expect(page.locator('#profileMessage')).toContainText('Import refusé');expect(await stored(page)).toBe(future);
@@ -58,12 +58,12 @@ test('profil : quota, formulaire et import conservés, conflit entre onglets dé
  await page.locator('#addressName').fill('Travail');await page.locator('#addressValue').fill('Grenoble');await page.getByRole('button',{name:'Enregistrer l’adresse',exact:true}).click();await expect(page.locator('#profileMessage')).toContainText('Enregistrement impossible');await expect(page.locator('#addressValue')).toHaveValue('Grenoble');expect(await stored(page)).toBe(previous);
  await page.locator('#importProfileFile').setInputFiles(file({...sample(),addresses:[]}));await page.locator('#confirmProfileImport').click();await expect(page.locator('#profileImportMessage')).toContainText('Enregistrement impossible');await expect(page.locator('#profileImportDialog')).toBeVisible();expect(await stored(page)).toBe(previous);
  await page.evaluate(()=>Storage.prototype.setItem=window.originalSet);await page.locator('#confirmProfileImport').click();await expect(page.locator('#profileMessage')).toHaveText('Profil importé.');
- const other={...sample(),vehicle:{...sample().vehicle,name:'Autre onglet'}};await page.evaluate(([k,v])=>localStorage.setItem(k,JSON.stringify(v)),[key,other]);await page.locator('#vehicleName').fill('Modification locale');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();await expect(page.locator('#profileMessage')).toContainText('autre onglet');expect(JSON.parse(await stored(page))).toEqual(other);await expect(page.locator('#vehicleName')).toHaveValue('Modification locale');
+ const other=sample();other.vehicles[0].name='Autre onglet';await page.evaluate(([k,v])=>localStorage.setItem(k,JSON.stringify(v)),[key,other]);await page.locator('#vehicleName').fill('Modification locale');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();await expect(page.locator('#profileMessage')).toContainText('autre onglet');expect(JSON.parse(await stored(page))).toEqual(other);await expect(page.locator('#vehicleName')).toHaveValue('Modification locale');
 });
 
-test('profil : aperçu séparé et effacement limité aux deux versions du même environnement',async({page})=>{
- const previewOld='dragonroute.profile.v1.preview:/DragonRoute/',previewKey='dragonroute.profile.v2.preview:/DragonRoute/';
- await seed(page,{[oldKey]:sample(1),[key]:sample(),[previewOld]:{...sample(1),vehicle:{...sample().vehicle,name:'Aperçu'}},'autre-app':'conserver','dragonroute.profile.v2.preview:/autre/':sample()});
+test('profil : aperçu séparé et effacement limité aux versions du même environnement',async({page})=>{
+ const previewOld='dragonroute.profile.v1.preview:/DragonRoute/',previewKey='dragonroute.profile.v3.preview:/DragonRoute/';
+ await seed(page,{[oldKey]:sample(1),[key]:sample(),[previewOld]:{...sample(1),vehicle:{...sample(1).vehicle,name:'Aperçu'}},'autre-app':'conserver','dragonroute.profile.v2.preview:/autre/':sample()});
  await page.route('**/DragonRoute/',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('<body>','<body data-preview="true">')})});
  await open(page);await expect(page.locator('#vehicleName')).toHaveValue('Aperçu');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();expect(await stored(page,previewKey)).not.toBeNull();
  page.on('dialog',d=>d.accept());
