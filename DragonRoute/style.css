@@ -93,3 +93,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 #transitNetwork{border-top:1px solid var(--line);margin-top:24px;padding-top:12px}.network-board,.network-alert{border-bottom:1px solid var(--line);padding:8px 0 16px}.network-warning{border-left:3px solid #f0c76d;padding-left:12px;color:#f4d995}#transitNetwork li{margin:12px 0}#transitNetwork summary{cursor:pointer;padding:12px 0}#transitNetwork h4{margin:12px 0}#transitNetwork p,#transitNetwork li{overflow-wrap:anywhere}
 
 .network-alert p{white-space:pre-line}
+
+#preparedDialog .tabs button{flex:1;min-height:44px;white-space:normal}#preparedDialog [role="tab"][aria-selected="true"]{color:var(--green);border-bottom:3px solid var(--green)}#savedTransitPanel .dialog-actions,#savedTransitPanel .row-actions{flex-wrap:wrap}#savedTransitPanel button,#savedTransitPanel input{max-width:100%}#savedTransitDetails,#savedTransitImportDetails{overflow-wrap:anywhere}#savedTransitEditor{margin:16px 0}
