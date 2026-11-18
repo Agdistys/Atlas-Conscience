@@ -371,11 +371,13 @@ function bindJournal(){
 function placeDescription(place){return `${place.label} · IGN · choix du ${new Date(place.resolvedAt).toLocaleDateString('fr-FR')}`}
 function clearRememberedInput(field){preparationInputs[field]=null;resumePreparation=null;updateResumePreparation();rememberedInputs[field]=null;favoriteInputs[field]=null;$(field+'PlaceNote').hidden=true}
 function resetRememberedInputs(){clearRememberedInput('start');clearRememberedInput('end')}
-async function resolveTripPlace(value,field){
+async function resolveTripPlace(value,field,isCurrent=()=>true){
+ if(!isCurrent())throw new Error("Recherche du lieu annulée.");
  const prepared=preparationInputs[field];if(prepared?.value===value)return structuredClone(prepared.place);
  const favorite=favoriteInputs[field];
  if(favorite?.value===value&&!temporaryAddress(value)){rememberedInputs[field]=structuredClone(favorite);return favorite.place}
- const place=await geocode(temporaryAddress(value)&&field==='start'?'__CURRENT__':value,field);
+ const place=await geocode(temporaryAddress(value)&&field==='start'?'__CURRENT__':value,field,isCurrent);
+ if(!isCurrent())throw new Error("Recherche du lieu annulée.");
  rememberedInputs[field]=temporaryAddress(value)?null:{value,place:{...place,source:'ign',resolvedAt:new Date().toISOString()}};
  return place;
 }
@@ -2275,14 +2277,31 @@ function transitNumber(n,min,max){if(typeof n!=='number'||!Number.isFinite(n)||n
 function transitPoint(p){if(!Array.isArray(p)||p.length!==2)throw new Error('Coordonnées de transport invalides.');return [transitNumber(p[0],44.8,45.6),transitNumber(p[1],5.3,6.2)]}
 function transitNear(a,b,meters=180){const dx=(a[1]-b[1])*78500,dy=(a[0]-b[0])*111200;return Math.hypot(dx,dy)<=meters}
 function transitPilot(p){return Array.isArray(p)&&p.length===2&&Number.isFinite(p[0])&&Number.isFinite(p[1])&&p[0]>=45.10&&p[0]<=45.24&&p[1]>=5.66&&p[1]<=5.81}
-function transitRequest(a,b,raw,now=Date.now()){
- if(!transitPilot(a)||!transitPilot(b))throw new Error('Départ et arrivée doivent se situer dans le secteur pilote autour de Grenoble. La France entière n’est pas encore couverte.');
+function transitCriteria(raw,now=Date.now()){
  const when=departureInstant(raw.when);if(when.error)throw new Error(when.error);
  if(when.instant<now||when.instant>now+30*864e5)throw new Error('Choisir une heure future, dans les 30 prochains jours. La disponibilité dépend du calendrier du réseau.');
  if(!['depart','arrive'].includes(raw.direction))throw new Error('Choisir un départ ou une arrivée.');
  if(typeof raw.walk!=='string'||!raw.walk.trim())throw new Error('Renseigner la limite totale de marche.');
- const walk=transitNumber(Number(raw.walk),100,5000),arrive=raw.direction==='arrive';
- return {a:[...a],b:[...b],instant:when.instant,now,walk,arrive,when:raw.when,url:TRANSIT_ENDPOINT+'?'+new URLSearchParams({fromPlace:a.join(','),toPlace:b.join(','),date:raw.when.slice(0,10),time:raw.when.slice(11),mode:'TRANSIT,WALK',arriveBy:String(arrive),ignoreRealtimeUpdates:'true',numItineraries:'3',maxWalkDistance:String(walk),locale:'fr'})};
+ return {instant:when.instant,now,walk:transitNumber(Number(raw.walk),100,5000),arrive:raw.direction==='arrive',when:raw.when};
+}
+function transitRequest(a,b,raw,now=Date.now()){
+ if(!transitPilot(a)||!transitPilot(b))throw new Error('Départ et arrivée doivent se situer dans le secteur pilote autour de Grenoble. La France entière n’est pas encore couverte.');
+ const q=transitCriteria(raw,now);
+ return {...q,a:[...a],b:[...b],url:TRANSIT_ENDPOINT+'?'+new URLSearchParams({fromPlace:a.join(','),toPlace:b.join(','),date:q.when.slice(0,10),time:q.when.slice(11),mode:'TRANSIT,WALK',arriveBy:String(q.arrive),ignoreRealtimeUpdates:'true',numItineraries:'3',maxWalkDistance:String(q.walk),locale:'fr'})};
+}
+function transitRoadTiming(mode,route,q){
+ if(!['car','walk'].includes(mode))throw new Error('Mode non pris en charge.');
+ const duration=transitNumber(route.duration,1,21600),distance=transitNumber(route.distance,0,150000);
+ const start=q.arrive?q.instant-duration*1000:q.instant,end=q.arrive?q.instant:q.instant+duration*1000;
+ if(start<q.now)throw new Error('Départ estimé déjà passé pour cette heure d’arrivée.');
+ if(mode==='walk'&&distance>q.walk)throw new Error(`Marche directe au-delà de la limite de ${q.walk} m.`);
+ return {mode,start,end,duration,elapsed:duration,distance,price:null,carbon:null,status:'ready'};
+}
+function transitTimeRows(routes,roads,q){
+ const rows=routes.map((r,i)=>({mode:'transit',label:`Collectif · option ${i+1}`,start:r.start,end:r.end,duration:r.duration,elapsed:q.arrive?(q.instant-r.start)/1000:(r.end-q.instant)/1000,status:'ready',price:null,carbon:null}));
+ if(!rows.length)rows.push({mode:'transit',label:'Transports collectifs',status:'unavailable',reason:'Aucune option collective disponible pour ces critères.'});
+ for(const mode of ['car','walk']){const item=roads[mode];rows.push({...item,mode,label:mode==='car'?'Véhicule léger':'Marche directe',status:item?.status||'unavailable',reason:item?.reason||'Mode indisponible.'})}
+ return rows.map((r,i)=>({...r,index:i})).sort((a,b)=>a.status!==b.status?a.status==='ready'?-1:1:a.status==='ready'?Math.ceil(a.elapsed/60)-Math.ceil(b.elapsed/60)||a.index-b.index:a.index-b.index);
 }
 function transitPolyline(encoded){
  if(typeof encoded!=='string'||encoded.length<2||encoded.length>100000)throw new Error('Tracé indisponible.');
@@ -2330,22 +2349,50 @@ function transitResponse(data,q){
 let transitContext=null,transitJob=null,transitRoutes=[],transitMap=null,transitLayers=null,transitNextRequest=0;
 const transitClock=ms=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(ms);
 const transitMinutes=s=>`${Math.ceil(s/60)} min`;
+function transitInputSignature(){return JSON.stringify(['start','end'].map(id=>$(id).value.trim()))}
+function transitStoredPlace(value,field){
+ const saved=[preparationInputs[field],favoriteInputs[field],rememberedInputs[field]].find(x=>x?.value===value&&x.place);
+ return saved?structuredClone(saved.place):null;
+}
 function clearTransit(message=''){
- if(transitJob){transitJob.controller.abort();transitJob=null}
- transitRoutes=[];$('transitResults').replaceChildren();$('transitStatus').textContent=message;$('transitCancel').hidden=true;$('transitSearch').disabled=false;
+ const job=transitJob;
+ if(job){job.cancelled=true;job.controller.abort();if(job.resolving&&activeAbort===job.controller&&placePending){placePending.reject(new Error('Recherche de transports annulée.'));placePending=null;$('placeDialog').close()}}
+ transitRoutes=[];$('transitResults').replaceChildren();$('transitCompareResults').replaceChildren();$('transitStatus').textContent=message;$('transitCancel').hidden=true;$('transitSearch').disabled=Boolean(job);
  $('transitMapWrap').hidden=true;if(transitLayers){transitLayers.remove();transitLayers=null}$('transitSketch').replaceChildren();
 }
 function updateTransitContext(){
- const context=trip?{a:trip.a,b:trip.b,places:trip.places}:null;
- if(JSON.stringify(context)!==JSON.stringify(transitContext)){clearTransit();transitContext=context;if($('transitDialog').open)$('transitDialog').close()}
- $('transitBtn').hidden=!context;
+ $('transitBtn').hidden=false;
+ if(transitContext&&transitContext.signature!==transitInputSignature()){clearTransit();transitContext=null;if($('transitDialog').open)$('transitDialog').close()}
+}
+function showTransitPlaces(){
+ const c=transitContext;if(!c)return;
+ $('transitPlaces').textContent=c.places?`${c.places.start} → ${c.places.end}. Parcours direct, sans arrêt intermédiaire.`:`Départ à vérifier : ${c.inputs[0]||'à renseigner'}. Arrivée à vérifier : ${c.inputs[1]||'à renseigner'}.`;
 }
 function openTransit(){
- if(busy||!trip)return;updateTransitContext();clearTransit();
- $('transitPlaces').textContent=`${transitContext.places.start} → ${transitContext.places.end}. Parcours direct, sans les arrêts du trajet routier.`;
- $('transitWhen').value=parisLocal(Date.now()+5*60000);$('transitDirection').value='depart';
+ if(busy)return;clearTransit();
+ const inputs=['start','end'].map(id=>$(id).value.trim()),a=transitStoredPlace(inputs[0],'start'),b=transitStoredPlace(inputs[1],'end');
+ transitContext={inputs,signature:transitInputSignature(),...(a&&b?{a:[a.lat,a.lon],b:[b.lat,b.lon],places:{start:a.label,end:b.label}}:{})};
+ showTransitPlaces();$('transitWhen').value=parisLocal(Date.now()+5*60000);$('transitDirection').value='depart';
  $('transitDialog').showModal();$('transitTitle').focus();
- if(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))$('transitStatus').textContent='Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.';
+ if(transitContext.a&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b)))$('transitStatus').textContent='Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.';
+}
+function renderTransitTimes(routes,roads,q){
+ const rows=transitTimeRows(routes,roads,q),sourceLinks={ign:'<a href="https://cartes.gouv.fr/" target="_blank" rel="noopener noreferrer">IGN · BD TOPO</a>',osrm:'<a href="https://project-osrm.org/" target="_blank" rel="noopener noreferrer">OSRM · OpenStreetMap</a>',ors:'<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">openrouteservice.org by HeiGIT · OpenStreetMap</a>'};
+ const sources=[...new Set(Object.values(roads).filter(r=>r.status==='ready').map(r=>sourceLinks[r.provider]).filter(Boolean))];
+ $('transitCompareResults').innerHTML=`<h3>Comparer les temps</h3><p class="note">Même départ et même arrivée, pour une personne. Heure commune : ${transitClock(q.instant)} (Paris). ${q.arrive?'Comparaison entre le départ et l’heure limite, marge d’arrivée comprise.':'Comparaison depuis l’heure demandée, attente avant départ comprise.'} Places, accessibilité et disponibilité à bord non vérifiées.</p><div class="transit-table-scroll" role="region" aria-label="Comparaison des temps de déplacement" tabindex="0"><table><thead><tr><th scope="col">Mode</th><th scope="col">Temps comparé</th><th scope="col">Horaires et durée en chemin</th></tr></thead><tbody>${rows.map(r=>`<tr data-transit-mode="${r.mode}" data-transit-state="${r.status}"><th scope="row">${escapeHtml(r.label)}</th>${r.status==='ready'?`<td>${transitMinutes(r.elapsed)}</td><td>${transitClock(r.start)} → ${transitClock(r.end)}<br>${transitMinutes(r.duration)} en chemin</td>`:`<td>Indisponible</td><td>${escapeHtml(r.reason)}</td>`}</tr>`).join('')}</tbody></table></div><p class="note">Tri par minutes affichées, égalités conservées. Voiture et marche : estimations hors trafic et pauses, sans contrainte de calendrier routier. Les évitements et le profil saisis sont respectés ou le mode est déclaré indisponible. Prix totaux et empreintes non comparés ; aucun coût absent ne devient zéro. La carte représente toujours l’option collective choisie.</p>${sources.length?`<p class="note">Sources routières : ${sources.join(' · ')}.</p>`:''}`;
+}
+async function compareTransitTimes(job,q,result){
+ const roads={},current=()=>transitJob===job&&!job.cancelled;let ignQuota=false;
+ for(const mode of ['car','walk']){
+  if(!current())return;
+  try{
+   if(mode==='car'&&job.vehicle!=='car')throw new Error('Ce profil de véhicule n’est pas qualifié pour cette comparaison ; aucun trajet voiture substitué.');
+   if(ignQuota&&job.settings[mode].provider==='ign')throw new Error('Quota IGN atteint : ce second calcul n’a pas été demandé. Relancer plus tard.');
+   const routeResult=await route([q.a,q.b],true,false,job.settings[mode]);if(!current())return;
+   roads[mode]={...transitRoadTiming(mode,routeResult,q),provider:job.settings[mode].provider};
+  }catch(e){if(!current())return;roads[mode]={status:'unavailable',reason:e.message};if(e.message.includes('Limite du service IGN'))ignQuota=true}
+ }
+ if(current())renderTransitTimes(result.routes,roads,q);
 }
 function drawTransit(index){
  const route=transitRoutes[index];if(!route)return;
@@ -2378,29 +2425,43 @@ function renderTransit(result,q){
  drawTransit(0);
 }
 async function searchTransit(){
- if(transitJob||!transitContext)return;
- let q;try{q=transitRequest(transitContext.a,transitContext.b,{when:$('transitWhen').value,direction:$('transitDirection').value,walk:$('transitWalk').value});if(Date.now()<transitNextRequest)throw new Error('Patienter quelques secondes avant une nouvelle recherche.')}catch(e){clearTransit(e.message);return}
- clearTransit();const job={controller:new AbortController()},context=transitContext;transitJob=job;transitNextRequest=Date.now()+3000;
- $('transitSearch').disabled=true;$('transitCancel').hidden=false;$('transitStatus').textContent='Recherche des horaires auprès de Mobilités M…';
- const timer=setTimeout(()=>job.controller.abort(),20000);
+ if(transitJob||busy||!transitContext)return;
+ const raw={when:$('transitWhen').value,direction:$('transitDirection').value,walk:$('transitWalk').value},context=transitContext;
+ if(context.signature!==transitInputSignature()){updateTransitContext();return}
+ try{if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée avant la recherche.');transitCriteria(raw);if(Date.now()<transitNextRequest)throw new Error('Patienter quelques secondes avant une nouvelle recherche.')}catch(e){clearTransit(e.message);return}
+ clearTransit();const job={controller:new AbortController(),cancelled:false,resolving:true,compare:$('transitCompare').checked,vehicle:$('routeVehicle').value,settings:{car:comparisonCarSettings(),walk:routingSettings('walk',[])}};
+ transitJob=job;activeAbort=job.controller;lock(true);transitNextRequest=Date.now()+3000;
+ $('transitSearch').disabled=true;$('transitCancel').hidden=false;
+ const current=()=>transitJob===job&&!job.cancelled&&transitContext===context&&context.signature===transitInputSignature();
  try{
-  const response=await fetch(q.url,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
-  if(!response.ok)throw new Error(response.status===429?'Limite du service atteinte. Réessayer plus tard.':'Service de transports indisponible. Réessayer plus tard.');
-  const raw=await response.text();if(raw.length>2e6)throw new Error('Réponse de transports trop volumineuse.');
-  let data;try{data=JSON.parse(raw)}catch{throw new Error('Réponse de transports illisible.')}
-  if(job!==transitJob||context!==transitContext)return;
-  renderTransit(transitResponse(data,q),q);
- }catch(e){if(job===transitJob)$('transitStatus').textContent=e.name==='AbortError'?'Le service n’a pas répondu à temps. Relancer la recherche si nécessaire.':e.message}
- finally{clearTimeout(timer);if(job===transitJob){transitJob=null;$('transitSearch').disabled=false;$('transitCancel').hidden=true}}
+  if(!context.a){
+   $('transitStatus').textContent='Vérification du lieu de départ auprès de l’IGN…';const ga=transitStoredPlace(context.inputs[0],'start')||await resolveTripPlace(context.inputs[0],'start',current);if(!current())return;
+   $('transitStatus').textContent='Vérification du lieu d’arrivée auprès de l’IGN…';const gb=transitStoredPlace(context.inputs[1],'end')||await resolveTripPlace(context.inputs[1],'end',current);if(!current())return;
+   Object.assign(context,{a:[ga.lat,ga.lon],b:[gb.lat,gb.lon],places:{start:ga.label,end:gb.label}});showTransitPlaces();
+  }
+  job.resolving=false;
+  const q=transitRequest(context.a,context.b,raw);let result={routes:[],excluded:0};
+  $('transitStatus').textContent='Recherche des horaires auprès de Mobilités M…';
+  const timer=setTimeout(()=>job.controller.abort(),20000);
+  try{
+   const response=await fetch(q.url,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
+   if(!response.ok)throw new Error(response.status===429?'Limite du service atteinte. Réessayer plus tard.':'Service de transports indisponible. Réessayer plus tard.');
+   const text=await response.text();if(text.length>2e6)throw new Error('Réponse de transports trop volumineuse.');let data;try{data=JSON.parse(text)}catch{throw new Error('Réponse de transports illisible.')}
+   if(!current())return;result=transitResponse(data,q);renderTransit(result,q);
+  }catch(e){if(!current())return;$('transitStatus').textContent=e.name==='AbortError'?'Le service n’a pas répondu à temps. Relancer la recherche si nécessaire.':e.message}
+  finally{clearTimeout(timer)}
+  if(job.compare&&current()&&!job.controller.signal.aborted){$('transitCompareResults').textContent='Comparaison des temps avec les modes routiers…';await compareTransitTimes(job,q,result)}
+ }catch(e){if(current())$('transitStatus').textContent=e.message}
+ finally{if(transitJob===job){transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true}}
 }
 function bindTransit(){
  $('transitBtn').addEventListener('click',openTransit);$('transitSearch').addEventListener('click',searchTransit);
  $('transitCancel').addEventListener('click',()=>clearTransit('Recherche annulée.'));
  $('transitClose').addEventListener('click',()=>{$('transitDialog').close()});
  $('transitDialog').addEventListener('close',()=>{clearTransit();$('transitBtn').focus()});
- for(const id of ['transitWhen','transitDirection','transitWalk'])$(id).addEventListener('input',()=>clearTransit(transitContext&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))?'Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.':'Critères modifiés : relancer la recherche.'));
+ for(const id of ['transitWhen','transitDirection','transitWalk','transitCompare'])$(id).addEventListener('input',()=>clearTransit(transitContext?.a&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))?'Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.':'Critères modifiés : relancer la recherche.'));
  $('transitResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-map]');if(b)drawTransit(Number(b.dataset.transitMap))});
- for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearTransit();transitContext=null;$('transitBtn').hidden=true;if($('transitDialog').open)$('transitDialog').close()});
+ for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearTransit();transitContext=null;$('transitBtn').hidden=false;if($('transitDialog').open)$('transitDialog').close()});
 }
 
 function updateBudget(){
