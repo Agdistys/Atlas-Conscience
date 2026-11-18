@@ -37,9 +37,9 @@ def records(network):
     return rows
 
 
-def generate(qualify=None):
+def generate(qualify=None, qualify_bpnl=None):
     manifest = json.loads((DATA / 'provenance.json').read_text())
-    data = {'schemaVersion': 1, 'effectiveFrom': '2026-02-01', 'lastReviewed': '2026-11-17',
+    data = {'schemaVersion': 2, 'effectiveFrom': '2026-02-01', 'lastReviewed': '2026-11-17',
             'consultationUntil': '2026-12-31', 'networks': {}}
     for network in ['APRR', 'AREA']:
         raw = (DATA / (network + '.csv')).read_bytes()
@@ -64,8 +64,24 @@ def generate(qualify=None):
             print(f'{network}: {len(rows)} pairs and {len(rows)*5} prices match the official PDF')
         gates = sorted({r[i] for r in rows for i in [0, 1]})
         indexes = {name: i for i, name in enumerate(gates)}
-        data['networks'][network] = {'gates': gates, 'source': manifest['networks'][network]['pdfUrl'],
+        data['networks'][network] = {'kind': 'pair', 'effectiveFrom': '2026-02-01', 'consultationUntil': '2026-12-31', 'lastReviewed': '2026-11-17', 'gates': gates, 'source': manifest['networks'][network]['pdfUrl'],
             'rows': [[indexes[r[0]], indexes[r[1]], *r[3:]] for r in rows]}
+    folder = ROOT / 'data/tariffs/2026-01-bpnl'
+    provenance = json.loads((folder / 'provenance.json').read_text())
+    raw = (folder / 'BPNL.json').read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == provenance['dataSha256']
+    bpnl = json.loads(raw)
+    assert len(bpnl['amountsCents']) == 5 and all(type(n) is int and n > 0 for n in bpnl['amountsCents'])
+    if qualify_bpnl:
+        assert hashlib.sha256((qualify_bpnl / 'BPNL-deliberation.pdf').read_bytes()).hexdigest() == bpnl['sourceSha256']
+        page = (qualify_bpnl / 'BPNL-deliberation.txt').read_text().split('\f')[58]
+        assert '2025-3243' in page and 'Fixe, pour l’année 2026, la grille tarifaire de péage du BPNL' in page
+        block = page.split('VII - BPNL')[1].split('pass 14')[0]
+        prices = re.findall(r'classe ([1-5])\s+passage\s+(\d+,\d{2})', block)
+        assert [int(i) for i, v in prices] == list(range(1, 6))
+        assert [cents(v) for i, v in prices] == bpnl['amountsCents']
+        print('BPNL: all 5 full-price amounts match the public decision, page 59')
+    data['networks']['BPNL'] = bpnl
     return START + 'window.DRAGONROUTE_TARIFFS = ' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';\n' + END
 
 
@@ -73,8 +89,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--check', action='store_true')
     parser.add_argument('--qualify', type=Path)
+    parser.add_argument('--qualify-bpnl', type=Path)
     args = parser.parse_args()
-    block = generate(args.qualify)
+    block = generate(args.qualify, args.qualify_bpnl)
     path = ROOT / 'DragonRoute/config.js'
     original = path.read_text()
     prefix = original.split(START)[0]

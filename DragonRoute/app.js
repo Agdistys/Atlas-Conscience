@@ -1431,12 +1431,12 @@ function syncTollGuide(key){
 }
 function gateTariffNames(gate){
  if(!gate.name?.trim()||gate.name.includes('\uFFFD'))return [];
- return Object.entries(tariffData?.networks||{}).flatMap(([network,data])=>data.gates.flatMap((name,index)=>tollName(name)===tollName(gate.name)?[{network,index,name}]:[]));
+ return Object.entries(tariffData?.networks||{}).flatMap(([network,data])=>(data.kind==='passage'?[]:data.gates).flatMap((name,index)=>tollName(name)===tollName(gate.name)?[{network,index,name}]:[]));
 }
 function renderTollGuide(){
  $("tollGateList").innerHTML=tollGuide.matches.map((gate,i)=>{
   const names=gateTariffNames(gate),match=names.length===1?names[0]:null;
-  return `<article class="toll-gate-card" id="toll-card-${gate.id}" tabindex="-1"><h4>P${i+1} · ${escapeHtml(tollGateLabel(gate))}</h4><p>${escapeHtml(gate.type)} · ${gate.positions.length} position(s) recensée(s). À ${Math.round(gate.distance*1000)} m du tracé ; vers le km ${fmt(gate.progress,1)} de sa géométrie.</p><p class="note">Passage à confirmer.${match?` Nom concordant dans la grille ${match.network} : ${escapeHtml(match.name)}.`:names.length?' Plusieurs noms tarifaires concordants : choisir manuellement le réseau et les gares.':' Aucun nom concordant dans les grilles APRR/AREA embarquées. Tarif non déduit.'}</p><div class="dialog-actions"><button class="ghost" data-toll-map="${gate.id}">Voir le point P${i+1}</button>${match?`<button class="ghost" data-toll-propose="${gate.id}" data-gate-role="entry">Proposer comme entrée ${match.network}</button><button class="ghost" data-toll-propose="${gate.id}" data-gate-role="exit">Proposer comme sortie ${match.network}</button>`:''}</div></article>`;
+  return `<article class="toll-gate-card" id="toll-card-${gate.id}" tabindex="-1"><h4>P${i+1} · ${escapeHtml(tollGateLabel(gate))}</h4><p>${escapeHtml(gate.type)} · ${gate.positions.length} position(s) recensée(s). À ${Math.round(gate.distance*1000)} m du tracé ; vers le km ${fmt(gate.progress,1)} de sa géométrie.</p><p class="note">Passage à confirmer.${match?` Nom concordant dans la grille ${match.network} : ${escapeHtml(match.name)}.`:names.length?' Plusieurs noms tarifaires concordants : choisir manuellement le réseau et les gares.':' Aucun nom concordant dans les grilles entrée–sortie embarquées. Tarif non déduit.'}</p><div class="dialog-actions"><button class="ghost" data-toll-map="${gate.id}">Voir le point P${i+1}</button>${match?`<button class="ghost" data-toll-propose="${gate.id}" data-gate-role="entry">Proposer comme entrée ${match.network}</button><button class="ghost" data-toll-propose="${gate.id}" data-gate-role="exit">Proposer comme sortie ${match.network}</button>`:''}</div></article>`;
  }).join('');
 }
 function locateTollGates(){
@@ -1483,11 +1483,14 @@ function proposeTollGate(id,role){
 }
 
 function localDate(){const d=new Date(Date.now()-new Date().getTimezoneOffset()*60000);return d.toISOString().slice(0,10)}
-function tariffDateValid(){
- const d=$("tariffDate").value;
- return tariffData?.schemaVersion===1&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&d>=tariffData.effectiveFrom&&d<=tariffData.consultationUntil&&localDate()<=tariffData.consultationUntil;
+function tariffDateValid(network=tariffNetwork(),d=$("tariffDate").value){
+ return tariffData?.schemaVersion===2&&!!network&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d+'T12:00:00Z'))&&new Date(d+'T12:00:00Z').toISOString().slice(0,10)===d&&d>=network.effectiveFrom&&d<=network.consultationUntil&&localDate()<=network.consultationUntil;
 }
 function tariffNetwork(){return tariffData?.networks[$("tariffNetwork").value]}
+function tariffBudgetValid(){return tableTolls.segments.every(s=>tariffDateValid(tariffData?.networks[s.network],s.date))}
+function tariffDuplicate(c){return c&&tableTolls.segments.some(s=>s.network===c.network&&(c.kind==='passage'||s.entry===c.entry&&s.exit===c.exit))}
+function tariffSegmentLabel(s){const n=tariffData.networks[s.network];return s.kind==='passage'?`${n.label} · un passage payant`:`${s.network} · ${n.gates[s.entry]} → ${n.gates[s.exit]}`}
+function tariffDisplayDate(d){return String(d).split('-').reverse().join('/')}
 function tariffIndex(){
  const name=$("tariffNetwork").value;
  if(!tableTolls.index.has(name)){
@@ -1501,43 +1504,52 @@ function tariffOptions(select,ids,placeholder){
 }
 function tariffGates(resetEntry=false){
  const network=tariffNetwork();
+ if(resetEntry){tollGuide.suggested=false;$("tariffGateConfirmed").checked=false;$("tariffPassageConfirmed").checked=false}
  if(resetEntry)tariffOptions($("tariffEntry"),[...new Set((network?.rows||[]).map(r=>r[0]))].sort((a,b)=>a-b),'Choisir une entrée');
  const entry=$("tariffEntry").value;
  tariffOptions($("tariffExit"),entry===''?[]:(network?.rows||[]).filter(r=>String(r[0])===entry).map(r=>r[1]).sort((a,b)=>a-b),'Choisir une sortie');
  updateBudget();
 }
 function tariffCandidate(){
- const entry=$("tariffEntry").value,exit=$("tariffExit").value,vehicleClass=$("tariffClass").value;
- if(!tariffDateValid()||entry===''||exit===''||! /^[1-5]$/.test(vehicleClass))return null;
- const amount=tariffIndex().get(`${entry}:${exit}`)?.[Number(vehicleClass)-1];
+ const n=tariffNetwork(),entry=$("tariffEntry").value,exit=$("tariffExit").value,vehicleClass=$("tariffClass").value;
+ if(!tariffDateValid()||! /^[1-5]$/.test(vehicleClass))return null;
+ if(n.kind!=='passage'&&(entry===''||exit===''))return null;
+ const amount=n.kind==='passage'?n.amountsCents?.[Number(vehicleClass)-1]:tariffIndex().get(`${entry}:${exit}`)?.[Number(vehicleClass)-1];
  if(!Number.isSafeInteger(amount)||amount<0)return null;
- return {network:$("tariffNetwork").value,entry:Number(entry),exit:Number(exit),vehicleClass,amount,date:$("tariffDate").value};
+ return {network:$("tariffNetwork").value,kind:n.kind,entry:n.kind==='passage'?null:Number(entry),exit:n.kind==='passage'?null:Number(exit),vehicleClass,amount,date:$("tariffDate").value};
 }
 function clearTableTolls(message=''){
- tableTolls.segments=[];tableTolls.notice=message;$("tariffComplete").checked=false;
+ tableTolls.segments=[];tableTolls.notice=message;$("tariffPassageConfirmed").checked=false;$("tariffComplete").checked=false;
 }
 function syncTableTolls(){
  if(!tableTolls.dateInitialized){$("tariffDate").value=localDate();tableTolls.dateInitialized=true}
  const route=selectedStop?.via||trip?.base;
  const key=trip?JSON.stringify([trip.calculatedAt,trip.routing,route.geometry.coordinates,route.distance,selectedStop?.station.id]):'';
- if(key!==tableTolls.key){if(tableTolls.segments.length)clearTableTolls('Trajet modifié : les tronçons ont été retirés du budget.');tableTolls.key=key}
+ if(key!==tableTolls.key){$("tariffPassageConfirmed").checked=false;if(tableTolls.segments.length)clearTableTolls('Trajet modifié : les tronçons ont été retirés du budget.');tableTolls.key=key}
  syncTollGuide(key);
- if(!tariffDateValid()&&tableTolls.segments.length)clearTableTolls('Grille hors période de consultation : budget retiré.');
+ if(!tariffBudgetValid()&&tableTolls.segments.length)clearTableTolls('Grille hors période de consultation : budget retiré.');
  $("tariffFields").disabled=busy||!trip||trip.routing.vehicle.type==="walk"||!tariffData;
  $("tariffExit").disabled=$("tariffEntry").value==='';
- const c=tariffCandidate(),duplicate=c&&tableTolls.segments.some(s=>s.network===c.network&&s.entry===c.entry&&s.exit===c.exit);
- $("tariffResult").textContent=!tariffData?'Grilles indisponibles.':!tariffDateValid()?'Grille non proposée pour cette date. Une mise à jour des tarifs est nécessaire.':c?`${fmt(c.amount/100)} € TTC · classe ${c.vehicleClass} · ${c.network} · tronçon choisi`:'Choisir une classe, une entrée et une sortie.';
- $("tariffAdd").disabled=busy||!trip||trip.routing.vehicle.type==="walk"||!c||duplicate||tableTolls.segments.length>=10||(tollGuide.suggested&&!$("tariffGateConfirmed").checked);
- $("tariffAdd").textContent=duplicate?'Tronçon déjà ajouté':'Ajouter ce tronçon au budget';
- $("tariffSource").textContent=tariffData?`Grille en vigueur au 01/02/2026, consultée le 17/11/2026. Consultation proposée jusqu’au 31/12/2026 ; ce seuil ne garantit pas le maintien des prix. Vérifier la grille officielle avant le départ.`:'';
+ const n=tariffNetwork(),passage=n?.kind==='passage';
+ $("tariffPairFields").hidden=passage;$("tariffPassageFields").hidden=!passage;
+ $("tariffDate").min=n?.effectiveFrom||'';$("tariffDate").max=n?.consultationUntil||'';
+ const c=tariffCandidate(),duplicate=tariffDuplicate(c);
+ $("tariffResult").textContent=!tariffData?'Grilles indisponibles.':!tariffDateValid()?'Grille non proposée pour cette date. Une mise à jour des tarifs est nécessaire.':c?`${fmt(c.amount/100)} € TTC · classe ${c.vehicleClass} · ${c.network} · ${passage?'un passage payant':'tronçon choisi'}`:passage?(/^[1-5]$/.test($("tariffClass").value)?'Tarif indisponible pour cette classe.':'Choisir une classe tarifaire.'):'Choisir une classe, une entrée et une sortie.';
+ $("tariffAdd").disabled=busy||!trip||trip.routing.vehicle.type==="walk"||!c||duplicate||tableTolls.segments.length>=10||(tollGuide.suggested&&!$("tariffGateConfirmed").checked)||(passage&&!$("tariffPassageConfirmed").checked);
+ $("tariffAdd").textContent=duplicate?'Déjà ajouté au budget':passage?'Ajouter ce passage au budget':'Ajouter ce tronçon au budget';
+ $("tariffSource").textContent=n?`Tarifs au ${tariffDisplayDate(n.effectiveFrom)}, consultés le ${tariffDisplayDate(n.lastReviewed)}. Consultation proposée jusqu’au ${tariffDisplayDate(n.consultationUntil)} ; vérifier la source avant le départ. ${passage?'Un passage ne constitue pas un aller-retour.':'Ce seuil ne garantit pas le maintien des prix.'}`:'';
+ $("tariffAttribution").replaceChildren();
+ if(passage)$("tariffAttribution").textContent=n.sourceTitle+'. Plein tarif par passage.';
+ else{for(const [label,url] of [['Données : Pierlou Ramade','https://www.data.gouv.fr/datasets/tarifs-autoroutes-aprr'],['Licence Ouverte 2.0','https://www.etalab.gouv.fr/licence-ouverte-open-licence/']]){const a=document.createElement('a');a.textContent=label;a.href=url;a.target='_blank';a.rel='noopener noreferrer';$("tariffAttribution").append(a,document.createTextNode(' · '))}$("tariffAttribution").append(document.createTextNode('Noms corrigés d’après les PDF APRR/AREA.'))}
  $("tariffPdf").href=tariffNetwork()?.source||'https://voyage.aprr.fr/tarifs-de-peage';
  $("tariffComplete").disabled=busy||!tableTolls.segments.length;
  $("tariffClear").hidden=!tableTolls.segments.length;$("tariffClear").disabled=busy;
  $("tariffSegments").replaceChildren();
  tableTolls.segments.forEach((s,i)=>{
   const n=tariffData.networks[s.network],li=document.createElement('li'),text=document.createElement('span'),button=document.createElement('button');
-  text.textContent=`${s.network} · ${n.gates[s.entry]} → ${n.gates[s.exit]} · classe ${s.vehicleClass} · ${fmt(s.amount/100)} € TTC`;
-  button.type='button';button.className='ghost';button.textContent='Retirer';button.disabled=busy;button.setAttribute('aria-label',`Retirer ${n.gates[s.entry]} vers ${n.gates[s.exit]}`);
+  text.textContent=`${tariffSegmentLabel(s)} · classe ${s.vehicleClass} · ${fmt(s.amount/100)} € TTC · trajet ${tariffDisplayDate(s.date)} · tarif au ${tariffDisplayDate(n.effectiveFrom)}. `;
+  const source=document.createElement('a');source.textContent='Source officielle';source.href=n.source;source.target='_blank';source.rel='noopener noreferrer';text.append(source);
+  button.type='button';button.className='ghost';button.textContent='Retirer';button.disabled=busy;button.setAttribute('aria-label',`Retirer ${tariffSegmentLabel(s)}`);
   button.addEventListener('click',()=>{tableTolls.segments.splice(i,1);$("tariffComplete").checked=false;tableTolls.notice='Tronçon retiré. La couverture du trajet doit être confirmée à nouveau.';updateBudget()});
   li.append(text,button);$("tariffSegments").append(li);
  });
@@ -1641,7 +1653,7 @@ function rideBudgetSnapshot(){
  const route=selectedStop?.via||trip.base,cons=Number($('cons').value),price=Number($('budgetPrice').value);
  const fuelEuro=$('cons').validity.valid&&cons>=1&&cons<=100&&$('budgetPrice').value.trim()&&$('budgetPrice').validity.valid&&price>0&&price<=10?route.distance/1000*cons/100*price:null;
  let tollEuro=null,tollStateName='unknown',tollSource='Péages indisponibles';
- if(tableTolls.segments.length){tollEuro=tableTolls.segments.reduce((n,s)=>n+s.amount,0)/100;tollStateName=$('tariffComplete').checked?'complete':'partial';tollSource='Grilles APRR/AREA · '+(tollStateName==='complete'?'couverture déclarée par la personne':'tronçons partiels seulement')}
+ if(tableTolls.segments.length){tollEuro=tableTolls.segments.reduce((n,s)=>n+s.amount,0)/100;tollStateName=$('tariffComplete').checked?'complete':'partial';tollSource='Tarifs '+[...new Set(tableTolls.segments.map(s=>s.network))].join(' / ')+' · '+(tollStateName==='complete'?'couverture déclarée par la personne':'tronçons partiels seulement')}
  else if(tollState.quote){const q=tollState.quote;if(['estimated','no_tolls'].includes(q.status)){tollEuro=q.amountEur;tollStateName='complete'}else if(q.status==='partial'){tollEuro=q.knownSubtotalEur;tollStateName='partial'}tollSource=q.provider+' · '+(q.status==='no_tolls'?'absence de péage confirmée par le service':'estimation du service')}
  const planned=departureInstant($('stationDeparture').value);
  if(tableTolls.segments.length&&$('tariffDate').value!==$('stationDeparture').value.slice(0,10)){tollEuro=null;tollStateName='unknown';tollSource='Date des tronçons différente du départ prévu : actualiser le budget des péages'}
@@ -2309,15 +2321,16 @@ function bind(){
   $("tariffNetwork").addEventListener('change',()=>tariffGates(true));
   $("tariffEntry").addEventListener('change',()=>tariffGates());
   $("tariffExit").addEventListener('change',updateBudget);
-  for(const id of ['tariffClass','tariffDate'])$(id).addEventListener('input',()=>{if(tableTolls.segments.length)clearTableTolls('Classe ou date modifiée : sélectionner à nouveau les tronçons.');updateBudget()});
+  $("tariffPassageConfirmed").addEventListener('change',updateBudget);
+  for(const id of ['tariffClass','tariffDate'])$(id).addEventListener('input',()=>{$("tariffPassageConfirmed").checked=false;if(tableTolls.segments.length)clearTableTolls('Classe ou date modifiée : sélectionner à nouveau les tronçons.');updateBudget()});
   $("tariffComplete").addEventListener('change',updateBudget);
   $("tariffClear").addEventListener('click',()=>{clearTableTolls('Tronçons retirés.');updateBudget()});
   $("tariffAdd").addEventListener('click',()=>{
-   const c=tariffCandidate();if(busy||!trip||!c||(tollGuide.suggested&&!$("tariffGateConfirmed").checked)||tableTolls.segments.length>=10||tableTolls.segments.some(s=>s.network===c.network&&s.entry===c.entry&&s.exit===c.exit))return;
+   const c=tariffCandidate();if(busy||!trip||trip.routing.vehicle.type==='walk'||!c||(c.kind==='passage'&&!$("tariffPassageConfirmed").checked)||(tollGuide.suggested&&!$("tariffGateConfirmed").checked)||tableTolls.segments.length>=10||tariffDuplicate(c))return;
    resetTollQuote();tollState.enabled=false;tableTolls.segments.push(c);$("tariffComplete").checked=false;tableTolls.notice='Tronçon ajouté au budget. Jusqu’à dix tronçons, sans doublon identique. Vérifier les éventuels chevauchements.';updateBudget();
   });
   tariffGates(true);
-  setInterval(()=>{if(tableTolls.segments.length&&!tariffDateValid())updateBudget()},60000);
+  setInterval(()=>{if(tableTolls.segments.length&&!tariffBudgetValid())updateBudget()},60000);
   $("navigationBtn").addEventListener("click",openNavigation);
   $("exportGpxBtn").addEventListener("click",exportGpx);
   $("navigationDialog").addEventListener("close",()=>{if(!$("navigationDialog").open)for(const id of ["googleMapsLink","wazeStationLink","wazeArrivalLink"])$(id).removeAttribute("href")});

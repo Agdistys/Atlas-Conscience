@@ -11,7 +11,7 @@ test('tariff tables reproduce the attributed and corrected CSV sources',()=>{
  assert.equal(r.status,0,r.stderr||r.stdout);
 });
 test('all tariff pairs are directional, unique and expressed in integer cents',()=>{
- for(const [name,n] of Object.entries(data.networks)){
+ for(const name of ['APRR','AREA']){const n=data.networks[name];
   assert.equal(n.rows.length,name==='APRR'?21505:955);const seen=new Set();
   for(const r of n.rows){
    assert.equal(r.length,7);assert.ok(n.gates[r[0]]&&n.gates[r[1]]);assert.notEqual(r[0],r[1]);
@@ -26,4 +26,15 @@ test('official AREA example and corrected long APRR gate names are preserved',()
  assert.ok(!data.networks.APRR.gates.includes('CH.RENAULT AMBERIEU'));
  assert.ok(a.gates.includes('CRUSEILLES A 410'));assert.ok(a.gates.includes('Système Ouvert'));
  assert.equal(data.effectiveFrom,'2026-02-01');assert.equal(data.consultationUntil,'2026-12-31');
+});
+
+test('BPNL: public decision amounts, independent period, no invented station pairs',()=>{
+ const n=data.networks.BPNL;
+ assert.equal(data.schemaVersion,2);assert.equal(n.kind,'passage');
+ assert.deepEqual(Array.from(n.amountsCents),[260,390,460,1030,130]);
+ assert.equal(n.effectiveFrom,'2026-01-01');assert.equal(n.consultationUntil,'2026-12-31');
+ assert.equal(n.rows,undefined);assert.equal(n.gates,undefined);
+ assert.equal(n.sourcePage,59);assert.match(n.sourceTitle,/2025-3243/);
+ assert.equal(data.networks.AREA.effectiveFrom,'2026-02-01');
+ assert.equal(data.networks.APRR.lastReviewed,'2026-11-17');
 });
