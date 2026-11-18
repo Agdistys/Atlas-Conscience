@@ -485,7 +485,7 @@ function hoursRows(raw){
     return days.slice(0,7).map(day=>{
       const slots=Array.isArray(day.horaire)?day.horaire:day.horaire?[day.horaire]:[];
       const time=value=>typeof value==="string"&&/^(?:[01]?\d|2[0-3])[:h.][0-5]\d$|^24[:h.]00$/.test(value)?value.replace(/[h.]/,":"):null;
-      const ranges=slots.map(slot=>[time(slot["@ouverture"]),time(slot["@fermeture"])]).filter(pair=>pair.every(Boolean)).map(pair=>pair.join(" – "));
+      const ranges=slots.map(slot=>[time(slot["@ouverture"]),time(slot["@fermeture"])]).filter(pair=>pair.every(Boolean)).map(pair=>pair.join(" – ")+(pair[0]===pair[1]?" (durée ambiguë — non interprétée)":""));
       return `${typeof day["@nom"]==="string"?day["@nom"]:"Jour"} : ${day["@ferme"]==="1"?"fermé":ranges.length?ranges.join(", "):"non renseigné"}`;
     });
   }catch{return []}
