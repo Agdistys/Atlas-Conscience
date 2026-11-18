@@ -224,7 +224,7 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'goBtn']) {
+  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'travelMode', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'goBtn']) {
     await page.keyboard.press('Tab');
     await expect(page.locator('#' + id)).toBeFocused();
     const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);

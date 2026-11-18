@@ -7,13 +7,14 @@ fs.mkdirSync('quality', { recursive: true });
 fs.rmSync('quality/browser-results.json', { force: true });
 const stages = {};
 fs.writeFileSync('quality/stages.json', '{}');
-function run(name, command, args) {
-  const result = spawnSync(command, args, { stdio: 'inherit', timeout: 600_000 });
+function run(name, command, args, timeout = 600_000) {
+  const result = spawnSync(command, args, { stdio: 'inherit', timeout });
   stages[name] = { exitCode: result.status ?? 1, error: result.error?.message || null };
   fs.writeFileSync('quality/stages.json', JSON.stringify(stages, null, 2));
 }
 run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
 run('report-tests', 'npm', ['run', 'test:inspection']);
-run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test']);
+// Four screen formats now cover more than 500 scenarios; retain a bounded run.
+run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 720_000);
 process.exitCode = writeReport(process.cwd(), { publishSummary: false }).state === 'inspection' ? 0 : 1;
