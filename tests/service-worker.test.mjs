@@ -12,13 +12,13 @@ test('cache upgrade preserves other applications and the current shell', async (
     self: { addEventListener: (name, callback) => { listeners[name] = callback; },
       clients: { claim: async () => { claimed = true; } } },
     caches: {
-      keys: async () => ['dragonroute-v3-shell-4', 'dragonroute-v3-shell-5', 'dragonroute-v3-shell-6', 'dragonroute-v3-shell-7', 'dragonroute-v3-shell-8', 'dragonroute-v3-shell-9', 'dragonroute-v3-shell-10', 'dragonroute-v3-shell-11', 'dragonroute-v3-shell-12', 'dragonroute-v3-shell-13', 'dragonroute-v3-shell-14', 'dragonroute-v3-shell-15', 'dragonroute-v3-shell-16', 'dragonroute-v3-shell-17', 'dragonroute-v3-shell-18', 'dragonroute-v3-shell-19', 'dragonroute-v3-shell-20', 'dragonroute-v3-shell-21', 'dragonroute-v3-shell-22', 'dragonroute-v3-shell-23', 'dragonroute-v3-shell-24', 'agora-v1', 'autre-cache'],
+      keys: async () => ['dragonroute-v3-shell-4', 'dragonroute-v3-shell-5', 'dragonroute-v3-shell-6', 'dragonroute-v3-shell-7', 'dragonroute-v3-shell-8', 'dragonroute-v3-shell-9', 'dragonroute-v3-shell-10', 'dragonroute-v3-shell-11', 'dragonroute-v3-shell-12', 'dragonroute-v3-shell-13', 'dragonroute-v3-shell-14', 'dragonroute-v3-shell-15', 'dragonroute-v3-shell-16', 'dragonroute-v3-shell-17', 'dragonroute-v3-shell-18', 'dragonroute-v3-shell-19', 'dragonroute-v3-shell-20', 'dragonroute-v3-shell-21', 'dragonroute-v3-shell-22', 'dragonroute-v3-shell-23', 'dragonroute-v3-shell-24', 'dragonroute-v3-shell-25', 'agora-v1', 'autre-cache'],
       delete: async name => { removed.push(name); return true; }
     }
   });
   let activation;
   listeners.activate({ waitUntil: promise => { activation = promise; } });
   await activation;
-  assert.deepEqual(removed, ['dragonroute-v3-shell-4', 'dragonroute-v3-shell-5', 'dragonroute-v3-shell-6', 'dragonroute-v3-shell-7', 'dragonroute-v3-shell-8', 'dragonroute-v3-shell-9', 'dragonroute-v3-shell-10', 'dragonroute-v3-shell-11', 'dragonroute-v3-shell-12', 'dragonroute-v3-shell-13', 'dragonroute-v3-shell-14', 'dragonroute-v3-shell-15', 'dragonroute-v3-shell-16', 'dragonroute-v3-shell-17', 'dragonroute-v3-shell-18', 'dragonroute-v3-shell-19', 'dragonroute-v3-shell-20', 'dragonroute-v3-shell-21', 'dragonroute-v3-shell-22', 'dragonroute-v3-shell-23']);
+  assert.deepEqual(removed, ['dragonroute-v3-shell-4', 'dragonroute-v3-shell-5', 'dragonroute-v3-shell-6', 'dragonroute-v3-shell-7', 'dragonroute-v3-shell-8', 'dragonroute-v3-shell-9', 'dragonroute-v3-shell-10', 'dragonroute-v3-shell-11', 'dragonroute-v3-shell-12', 'dragonroute-v3-shell-13', 'dragonroute-v3-shell-14', 'dragonroute-v3-shell-15', 'dragonroute-v3-shell-16', 'dragonroute-v3-shell-17', 'dragonroute-v3-shell-18', 'dragonroute-v3-shell-19', 'dragonroute-v3-shell-20', 'dragonroute-v3-shell-21', 'dragonroute-v3-shell-22', 'dragonroute-v3-shell-23', 'dragonroute-v3-shell-24']);
   assert.equal(claimed, true);
 });
