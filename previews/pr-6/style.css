@@ -76,4 +76,4 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 
 .app-notice{border-left:3px solid var(--gold);background:var(--panel);padding:12px;font-size:13px;line-height:1.5;overflow-wrap:anywhere;margin:0 0 16px}#checkUpdateBtn{min-height:44px}#appAvailability{margin-top:18px}
 
-.meeting-marker{display:grid;place-items:center;background:#5030a0;color:white;border:3px solid white;border-radius:50%;font-weight:800;box-shadow:0 1px 6px #111}.meeting-marker:focus{outline:3px solid #111;outline-offset:2px}#meetingOrder{overflow-wrap:anywhere}#meetingSummary button{margin:4px}
+.leaflet-marker-icon.meeting-marker{display:grid;place-items:center;font-size:15px;line-height:1;box-sizing:border-box;background:#5030a0;color:white;border:3px solid white;border-radius:50%;font-weight:800;box-shadow:0 1px 6px #111}.meeting-marker:focus{outline:3px solid #111;outline-offset:2px}#meetingOrder{overflow-wrap:anywhere}#meetingSummary button{margin:4px}
