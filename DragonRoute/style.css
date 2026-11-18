@@ -84,3 +84,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 .carbon-portions{padding-left:1.4rem}.carbon-portions li{margin:1rem 0;padding-left:.3rem}.carbon-portions p{margin:.4rem 0}#routeCarbonSegments{min-width:0;margin-top:1rem}#routeCarbonSegments input{margin-bottom:.8rem}
 
 .price-freshness{font-size:.86rem;line-height:1.5;border-left:3px solid var(--muted,#aaa);padding-left:.65rem}.price-freshness[data-freshness="warning"],.price-freshness[data-freshness="old"],.price-freshness[data-freshness="unknown"]{border-color:#e4bb62;color:#f2d99d}
+
+#transitDialog{width:min(800px,calc(100% - 24px))}.transit-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.transit-legs{padding-left:22px;overflow-wrap:anywhere}.transit-legs li{margin:14px 0;line-height:1.6}#transitMap{height:300px;border-radius:8px}#transitSketch{width:100%;height:300px;background:#172230}#transitStatus{line-height:1.6}#transitMapWrap .leaflet-tooltip{color:#172230}#transitDialog .dialog-heading{z-index:1100}@media(max-width:560px){.transit-fields{grid-template-columns:1fr}#transitMap,#transitSketch{height:240px}}

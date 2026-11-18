@@ -2268,7 +2268,143 @@ function bindComparison(){
  for(const event of ['input','change'])$('sheet').addEventListener(event,e=>{if(fields.includes(e.target.id)||e.target.matches('.avoid-options input,#truckDimensions input'))comparisonChanged()});
 }
 
+// BEGIN TRANSIT MODEL
+const TRANSIT_ENDPOINT='https://data.mobilites-m.fr/api/routers/default/plan';
+const TRANSIT_MODES={WALK:'Marche',BUS:'Bus',TRAM:'Tram',RAIL:'Train',SUBWAY:'Métro',FUNICULAR:'Funiculaire',CABLE_CAR:'Téléphérique',GONDOLA:'Télécabine'};
+function transitNumber(n,min,max){if(typeof n!=='number'||!Number.isFinite(n)||n<min||n>max)throw new Error('Donnée de transport invalide.');return n}
+function transitPoint(p){if(!Array.isArray(p)||p.length!==2)throw new Error('Coordonnées de transport invalides.');return [transitNumber(p[0],44.8,45.6),transitNumber(p[1],5.3,6.2)]}
+function transitNear(a,b,meters=180){const dx=(a[1]-b[1])*78500,dy=(a[0]-b[0])*111200;return Math.hypot(dx,dy)<=meters}
+function transitPilot(p){return Array.isArray(p)&&p.length===2&&Number.isFinite(p[0])&&Number.isFinite(p[1])&&p[0]>=45.10&&p[0]<=45.24&&p[1]>=5.66&&p[1]<=5.81}
+function transitRequest(a,b,raw,now=Date.now()){
+ if(!transitPilot(a)||!transitPilot(b))throw new Error('Départ et arrivée doivent se situer dans le secteur pilote autour de Grenoble. La France entière n’est pas encore couverte.');
+ const when=departureInstant(raw.when);if(when.error)throw new Error(when.error);
+ if(when.instant<now||when.instant>now+30*864e5)throw new Error('Choisir une heure future, dans les 30 prochains jours. La disponibilité dépend du calendrier du réseau.');
+ if(!['depart','arrive'].includes(raw.direction))throw new Error('Choisir un départ ou une arrivée.');
+ if(typeof raw.walk!=='string'||!raw.walk.trim())throw new Error('Renseigner la limite totale de marche.');
+ const walk=transitNumber(Number(raw.walk),100,5000),arrive=raw.direction==='arrive';
+ return {a:[...a],b:[...b],instant:when.instant,now,walk,arrive,when:raw.when,url:TRANSIT_ENDPOINT+'?'+new URLSearchParams({fromPlace:a.join(','),toPlace:b.join(','),date:raw.when.slice(0,10),time:raw.when.slice(11),mode:'TRANSIT,WALK',arriveBy:String(arrive),ignoreRealtimeUpdates:'true',numItineraries:'3',maxWalkDistance:String(walk),locale:'fr'})};
+}
+function transitPolyline(encoded){
+ if(typeof encoded!=='string'||encoded.length<2||encoded.length>100000)throw new Error('Tracé indisponible.');
+ let i=0,lat=0,lon=0;const points=[];
+ const next=()=>{let value=0,shift=0,c;do{if(i>=encoded.length||shift>30)throw new Error('Tracé incomplet.');c=encoded.charCodeAt(i++)-63;if(c<0||c>63)throw new Error('Tracé invalide.');value+=(c&31)*2**shift;shift+=5}while(c>=32);return value%2?-(Math.floor(value/2)+1):value/2};
+ while(i<encoded.length){lat+=next();lon+=next();points.push(transitPoint([lat/1e5,lon/1e5]));if(points.length>12000)throw new Error('Tracé trop volumineux.');}
+ if(points.length<2)throw new Error('Tracé insuffisant.');return points;
+}
+function transitText(value,fallback='Non renseigné'){return typeof value==='string'&&value.trim()?value.trim().slice(0,250):fallback}
+function transitItinerary(item,q){
+ if(!item||!Array.isArray(item.legs)||!item.legs.length||item.legs.length>30)throw new Error('Étapes absentes.');
+ const start=transitNumber(item.startTime,q.instant-864e5,q.instant+864e5),end=transitNumber(item.endTime,start,q.instant+864e5);
+ if(end<=start||end-start>6*36e5||start<q.now||(q.arrive?end>q.instant:start<q.instant))throw new Error('Horaire hors demande.');
+ if(Math.abs(transitNumber(item.duration,1,21600)-(end-start)/1000)>2)throw new Error('Durée incohérente.');
+ let previous=start,previousPoint=q.a,walk=0,walking=0,riding=0,waiting=0,boardings=0;
+ const legs=item.legs.map((leg,index)=>{
+  if(!leg||!Object.hasOwn(TRANSIT_MODES,leg.mode))throw new Error('Mode non qualifié.');
+  const onTransit=leg.mode!=='WALK';
+  if(leg.transitLeg!==onTransit||leg.realTime!==false||leg.cancelled===true||leg.realtimeState==='CANCELED'||leg.interlineWithPreviousLeg)throw new Error('Horaires théoriques ou correspondance non qualifiés.');
+  const s=transitNumber(leg.startTime,previous,end),e=transitNumber(leg.endTime,s,end);
+  if(e<=s||Math.abs(transitNumber(leg.duration,0,21600)-(e-s)/1000)>2)throw new Error('Étapes incohérentes.');
+  const from=transitPoint([leg.from?.lat,leg.from?.lon]),to=transitPoint([leg.to?.lat,leg.to?.lon]);
+  if(!transitNear(from,previousPoint,index?80:180))throw new Error('Rupture entre les étapes.');
+  if(index===0&&s!==start)throw new Error('Début incohérent.');
+  const distance=transitNumber(leg.distance,0,150000),wait=(s-previous)/1000;
+  waiting+=wait;previous=e;previousPoint=to;
+  if(onTransit){if(!leg.from.stopId||!leg.to.stopId||!leg.routeId)throw new Error('Ligne ou arrêts manquants.');boardings++;riding+=(e-s)/1000}else{walk+=distance;walking+=(e-s)/1000}
+  // Geometry failure removes only the drawing; the validated timetable remains usable.
+  let points=null;try{points=transitPolyline(leg.legGeometry?.points);if(!transitNear(points[0],from)||!transitNear(points.at(-1),to))points=null}catch{}
+  return {mode:leg.mode,start:s,end:e,from,to,fromName:index===0&&leg.from.name==='Origin'?'Départ':transitText(leg.from.name,'Départ'),toName:index===item.legs.length-1&&leg.to.name==='Destination'?'Arrivée':transitText(leg.to.name,'Arrivée'),line:transitText(leg.routeShortName,transitText(leg.routeLongName,'Ligne non renseignée')),direction:transitText(leg.headsign),agency:transitText(leg.agencyName),distance,wait,points};
+ });
+ if(previous!==end||!transitNear(previousPoint,q.b)||!boardings||walk>q.walk)throw new Error('Trajet hors des critères du pilote.');
+ return {start,end,duration:(end-start)/1000,walk,walking,riding,waiting,transfers:boardings-1,legs,price:null,accessibility:'unknown',realtime:false};
+}
+function transitResponse(data,q){
+ if(data?.error){const id=Number(data.error.id);throw new Error(id===406?'Date hors du calendrier disponible. Choisir une autre date.':id===404||id===409?'Aucun itinéraire collectif trouvé pour cette demande.':'Le calculateur de transports n’a pas pu traiter cette demande.');}
+ if(!data?.plan||data.plan.date!==q.instant||!Array.isArray(data.plan.itineraries)||data.plan.itineraries.length>50)throw new Error('Réponse de transport non vérifiable : date ou format inattendu.');
+ if(!transitNear(transitPoint([data.plan.from?.lat,data.plan.from?.lon]),q.a)||!transitNear(transitPoint([data.plan.to?.lat,data.plan.to?.lon]),q.b))throw new Error('Réponse associée à d’autres lieux.');
+ const seen=new Set(),routes=[];let excluded=0;
+ for(const item of data.plan.itineraries){try{const route=transitItinerary(item,q),key=JSON.stringify(route.legs.map(l=>[l.mode,l.line,l.start,l.end,l.from,l.to]));if(seen.has(key)){excluded++;continue}seen.add(key);routes.push(route)}catch{excluded++}}
+ routes.sort(q.arrive?(a,b)=>b.start-a.start||a.end-b.end:(a,b)=>a.end-b.end||a.start-b.start);
+ return {routes,excluded};
+}
+// END TRANSIT MODEL
+let transitContext=null,transitJob=null,transitRoutes=[],transitMap=null,transitLayers=null,transitNextRequest=0;
+const transitClock=ms=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(ms);
+const transitMinutes=s=>`${Math.ceil(s/60)} min`;
+function clearTransit(message=''){
+ if(transitJob){transitJob.controller.abort();transitJob=null}
+ transitRoutes=[];$('transitResults').replaceChildren();$('transitStatus').textContent=message;$('transitCancel').hidden=true;$('transitSearch').disabled=false;
+ $('transitMapWrap').hidden=true;if(transitLayers){transitLayers.remove();transitLayers=null}$('transitSketch').replaceChildren();
+}
+function updateTransitContext(){
+ const context=trip?{a:trip.a,b:trip.b,places:trip.places}:null;
+ if(JSON.stringify(context)!==JSON.stringify(transitContext)){clearTransit();transitContext=context;if($('transitDialog').open)$('transitDialog').close()}
+ $('transitBtn').hidden=!context;
+}
+function openTransit(){
+ if(busy||!trip)return;updateTransitContext();clearTransit();
+ $('transitPlaces').textContent=`${transitContext.places.start} → ${transitContext.places.end}. Parcours direct, sans les arrêts du trajet routier.`;
+ $('transitWhen').value=parisLocal(Date.now()+5*60000);$('transitDirection').value='depart';
+ $('transitDialog').showModal();$('transitTitle').focus();
+ if(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))$('transitStatus').textContent='Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.';
+}
+function drawTransit(index){
+ const route=transitRoutes[index];if(!route)return;
+ document.querySelectorAll('[data-transit-map]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.transitMap)===index)));
+ $('transitMapWrap').hidden=false;$('transitMapTitle').textContent=`Option ${index+1} · ${transitClock(route.start)} → ${transitClock(route.end)}`;
+ if(transitLayers){transitLayers.remove();transitLayers=null}$('transitSketch').replaceChildren();
+ const complete=route.legs.every(l=>l.points)&&route.legs.reduce((n,l)=>n+l.points.length,0)<=16000;$('transitMapNote').textContent=complete?'Bleu : transport collectif. Pointillés : marche. Ce parcours est consulté séparément du trajet routier.':'Tracé incomplet : consulter les étapes. Aucune ligne droite ne remplace une géométrie absente.';
+ $('transitMap').hidden=!complete||!window.L;$('transitSketch').hidden=!complete||Boolean(window.L);
+ if(!complete)return;
+ const points=route.legs.flatMap(l=>l.points);
+ if(window.L){
+  try{
+   if(!transitMap){transitMap=L.map('transitMap',{scrollWheelZoom:false});L.tileLayer(C.tileUrl,{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(transitMap);new ResizeObserver(()=>transitMap.invalidateSize()).observe($('transitMap'))}
+   transitLayers=L.featureGroup().addTo(transitMap);
+   for(const leg of route.legs){L.polyline(leg.points,{color:leg.mode==='WALK'?'#6941c6':'#0966d5',weight:6,dashArray:leg.mode==='WALK'?'5 7':undefined}).addTo(transitLayers);for(const [p,name] of [[leg.from,leg.fromName],[leg.to,leg.toName]]){const label=document.createElement('span');label.textContent=name;L.circleMarker(p,{radius:5,color:'#123252',fillColor:'#fff',fillOpacity:1}).bindTooltip(label).addTo(transitLayers)}}
+   transitMap.invalidateSize();transitMap.fitBounds(points,{padding:[20,20]});
+  }catch{$('transitMap').hidden=true;$('transitMapNote').textContent+=' Fond de carte indisponible ; horaires et étapes conservés.'}
+ }else{
+  const ns='http://www.w3.org/2000/svg',svg=$('transitSketch'),ys=points.map(p=>p[0]),xs=points.map(p=>p[1]),minX=Math.min(...xs),minY=Math.min(...ys),dx=Math.max(...xs)-minX||.001,dy=Math.max(...ys)-minY||.001;
+  svg.setAttribute('viewBox','0 0 500 300');
+  for(const leg of route.legs){const p=document.createElementNS(ns,'polyline');p.setAttribute('points',leg.points.map(([lat,lon])=>`${20+(lon-minX)/dx*460},${280-(lat-minY)/dy*260}`).join(' '));p.setAttribute('fill','none');p.setAttribute('stroke',leg.mode==='WALK'?'#d2b8ff':'#80bdff');p.setAttribute('stroke-width','5');if(leg.mode==='WALK')p.setAttribute('stroke-dasharray','5 7');svg.append(p)}
+  $('transitMapNote').textContent+=' Fond de carte indisponible : schéma du tracé, sans échelle.';
+ }
+}
+function renderTransit(result,q){
+ transitRoutes=result.routes;
+ $('transitStatus').textContent=`${result.routes.length} itinéraire(s) collectif(s) compatible(s). ${result.excluded?`${result.excluded} proposition(s) écartée(s) : marche seule, doublon, limite ou données non qualifiées. `:''}Consulté le ${transitClock(Date.now())}.`;
+ if(!result.routes.length){$('transitStatus').textContent+=' Aucun résultat ne satisfait ces critères. Les modifier puis relancer la recherche.';return}
+ $('transitResults').innerHTML=result.routes.map((r,i)=>`<article class="comparison-card" data-transit-option="${i}"><h3>Option ${i+1} · ${transitMinutes(r.duration)}</h3><p><strong>${transitClock(r.start)} → ${transitClock(r.end)}</strong> · heure de Paris</p><p>${r.transfers} correspondance(s) · ${Math.ceil(r.walk)} m de marche (${transitMinutes(r.walking)}) · ${transitMinutes(r.riding)} à bord · ${transitMinutes(r.waiting)} d’attente en chemin</p><p class="note">${q.arrive?`Arrivée ${transitMinutes((q.instant-r.end)/1000)} avant l’heure limite.`:`Départ ${transitMinutes((r.start-q.instant)/1000)} après l’heure demandée ; ${transitMinutes((r.end-q.instant)/1000)} de cette heure à l’arrivée.`}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${escapeHtml(l.line)}`}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)}<br>${escapeHtml(l.agency)}`}</li>`).join('')}</ol><p class="note">Horaires théoriques. Perturbations et retards non vérifiés. Prix total inconnu ; aucune réservation. Accessibilité, bagages et vélo à bord non vérifiés.</p><button type="button" class="ghost" data-transit-map="${i}" aria-pressed="false">Voir le parcours ${i+1}</button></article>`).join('');
+ drawTransit(0);
+}
+async function searchTransit(){
+ if(transitJob||!transitContext)return;
+ let q;try{q=transitRequest(transitContext.a,transitContext.b,{when:$('transitWhen').value,direction:$('transitDirection').value,walk:$('transitWalk').value});if(Date.now()<transitNextRequest)throw new Error('Patienter quelques secondes avant une nouvelle recherche.')}catch(e){clearTransit(e.message);return}
+ clearTransit();const job={controller:new AbortController()},context=transitContext;transitJob=job;transitNextRequest=Date.now()+3000;
+ $('transitSearch').disabled=true;$('transitCancel').hidden=false;$('transitStatus').textContent='Recherche des horaires auprès de Mobilités M…';
+ const timer=setTimeout(()=>job.controller.abort(),20000);
+ try{
+  const response=await fetch(q.url,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
+  if(!response.ok)throw new Error(response.status===429?'Limite du service atteinte. Réessayer plus tard.':'Service de transports indisponible. Réessayer plus tard.');
+  const raw=await response.text();if(raw.length>2e6)throw new Error('Réponse de transports trop volumineuse.');
+  let data;try{data=JSON.parse(raw)}catch{throw new Error('Réponse de transports illisible.')}
+  if(job!==transitJob||context!==transitContext)return;
+  renderTransit(transitResponse(data,q),q);
+ }catch(e){if(job===transitJob)$('transitStatus').textContent=e.name==='AbortError'?'Le service n’a pas répondu à temps. Relancer la recherche si nécessaire.':e.message}
+ finally{clearTimeout(timer);if(job===transitJob){transitJob=null;$('transitSearch').disabled=false;$('transitCancel').hidden=true}}
+}
+function bindTransit(){
+ $('transitBtn').addEventListener('click',openTransit);$('transitSearch').addEventListener('click',searchTransit);
+ $('transitCancel').addEventListener('click',()=>clearTransit('Recherche annulée.'));
+ $('transitClose').addEventListener('click',()=>{$('transitDialog').close()});
+ $('transitDialog').addEventListener('close',()=>{clearTransit();$('transitBtn').focus()});
+ for(const id of ['transitWhen','transitDirection','transitWalk'])$(id).addEventListener('input',()=>clearTransit(transitContext&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))?'Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.':'Critères modifiés : relancer la recherche.'));
+ $('transitResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-map]');if(b)drawTransit(Number(b.dataset.transitMap))});
+ for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearTransit();transitContext=null;$('transitBtn').hidden=true;if($('transitDialog').open)$('transitDialog').close()});
+}
+
 function updateBudget(){
+  updateTransitContext();
   expireStationBudget();
   updateTripTiming();updateRouteCarbon();updateMeetings();
   $("compareBtn").hidden=!trip;
@@ -2397,6 +2533,7 @@ function clearStations(){
   updateTripMetrics();updateBudget();
 }
 function clearResults(){
+  clearTransit();transitContext=null;if($("transitDialog").open)$("transitDialog").close();
   clearComparison();
   clearNavigation();
   trip=null;meetingProposal=null;mapView=null;clearStations();
@@ -2794,7 +2931,7 @@ function bind(){
   }
 }
 
-loadPreparedTrips();makeGrid();bind();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindProspective();applyVehicle();updateRange();initPwa();
+loadPreparedTrips();makeGrid();bind();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");

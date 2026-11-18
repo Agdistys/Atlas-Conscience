@@ -87,6 +87,7 @@
         <p id="appliedRouting" class="note" hidden></p>
         <p id="resolvedPlaces" class="note" hidden></p>
         <button id="compareBtn" class="ghost navigation-button" type="button" aria-expanded="false" aria-controls="comparisonPanel" hidden>Comparer voiture et marche</button>
+        <button id="transitBtn" class="ghost navigation-button" type="button" aria-haspopup="dialog" hidden>Transports collectifs · pilote Grenoble</button>
         <button id="navigationBtn" class="ghost navigation-button" type="button" hidden>Navigation et tracé GPS</button>
         <button id="savePreparationBtn" class="ghost navigation-button" type="button" hidden>Enregistrer cette préparation</button>
         <button id="journalRecordBtn" class="ghost navigation-button" type="button" hidden>J’ai effectué ce trajet</button>
@@ -438,6 +439,19 @@
   <details id="profileImportAddressesDetails"><summary>Adresses contenues dans le fichier</summary><ul id="profileImportNames"></ul></details>
   <p id="profileImportMessage" class="note" role="status"></p>
   <div class="dialog-actions"><button id="exportBeforeImport" class="ghost" type="button">Exporter le profil actuel</button><button id="confirmProfileImport" class="primary" type="button">Remplacer mon profil</button></div>
+</dialog>
+<dialog id="transitDialog" aria-labelledby="transitTitle">
+  <div class="dialog-heading"><h2 id="transitTitle" tabindex="-1">Transports collectifs</h2><button id="transitClose" class="icon-btn" type="button" aria-label="Fermer les transports collectifs">×</button></div>
+  <p class="selection">Pilote : secteur autour de Grenoble. Horaires théoriques uniquement.</p>
+  <p id="transitPlaces"></p>
+  <p class="note">La recherche transmet les coordonnées de départ et d’arrivée, l’horaire et la limite de marche à Mobilités M. Aucun compte ni clé à fournir. Le trajet routier et son budget restent disponibles à la fermeture.</p>
+  <div class="transit-fields"><div><label for="transitDirection">Horaire demandé</label><select id="transitDirection"><option value="depart">Partir à partir de</option><option value="arrive">Arriver au plus tard à</option></select></div><div><label for="transitWhen">Date et heure de Paris</label><input id="transitWhen" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59"></div><div><label for="transitWalk">Marche totale maximale (m)</label><input id="transitWalk" type="number" min="100" max="5000" step="100" value="1500"></div></div>
+  <p class="note">Recherche dans les 30 prochains jours, selon le calendrier disponible. Le calcul inclut accès à pied, lignes, correspondances et arrivée à pied. Aucune garantie d’accessibilité ; les besoins fauteuil roulant, bagages ou vélo restent à vérifier auprès du réseau.</p>
+  <div class="dialog-actions"><button id="transitSearch" class="primary" type="button">Chercher les transports collectifs</button><button id="transitCancel" class="ghost" type="button" hidden>Annuler la recherche</button></div>
+  <p id="transitStatus" role="status" aria-live="polite"></p>
+  <section id="transitMapWrap" hidden aria-labelledby="transitMapTitle"><h3 id="transitMapTitle"></h3><div id="transitMap" aria-label="Carte du parcours collectif"></div><svg id="transitSketch" role="img" aria-label="Schéma du parcours collectif, sans fond de carte" hidden></svg><p id="transitMapNote" class="note"></p></section>
+  <div id="transitResults"></div>
+  <p class="note">Source : <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG</a> · OpenTripPlanner · <a href="https://www.mobilites-m.fr/pdf/ODbL_fr_VF_1.pdf" target="_blank" rel="noopener noreferrer">données sous licence ODbL</a>. Date de mise à jour du calendrier non fournie par la réponse ; consultation datée ci-dessus. <a href="https://www.mobilites-m.fr/" target="_blank" rel="noopener noreferrer">Vérifier tarifs, accessibilité et perturbations auprès du réseau</a>.</p>
 </dialog>
 <script src="./config.js"></script><script src="./app.js" defer></script>
 </body>

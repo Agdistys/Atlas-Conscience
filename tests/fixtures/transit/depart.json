@@ -1,0 +1,452 @@
+{
+  "requestParameters": {
+    "date": "2026-11-19",
+    "mode": "TRANSIT,WALK",
+    "arriveBy": "false",
+    "fromPlace": "45.191112,5.714527",
+    "toPlace": "45.1572,5.731",
+    "time": "10:00",
+    "maxWalkDistance": "1500",
+    "locale": "fr",
+    "numItineraries": "3"
+  },
+  "plan": {
+    "date": 1795078800000,
+    "from": {
+      "name": "Origin",
+      "lon": 5.714527,
+      "lat": 45.191112,
+      "vertexType": "NORMAL"
+    },
+    "to": {
+      "name": "Destination",
+      "lon": 5.731,
+      "lat": 45.1572,
+      "vertexType": "NORMAL"
+    },
+    "itineraries": [
+      {
+        "duration": 3686,
+        "startTime": 1795078800000,
+        "endTime": 1795082486000,
+        "walkTime": 3686,
+        "transitTime": 0,
+        "waitingTime": 0,
+        "walkDistance": 4510.74,
+        "walkLimitExceeded": false,
+        "generalizedCost": 7104,
+        "elevationLost": 10.05,
+        "elevationGained": 29.01,
+        "transfers": 0,
+        "fare": {
+          "fare": {},
+          "details": {}
+        },
+        "legs": [
+          {
+            "startTime": 1795078800000,
+            "endTime": 1795082486000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 4510.74,
+            "generalizedCost": 7104,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Origin",
+              "lon": 5.714527,
+              "lat": 45.191112,
+              "departure": 1795078800000,
+              "vertexType": "NORMAL"
+            },
+            "to": {
+              "name": "Destination",
+              "lon": 5.731,
+              "lat": 45.1572,
+              "arrival": 1795082486000,
+              "vertexType": "NORMAL"
+            },
+            "legGeometry": {
+              "points": "mkyrGwb{a@zBs@FUBK?EBOHIlB{A?E@GH@PCxA[VE\\^CHHFH@H?FA`AMHCp@UdBq@JI@DjBs@lBu@NGx@WBKVKAC?EJGNEPGv@WrCeAJEPIDKBGDOBO?G@QJBhAXLAHAPKNFFBF@@EBGxBu@BAHEPG|CkAdA_@RI?E?Cv@Wv@Wp@YrAs@\\QpBoAXU@BBFBJbBiABABCJGDEj@c@LK~@w@^YBCj@g@bAgAd@k@rA_Bh@s@Va@@C@AfBwC~A{CDKt@cBRg@BUDKHCTDb@LTEJ@?[FBd@NBBRFr@RfCn@FQNFZFf@H@@d@NHDJBnB`@PHXS^}A\\kAFBPs@JFFFt@qCd@_BBIDM`@yAFOFODO?OzAmFPCvCfDBIDIl@r@b@cAHGFCJAz@CR?F?L?nBEFHRAJ?FFfBCHGPAR?LIpBE|AC`BAHDRAP?HGbBCH?B?P?PAb@A`@?TALARCxFIFQfAAn@CF?ZEXAD?l@Ah@AZAP?L?nAC?OAM?ML?D?\\ELUH[@G@e@@m@CgBL@V?T@H?@?b@U`@AB?r@EB?TAVAh@?b@EXKD?L?N?@WDq@H@F@D@D@B[",
+              "length": 231
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 3686
+          }
+        ],
+        "tooSloped": false,
+        "arrivedAtDestinationWithRentedBicycle": false
+      },
+      {
+        "duration": 1705,
+        "startTime": 1795078824000,
+        "endTime": 1795080529000,
+        "walkTime": 205,
+        "transitTime": 1500,
+        "waitingTime": 0,
+        "walkDistance": 252.71,
+        "walkLimitExceeded": false,
+        "generalizedCost": 2500,
+        "elevationLost": 0.06,
+        "elevationGained": 0.72,
+        "transfers": 0,
+        "fare": {
+          "fare": {},
+          "details": {},
+          "legProducts": [
+            {
+              "legIndices": [
+                1
+              ],
+              "products": [
+                {
+                  "id": "SEM:SEM1",
+                  "name": "regular",
+                  "amount": {
+                    "cents": 200,
+                    "currency": {
+                      "currency": "EUR",
+                      "defaultFractionDigits": 2,
+                      "currencyCode": "EUR",
+                      "symbol": "€"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "legs": [
+          {
+            "startTime": 1795078824000,
+            "endTime": 1795078920000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 120.18,
+            "generalizedCost": 187,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Origin",
+              "lon": 5.714527,
+              "lat": 45.191112,
+              "departure": 1795078824000,
+              "vertexType": "NORMAL"
+            },
+            "to": {
+              "name": "Grenoble, Gares",
+              "stopId": "SEM:2216",
+              "stopCode": "2216",
+              "lon": 5.71517,
+              "lat": 45.19021,
+              "arrival": 1795078920000,
+              "departure": 1795078920000,
+              "zoneId": "1",
+              "vertexType": "TRANSIT"
+            },
+            "legGeometry": {
+              "points": "mkyrGwb{a@zBs@FUBK?EBOHIPGJE???@",
+              "length": 11
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 96
+          },
+          {
+            "startTime": 1795078920000,
+            "endTime": 1795080420000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 5512.68,
+            "generalizedCost": 2100,
+            "pathway": false,
+            "mode": "TRAM",
+            "transitLeg": true,
+            "route": "Le Pont-de-Claix L'Étoile / Fontaine La Poya",
+            "agencyName": "M Réso - Métropole Grenobloise",
+            "agencyUrl": "https://www.mobilites-m.fr/",
+            "agencyTimeZoneOffset": 3600000,
+            "routeColor": "3376B8",
+            "routeType": 0,
+            "routeId": "SEM:91",
+            "routeTextColor": "FFFFFF",
+            "interlineWithPreviousLeg": false,
+            "headsign": "Le Pont-de-Claix, L'Étoile",
+            "agencyId": "SEM:SEM",
+            "tripId": "SEM:32135895",
+            "serviceDate": "2026-11-19",
+            "from": {
+              "name": "Grenoble, Gares",
+              "stopId": "SEM:2216",
+              "stopCode": "2216",
+              "lon": 5.71517,
+              "lat": 45.19021,
+              "arrival": 1795078920000,
+              "departure": 1795078920000,
+              "zoneId": "1",
+              "stopIndex": 7,
+              "stopSequence": 8,
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Grenoble, Polesud – Alpexpo",
+              "stopId": "SEM:2061",
+              "stopCode": "2061",
+              "lon": 5.7326,
+              "lat": 45.1572,
+              "arrival": 1795080420000,
+              "departure": 1795080420000,
+              "zoneId": "1",
+              "stopIndex": 20,
+              "stopSequence": 21,
+              "vertexType": "TRANSIT"
+            },
+            "legGeometry": {
+              "points": "yeyrGyf{a@CBGBGDKHA?IJKJGDG@E@C?EAGACEGCCCEIAGCI?EAG?A?E?G@G@E@EBIBGBCDCBCBADAl@UZKDADCBABCDCBG@?BEBIBM@KBQJsABWBWX_DBc@BYTkCFg@@O@E@G?EFq@BU@O@C@O?IBM@QDu@HaAFi@???AHcA?CH{@Fm@ZqDBa@?A@O@I?O@S?G?k@?k@AQAMCSAIEMEUKWIOg@iAYm@EKKUGOCICEQg@CKGSGS?G??AACKEO?CGWEWCOEa@Kw@CKAG?ACKCICEEKUc@EGCGAEAECI?IAG?K@K@G@A@EBGBGZa@@E@ABE@GBE@E?G@E?G@SB_ABs@???I@G?U@]?CByB@o@@_A@qA@_B@E?E?E@C@E@E?A@A@CBC@CBCDCb@YHGDC`@YHEBCBABAD?DA@?B@B?B@B@@BB@BB@BBB@DBFJ^BFBD@DBBBB@@@@FD@?B@B@D?B?B?DABADADENK@ADEHGDCBA@ADE^WXU??BCDA@CBAFEl@c@bDcCJI\\WDCDCDCDA@?BA@?@?D?@?B@B@B@DBBBNRBDDDFHDDBBDBn@b@z@l@DDFBFDD@FBD@DBB?B@F@B?LB\\DNB@?vAPLBf@F??H@P@P@H@R?N?L?H?NAj@?jCEx@CXAh@EJAL?JAl@ARA??t@AL?N?^Av@@J?L?t@?|DIR?F?p@A`@A??dAAVAN?vDGbBC`A?R?T?Z?`BAtJOt@A`@A??L?H?VAVCb@Cb@CRCZAfBCj@AF?zBEvAAFAP?dAC~@Ap@A\\???TAJ?J?N@JBF@RFLDPFNDHBF@F?H?H?p@A~CEF?P?F?H@J@FBFBFBHFFDDBDF@@BB@BR\\LTl@hAT`@??Zl@LRFHDDDFJHFDFBHDJBJBJ@B?D?J?HAhBCP?LAzACXAdAIp@C^C??\\AFAZ?lCEf@AH?p@AbAALALCLGPINKFGBAFEHCBAHABAJAdBALAr@AfAAJAHCDA@AHCHGDGBCBC@AFIDMDKDOBSBO?S@K?AAmAAo@???g@Ac@?W?K@K@OBI@I@E@GDONe@HQBGBEBCBCDCDAD?@?HAXA`DIL@J@JDJFFHHJDFFR@JBP@T@rA@l@",
+              "length": 495
+            },
+            "routeShortName": "A",
+            "routeLongName": "Le Pont-de-Claix L'Étoile / Fontaine La Poya",
+            "duration": 1500
+          },
+          {
+            "startTime": 1795080420000,
+            "endTime": 1795080529000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 132.53,
+            "generalizedCost": 211,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Grenoble, Polesud – Alpexpo",
+              "stopId": "SEM:2061",
+              "stopCode": "2061",
+              "lon": 5.7326,
+              "lat": 45.1572,
+              "arrival": 1795080420000,
+              "departure": 1795080420000,
+              "zoneId": "1",
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Destination",
+              "lon": 5.731,
+              "lat": 45.1572,
+              "arrival": 1795080529000,
+              "vertexType": "NORMAL"
+            },
+            "legGeometry": {
+              "points": "owrrGws~a@A?AF@`AAN?NAJATB@D@D@AJCd@C`@KtA",
+              "length": 15
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 109
+          }
+        ],
+        "tooSloped": false,
+        "arrivedAtDestinationWithRentedBicycle": false
+      },
+      {
+        "duration": 1705,
+        "startTime": 1795079064000,
+        "endTime": 1795080769000,
+        "walkTime": 205,
+        "transitTime": 1500,
+        "waitingTime": 0,
+        "walkDistance": 252.71,
+        "walkLimitExceeded": false,
+        "generalizedCost": 2500,
+        "elevationLost": 0.06,
+        "elevationGained": 0.72,
+        "transfers": 0,
+        "fare": {
+          "fare": {},
+          "details": {},
+          "legProducts": [
+            {
+              "legIndices": [
+                1
+              ],
+              "products": [
+                {
+                  "id": "SEM:SEM1",
+                  "name": "regular",
+                  "amount": {
+                    "cents": 200,
+                    "currency": {
+                      "currency": "EUR",
+                      "defaultFractionDigits": 2,
+                      "currencyCode": "EUR",
+                      "symbol": "€"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "legs": [
+          {
+            "startTime": 1795079064000,
+            "endTime": 1795079160000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 120.18,
+            "generalizedCost": 187,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Origin",
+              "lon": 5.714527,
+              "lat": 45.191112,
+              "departure": 1795079064000,
+              "vertexType": "NORMAL"
+            },
+            "to": {
+              "name": "Grenoble, Gares",
+              "stopId": "SEM:2216",
+              "stopCode": "2216",
+              "lon": 5.71517,
+              "lat": 45.19021,
+              "arrival": 1795079160000,
+              "departure": 1795079160000,
+              "zoneId": "1",
+              "vertexType": "TRANSIT"
+            },
+            "legGeometry": {
+              "points": "mkyrGwb{a@zBs@FUBK?EBOHIPGJE???@",
+              "length": 11
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 96
+          },
+          {
+            "startTime": 1795079160000,
+            "endTime": 1795080660000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 5512.68,
+            "generalizedCost": 2100,
+            "pathway": false,
+            "mode": "TRAM",
+            "transitLeg": true,
+            "route": "Le Pont-de-Claix L'Étoile / Fontaine La Poya",
+            "agencyName": "M Réso - Métropole Grenobloise",
+            "agencyUrl": "https://www.mobilites-m.fr/",
+            "agencyTimeZoneOffset": 3600000,
+            "routeColor": "3376B8",
+            "routeType": 0,
+            "routeId": "SEM:91",
+            "routeTextColor": "FFFFFF",
+            "interlineWithPreviousLeg": false,
+            "headsign": "Le Pont-de-Claix, L'Étoile",
+            "agencyId": "SEM:SEM",
+            "tripId": "SEM:32135835",
+            "serviceDate": "2026-11-19",
+            "from": {
+              "name": "Grenoble, Gares",
+              "stopId": "SEM:2216",
+              "stopCode": "2216",
+              "lon": 5.71517,
+              "lat": 45.19021,
+              "arrival": 1795079160000,
+              "departure": 1795079160000,
+              "zoneId": "1",
+              "stopIndex": 7,
+              "stopSequence": 8,
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Grenoble, Polesud – Alpexpo",
+              "stopId": "SEM:2061",
+              "stopCode": "2061",
+              "lon": 5.7326,
+              "lat": 45.1572,
+              "arrival": 1795080660000,
+              "departure": 1795080660000,
+              "zoneId": "1",
+              "stopIndex": 20,
+              "stopSequence": 21,
+              "vertexType": "TRANSIT"
+            },
+            "legGeometry": {
+              "points": "yeyrGyf{a@CBGBGDKHA?IJKJGDG@E@C?EAGACEGCCCEIAGCI?EAG?A?E?G@G@E@EBIBGBCDCBCBADAl@UZKDADCBABCDCBG@?BEBIBM@KBQJsABWBWX_DBc@BYTkCFg@@O@E@G?EFq@BU@O@C@O?IBM@QDu@HaAFi@???AHcA?CH{@Fm@ZqDBa@?A@O@I?O@S?G?k@?k@AQAMCSAIEMEUKWIOg@iAYm@EKKUGOCICEQg@CKGSGS?G??AACKEO?CGWEWCOEa@Kw@CKAG?ACKCICEEKUc@EGCGAEAECI?IAG?K@K@G@A@EBGBGZa@@E@ABE@GBE@E?G@E?G@SB_ABs@???I@G?U@]?CByB@o@@_A@qA@_B@E?E?E@C@E@E?A@A@CBC@CBCDCb@YHGDC`@YHEBCBABAD?DA@?B@B?B@B@@BB@BB@BBB@DBFJ^BFBD@DBBBB@@@@FD@?B@B@D?B?B?DABADADENK@ADEHGDCBA@ADE^WXU??BCDA@CBAFEl@c@bDcCJI\\WDCDCDCDA@?BA@?@?D?@?B@B@B@DBBBNRBDDDFHDDBBDBn@b@z@l@DDFBFDD@FBD@DBB?B@F@B?LB\\DNB@?vAPLBf@F??H@P@P@H@R?N?L?H?NAj@?jCEx@CXAh@EJAL?JAl@ARA??t@AL?N?^Av@@J?L?t@?|DIR?F?p@A`@A??dAAVAN?vDGbBC`A?R?T?Z?`BAtJOt@A`@A??L?H?VAVCb@Cb@CRCZAfBCj@AF?zBEvAAFAP?dAC~@Ap@A\\???TAJ?J?N@JBF@RFLDPFNDHBF@F?H?H?p@A~CEF?P?F?H@J@FBFBFBHFFDDBDF@@BB@BR\\LTl@hAT`@??Zl@LRFHDDDFJHFDFBHDJBJBJ@B?D?J?HAhBCP?LAzACXAdAIp@C^C??\\AFAZ?lCEf@AH?p@AbAALALCLGPINKFGBAFEHCBAHABAJAdBALAr@AfAAJAHCDA@AHCHGDGBCBC@AFIDMDKDOBSBO?S@K?AAmAAo@???g@Ac@?W?K@K@OBI@I@E@GDONe@HQBGBEBCBCDCDAD?@?HAXA`DIL@J@JDJFFHHJDFFR@JBP@T@rA@l@",
+              "length": 495
+            },
+            "routeShortName": "A",
+            "routeLongName": "Le Pont-de-Claix L'Étoile / Fontaine La Poya",
+            "duration": 1500
+          },
+          {
+            "startTime": 1795080660000,
+            "endTime": 1795080769000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 132.53,
+            "generalizedCost": 211,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Grenoble, Polesud – Alpexpo",
+              "stopId": "SEM:2061",
+              "stopCode": "2061",
+              "lon": 5.7326,
+              "lat": 45.1572,
+              "arrival": 1795080660000,
+              "departure": 1795080660000,
+              "zoneId": "1",
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Destination",
+              "lon": 5.731,
+              "lat": 45.1572,
+              "arrival": 1795080769000,
+              "vertexType": "NORMAL"
+            },
+            "legGeometry": {
+              "points": "owrrGws~a@A?AF@`AAN?NAJATB@D@D@AJCd@C`@KtA",
+              "length": 15
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 109
+          }
+        ],
+        "tooSloped": false,
+        "arrivedAtDestinationWithRentedBicycle": false
+      }
+    ]
+  }
+}
