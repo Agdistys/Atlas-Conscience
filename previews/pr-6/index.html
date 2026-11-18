@@ -30,6 +30,8 @@
     </div>
     <section class="sheet" id="sheet" aria-label="Préparation du trajet">
       <section class="route-section">
+        <p id="connectionNotice" class="app-notice" role="status" hidden></p>
+        <p id="pwaUpdateNotice" class="app-notice" role="status" hidden></p>
         <h1>Mon trajet</h1>
         <label for="travelMode">Mode de déplacement</label><select id="travelMode"><option value="car">En véhicule</option><option value="walk">À pied</option></select>
         <div id="walkingOptions" hidden>
@@ -249,7 +251,14 @@
         </div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 91e3bc2 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <details id="appAvailability"><summary>Installation et hors ligne</summary>
+        <p id="networkStatus" class="note" role="status"></p><p id="pwaStatus" class="note" role="status"></p>
+        <p class="note">Mes trajets, Mon profil et Mon journal restent consultables dans ce navigateur sans réseau. Les préparations sont des instantanés datés, avec un schéma du tracé. Les nouveaux itinéraires, prix et fonds de carte nécessitent une connexion ; aucune actualisation automatique au retour du réseau.</p>
+        <p class="note">L’accès après fermeture dépend de la préparation de l’interface et de sa conservation par le navigateur. Exporter les données importantes : cet accès hors ligne ne remplace pas une sauvegarde.</p>
+        <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
+        <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
+      </details>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 5dc87d0 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
