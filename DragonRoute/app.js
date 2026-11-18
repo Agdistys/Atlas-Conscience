@@ -886,7 +886,7 @@ function walkingDistance(distance,limit){
 function isWalking(){return $('travelMode').value==='walk'}
 function updateWalking(){
  const walking=isWalking();$('walkingOptions').hidden=!walking;$('routingOptions').hidden=walking;
- $('activeVehicle').hidden=walking||(!profile.vehicle.name&&profile.vehicle.type==='car');
+ if(walking)$('activeVehicle').hidden=true;
  $('walkingStatus').hidden=!trip||trip.routing.vehicle.type!=='walk';
  if($('walkingStatus').hidden)return;
  try{const state=walkingDistance(trip.base.distance,$('maxWalkKm').value);$('maxWalkKm').setAttribute('aria-invalid','false');$('walkingStatus').textContent=state.limit===null?'Marche · aucune limite personnelle renseignée.':state.exceeded?`Limite souhaitée dépassée : ${fmt(trip.base.distance/1000,1)} km pour une limite de ${fmt(state.limit,1)} km. Le trajet reste affiché ; ajuster le départ, l’arrivée ou la limite avant de le retenir.`:`Distance calculée dans la limite souhaitée de ${fmt(state.limit,1)} km. Cela ne confirme pas la difficulté ni l’accessibilité du terrain.`}
