@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#09090e">
-  <meta name="description" content="DragonRoute : préparer son trajet, puis choisir ses arrêts carburant.">
+  <meta name="description" content="DragonRoute : préparer un trajet en véhicule ou à pied, puis organiser ses déplacements.">
   
   <link rel="icon" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
@@ -31,6 +31,12 @@
     <section class="sheet" id="sheet" aria-label="Préparation du trajet">
       <section class="route-section">
         <h1>Mon trajet</h1>
+        <label for="travelMode">Mode de déplacement</label><select id="travelMode"><option value="car">En véhicule</option><option value="walk">À pied</option></select>
+        <div id="walkingOptions" hidden>
+          <label for="maxWalkKm">Distance de marche souhaitée au maximum (km)</label><input id="maxWalkKm" type="number" min="0.1" max="500" step="any" placeholder="Sans limite renseignée" aria-describedby="walkingPreference">
+          <p id="walkingPreference" class="note">Repère personnel : le dépassement sera signalé, sans modifier le tracé. Laisser vide si la limite est inconnue. Coordonnées envoyées à l’IGN lors du calcul.</p>
+          <p class="note">Pente, escaliers, revêtement, fermetures et accessibilité ne sont pas vérifiés. La durée du moteur reste une estimation, hors pauses.</p>
+        </div>
         <p id="activeVehicle" class="note" hidden></p>
         <div class="route-fields">
           <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p></div>
@@ -62,6 +68,7 @@
         <button id="goBtn" class="primary">Trouver mon trajet</button>
         <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
         <div id="summary" class="summary" hidden><div class="metric"><b id="tripKm">—</b><small>trajet affiché</small></div><div class="metric"><b id="tripTime">—</b><small>durée estimée</small></div></div>
+        <p id="walkingStatus" class="selection" role="status" hidden></p>
         <p id="routeAlternativesNote" class="note" hidden></p>
         <fieldset id="routeChoices" class="stop-modes" hidden></fieldset>
         <p id="appliedRouting" class="note" hidden></p>
@@ -199,7 +206,7 @@
         </div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · cc84891 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 16d3a14 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -214,7 +221,7 @@
       <label class="check-label"><input id="preparedConfirm" type="checkbox"> Enregistrer ces informations dans ce navigateur</label><button id="preparedSave" class="primary" type="submit" disabled>Enregistrer</button>
     </form>
   </section>
-  <div class="dialog-actions"><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
+  <div class="dialog-actions"><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
   <div id="preparedList"></div>
   <section id="preparedView" class="detail-section" hidden aria-label="Préparation enregistrée"><div id="preparedDetails"></div><button id="preparedResumeBtn" class="primary" type="button">Préparer à nouveau ce trajet</button></section>
 </dialog>
@@ -231,10 +238,10 @@
   <div id="navigationCarLinks">
     <section class="detail-section">
       <h3>Google Maps</h3>
-      <p class="note">Reçoit le départ, l’arrivée et la station choisie, s’il y en a une. Le parcours est recalculé : la variante affichée ici n’est pas transmise et certains appareils peuvent ignorer l’étape.</p>
+      <p id="googleMapsNote" class="note">Reçoit le départ, l’arrivée et la station choisie, s’il y en a une. Le parcours est recalculé : la variante affichée ici n’est pas transmise et certains appareils peuvent ignorer l’étape.</p>
       <a id="googleMapsLink" class="navigation-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Ouvrir le trajet dans Google Maps</a>
     </section>
-    <section class="detail-section">
+    <section id="navigationWaze" class="detail-section">
       <h3>Waze</h3>
       <p class="note">Reçoit une destination à la fois et repart de la position utilisée par Waze. Le départ prévu ici et le trajet complet avec arrêt ne sont pas transmis.</p>
       <a id="wazeStationLink" class="navigation-link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>Waze · vers la station</a>
