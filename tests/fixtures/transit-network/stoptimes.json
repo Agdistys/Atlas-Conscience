@@ -1,0 +1,68 @@
+[
+  {
+    "pattern": {
+      "id": "SEM:A:1:-1410639052",
+      "desc": "L'Étoile",
+      "dir": 2,
+      "shortDesc": "PONT-DE-CLAIX L",
+      "lastStop": "SEM:3393",
+      "lastStopName": "Le Pont-de-Claix, L'Étoile"
+    },
+    "times": [
+      {
+        "stopId": "SEM:2216",
+        "stopName": "Grenoble, Gares",
+        "scheduledArrival": 77040,
+        "scheduledDeparture": 77040,
+        "realtimeArrival": 77690,
+        "realtimeDeparture": 77690,
+        "arrivalDelay": 650,
+        "departureDelay": 650,
+        "timepoint": true,
+        "realtime": true,
+        "realtimeState": "UPDATED",
+        "serviceDay": 1794956400,
+        "tripId": "SEM:32135557",
+        "pickupType": "0",
+        "occupancy": "Faible",
+        "occupancyId": 1
+      },
+      {
+        "stopId": "SEM:2216",
+        "stopName": "Grenoble, Gares",
+        "scheduledArrival": 78240,
+        "scheduledDeparture": 78240,
+        "realtimeArrival": 78240,
+        "realtimeDeparture": 78240,
+        "arrivalDelay": 0,
+        "departureDelay": 0,
+        "timepoint": true,
+        "realtime": true,
+        "realtimeState": "UPDATED",
+        "serviceDay": 1794956400,
+        "tripId": "SEM:32135760",
+        "pickupType": "0",
+        "occupancy": "Faible",
+        "occupancyId": 1
+      },
+      {
+        "stopId": "SEM:2216",
+        "stopName": "Grenoble, Gares",
+        "scheduledArrival": 79440,
+        "scheduledDeparture": 79440,
+        "realtimeArrival": 79428,
+        "realtimeDeparture": 79428,
+        "arrivalDelay": -12,
+        "departureDelay": -12,
+        "timepoint": true,
+        "realtime": true,
+        "realtimeState": "UPDATED",
+        "serviceDay": 1794956400,
+        "tripId": "SEM:32135925",
+        "pickupType": "0",
+        "occupancy": "Faible",
+        "occupancyId": 1
+      }
+    ]
+  }
+]

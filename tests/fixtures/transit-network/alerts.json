@@ -1,0 +1,1126 @@
+{
+  "header": {
+    "gtfsRealtimeVersion": "2.0",
+    "incrementality": 0,
+    "timestamp": 1795032389
+  },
+  "entity": [
+    {
+      "id": "SMA_1f07f51e-cbf1-6670-9663-88e262bb9779",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "En raison de travaux avenue Henri Chapays à Voreppe, les arrêts « Monuments aux morts » et « Les Banettes » ne sont pas desservis report possible aux arrêts provisoires."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "Travaux à Voreppe"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "TPV29"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1755864000
+          }
+        ],
+        "impactPeriod": [],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.mobilites-m.fr/pdf/perturbations/infotrafic_29_519_540_577.pdf"
+            }
+          ]
+        },
+        "severityLevel": 3,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "Travaux à Voreppe"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SMA_1f112faf-f933-6f00-9996-75924a6a37b0",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "à compter du lundi 02/03 l'arrêt L'Arsenal à Chirens en direction de Voiron sera déplacé 150 mètres en maont au niveau du lavoir, en raison de travaux.  "
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "Arrêt L'Arsenal à Chirens déplacé à compter du 02/03"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "TPV38"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1772099841
+          }
+        ],
+        "impactPeriod": [],
+        "url": {
+          "translation": [
+            {
+              "text": "https://data.mobilites-m.fr/fichiers/02032026_L'arsenal.pdf"
+            }
+          ]
+        },
+        "severityLevel": 3,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "Arrêt L'Arsenal à Chirens déplacé "
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_3896129119041842043_C13",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "En raison du marché organisé chaque vendredi, la ligne est déviée uniquement en direction de Vizille Chantefeuille. L'arrêt Charminelles n'est pas desservi de 5h à 14h.\nReportez-vous à l’arrêt Place du Dr Thévenet et l’arrêt Voreppe Mairie."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "marché Voreppe"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SE2C13"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1772163000,
+            "end": 1798765200
+          }
+        ],
+        "impactPeriod": [
+          {
+            "start": 1772163000,
+            "end": 1798765200
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=C13_ info marche de Voreppe tous les vendredis.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "27/02 au 31/12 après 5h, Ligne C13 marché Voreppe"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_118711349989358101_C5",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne C5 est déviée en direction de Palais de Justice - Gare  entre les arrêts Vallier - Catane et Esclangon  en raison de travaux secteur rue Diderot.\nMise en place d’un arrêt provisoire à la sortie de l’autoroute pour remplacer l’arrêt Berriat.\nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux rue Diderot"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEMC5"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1784080800,
+            "end": 1797645600
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=C5_a partir du 15 juillet_travaux Diderot.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "15/07 au 18/12,  ligne C5 déviée direction P. Justice entre Vallier-Catane et Esclangon (tvx)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_7360068835255766500_C3",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne C3 est déviée en direction de Victor Hugo  entre les arrêts Edmond Esmonin et Vigny  en raison d'une fermeture de voiries secteur Rue Aimé Pupin, Grenoble.\nSe reporter à l'arrêt Maison des Anciens de la ligne C6 et à l'arrêt provisoire situé rue Lucien-Andrieux, en direction de Victor Hugo. Cet arrêt n’est  pas accessible aux personnes à mobilité réduite. \nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "fermeture de voiries Rue Aimé Pupin, Grenoble"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEMC3"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1781229600,
+            "end": 1798768800
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=C3_23-1_VH   Deviation Edmond Esmonin-Vigny dir Victor Hugo ss MDA.pdf.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "12/06 au 31/12,  ligne C3 déviée direction V. Hugo entre E. Esmonin et Vigny (fermeture voies)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_4096188126333303451_76",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "L'arrêt Le Village en direction de Saint-Maximin est déplacé au niveau de la halle à partir du 31/08."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "modification d'arrêts Saint-Maximin"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "GSV76"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1787911200,
+            "end": 1797548400
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=082026_Info-trafic_Le-Moutaret.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "Jusqu'au 18/12 00:00,  Arrêt Le Village dans la commune Le Moutaret déplacé au niveau de la halle"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_3825903230461589190_251",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "Ligne Sacado n°251.\nL'arrêt Chemin du Cellier n'est plus desservi en raison d'un blocage de la circulation.\nLe départ de 7h12 est avancé à 7h07 de l'arrêt Batonnière."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "blocage de la circulation Chemin de Maubec, La Tronche"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEM251"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1788228000,
+            "end": 1814576400
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7
+      }
+    },
+    {
+      "id": "SEM_1706280707826597753_514",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne Sacado 513 est supprimée avec report de tous ses arrêts sur la Sacado 514"
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "adaptation des horaires Renage"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "TPV514"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1788228000,
+            "end": 1798855200
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=FH_514.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "Ligne 514 adaptation des horaires Renage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_818452073471787068_581",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne 581 ne dessert plus l'arrêt Boulodrome en direction du collège Vergeron, merci de vous reporter à l'arrêt Coste-Gaz uniquement sur le trajet  du matin en direction du collège. \nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux de voirie Moirans"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "TPV581"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1788746400,
+            "end": 1814576400
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=coste-gaz.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "07/09 au 02/07,  ligne 581 déviée direction  entre  et  (travaux)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_117629242497623247_516",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne 516 s'adapte avec une nouvelle desserte du centre de Moirans sur les trajets du Matin en direction de Voiron Gare.\nHoraires modifiés \nRetrouvez les horaires en téléchargement sur reso-m.fr/trafic."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "adaptation des horaires Moirans centre"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "TPV516"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1789351200,
+            "end": 1798423200
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=516_Moirans.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "14/09 au 27/12,  ligne 516 déviée direction  entre  et  (adaptation horaires)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_139367353955287284_C8",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne C8 est déviée en direction de Université - IUT-STAPS, Université - Biologie  entre les arrêts Condorcet et Vallier - Docteur Calmette  en raison de travaux secteur rue d'Alembert.\nDirigez-vous vers les arrêts de report à proximité. Depuis Chorier-Saint-Bruno, reportez-vous aux arrêts Condorcet ou Estacade-Condorcet de la ligne 25.\nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux rue d'Alembert"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEMC8"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1789956000,
+            "end": 1801447200
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=C8_Travaux d Alembert_a partir du 21 septembre.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "21/09 au 31/01,  ligne C8 déviée direction IUT-STAPS, Biologie entre Condorcet et Vallier-Calmette (tvx)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_4502645026073282540_221",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "Ligne Sacado n°221.\nÀ compter du lundi 21 septembre 2026, le départ du sacado 221, service 221-02 au départ du collège Lionel Terray est avancé à 15h30, au lieu de 15h36."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "modification d'horaires"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEM221"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1789956000,
+            "end": 1814403600
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "Ligne 221 modification d'horaires"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_3448802564647682027_134",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "Ligne Sacado n°.\nÀ partir du 23 septembre 2026, en raison d’une surcharge à la sortie du Lycée du Grésivaudan les mercredis midi, le service 133-32 est prolongé, à l’identique du parcours du SACADO 134-34, jusqu’à l’arrêt « Pont de Bernin ».Les deux départs sont effectués à 12h10 depuis le parking du Lycée du Grésivaudan."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "modification d'horaires"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEM134"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1790130600,
+            "end": 1814400000
+          }
+        ],
+        "impactPeriod": [
+          {
+            "start": 1790130600,
+            "end": 1814400000
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "Ligne 134 modification d'horaires"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_1098501083182721239_133",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "Ligne Sacado n°133.\nÀ partir du 18 septembre 2026, le Lycée du Grésivaudan termine les cours à 15h30 le vendredi.\nPar conséquent, le service 133-04 circulera uniquement les lundis, mardis et jeudis.\nLe départ de 17h30 du vendredi est donc supprimé."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "modification d'horaires"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEM133"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1789696800,
+            "end": 1814490000
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "modification horaires sacado 133"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_3296725494008794991_C1",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "L'arrêt Docteur Mazet de la ligne C1 direction Pré de l'Eau, Cité Jean Macé est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie. \nLa prise en charge se fait sur les places de stationnement situées au niveau du 18 avenue Félix-Viallet. Cet arrêt provisoire n'est pas accessible aux personnes à mobilité réduite (PMR). Merci de votre compréhension."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux de voirie avenue Felix Viallet"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEMC1"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1793761200,
+            "end": 1795226400
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "04/11 au 20/11,L'arrêt Docteur Mazet de la ligne C1 direction Pré de l'Eau, Cité Jean Macé est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_8381958695832354779_C11",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "L'arrêt Docteur Mazet de la ligne C11 direction Longs Prés, Voiron Gare Routière Sud est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie. \nLa prise en charge se fait sur les places de stationnement situées au niveau du 18 avenue Félix-Viallet. Cet arrêt provisoire n'est pas accessible aux personnes à mobilité réduite (PMR). Merci de votre compréhension."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux de voirie avenue Felix Viallet"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SE2C11"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1793761200,
+            "end": 1795226400
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "04/11 au 20/11,L'arrêt Docteur Mazet de la ligne C11 direction Longs Prés, Voiron Gare Routière Sud est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_4948727920434693831_C12",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "L'arrêt Docteur Mazet de la ligne C12 direction Goncelin Gare, Champfeuillet est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie. \nLa prise en charge se fait sur les places de stationnement situées au niveau du 18 avenue Félix-Viallet. Cet arrêt provisoire n'est pas accessible aux personnes à mobilité réduite (PMR). Merci de votre compréhension."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux de voirie avenue Felix Viallet"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SE2C12"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1793761200,
+            "end": 1795226400
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "04/11 au 20/11,L'arrêt Docteur Mazet de la ligne C12 direction Goncelin Gare, Champfeuillet est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_2376725599960772670_84",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "L'arrêt Docteur Mazet de la ligne 84 direction Gare Routière, Grandes Terres est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie. \nLa prise en charge se fait sur les places de stationnement situées au niveau du 18 avenue Félix-Viallet. Cet arrêt provisoire n'est pas accessible aux personnes à mobilité réduite (PMR). Merci de votre compréhension."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux de voirie avenue Felix Viallet"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SE284"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1793761200,
+            "end": 1795226400
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "04/11 au 20/11,L'arrêt Docteur Mazet de la ligne 84 direction Gare Routière, Grandes Terres est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_3720586200189831979_86",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "L'arrêt Docteur Mazet de la ligne 86 direction Gare Routière, Allevard Collège est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie. \nLa prise en charge se fait sur les places de stationnement situées au niveau du 18 avenue Félix-Viallet. Cet arrêt provisoire n'est pas accessible aux personnes à mobilité réduite (PMR). Merci de votre compréhension."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux de voirie avenue Felix Viallet"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SE286"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1793761200,
+            "end": 1795226400
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "04/11 au 20/11,L'arrêt Docteur Mazet de la ligne 86 direction Gare Routière, Allevard Collège est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_1610579277108676106_C8",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "Les arrêts Pablo Neruda, Rocheplane de la ligne C8 direction Victor Hugo - Belgrade, Université - Biologie, Université - IUT-STAPS sont reportés aux arrêts provisoires à proximité en raison de travaux sur le quai. \nUn arrêt provisoire 50 mètres en amont de Pablo Neruda, direction Victor Hugo, sur le trottoir au niveau des pompiers. Un arrêt provisoire 50 mètres en amont de Rocheplane, direction IUT, avant le carrefour avec la rue Pierre-Courtade."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux sur le quai"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEMC8"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1793674800,
+            "end": 1795572000
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "03/11 au 24/11,Les arrêts Pablo Neruda, Rocheplane de la ligne C8 direction Victor Hugo - Belgrade, Université - Biologie, Université - IUT-STAPS sont reportés aux arrêts provisoires à proximité en raison de travaux sur le quai."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_4790368082412786183_C7",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "L'arrêt Pablo Neruda de la ligne C7 direction Comboire est reporté à l'arrêt provisoire à proximité en raison de travaux sur le quai. \nUn arrêt provisoire 50 mètres en amont de Pablo Neruda, direction Victor Hugo, sur le trottoir au niveau des pompiers."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux sur le quai"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEMC7"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1793674800,
+            "end": 1795572000
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "03/11 au 24/11,L'arrêt Pablo Neruda de la ligne C7 direction Comboire est reporté à l'arrêt provisoire à proximité en raison de travaux sur le quai."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_1099940208832112712_C8",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne C8 est déviée  entre les arrêts Zella Melhis et Collège des Saules  en raison de travaux secteur avenue Marcel Cachin - Saint Martin d'Hères."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux avenue Marcel Cachin - Saint Martin d'Hères"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEMC8"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1794193200,
+            "end": 1795831200
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=C8_du 9 au 27 novembre_Travaux Marcel Cachin.pdf.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "09/11 au 27/11, ligne C8 déviée entre Zella Melhis et Collège Saules (tvx)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_3916383882222824016_65",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne 65 est déviée en direction de Le Péage  entre les arrêts Chantefeuille et Place du Château  en raison de travaux secteur rue Elsa Triolet à Vizille.\nReportez-vous à l'arrêt l'Alliance de la ligne C13, ainsi qu'à l'arrêt provisoire situé route de Grenoble.\nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux rue Elsa Triolet à Vizille"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEM65"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1794193200,
+            "end": 1795831200
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=65 70 CarsRegion _a partir du 9 novembre_travaux Elsa Triolet Vizille.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "09/11 au 27/11,  ligne 65 déviée direction Le Péage entre Chantefeuille et Pl. Château (tvx)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_6777647127205561527_70",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "La ligne 70 est déviée en direction de La Melle  entre les arrêts Vénaria et Place du Château  en raison de travaux secteur rue Elsa Triolet à Vizille.\nReportez-vous à l'arrêt l'Alliance de la ligne C13, ainsi qu'à l'arrêt provisoire situé route de Grenoble.\nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "travaux rue Elsa Triolet à Vizille"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEM70"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1794193200,
+            "end": 1795831200
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=65 70 CarsRegion _a partir du 9 novembre_travaux Elsa Triolet Vizille.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "09/11 au 27/11, ligne 70 déviée direction La Melle entre Vénaria et Pl. Château (travaux)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_5491550089095109145_88",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "Ligne 88 : À compter du 16 novembre 2026, en période scolaire, le départ de 15 h 35 à l’arrêt Université – Bibliothèques est avancé à 15 h 30 et prolongé jusqu’à l’arrêt Le Pinet d’Uriage."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "modification d'horaires"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SE288"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1794538800,
+            "end": 1797213600
+          }
+        ],
+        "url": {
+          "translation": [
+            {
+              "text": "https://www.tag.fr/include/downloadInfoCompPerturbation.php?f=88_a partir du 16 novembre_Nouvel horaire.pdf.pdf"
+            }
+          ]
+        },
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "13/11 au 13/12, Ligne 88 : À partir du 16 novembre 2026, en période scolaire, le départ de 15 h 30 depuis l'arrêt Université – Bibliothèques est prolongé jusqu’à l’arrêt Le Pinet d’Uriage."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "SEM_8798861701440449712_C",
+      "alert": {
+        "descriptionText": {
+          "translation": [
+            {
+              "text": "M réso vous rappelle que le billet d’entrée au Stade des Alpes ne constitue pas un titre de transport et ne permet pas de voyager gratuitement sur le réseau.\nNous vous invitons à vous munir d’un titre de transport valide pour l’ensemble de vos déplacements.\nNous vous remercions pour votre attention et pour votre compréhension."
+            }
+          ]
+        },
+        "headerText": {
+          "translation": [
+            {
+              "text": "match Stade des Alpes"
+            }
+          ]
+        },
+        "informedEntity": [
+          {
+            "routeId": "SEMC"
+          }
+        ],
+        "activePeriod": [
+          {
+            "start": 1795057200,
+            "end": 1795136400
+          }
+        ],
+        "severityLevel": 1,
+        "effect": 7,
+        "effectDetail": {
+          "translation": [
+            {
+              "text": "M réso vous rappelle que le billet d’entrée au Stade des Alpes ne constitue pas un titre de transport et ne permet pas de voyager gratuitement sur le réseau.\nNous vous invitons à vous munir d’un titre de transport valide pour l’ensemble de vos déplacements.\nNous vous remercions pour votre attention et pour votre compréhension."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
