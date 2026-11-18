@@ -1831,6 +1831,17 @@ function bindMeetings(){
 // BEGIN CARPOOL MODEL
 function rideInteger(v,min,max){if(typeof v!=='number'||!Number.isInteger(v)||v<min||v>max)throw new Error('Nombre de places invalide.');return v}
 function rideCents(v){if(v===null)return null;if(typeof v!=='number'||!Number.isFinite(v)||v<0||v>4000000)throw new Error('Montant de frais invalide.');return Math.round((v+Number.EPSILON)*100)}
+function sharedTollBreakdown(items,confirmed,covered){
+ if(!Array.isArray(items)||items.length>10||typeof confirmed!=='boolean'||typeof covered!=='boolean')throw new Error('Affectation des péages invalide.');
+ const sums={before:0,shared:0,after:0,unassigned:0};let unassignedCount=0;
+ for(const item of items){
+  if(!item||!Number.isSafeInteger(item.amount)||item.amount<0||item.amount>400000000||!Object.hasOwn(sums,item.placement))throw new Error('Tronçon attribué invalide.');
+  sums[item.placement]+=item.amount;if(item.placement==='unassigned')unassignedCount++;
+ }
+ const total=Object.values(sums).reduce((a,b)=>a+b,0),usable=confirmed&&items.length>unassignedCount;
+ if(total>400000000)throw new Error('Somme des péages hors limite.');
+ return {...sums,total,unassignedCount,confirmed:usable,complete:usable&&covered&&unassignedCount===0};
+}
 function splitRideCosts(cost,passengers,seats){
  rideInteger(seats,1,8);rideInteger(passengers,0,seats);
  const fuel=rideCents(cost.fuelEuro),tolls=rideCents(cost.tollEuro);
@@ -1838,14 +1849,63 @@ function splitRideCosts(cost,passengers,seats){
  if(cost.shared){
   const sharedFuel=rideCents(cost.shared.fuelEuro);
   if(sharedFuel!==null&&(fuel===null||sharedFuel>fuel))throw new Error('Carburant partagé incohérent avec le trajet total.');
-  const total=fuel===null&&tolls===null?null:(fuel??0)+(tolls??0),perPassenger=sharedFuel===null?null:Math.floor(sharedFuel/(passengers+1)),passengerTotal=passengers===0?0:perPassenger===null?null:perPassenger*passengers;
-  return {fuel,tolls,sharedFuel,known:total!==null,total,complete:fuel!==null&&cost.tollState==='complete',sharedComplete:sharedFuel!==null&&cost.tollState==='complete'&&tolls===0,occupants:passengers+1,passengers,seats,perPassenger,passengerTotal,driver:total===null||passengerTotal===null?null:total-passengerTotal};
+  const allocation=cost.shared.tolls??null;
+  if(allocation&&(['before','shared','after','unassigned','total','unassignedCount'].some(k=>!Number.isSafeInteger(allocation[k])||allocation[k]<0)||allocation.total!==tolls||allocation.before+allocation.shared+allocation.after+allocation.unassigned!==tolls||typeof allocation.confirmed!=='boolean'||typeof allocation.complete!=='boolean'||allocation.complete&&(!allocation.confirmed||allocation.unassignedCount!==0||cost.tollState!=='complete')))throw new Error('Répartition des péages incohérente avec le budget.');
+  const sharedTolls=allocation?.confirmed?allocation.shared:cost.tollState==='complete'&&tolls===0?0:null;
+  const sharedTotal=sharedFuel===null&&sharedTolls===null?null:(sharedFuel??0)+(sharedTolls??0);
+  const total=fuel===null&&tolls===null?null:(fuel??0)+(tolls??0),perPassenger=sharedTotal===null?null:Math.floor(sharedTotal/(passengers+1)),passengerTotal=passengers===0?0:perPassenger===null?null:perPassenger*passengers;
+  return {fuel,tolls,sharedFuel,sharedTolls,sharedTotal,allocation,known:total!==null,total,complete:fuel!==null&&cost.tollState==='complete',sharedComplete:sharedFuel!==null&&(allocation?.complete===true||cost.tollState==='complete'&&tolls===0),occupants:passengers+1,passengers,seats,perPassenger,passengerTotal,driver:total===null||passengerTotal===null?null:total-passengerTotal};
  }
  const known=fuel!==null||tolls!==null,total=known?(fuel??0)+(tolls??0):null,perPassenger=total===null?null:Math.floor(total/(passengers+1));
  return {fuel,tolls,known,total,complete:fuel!==null&&cost.tollState==='complete',occupants:passengers+1,passengers,seats,perPassenger,passengerTotal:perPassenger===null?null:perPassenger*passengers,driver:total===null?null:total-perPassenger*passengers};
 }
 function ridePlain(v,max,required=false){if(typeof v!=='string'||v.length>max||/[\u0000-\u001f\u007f-\u009f\u2028-\u202e\u2066-\u2069]/.test(v)||(required&&!v.trim()))throw new Error('Libellé de partage vide, trop long ou contenant un caractère de contrôle.');return v.trim()}
 // END CARPOOL MODEL
+
+const sharedTolls={key:'',signature:'',choices:new Map(),confirmed:false,revision:0,renderKey:'',notice:''};
+function sharedTollId(s){return JSON.stringify([s.network,s.kind,s.entry,s.exit,s.vehicleClass,s.date,s.amount])}
+function sharedTollAvailable(){return !!trip?.meetings&&tableTolls.segments.length>0&&tariffBudgetValid()&&tableTolls.segments.every(s=>s.date===$('stationDeparture').value.slice(0,10))}
+function sharedTollItems(){return tableTolls.segments.map(s=>({amount:s.amount,placement:sharedTolls.choices.get(sharedTollId(s))||'unassigned'}))}
+function syncSharedTolls(){
+ const plan=trip?.meetings,key=plan?JSON.stringify([tableTolls.key,plan.pickup,plan.dropoff,plan.stationPosition,$('stationDeparture').value,$('tariffClass').value,$('tariffDate').value,sharedTollAvailable()]):'';
+ if(key!==sharedTolls.key){
+  const had=sharedTolls.choices.size>0;sharedTolls.key=key;sharedTolls.choices.clear();sharedTolls.confirmed=false;sharedTolls.revision++;
+  sharedTolls.notice=had?'Trajet, rencontres, date ou budget modifiés : affectations retirées.':'';
+ }
+ const signature=JSON.stringify([tableTolls.segments.map(sharedTollId),$('tariffComplete').checked]);
+ if(signature!==sharedTolls.signature){
+  const keep=new Set(tableTolls.segments.map(sharedTollId));for(const id of sharedTolls.choices.keys())if(!keep.has(id))sharedTolls.choices.delete(id);
+  sharedTolls.confirmed=false;sharedTolls.signature=signature;sharedTolls.revision++;
+ }
+ $('rideTollAllocation').hidden=!plan;
+ const renderKey=JSON.stringify([Boolean(plan),tableTolls.segments.map(sharedTollId)]);
+ if(renderKey!==sharedTolls.renderKey){
+  sharedTolls.renderKey=renderKey;$('rideTollList').replaceChildren();
+  if(plan)tableTolls.segments.forEach((s,i)=>{
+   const li=document.createElement('li'),label=document.createElement('label'),select=document.createElement('select'),note=document.createElement('p'),id=sharedTollId(s);
+   label.htmlFor=select.id='ride-toll-'+i;label.textContent=tariffSegmentLabel(s)+' · '+fmt(s.amount/100)+' €';select.dataset.sharedToll=id;
+   for(const [value,text] of [['unassigned','Non attribué / traverse une rencontre'],['before','Avant la prise en charge · conducteur'],['shared','Avec les passagers · portion commune'],['after','Après la dépose · conducteur']])select.add(new Option(text,value));
+   note.className='note';note.textContent=`Classe ${s.vehicleClass} · trajet ${tariffDisplayDate(s.date)}. Choisir seulement si tout ce tronçon appartient à la portion indiquée.`;
+   li.append(label,note,select);$('rideTollList').append(li);
+  });
+ }
+ const available=sharedTollAvailable(),items=sharedTollItems(),any=items.some(i=>i.placement!=='unassigned');
+ $('rideTollFields').disabled=busy||!available;for(const el of $('rideTollList').querySelectorAll('select'))el.value=sharedTolls.choices.get(el.dataset.sharedToll)||'unassigned';
+ $('rideTollConfirm').checked=sharedTolls.confirmed;$('rideTollConfirm').disabled=busy||!available||!any;$('rideTollReset').disabled=busy||!sharedTolls.choices.size;$('rideTollBudget').disabled=busy||!trip;
+ const a=sharedTollBreakdown(items,sharedTolls.confirmed,$('tariffComplete').checked);
+ $('rideTollStatus').textContent=sharedTolls.notice+(sharedTolls.notice?' ':'')+(!tableTolls.segments.length?'Ajouter des péages connus dans le budget du trajet. Aucun montant n’est déduit des points de la carte.':!available?'Date des péages différente du départ prévu, ou grille expirée : actualiser le budget avant de répartir.':!any?'Choisir la portion de chaque péage connu, puis confirmer la vérification.':!sharedTolls.confirmed?'Choix préparés, pas encore appliqués aux frais partagés. Confirmer après vérification.':`Affectations appliquées : ${fmt(a.shared/100)} € avec les passagers, ${fmt((a.before+a.after)/100)} € hors portion commune, ${fmt(a.unassigned/100)} € non attribués (${a.unassignedCount} tronçon(s)). ${a.complete?'Couverture complète déclarée, non vérifiée sur la carte.':'Répartition partielle : des péages restent inconnus ou non attribués.'}`);
+}
+function bindSharedTolls(){
+ $('rideTollList').addEventListener('change',e=>{
+  const id=e.target.dataset.sharedToll;if(busy||!sharedTollAvailable()||!tableTolls.segments.some(s=>sharedTollId(s)===id))return;
+  if(!['unassigned','before','shared','after'].includes(e.target.value))return;
+  if(e.target.value==='unassigned')sharedTolls.choices.delete(id);else sharedTolls.choices.set(id,e.target.value);
+  sharedTolls.confirmed=false;sharedTolls.notice='';sharedTolls.revision++;updateBudget();
+ });
+ $('rideTollConfirm').addEventListener('change',()=>{sharedTolls.confirmed=!busy&&sharedTollAvailable()&&$('rideTollConfirm').checked;sharedTolls.notice='';sharedTolls.revision++;updateBudget()});
+ $('rideTollReset').addEventListener('click',()=>{if(busy)return;sharedTolls.choices.clear();sharedTolls.confirmed=false;sharedTolls.notice='Affectations retirées ; les péages du budget restent conservés.';sharedTolls.revision++;updateBudget()});
+ $('rideTollBudget').addEventListener('click',()=>{$('tariffCalculator').open=true;$('tariffNetwork').scrollIntoView({block:'center'});$('tariffNetwork').focus()});
+}
 
 let rideFingerprint='',rideRevision=0,rideDraft=null,rideCopying=false,rideEndpoints='';
 const rideMoney=c=>fmt(c/100)+' €';
@@ -1857,10 +1917,10 @@ function rideBudgetSnapshot(){
  if(tableTolls.segments.length){tollEuro=tableTolls.segments.reduce((n,s)=>n+s.amount,0)/100;tollStateName=$('tariffComplete').checked?'complete':'partial';tollSource='Tarifs '+[...new Set(tableTolls.segments.map(s=>s.network))].join(' / ')+' · '+(tollStateName==='complete'?'couverture déclarée par la personne':'tronçons partiels seulement')}
  else if(tollState.quote){const q=tollState.quote;if(['estimated','no_tolls'].includes(q.status)){tollEuro=q.amountEur;tollStateName='complete'}else if(q.status==='partial'){tollEuro=q.knownSubtotalEur;tollStateName='partial'}tollSource=q.provider+' · '+(q.status==='no_tolls'?'absence de péage confirmée par le service':'estimation du service')}
  const planned=departureInstant($('stationDeparture').value);
- if(tableTolls.segments.length&&$('tariffDate').value!==$('stationDeparture').value.slice(0,10)){tollEuro=null;tollStateName='unknown';tollSource='Date des tronçons différente du départ prévu : actualiser le budget des péages'}
+ if(tableTolls.segments.length&&(!tariffBudgetValid()||tableTolls.segments.some(s=>s.date!==$('stationDeparture').value.slice(0,10)))){tollEuro=null;tollStateName='unknown';tollSource='Date des tronçons différente du départ prévu : actualiser le budget des péages'}
  else if(!tableTolls.segments.length&&tollState.quote&&(!Number.isFinite(planned.instant)||Math.floor(Date.parse(tollState.quote.departureTime)/60000)!==Math.floor(planned.instant/60000))){tollEuro=null;tollStateName='unknown';tollSource='Départ du devis différent du départ prévu : actualiser les péages'}
  const detail=trip.meetings?meetingLegs(route,routePlanNodes(selectedStop?.station)):null;
- return {shared:detail?{km:detail.sharedDistance/1000,fuelEuro:fuelEuro===null?null:detail.sharedDistance/1000*cons/100*price}:null,fuelEuro,tollEuro,tollState:tollStateName,tollSource,routeKm:route.distance/1000,durationMinutes:Math.round(route.duration/60),fuel:$('fuel').value,price:fuelEuro===null?null:price,cons:cons,stop:Boolean(selectedStop),calculatedAt:selectedStop?.confirmedAt||trip.calculatedAt};
+ return {shared:detail?{km:detail.sharedDistance/1000,fuelEuro:fuelEuro===null?null:detail.sharedDistance/1000*cons/100*price,tolls:sharedTollAvailable()?sharedTollBreakdown(sharedTollItems(),sharedTolls.confirmed,$('tariffComplete').checked):null,tollRevision:sharedTolls.revision}:null,fuelEuro,tollEuro,tollState:tollStateName,tollSource,routeKm:route.distance/1000,durationMinutes:Math.round(route.duration/60),fuel:$('fuel').value,price:fuelEuro===null?null:price,cons:cons,stop:Boolean(selectedStop),calculatedAt:selectedStop?.confirmedAt||trip.calculatedAt};
 }
 function rideCounts(){
  const number=id=>{const el=$(id);if(!el.value.trim()||!el.validity.valid)throw new Error('Vérifier les places et le nombre de passagers.');return Number(el.value)};
@@ -1872,6 +1932,7 @@ function invalidateRideDraft(message='Paramètres modifiés : préparer un nouve
  rideRevision++;if(rideDraft)$('rideMessage').textContent=message;rideDraft=null;$('rideShare').hidden=true;$('rideText').value='';$('rideConsent').checked=false;$('rideCopy').disabled=true;
 }
 function updateRides(){
+ syncSharedTolls();
  const role=document.querySelector('input[name="rideRole"]:checked').value,cost=rideBudgetSnapshot();
  $('rideDriver').hidden=role!=='driver';$('ridePassenger').hidden=role!=='passenger';$('rideDeparture').value=$('stationDeparture').value;
  if(trip){const endpoints=JSON.stringify([trip.a,trip.b]);if(rideEndpoints&&rideEndpoints!==endpoints){for(const id of ['rideFrom','rideTo','rideNeeds'])$(id).value='';$('rideMessage').textContent='Nouveaux lieux de trajet : renseigner à nouveau les secteurs à partager.'}rideEndpoints=endpoints}
@@ -1892,7 +1953,9 @@ function updateRides(){
   if(cost.shared){
    line('Carburant du trajet complet',s.fuel===null?'À renseigner':rideMoney(s.fuel));line('Carburant de la portion partagée',s.sharedFuel===null?'À renseigner':rideMoney(s.sharedFuel));
    line('Péages du trajet complet',s.tolls===null?'Inconnus':rideMoney(s.tolls)+(cost.tollState==='partial'?' · partiels':''));
-   line('Par passager · portion partagée',!counts.passengers?'Aucun passager prévu':s.perPassenger===null?'Indisponible':rideMoney(s.perPassenger)+(s.sharedComplete?' · proposition':' · carburant seulement'));
+   line('Péages attribués à la portion commune',s.sharedTolls===null?'Non attribués':rideMoney(s.sharedTolls)+(s.allocation?.confirmed?' · déclaration':' · sans péage confirmé'));
+   if(s.allocation?.confirmed){line('Péages hors portion commune · conducteur',rideMoney(s.allocation.before+s.allocation.after));line('Péages connus non attribués',rideMoney(s.allocation.unassigned)+(s.allocation.unassignedCount?' · à vérifier':''))}
+   line('Par passager · portion partagée',!counts.passengers?'Aucun passager prévu':s.perPassenger===null?'Indisponible':rideMoney(s.perPassenger)+(s.sharedComplete?' · proposition':s.sharedTolls===null?' · carburant seulement':' · frais connus seulement'));
    line('Reste conducteur sur frais connus',s.driver===null?'Indisponible':rideMoney(s.driver));
    $('rideCostNote').textContent=sharedRideNote(cost,s);return;
   }
@@ -1903,7 +1966,10 @@ function updateRides(){
   $('rideCostNote').textContent=`Hypothèse : ${counts.passengers} passager(s) + le conducteur, soit ${s.occupants} personne(s), sur tout le trajet de ${fmt(cost.routeKm,1)} km${cost.stop?', arrêt station inclus':''}. ${s.complete?'Montants estimés ; couverture des péages selon le budget.':'Frais incomplets : aucune participation totale calculable.'} Parts égales au centime inférieur ; le conducteur garde le reliquat. ${cost.tollSource}.`;
  }catch(e){$('rideCostNote').textContent=e.message;$('ridePassengerNote').textContent=e.message}
 }
-function sharedRideNote(cost,s){return `${s.passengers} passager(s) + le conducteur sur ${fmt(cost.shared.km,1)} km partagés, pour ${fmt(cost.routeKm,1)} km au total. Carburant hors portion commune laissé au conducteur. Parts égales au centime inférieur ; reliquat au conducteur. ${s.sharedComplete?'Péages nuls sur le trajet selon le budget ; proposition estimée.':'Péages non attribuables à la portion commune : aucune participation totale calculable. Les montants connus restent provisoirement dans le reste conducteur.'} ${cost.tollSource}.`}
+function sharedRideNote(cost,s){
+ const a=s.allocation,assignment=a?.confirmed?`Affectation déclarée : ${rideMoney(a.shared)} de péages avec les passagers, ${rideMoney(a.before+a.after)} hors portion commune, ${rideMoney(a.unassigned)} non attribués (${a.unassignedCount} tronçon(s)). ${s.sharedComplete?'Proposition carburant + péages, selon la couverture déclarée.':'Répartition partielle : aucune participation totale calculable. Les frais non attribués restent provisoirement dans le reste conducteur.'}`:s.sharedComplete?'Péages nuls sur le trajet selon le budget ; proposition estimée.':'Péages non attribuables à la portion commune : aucune participation totale calculable. Les montants connus restent provisoirement dans le reste conducteur.';
+ return `${s.passengers} passager(s) + le conducteur sur ${fmt(cost.shared.km,1)} km partagés, pour ${fmt(cost.routeKm,1)} km au total. Carburant hors portion commune laissé au conducteur. Parts égales au centime inférieur ; reliquat au conducteur. ${assignment} ${cost.tollSource}.`;
+}
 function prepareRideText(){
  try{
   updateBudget();if(busy||!trip)throw new Error('Calculer un trajet avant de préparer le récapitulatif.');
@@ -1913,7 +1979,7 @@ function prepareRideText(){
   const lines=['Préparation de covoiturage — à convenir',counts.role==='driver'?'Rôle : conducteur':'Rôle : recherche de place',`Secteurs saisis : ${from} → ${to}`,`Départ envisagé : ${arrivalLabel(departure.instant)} (Europe/Paris).`];
   if(counts.role==='driver'){
    const s=splitRideCosts(cost,counts.passengers,counts.seats);
-   if(cost.shared){lines.push(`Places proposées : ${counts.seats}, hors conducteur.`,sharedRideNote(cost,s),`Durée totale estimée : ${cost.durationMinutes} min, hors pauses et embarquement.`,`Péages du trajet complet : ${s.tolls===null?'inconnus':rideMoney(s.tolls)}${cost.tollState==='partial'?' · partiels':''}.`,`Carburant du trajet : ${s.fuel===null?'inconnu':rideMoney(s.fuel)} ; carburant partagé : ${s.sharedFuel===null?'inconnu':rideMoney(s.sharedFuel)}.`,s.perPassenger===null?'Contribution indisponible.':`Proposition carburant par passager : ${rideMoney(s.perPassenger)} ; total passagers : ${rideMoney(s.passengerTotal)}.`,`Reste conducteur sur frais connus : ${s.driver===null?'inconnu':rideMoney(s.driver)}.`,`Référence carburant : ${cost.fuel}, ${fmt(cost.cons,1)} L/100 km ; prix ${cost.price===null?'non renseigné':fmt(cost.price,3)+' €/L'}.`)}else{
+   if(cost.shared){lines.push(`Places proposées : ${counts.seats}, hors conducteur.`,sharedRideNote(cost,s),`Durée totale estimée : ${cost.durationMinutes} min, hors pauses et embarquement.`,`Péages du trajet complet : ${s.tolls===null?'inconnus':rideMoney(s.tolls)}${cost.tollState==='partial'?' · partiels':''}.`,`Carburant du trajet : ${s.fuel===null?'inconnu':rideMoney(s.fuel)} ; carburant partagé : ${s.sharedFuel===null?'inconnu':rideMoney(s.sharedFuel)}.`,!counts.passengers?'Aucun passager prévu dans la simulation.':s.perPassenger===null?'Contribution indisponible.':`Proposition ${s.sharedComplete?'carburant + péages':s.sharedTolls===null?'carburant':'sur frais connus seulement'} par passager : ${rideMoney(s.perPassenger)} ; total passagers : ${rideMoney(s.passengerTotal)}.`,`Reste conducteur sur frais connus : ${s.driver===null?'inconnu':rideMoney(s.driver)}.`,`Référence carburant : ${cost.fuel}, ${fmt(cost.cons,1)} L/100 km ; prix ${cost.price===null?'non renseigné':fmt(cost.price,3)+' €/L'}.`)}else{
    lines.push(`Places proposées : ${counts.seats}, hors conducteur, à confirmer avec le véhicule.`,`Simulation : ${counts.passengers} passager(s) + 1 conducteur, sur l’ensemble de l’itinéraire routier préparé (${fmt(cost.routeKm,1)} km, ${cost.durationMinutes} min de route, hors pauses${cost.stop?', détour station inclus':''}).`,`Carburant consommé estimé : ${s.fuel===null?'inconnu':rideMoney(s.fuel)+' ; '+cost.fuel+', '+fmt(cost.cons,1)+' L/100 km, prix de référence '+fmt(cost.price,3)+' €/L'}.`,`Péages : ${s.tolls===null?'inconnus':rideMoney(s.tolls)}. ${cost.tollSource}.`);
    if(s.total===null)lines.push('Frais indisponibles : aucune contribution calculable.');
    else lines.push(`${s.complete?'Carburant + péages estimés':'Montant connu seulement — incomplet'} : ${rideMoney(s.total)}.`,counts.passengers?`Part ${s.complete?'indicative':'partielle sur montant connu'} par passager : ${rideMoney(s.perPassenger)} ; total passagers : ${rideMoney(s.passengerTotal)}.`:'Aucun passager prévu dans la simulation.',`Part ${s.complete?'indicative':'partielle'} du conducteur : ${rideMoney(s.driver)}. Parts égales au centime inférieur ; reliquat laissé au conducteur.`);
@@ -1926,6 +1992,7 @@ function prepareRideText(){
  }catch(e){invalidateRideDraft();$('rideMessage').textContent=e.message}
 }
 function bindRides(){
+ bindSharedTolls();
  for(const el of document.querySelectorAll('input[name="rideRole"],#rideSeats,#ridePassengers,#rideWanted,#rideFrom,#rideTo,#rideNeeds'))el.addEventListener('input',updateRides);
  $('rideDeparture').addEventListener('input',()=>{$('stationDeparture').value=$('rideDeparture').value;refreshArrival()});
  $('ridePrepare').addEventListener('click',prepareRideText);
