@@ -36,7 +36,7 @@ Une estimation de frais n’est ni le prix contractuel d’une offre, ni une ré
 
 « Préparer un récapitulatif à partager » demande deux libellés de secteurs ou points publics à communiquer, ainsi que des besoins ou conditions facultatifs. Les adresses du trajet, les coordonnées, les adresses du profil et l’adresse de la station ne sont pas recopiées automatiquement. Ces libellés sont déclaratifs : ils ne déplacent pas le trajet et ne créent pas un détour géocodé.
 
-Le texte présente rôle, départ, places et conditions. Pour le conducteur, il ajoute l’hypothèse d’occupation, le périmètre kilométrique complet, les composantes connues, leurs limites et la répartition. Pour le passager, il conserve un prix inconnu et le nombre de places demandé. Le texte rappelle l’absence de publication et de réservation.
+Le texte présente rôle, départ, places et conditions. Pour le conducteur, il ajoute l’hypothèse d’occupation, le périmètre kilométrique complet, les composantes connues, leurs limites et la répartition. Pour le passager, il conserve un prix inconnu et le nombre de places demandé. Le texte rappelle l’absence de publication et de réservation. Les durées routières excluent les pauses et l’embarquement ; aucun trafic en direct n’est annoncé.
 
 Le contenu apparaît dans une zone de texte à relire. La copie exige une confirmation explicite des lieux et informations. Aucun message n’est envoyé et aucune action de partage native n’est déclenchée. Si le navigateur refuse l’accès au presse-papiers, le texte est sélectionné pour une copie manuelle. Si les paramètres changent pendant une copie en cours, le résultat signale que la version copiée est antérieure.
 
