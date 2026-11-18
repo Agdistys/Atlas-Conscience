@@ -630,6 +630,7 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   $("startDot").setAttribute("cx",a[0]);$("startDot").setAttribute("cy",a[1]);
   $("endDot").setAttribute("cx",b[0]);$("endDot").setAttribute("cy",b[1]);
   $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<g class="svg-station" role="button" tabindex="0" data-details="${escapeHtml(s.id)}" aria-label="Voir la station ${s.number} : ${escapeHtml(s.address)}"><circle class="${cl}" cx="${x}" cy="${y}" r="16"/><text x="${x}" y="${y+5}" text-anchor="middle">${s.number}</text></g>`}).join("");
+  tollGuide.projection=P;drawTollMarkers();
   $("fallbackLabel").textContent=label||"Visualisation autonome";
 }
 function showOnMap(coords,stations,best,start,end,label,fit=true){
@@ -653,6 +654,7 @@ function showOnMap(coords,stations,best,start,end,label,fit=true){
     marker.getElement().setAttribute("aria-label",`Voir la station ${s.number} : ${s.address}`);
     marker.on("click",()=>openStation(s.id));
   });
+  drawTollMarkers();
   map.invalidateSize();if(fit)map.fitBounds(L.featureGroup([routeLayer,markerLayer]).getBounds(),{padding:[35,35]});
 }
 
@@ -684,6 +686,103 @@ function resetRange(){
 const tollState={key:'',sequence:0,abort:null,timer:null,expiry:null,quote:null,error:'',loading:false,enabled:false};
 const tableTolls={key:'',segments:[],notice:'',index:new Map(),dateInitialized:false};
 const tariffData=window.DRAGONROUTE_TARIFFS;
+// BEGIN TOLL GUIDE GEOMETRY
+function tollName(value){return String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’]/g,"'").trim().replace(/\s+/g,' ').toUpperCase()}
+function guideDistance(a,b){
+ const rad=Math.PI/180,z=Math.sin((b[0]-a[0])*rad/2)**2+Math.cos(a[0]*rad)*Math.cos(b[0]*rad)*Math.sin((b[1]-a[1])*rad/2)**2;
+ return 6371*2*Math.asin(Math.sqrt(Math.min(1,z)));
+}
+function findTollGates(coords,gates,radius){
+ if(!Array.isArray(coords)||coords.length<2||!Number.isFinite(radius)||radius<=0||radius>1)throw new Error('Tracé ou rayon invalide.');
+ if(coords.some(p=>!Array.isArray(p)||p.length<2||!p.slice(0,2).every(Number.isFinite)))throw new Error('Coordonnées invalides.');
+ let progress=0;const segments=coords.slice(1).map((b,i)=>{const a=coords[i],length=guideDistance(a,b),s={a,b,length,progress};progress+=length;return s});
+ return gates.flatMap(gate=>{
+  let best=null;
+  for(const position of gate.positions){
+   const [lat,lon]=position,kx=111.32*Math.cos(lat*Math.PI/180),ky=110.574;
+   for(const s of segments){
+    const {a,b}=s;
+    if(lat<Math.min(a[0],b[0])-radius/ky||lat>Math.max(a[0],b[0])+radius/ky||lon<Math.min(a[1],b[1])-radius/kx||lon>Math.max(a[1],b[1])+radius/kx)continue;
+    const vx=(b[1]-a[1])*kx,vy=(b[0]-a[0])*ky,wx=(lon-a[1])*kx,wy=(lat-a[0])*ky,c=vx*vx+vy*vy;
+    const t=c?Math.max(0,Math.min(1,(wx*vx+wy*vy)/c)):0,distance=Math.hypot(wx-t*vx,wy-t*vy);
+    if(distance<=radius&&(!best||distance<best.distance))best={distance,progress:s.progress+t*s.length,lat,lon};
+   }
+  }
+  return best?[{...gate,...best}]:[];
+ }).sort((a,b)=>a.progress-b.progress||a.id.localeCompare(b.id));
+}
+// END TOLL GUIDE GEOMETRY
+const tollInventory=window.DRAGONROUTE_TOLL_GATES;
+const tollGuide={key:'',matches:[],total:0,shown:false,layer:null,projection:null,suggested:false};
+function syncTollGuide(key){
+ if(key!==tollGuide.key){
+  tollGuide.key=key;tollGuide.matches=[];tollGuide.total=0;tollGuide.shown=false;
+  if(tollGuide.suggested){$("tariffEntry").value='';$("tariffExit").replaceChildren(new Option('Choisir une sortie',''))}
+  tollGuide.suggested=false;$("tariffGateConfirmed").checked=false;
+  $("tollGateList").replaceChildren();$("tollGuideChoice").textContent="";$("tollGuideStatus").textContent=trip?'Repérage à lancer pour ce trajet.':'Calculer un trajet pour repérer les gares.';
+  drawTollMarkers();
+ }
+ $("tollLocate").disabled=busy||!trip||tollInventory?.schemaVersion!==1;
+ $("tollGuideRadius").disabled=busy||!trip;
+ $("tollGuideToggle").hidden=!tollGuide.matches.length;$("tollGuideToggle").disabled=busy;
+ $("tollGuideToggle").textContent=tollGuide.shown?'Masquer les gares sur la carte':'Afficher les gares sur la carte';
+ $("tariffGateConfirmation").hidden=!tollGuide.suggested;
+ $("tariffGateConfirmed").disabled=busy||!trip;
+ document.querySelectorAll('[data-toll-propose],[data-toll-map]').forEach(el=>el.disabled=busy);
+ if(!tollInventory)$("tollGuideStatus").textContent='Inventaire géographique indisponible. Le choix manuel des gares reste disponible.';
+}
+function gateTariffNames(gate){
+ return Object.entries(tariffData?.networks||{}).flatMap(([network,data])=>data.gates.flatMap((name,index)=>tollName(name)===tollName(gate.name)?[{network,index,name}]:[]));
+}
+function renderTollGuide(){
+ $("tollGateList").innerHTML=tollGuide.matches.map((gate,i)=>{
+  const names=gateTariffNames(gate),match=names.length===1?names[0]:null;
+  return `<article class="toll-gate-card" id="toll-card-${gate.id}" tabindex="-1"><h4>P${i+1} · ${escapeHtml(gate.name)}</h4><p>${escapeHtml(gate.type)} · ${gate.positions.length} position(s) recensée(s). À ${Math.round(gate.distance*1000)} m du tracé ; vers le km ${fmt(gate.progress,1)} de sa géométrie.</p><p class="note">Passage à confirmer.${match?` Nom concordant dans la grille ${match.network} : ${escapeHtml(match.name)}.`:names.length?' Plusieurs noms tarifaires concordants : choisir manuellement le réseau et les gares.':' Aucun nom concordant dans les grilles APRR/AREA embarquées. Tarif non déduit.'}</p><div class="dialog-actions"><button class="ghost" data-toll-map="${gate.id}">Voir le point P${i+1}</button>${match?`<button class="ghost" data-toll-propose="${gate.id}" data-gate-role="entry">Proposer comme entrée ${match.network}</button><button class="ghost" data-toll-propose="${gate.id}" data-gate-role="exit">Proposer comme sortie ${match.network}</button>`:''}</div></article>`;
+ }).join('');
+}
+function locateTollGates(){
+ if(busy||!trip||tollInventory?.schemaVersion!==1)return;
+ const route=selectedStop?.via||trip.base;
+ try{
+  const radius=Number($("tollGuideRadius").value);
+  const matches=findTollGates(route.geometry.coordinates.map(([lon,lat])=>[lat,lon]),tollInventory.gates,radius);
+  tollGuide.total=matches.length;tollGuide.matches=matches.slice(0,80);tollGuide.shown=true;
+  $("tollGuideStatus").textContent=matches.length?`${matches.length} repère(s) candidat(s) à moins de ${Math.round(radius*1000)} m du tracé.${matches.length>80?' Les 80 premiers sont affichés ; réduire le rayon pour affiner.':''} Ni le sens de circulation ni le passage effectif ne sont confirmés.`:'Aucune gare recensée trouvée dans ce rayon. Cela ne confirme pas un trajet sans péage.';
+  renderTollGuide();drawTollMarkers();syncTollGuide(tollGuide.key);
+ }catch(e){tollGuide.matches=[];tollGuide.shown=false;$("tollGateList").replaceChildren();drawTollMarkers();$("tollGuideStatus").textContent=`Repérage indisponible : ${e.message}`}
+}
+function drawTollMarkers(){
+ if(tollGuide.layer&&map){map.removeLayer(tollGuide.layer);tollGuide.layer=null}
+ $("tollDots")?.replaceChildren();
+ if(!tollGuide.shown)return;
+ if(map){
+  tollGuide.layer=L.layerGroup().addTo(map);
+  tollGuide.matches.forEach((gate,i)=>{
+   const marker=L.marker([gate.lat,gate.lon],{icon:L.divIcon({className:'toll-marker',html:`P${i+1}`,iconSize:[36,30],iconAnchor:[18,15]}),title:`Gare candidate ${gate.name}`,keyboard:true}).addTo(tollGuide.layer);
+   marker.getElement().setAttribute('aria-label',`Voir la gare candidate P${i+1} : ${gate.name}`);
+   marker.on('click',()=>focusTollCard(gate.id));
+  });
+ }else if(tollGuide.projection){
+  $("tollDots").innerHTML=tollGuide.matches.map((gate,i)=>{const [x,y]=tollGuide.projection([gate.lat,gate.lon]);return `<g class="svg-toll" role="button" tabindex="0" data-toll-focus="${gate.id}" aria-label="Voir la gare candidate P${i+1} : ${escapeHtml(gate.name)}"><rect x="${x-18}" y="${y-15}" width="36" height="30" rx="4"/><text x="${x}" y="${y+5}" text-anchor="middle">P${i+1}</text></g>`}).join('');
+ }
+}
+function focusTollCard(id){const card=$('toll-card-'+id);if(card){$("tariffCalculator").open=true;$("tollLocator").open=true;card.scrollIntoView({block:'center'});card.focus()}}
+function proposeTollGate(id,role){
+ if(busy||!trip)return;
+ const gate=tollGuide.matches.find(g=>g.id===id),names=gate?gateTariffNames(gate):[];
+ if(names.length!==1)return;
+ const match=names[0];
+ if(role==='exit'){
+  const entry=$("tariffEntry").value;
+  if($("tariffNetwork").value!==match.network||entry===''||!tariffData.networks[match.network].rows.some(r=>String(r[0])===entry&&r[1]===match.index)){$("tollGuideChoice").textContent=`Choisir d’abord une entrée ${match.network} compatible dans le calculateur. Aucun choix n’a été remplacé.`;return}
+  $("tariffExit").value=String(match.index);
+ }else{
+  $("tariffNetwork").value=match.network;tariffGates(true);$("tariffEntry").value=String(match.index);tariffGates();
+ }
+ tollGuide.suggested=true;$("tariffGateConfirmed").checked=false;$("tollGuideChoice").textContent=`${role==='exit'?'Sortie':'Entrée'} proposée : ${match.name} (${match.network}). Vérifier les gares réellement empruntées avant l’ajout au budget.`;
+ updateBudget();$(role==='exit'?'tariffExit':'tariffEntry').focus();
+}
+
 function localDate(){const d=new Date(Date.now()-new Date().getTimezoneOffset()*60000);return d.toISOString().slice(0,10)}
 function tariffDateValid(){
  const d=$("tariffDate").value;
@@ -723,12 +822,13 @@ function syncTableTolls(){
  const route=selectedStop?.via||trip?.base;
  const key=trip?JSON.stringify([trip.calculatedAt,trip.routing,route.geometry.coordinates,route.distance,selectedStop?.station.id]):'';
  if(key!==tableTolls.key){if(tableTolls.segments.length)clearTableTolls('Trajet modifié : les tronçons ont été retirés du budget.');tableTolls.key=key}
+ syncTollGuide(key);
  if(!tariffDateValid()&&tableTolls.segments.length)clearTableTolls('Grille hors période de consultation : budget retiré.');
  $("tariffFields").disabled=busy||!trip||!tariffData;
  $("tariffExit").disabled=$("tariffEntry").value==='';
  const c=tariffCandidate(),duplicate=c&&tableTolls.segments.some(s=>s.network===c.network&&s.entry===c.entry&&s.exit===c.exit);
  $("tariffResult").textContent=!tariffData?'Grilles indisponibles.':!tariffDateValid()?'Grille non proposée pour cette date. Une mise à jour des tarifs est nécessaire.':c?`${fmt(c.amount/100)} € TTC · classe ${c.vehicleClass} · ${c.network} · tronçon choisi`:'Choisir une classe, une entrée et une sortie.';
- $("tariffAdd").disabled=busy||!trip||!c||duplicate||tableTolls.segments.length>=10;
+ $("tariffAdd").disabled=busy||!trip||!c||duplicate||tableTolls.segments.length>=10||(tollGuide.suggested&&!$("tariffGateConfirmed").checked);
  $("tariffAdd").textContent=duplicate?'Tronçon déjà ajouté':'Ajouter ce tronçon au budget';
  $("tariffSource").textContent=tariffData?`Grille en vigueur au 01/02/2026, consultée le 17/11/2026. Consultation proposée jusqu’au 31/12/2026 ; ce seuil ne garantit pas le maintien des prix. Vérifier la grille officielle avant le départ.`:'';
  $("tariffPdf").href=tariffNetwork()?.source||'https://voyage.aprr.fr/tarifs-de-peage';
@@ -1159,6 +1259,14 @@ function bindProfile(){
 function bind(){
   for(const id of ["tollHeight","tollWeight","tollPayment","tollDeparture","tollVehicleConfirmed"])$(id).addEventListener("input",updateBudget);
   $("tollCalculate").addEventListener("click",()=>{if(busy||!tollEndpoint()||!tollParameters())return;clearTableTolls('Calcul automatique demandé : les tronçons manuels ont été retirés.');tollState.enabled=true;tollState.key='';updateBudget()});
+  $("tollLocate").addEventListener('click',locateTollGates);
+  $("tollGuideRadius").addEventListener('change',()=>{if(!busy&&trip)locateTollGates()});
+  $("tollGuideToggle").addEventListener('click',()=>{if(!busy){tollGuide.shown=!tollGuide.shown;drawTollMarkers();syncTollGuide(tollGuide.key)}});
+  $("tariffGateConfirmed").addEventListener('change',updateBudget);
+  for(const id of ['tariffNetwork','tariffEntry','tariffExit'])$(id).addEventListener('change',()=>{$("tariffGateConfirmed").checked=false});
+  $("tollGateList").addEventListener('click',e=>{const b=e.target.closest('button');if(!b||busy)return;if(b.dataset.tollPropose)proposeTollGate(b.dataset.tollPropose,b.dataset.gateRole);if(b.dataset.tollMap){const g=tollGuide.matches.find(g=>g.id===b.dataset.tollMap);if(!g)return;tollGuide.shown=true;drawTollMarkers();syncTollGuide(tollGuide.key);if(map)map.setView([g.lat,g.lon],Math.max(map.getZoom(),13));$(map?'map':'mapFallback').scrollIntoView({block:'center'})}});
+  document.addEventListener('click',e=>{const el=e.target.closest('[data-toll-focus]');if(el)focusTollCard(el.dataset.tollFocus)});
+  document.addEventListener('keydown',e=>{const el=e.target.closest('[data-toll-focus]');if(el&&['Enter',' '].includes(e.key)){e.preventDefault();focusTollCard(el.dataset.tollFocus)}});
   $("tariffNetwork").addEventListener('change',()=>tariffGates(true));
   $("tariffEntry").addEventListener('change',()=>tariffGates());
   $("tariffExit").addEventListener('change',updateBudget);
@@ -1166,7 +1274,7 @@ function bind(){
   $("tariffComplete").addEventListener('change',updateBudget);
   $("tariffClear").addEventListener('click',()=>{clearTableTolls('Tronçons retirés.');updateBudget()});
   $("tariffAdd").addEventListener('click',()=>{
-   const c=tariffCandidate();if(busy||!trip||!c||tableTolls.segments.length>=10||tableTolls.segments.some(s=>s.network===c.network&&s.entry===c.entry&&s.exit===c.exit))return;
+   const c=tariffCandidate();if(busy||!trip||!c||(tollGuide.suggested&&!$("tariffGateConfirmed").checked)||tableTolls.segments.length>=10||tableTolls.segments.some(s=>s.network===c.network&&s.entry===c.entry&&s.exit===c.exit))return;
    resetTollQuote();tollState.enabled=false;tableTolls.segments.push(c);$("tariffComplete").checked=false;tableTolls.notice='Tronçon ajouté au budget. Jusqu’à dix tronçons, sans doublon identique. Vérifier les éventuels chevauchements.';updateBudget();
   });
   tariffGates(true);

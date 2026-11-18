@@ -3,7 +3,7 @@ import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
 async function setup(page){
  await mockDragonRoute(page);await page.goto('/DragonRoute/');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
- await page.locator('#tariffCalculator summary').click();
+ await page.locator('#tariffCalculator > summary').click();
 }
 async function choose(page,exit='AIX NORD'){
  await page.locator('#tariffNetwork').selectOption('AREA');await page.locator('#tariffClass').selectOption('1');
@@ -60,7 +60,7 @@ test('grilles : calcul manuel et devis automatique ne sont jamais additionnes',a
  await page.goto('/DragonRoute/');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
  await page.locator('#budgetPrice').fill('2');await page.locator('#tollHeight').fill('1.6');await page.locator('#tollWeight').fill('1900');await page.locator('#tollVehicleConfirmed').check();await page.locator('#tollCalculate').click();
  await expect(page.locator('#budgetTotal')).toHaveText('22,40 € · estimation');
- await page.locator('#tariffCalculator summary').click();await choose(page);await page.locator('#tariffAdd').click();await page.locator('#tariffComplete').check();
+ await page.locator('#tariffCalculator > summary').click();await choose(page);await page.locator('#tariffAdd').click();await page.locator('#tariffComplete').check();
  await expect(page.locator('#budgetTotal')).toHaveText('16,40 € · estimation déclarée');expect(calls).toBe(1);
  await page.locator('#tollCalculate').click();await expect(page.locator('#tariffSegments li')).toHaveCount(0);await expect(page.locator('#budgetTotal')).toHaveText('22,40 € · estimation');expect(calls).toBe(2);
 });
