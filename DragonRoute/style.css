@@ -65,3 +65,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 #journalImportDialog .saved-row {min-width:0}
 
 .arrival-options{margin:18px 0;padding-top:12px;border-top:1px solid var(--line)}#stationDeparture{max-width:100%;min-width:0;box-sizing:border-box}#stationDepartureNow{margin-top:8px}.station-opening{font-size:12px;line-height:1.55;border-left:2px solid var(--muted);padding-left:8px;overflow-wrap:anywhere}.station-opening[data-opening="compatible"]{border-color:var(--green)}.station-opening[data-opening="outside"]{border-color:var(--red)}
+
+#preparedDialog,#preparedImportDialog{width:min(680px,94vw)}#preparedDialog p,#preparedImportDialog p,#preparedList strong,#preparedDetails h3{overflow-wrap:anywhere}.prepared-schema{width:100%;height:auto;max-height:260px;background:#18181d;border:1px solid var(--line);border-radius:8px}.file-button{display:block;font-size:13px;color:var(--text);margin:8px 0}.file-button input{width:100%;max-width:100%}#preparedList .saved-row{margin-top:16px}#preparedResume .ghost{margin:6px 5px 0 0}

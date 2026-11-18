@@ -15,7 +15,7 @@
 <div id="app">
   <header class="topbar">
     <div class="brand"><span class="dragon">🐉</span><strong>DragonRoute</strong><span class="badge">V3 PWA</span></div>
-    <div class="header-actions"><button id="journalBtn" class="ghost" type="button">Mon journal</button><button id="profileBtn" class="ghost">Mon profil</button><button id="installBtn" class="ghost tiny-btn" hidden>＋ Installer</button></div>
+    <div class="header-actions"><button id="preparedBtn" class="ghost" type="button">Mes trajets</button><button id="journalBtn" class="ghost" type="button">Mon journal</button><button id="profileBtn" class="ghost">Mon profil</button><button id="installBtn" class="ghost tiny-btn" hidden>＋ Installer</button></div>
   </header>
   <main class="stage">
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
@@ -54,8 +54,10 @@
             <label><input id="avoidFerries" type="checkbox" value="ferries"> Les ferries <span class="availability"></span></label>
           </fieldset>
           <p id="routingAvailability" class="note" role="status"></p>
+          <button id="clearUnavailableOptions" class="ghost" type="button" hidden>Retirer les exclusions indisponibles</button>
           <p class="note">France : couverture à vérifier selon les données disponibles. Les chemins non revêtus ne disposent pas encore d’un filtre dédié.</p>
         </details>
+        <section id="preparedResume" class="selection" hidden aria-label="Préparation reprise"><p id="preparedResumeNote" role="status"></p><p id="preparedStopNote" class="note"></p><button id="preparedReviewStop" class="ghost" type="button" hidden>Revoir l’arrêt mémorisé</button><button id="preparedDismiss" class="ghost" type="button">Masquer ce rappel</button></section>
         <button id="goBtn" class="primary">Trouver mon trajet</button>
         <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
         <div id="summary" class="summary" hidden><div class="metric"><b id="tripKm">—</b><small>trajet affiché</small></div><div class="metric"><b id="tripTime">—</b><small>durée estimée</small></div></div>
@@ -64,6 +66,7 @@
         <p id="appliedRouting" class="note" hidden></p>
         <p id="resolvedPlaces" class="note" hidden></p>
         <button id="navigationBtn" class="ghost navigation-button" type="button" hidden>Navigation et tracé GPS</button>
+        <button id="savePreparationBtn" class="ghost navigation-button" type="button" hidden>Enregistrer cette préparation</button>
         <button id="journalRecordBtn" class="ghost navigation-button" type="button" hidden>J’ai effectué ce trajet</button>
       </section>
       <section id="tripBudget" class="stops-section" hidden aria-labelledby="budgetHeading">
@@ -177,6 +180,27 @@
     </section>
   </main>
 </div>
+<dialog id="preparedDialog" aria-labelledby="preparedTitle">
+  <div class="dialog-heading"><h2 id="preparedTitle">Mes trajets préparés</h2><button class="icon-btn close-dialog" type="button" aria-label="Fermer les trajets préparés">×</button></div>
+  <p class="note">Préparations et tracés conservés sur ce navigateur, dans cet environnement. Aucun déplacement n’est ajouté au journal. Les lieux peuvent être personnels ; les exports sont des fichiers en clair. Conserver une copie avant d’effacer les données du navigateur.</p>
+  <p id="preparedMessage" class="note" role="status"></p>
+  <section id="preparedEditor" class="detail-section" hidden aria-labelledby="preparedEditorTitle"><h3 id="preparedEditorTitle">Enregistrer cette préparation</h3>
+    <form id="preparedForm"><label for="preparedName">Nom de la préparation</label><input id="preparedName" maxlength="80" required autocomplete="off">
+      <p class="note">Lieux, véhicule, préférences, arrêt souhaité et tracé daté. Les prix, péages, horaires et stocks devront être recherchés à nouveau.</p>
+      <p id="preparedDuplicateNote" class="note"></p><label id="preparedDuplicateRow" class="check-label" hidden><input id="preparedDuplicate" type="checkbox"> Conserver aussi cette préparation distincte</label>
+      <label class="check-label"><input id="preparedConfirm" type="checkbox"> Enregistrer ces informations dans ce navigateur</label><button id="preparedSave" class="primary" type="submit" disabled>Enregistrer</button>
+    </form>
+  </section>
+  <div class="dialog-actions"><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
+  <div id="preparedList"></div>
+  <section id="preparedView" class="detail-section" hidden aria-label="Préparation enregistrée"><div id="preparedDetails"></div><button id="preparedResumeBtn" class="primary" type="button">Préparer à nouveau ce trajet</button></section>
+</dialog>
+<dialog id="preparedImportDialog" aria-labelledby="preparedImportTitle">
+  <div class="dialog-heading"><h2 id="preparedImportTitle">Vérifier la sauvegarde</h2><button class="icon-btn close-dialog" type="button" aria-label="Annuler l’import des préparations">×</button></div>
+  <p id="preparedImportSummary"></p><p class="note">Le remplacement concerne uniquement les préparations de cet environnement. Profil et journal restent conservés. Sans export préalable, aucun retour automatique à l’ancienne liste.</p>
+  <button id="preparedBackup" class="ghost" type="button">Exporter la liste actuelle avant remplacement</button><div id="preparedImportDetails"></div><label class="check-label"><input id="preparedImportConfirm" type="checkbox"> Remplacer ma liste de préparations par ce fichier</label>
+  <p id="preparedImportMessage" class="note" role="status"></p><button id="preparedImportApply" class="primary" type="button" disabled>Confirmer le remplacement</button>
+</dialog>
 <dialog id="navigationDialog" aria-labelledby="navigationTitle">
   <div class="dialog-heading"><h2 id="navigationTitle">Emporter ce trajet</h2><button class="icon-btn close-dialog" type="button" aria-label="Fermer la navigation" title="Fermer">×</button></div>
   <p id="navigationSummary" class="note"></p>
