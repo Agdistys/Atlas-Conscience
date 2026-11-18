@@ -559,16 +559,16 @@ function filterStations(stations){
   });
   return {visible,excluded,error:""};
 }
-function refreshStationMap(visible){
+function refreshStationMap(visible,fit=false){
   if(!trip)return;
   const chosen=selectedStop?.station,outside=chosen&&!visible.some(s=>s.id===chosen.id);
   $("filteredStopNote").hidden=!outside;
   $("filteredStopNote").textContent=outside?`L’arrêt choisi (point ${chosen.number}) ne satisfait plus les filtres. Il reste dans le trajet et sur la carte, en plus des résultats. Utiliser « Retirer l’arrêt » pour l’enlever.`:"";
   const points=outside?[...visible,chosen]:visible;
   const coords=selectedStop?selectedStop.via.geometry.coordinates.map(([lon,lat])=>[lat,lon]):trip.coords;
-  showOnMap(coords,points,chosen||null,trip.a,trip.b,trip.label,false);
+  showOnMap(coords,points,chosen||null,trip.a,trip.b,chosen?`${trip.label} · arrêt ${chosen.city}`:trip.label,fit);
 }
-function renderStations(stations,mode){
+function renderStations(stations,mode,fit=false){
   const range=rangeEstimate(),{visible,excluded,error}=filterStations(stations);
   $("stationListControls").hidden=!stations.length;
   $("eligibleCount").textContent=String(visible.length);
@@ -578,7 +578,7 @@ function renderStations(stations,mode){
   if(!visible.length){
     $("stationFilterStatus").textContent=baseText;
     $("stationCards").innerHTML=`<p class="note">${error?"Corriger la saisie ou réinitialiser les filtres.":stations.length&&excluded.range===stations.length?"Aucune station comparée dans la portée estimée. Ne pas compter sur cette estimation pour poursuivre sans carburant.":"Aucune station comparée ne satisfait tous les filtres. Modifier ou réinitialiser les filtres sans recalculer le trajet. Aucun élargissement automatique."}</p>`;
-    refreshStationMap([]);return;
+    refreshStationMap([],fit);return;
   }
   const cost=Math.min(...visible.map(s=>Math.round(s.real*100))),price=Math.min(...visible.map(s=>Math.round(s.price*1000))),minutes=Math.min(...visible.map(s=>s.extraMin));
   const winners=[
@@ -604,7 +604,7 @@ function renderStations(stations,mode){
     </article>`).join("");
   document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===selectedStop?.station.id));
   document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===selectedStop?.station.id)));
-  refreshStationMap(visible);
+  refreshStationMap(visible,fit);
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
@@ -1030,7 +1030,7 @@ async function searchStations(){
     updateServiceChoices();
     if(!compared.length)throw new Error(`${note} Aucune station comparable dans cette plage de distance. Modifie la distance choisie.`.trim());
     compared.forEach((s,i)=>s.number=i+1);
-    renderStations(compared,w.mode);
+    renderStations(compared,w.mode,true);
     $("fuelStatus").textContent=`${compared.length} stations comparées parmi ${found.stations.length} reçues. ${note?note+" ":""}${found.partial?"Réponse partielle du service. ":""}Distances depuis le départ choisi ; pas de suivi GPS continu.`;
   }catch(e){dbg(e.stack||e.message);$("fuelStatus").textContent=activeAbort.signal.aborted?"Recherche interrompue. Le trajet reste disponible.":e.message;health("hFuel","err","carburants ✕")}
   finally{activeAbort=null;lock(false);$("cancelStationsBtn").hidden=true}
@@ -1048,7 +1048,7 @@ async function selectStation(id){
     if(changed&&!confirm(`Le recalcul diffère de la comparaison : ${fmt(via.distance/1000,1)} km, ${Math.round(via.duration/60)} min. Confirmer ce trajet avec arrêt ?`)){$("fuelStatus").textContent="Arrêt non confirmé. Le trajet précédent est conservé.";return}
     invalidateStationPrice();selectedStop={station,via,confirmedAt:new Date().toISOString()};
     updateTripMetrics();
-    renderStations(compared,stopWindow().mode);
+    renderStations(compared,stopWindow().mode,true);
     document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===id));
     document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===id)));
     $("selectedStop").hidden=false;
