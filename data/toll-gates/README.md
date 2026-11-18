@@ -18,4 +18,6 @@ python3 tools/build-toll-tables.py --check
 
 Pour reproduire la conversion, utiliser un environnement disposant de pyproj 3.7.2 puis `python3 tools/build-toll-gates.py --reproject`. La vérification ordinaire utilise l’instantané converti lié à son empreinte ; elle ne réexécute pas la projection. Le bloc géographique est embarqué dans `DragonRoute/config.js`, avant les grilles tarifaires ; leur générateur le préserve.
 
+Deux positions portent déjà le caractère Unicode de remplacement dans le nom reçu `Chamb�ry Nord`. Les octets et noms bruts sont conservés ; l’interface affiche « Nom de gare incomplet dans la source » et ne propose aucun rapprochement tarifaire pour ces positions. Aucune correction du nom n’est inventée.
+
 Le rapprochement avec le trajet est géométrique, effectué dans le navigateur. Une gare proche peut appartenir à une autre voie, à l’autre sens ou à un autre accès. Les distances au tracé et les kilomètres projetés sont des repères approximatifs, pas des accès routiers. Aucune proximité, absence de point ou concordance de nom ne prouve un passage, une gratuité ou un montant dû. Voir le [contrat fonctionnel V006](../../docs/specifications/OuQuandQui_API_V006_Reperage_Peages_2026-11-18.md).

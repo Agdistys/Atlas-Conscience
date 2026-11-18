@@ -10,7 +10,7 @@ const entry=inventory.gates.find(g=>g.name==='Aiguebelette'),exit=inventory.gate
 const point=g=>[g.positions[0][1],g.positions[0][0]];
 async function setup(page,{empty=false,missing=false,leaflet=false,ambiguous=false}={}){
  await mockDragonRoute(page);
- if(ambiguous)await page.route('**/DragonRoute/config.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text())+"\nwindow.DRAGONROUTE_TARIFFS.networks.APRR.gates.push('AIGUEBELETTE');"})});
+ if(ambiguous)await page.route('**/DragonRoute/config.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text())+"\nwindow.DRAGONROUTE_TARIFFS.networks.APRR.gates.push('AIGUEBELETTE');window.DRAGONROUTE_TOLL_GATES.gates.push({...window.DRAGONROUTE_TOLL_GATES.gates.find(g=>g.name==='Aiguebelette'),id:'invalid-name',name:'Chamb\uFFFDry Nord'});"})});
  if(missing)await page.route('**/DragonRoute/config.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text())+'\nwindow.DRAGONROUTE_TOLL_GATES=undefined;'})});
  if(leaflet){
   for(const [file,type] of [['leaflet.js','application/javascript'],['leaflet.css','text/css']])await page.route('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/'+file,r=>r.fulfill({path:require.resolve('leaflet/dist/'+file),contentType:type}));
@@ -74,8 +74,9 @@ test('repérage : Leaflet garde les gares séparées des stations et ouvre la bo
 });
 
 
-test('repérage : noms ambigus non préremplis',async({page})=>{
+test('repérage : noms ambigus ou illisibles non préremplis',async({page})=>{
  await setup(page,{ambiguous:true});await page.locator('#tollLocate').click();
+ await expect(page.locator('#toll-card-invalid-name')).toContainText('Nom de gare incomplet dans la source');await expect(page.locator('#toll-card-invalid-name [data-toll-propose]')).toHaveCount(0);await expect(page.locator('.svg-toll[data-toll-focus=invalid-name]')).toHaveAttribute('aria-label',/Nom de gare incomplet/);
  await expect(card(page,entry)).toContainText('Plusieurs noms tarifaires concordants');await expect(card(page,entry).locator('[data-toll-propose]')).toHaveCount(0);
  await expect(page.locator('#tariffEntry')).toHaveValue('');await expect(page.locator('#tollAmount')).toHaveText('Tarif indisponible');
 });

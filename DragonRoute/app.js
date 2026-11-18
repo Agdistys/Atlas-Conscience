@@ -688,6 +688,7 @@ const tableTolls={key:'',segments:[],notice:'',index:new Map(),dateInitialized:f
 const tariffData=window.DRAGONROUTE_TARIFFS;
 // BEGIN TOLL GUIDE GEOMETRY
 function tollName(value){return String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’]/g,"'").trim().replace(/\s+/g,' ').toUpperCase()}
+function tollGateLabel(gate){return typeof gate.name==='string'&&gate.name.trim()&&!gate.name.includes('\uFFFD')?gate.name:'Nom de gare incomplet dans la source'}
 function guideDistance(a,b){
  const rad=Math.PI/180,z=Math.sin((b[0]-a[0])*rad/2)**2+Math.cos(a[0]*rad)*Math.cos(b[0]*rad)*Math.sin((b[1]-a[1])*rad/2)**2;
  return 6371*2*Math.asin(Math.sqrt(Math.min(1,z)));
@@ -732,12 +733,13 @@ function syncTollGuide(key){
  if(!tollInventory)$("tollGuideStatus").textContent='Inventaire géographique indisponible. Le choix manuel des gares reste disponible.';
 }
 function gateTariffNames(gate){
+ if(!gate.name?.trim()||gate.name.includes('\uFFFD'))return [];
  return Object.entries(tariffData?.networks||{}).flatMap(([network,data])=>data.gates.flatMap((name,index)=>tollName(name)===tollName(gate.name)?[{network,index,name}]:[]));
 }
 function renderTollGuide(){
  $("tollGateList").innerHTML=tollGuide.matches.map((gate,i)=>{
   const names=gateTariffNames(gate),match=names.length===1?names[0]:null;
-  return `<article class="toll-gate-card" id="toll-card-${gate.id}" tabindex="-1"><h4>P${i+1} · ${escapeHtml(gate.name)}</h4><p>${escapeHtml(gate.type)} · ${gate.positions.length} position(s) recensée(s). À ${Math.round(gate.distance*1000)} m du tracé ; vers le km ${fmt(gate.progress,1)} de sa géométrie.</p><p class="note">Passage à confirmer.${match?` Nom concordant dans la grille ${match.network} : ${escapeHtml(match.name)}.`:names.length?' Plusieurs noms tarifaires concordants : choisir manuellement le réseau et les gares.':' Aucun nom concordant dans les grilles APRR/AREA embarquées. Tarif non déduit.'}</p><div class="dialog-actions"><button class="ghost" data-toll-map="${gate.id}">Voir le point P${i+1}</button>${match?`<button class="ghost" data-toll-propose="${gate.id}" data-gate-role="entry">Proposer comme entrée ${match.network}</button><button class="ghost" data-toll-propose="${gate.id}" data-gate-role="exit">Proposer comme sortie ${match.network}</button>`:''}</div></article>`;
+  return `<article class="toll-gate-card" id="toll-card-${gate.id}" tabindex="-1"><h4>P${i+1} · ${escapeHtml(tollGateLabel(gate))}</h4><p>${escapeHtml(gate.type)} · ${gate.positions.length} position(s) recensée(s). À ${Math.round(gate.distance*1000)} m du tracé ; vers le km ${fmt(gate.progress,1)} de sa géométrie.</p><p class="note">Passage à confirmer.${match?` Nom concordant dans la grille ${match.network} : ${escapeHtml(match.name)}.`:names.length?' Plusieurs noms tarifaires concordants : choisir manuellement le réseau et les gares.':' Aucun nom concordant dans les grilles APRR/AREA embarquées. Tarif non déduit.'}</p><div class="dialog-actions"><button class="ghost" data-toll-map="${gate.id}">Voir le point P${i+1}</button>${match?`<button class="ghost" data-toll-propose="${gate.id}" data-gate-role="entry">Proposer comme entrée ${match.network}</button><button class="ghost" data-toll-propose="${gate.id}" data-gate-role="exit">Proposer comme sortie ${match.network}</button>`:''}</div></article>`;
  }).join('');
 }
 function locateTollGates(){
@@ -758,12 +760,12 @@ function drawTollMarkers(){
  if(map){
   tollGuide.layer=L.layerGroup().addTo(map);
   tollGuide.matches.forEach((gate,i)=>{
-   const marker=L.marker([gate.lat,gate.lon],{icon:L.divIcon({className:'toll-marker',html:`P${i+1}`,iconSize:[36,30],iconAnchor:[18,15]}),title:`Gare candidate ${gate.name}`,keyboard:true}).addTo(tollGuide.layer);
-   marker.getElement().setAttribute('aria-label',`Voir la gare candidate P${i+1} : ${gate.name}`);
+   const marker=L.marker([gate.lat,gate.lon],{icon:L.divIcon({className:'toll-marker',html:`P${i+1}`,iconSize:[36,30],iconAnchor:[18,15]}),title:`Gare candidate ${tollGateLabel(gate)}`,keyboard:true}).addTo(tollGuide.layer);
+   marker.getElement().setAttribute('aria-label',`Voir la gare candidate P${i+1} : ${tollGateLabel(gate)}`);
    marker.on('click',()=>focusTollCard(gate.id));
   });
  }else if(tollGuide.projection){
-  $("tollDots").innerHTML=tollGuide.matches.map((gate,i)=>{const [x,y]=tollGuide.projection([gate.lat,gate.lon]);return `<g class="svg-toll" role="button" tabindex="0" data-toll-focus="${gate.id}" aria-label="Voir la gare candidate P${i+1} : ${escapeHtml(gate.name)}"><rect x="${x-18}" y="${y-15}" width="36" height="30" rx="4"/><text x="${x}" y="${y+5}" text-anchor="middle">P${i+1}</text></g>`}).join('');
+  $("tollDots").innerHTML=tollGuide.matches.map((gate,i)=>{const [x,y]=tollGuide.projection([gate.lat,gate.lon]);return `<g class="svg-toll" role="button" tabindex="0" data-toll-focus="${gate.id}" aria-label="Voir la gare candidate P${i+1} : ${escapeHtml(tollGateLabel(gate))}"><rect x="${x-18}" y="${y-15}" width="36" height="30" rx="4"/><text x="${x}" y="${y+5}" text-anchor="middle">P${i+1}</text></g>`}).join('');
  }
 }
 function focusTollCard(id){const card=$('toll-card-'+id);if(card){$("tariffCalculator").open=true;$("tollLocator").open=true;card.scrollIntoView({block:'center'});card.focus()}}

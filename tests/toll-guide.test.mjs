@@ -27,5 +27,6 @@ test('toll guide: repeated points, loops, empty result and malformed inputs',()=
  const line=[[45,4],[45,4],[45,4.1],[45,4]];assert.equal(ctx.findTollGates(line,[gate('a',45,4.05)],.3).length,1);
  assert.equal(ctx.findTollGates(line,[gate('b',47,7)],.3).length,0);
  assert.throws(()=>ctx.findTollGates([],[],.3));assert.throws(()=>ctx.findTollGates([[NaN,4],[45,4]],[],.3));assert.throws(()=>ctx.findTollGates(line,[],2));
+ assert.equal(ctx.tollGateLabel({name:'Chamb\uFFFDry Nord'}),'Nom de gare incomplet dans la source');assert.equal(ctx.tollGateLabel({name:'Aiguebelette'}),'Aiguebelette');
  assert.equal(ctx.tollName(' Aïx  Nord '),'AIX NORD');assert.notEqual(ctx.tollName('Aix Sud'),ctx.tollName('Aix Nord'));
 });
