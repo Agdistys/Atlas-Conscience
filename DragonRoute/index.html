@@ -72,9 +72,28 @@
         <fieldset id="routeChoices" class="stop-modes" hidden></fieldset>
         <p id="appliedRouting" class="note" hidden></p>
         <p id="resolvedPlaces" class="note" hidden></p>
+        <button id="compareBtn" class="ghost navigation-button" type="button" aria-expanded="false" aria-controls="comparisonPanel" hidden>Comparer voiture et marche</button>
         <button id="navigationBtn" class="ghost navigation-button" type="button" hidden>Navigation et tracé GPS</button>
         <button id="savePreparationBtn" class="ghost navigation-button" type="button" hidden>Enregistrer cette préparation</button>
         <button id="journalRecordBtn" class="ghost navigation-button" type="button" hidden>J’ai effectué ce trajet</button>
+      </section>
+      <section id="comparisonPanel" class="stops-section" hidden aria-labelledby="comparisonHeading">
+        <h2 id="comparisonHeading" tabindex="-1">Comparer les modes</h2>
+        <p class="note">Même départ et même arrivée, sans arrêt. Les évitements du véhicule sont conservés. Chaque mode utilise son propre moteur ; les services reçoivent les coordonnées seulement au lancement du calcul.</p>
+        <div class="settings">
+          <div><label for="comparisonTravelers">Personnes dans le groupe</label><input id="comparisonTravelers" type="number" min="1" max="9" step="1" value="1"></div>
+          <div><label for="comparisonDeparture">Départ souhaité (heure de Paris, facultatif)</label><input id="comparisonDeparture" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59"></div>
+          <div><label for="comparisonCons">Consommation du véhicule (L/100 km)</label><input id="comparisonCons" type="number" min="1" max="100" step="any" value="6.2"></div>
+          <div><label for="comparisonPrice">Prix du carburant saisi (€/L, facultatif)</label><input id="comparisonPrice" type="number" min="0.001" max="10" step="any" placeholder="Inconnu"></div>
+          <div><label for="comparisonWalkLimit">Limite de marche souhaitée (km, facultatif)</label><input id="comparisonWalkLimit" type="number" min="0.1" max="500" step="any" placeholder="Non renseignée"></div>
+        </div>
+        <button id="comparisonCalculate" class="primary" type="button">Calculer la comparaison</button>
+        <button id="comparisonCancel" class="ghost navigation-button" type="button" hidden>Annuler le calcul</button>
+        <p id="comparisonStatus" class="station-selection" role="status" aria-live="polite"></p>
+        <p id="comparisonContext" class="note"></p>
+        <div id="comparisonSortWrap" hidden><label for="comparisonSort">Trier les valeurs</label><select id="comparisonSort"><option value="duration">Durée croissante</option><option value="distance">Distance croissante</option><option value="cost" disabled>Coût total · incomplet</option><option value="carbon" disabled>CO₂e · non estimé</option></select><p class="note">Égalités conservées à la précision affichée. Aucun score pondéré ; les modes indisponibles restent distincts.</p></div>
+        <div id="comparisonCards" class="comparison-cards"></div>
+        <button id="comparisonClose" class="ghost navigation-button" type="button">Fermer la comparaison</button>
       </section>
       <section id="tripBudget" class="stops-section" hidden aria-labelledby="budgetHeading">
         <h2 id="budgetHeading">Budget du trajet</h2>
