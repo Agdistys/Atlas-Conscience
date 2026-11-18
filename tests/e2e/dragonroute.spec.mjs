@@ -224,11 +224,21 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'travelMode', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'goBtn']) {
+  let previous;
+  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'travelMode', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore', 'goBtn']) {
     await page.keyboard.press('Tab');
+    // Native date inputs expose several keyboard segments inside the same element.
+    if (['stationDeparture','routeArriveBy'].includes(previous)) {
+      for(let n=0;n<12&&await page.locator('#'+previous).evaluate(el=>el===document.activeElement);n++) await page.keyboard.press('Tab');
+    }
     await expect(page.locator('#' + id)).toBeFocused();
     const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);
     expect(outline, 'Focus visible sur ' + id).not.toBe('none');
+    if(id==='routeSchedule > summary'){
+      await page.keyboard.press('Enter');await expect(page.locator('#stationDeparture')).toBeHidden();
+      await page.keyboard.press('Enter');await expect(page.locator('#stationDeparture')).toBeVisible();
+    }
+    previous=id;
     if (id === 'journalBtn') {
       await page.keyboard.press('Enter');
       await expect(page.locator('#journalDialog')).toBeVisible();
