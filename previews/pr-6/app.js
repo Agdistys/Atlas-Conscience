@@ -13,28 +13,94 @@ let geoLastRequest=-Infinity,geoBlockedUntil=0,placePending=null,selectedStop=nu
 const geoCache=new Map();
 const dimensionFields={height:"truckHeight",width:"truckWidth",length:"truckLength",weight:"truckWeight",axleload:"truckAxleload"};
 const avoidLabels={tollways:"péages",highways:"autoroutes",ferries:"ferries"};
-const PROFILE_KEY="dragonroute.profile.v1."+(document.body.dataset.preview==="true"?"preview:"+new URL('.',location.href).pathname:"public");
-let profile=emptyProfile(),storageNotice="";
-try{const raw=localStorage.getItem(PROFILE_KEY);if(raw)profile=validateProfile(JSON.parse(raw))}
-catch{storageNotice="Profil non chargé : stockage indisponible ou données invalides. Les réglages par défaut sont utilisés."}
-
-function emptyProfile(){return {version:1,vehicle:{name:"",type:"car",fuel:"E10",cons:6.2,liters:40},addresses:[],stations:[]}}
-function validateProfile(data){
-  const text=(value,max)=>{if(typeof value!=="string"||value.length>max)throw new Error("Texte de profil invalide");return value.trim()};
-  const number=(value,min,max)=>{if(typeof value!=="number"||!Number.isFinite(value)||value<min||value>max)throw new Error("Valeur de profil invalide");return value};
-  if(!data||data.version!==1||!data.vehicle||!Array.isArray(data.addresses)||!Array.isArray(data.stations)||data.addresses.length>50||data.stations.length>100)throw new Error("Format de profil invalide");
-  const v=data.vehicle;
-  if(!["car","caravan","van","truck"].includes(v.type)||!Object.hasOwn(fuelField,v.fuel))throw new Error("Véhicule invalide");
-  const addresses=data.addresses.map(a=>({id:text(a.id,80),name:text(a.name,80),value:text(a.value,250)}));
-  const stations=data.stations.map(s=>({id:text(s.id,80),address:text(s.address,300),city:text(s.city,100),lat:number(s.lat,-90,90),lon:number(s.lon,-180,180)}));
-  for(const list of [addresses,stations]){if(list.some(x=>!x.id)||new Set(list.map(x=>x.id)).size!==list.length)throw new Error("Identifiants invalides")}
-  if(addresses.some(a=>!a.name||!a.value))throw new Error("Adresse incomplète");
-  const dimensions=v.dimensions==null?undefined:validateDimensions(v.dimensions);
-  return {version:1,vehicle:{name:text(v.name,80),type:v.type,fuel:v.fuel,cons:number(v.cons,1,100),liters:number(v.liters,1,2000),...(dimensions?{dimensions}:{})},addresses,stations};
+const PROFILE_SCOPE=document.body.dataset.preview==="true"?"preview:"+new URL('.',location.href).pathname:"public";
+const PROFILE_KEY="dragonroute.profile.v2."+PROFILE_SCOPE,LEGACY_PROFILE_KEY="dragonroute.profile.v1."+PROFILE_SCOPE;
+let profile,storageNotice="",profileSnapshot=null,legacySnapshot=null,profileWriteBlocked=false,legacyProfile=null;
+let addressDraft=null,addressLookupSequence=0,profileImportSequence=0,pendingProfileImport=null;
+const rememberedInputs={start:null,end:null},favoriteInputs={start:null,end:null};
+// BEGIN PROFILE VALIDATION
+function emptyProfile(){return {version:2,vehicle:{name:"",type:"car",fuel:"E10",cons:6.2,liters:40},addresses:[],stations:[]}}
+function profileText(value,max){if(typeof value!=="string"||value.length>max)throw new Error("Texte de profil invalide");return value.trim()}
+function profileNumber(value,min,max){if(typeof value!=="number"||!Number.isFinite(value)||value<min||value>max)throw new Error("Valeur de profil invalide");return value}
+function addressKey(value){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr-FR')}
+function temporaryAddress(value){return ['ma position','__current__'].includes(addressKey(value))}
+function validateSavedPlace(place){
+ if(!place||typeof place!=='object'||place.source!=='ign')throw new Error('Lieu mémorisé invalide');
+ const label=profileText(place.label,1000),resolvedAt=profileText(place.resolvedAt,40);
+ if(!label||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(resolvedAt)||!Number.isFinite(Date.parse(resolvedAt))||new Date(resolvedAt).toISOString()!==(resolvedAt.includes('.')?resolvedAt:resolvedAt.replace('Z','.000Z')))throw new Error('Date ou libellé du lieu invalide');
+ return {lat:profileNumber(place.lat,-90,90),lon:profileNumber(place.lon,-180,180),label,source:'ign',resolvedAt};
 }
+function validateProfile(data){
+ if(!data||![1,2].includes(data.version)||!data.vehicle||!Array.isArray(data.addresses)||!Array.isArray(data.stations)||data.addresses.length>50||data.stations.length>100)throw new Error("Format de profil invalide");
+ const v=data.vehicle;
+ if(!["car","caravan","van","truck"].includes(v.type)||!Object.hasOwn(fuelField,v.fuel))throw new Error("Véhicule invalide");
+ const addresses=data.addresses.map(a=>{
+  const entry={id:profileText(a.id,80),name:profileText(a.name,80),value:profileText(a.value,250)};
+  if(data.version===2&&a.place!=null){if(temporaryAddress(entry.value))throw new Error('Position GPS temporaire non réutilisable');entry.place=validateSavedPlace(a.place)}
+  return entry;
+ });
+ const stations=data.stations.map(s=>({id:profileText(s.id,80),address:profileText(s.address,300),city:profileText(s.city,100),lat:profileNumber(s.lat,-90,90),lon:profileNumber(s.lon,-180,180)}));
+ for(const list of [addresses,stations]){if(list.some(x=>!x.id)||new Set(list.map(x=>x.id)).size!==list.length)throw new Error("Identifiants invalides")}
+ if(addresses.some(a=>!a.name||!a.value))throw new Error("Adresse incomplète");
+ const dimensions=v.dimensions==null?undefined:validateDimensions(v.dimensions);
+ const clean={version:2,vehicle:{name:profileText(v.name,80),type:v.type,fuel:v.fuel,cons:profileNumber(v.cons,1,100),liters:profileNumber(v.liters,1,2000),...(dimensions?{dimensions}:{})},addresses,stations};
+ if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>100000)throw new Error('Profil trop volumineux');
+ return clean;
+}
+function duplicateAddresses(entry,addresses){
+ return addresses.filter(a=>a.id!==entry.id&&(addressKey(a.name)===addressKey(entry.name)||(a.place&&entry.place?Math.abs(a.place.lat-entry.place.lat)<1e-6&&Math.abs(a.place.lon-entry.place.lon)<1e-6:addressKey(a.value)===addressKey(entry.value))));
+}
+function duplicateAddressCount(addresses){return addresses.reduce((n,a,i)=>n+duplicateAddresses(a,addresses.slice(0,i)).length,0)}
+// END PROFILE VALIDATION
+function loadProfile(){
+ profile=emptyProfile();storageNotice="";profileWriteBlocked=false;legacyProfile=null;
+ try{
+  profileSnapshot=localStorage.getItem(PROFILE_KEY);legacySnapshot=localStorage.getItem(LEGACY_PROFILE_KEY);
+  const raw=profileSnapshot??legacySnapshot;
+  if(raw!==null)profile=validateProfile(JSON.parse(raw));
+  if(legacySnapshot!==null){try{const data=JSON.parse(legacySnapshot);if(data.version===1)legacyProfile={...validateProfile(data),version:1}}catch{}}
+  if(profileSnapshot===null&&legacyProfile)storageNotice="Ancien profil repris. La copie d’origine reste conservée dans ce navigateur et peut être exportée.";
+ }catch{profileWriteBlocked=true;storageNotice="Profil non chargé : format inconnu, données invalides ou stockage inaccessible. L’original est conservé ; aucun enregistrement ne le remplacera. Réouvrir avec une version compatible, ou effacer explicitement ce profil pour repartir."}
+}
+loadProfile();
 function saveProfile(next){
-  try{const clean=validateProfile(next);localStorage.setItem(PROFILE_KEY,JSON.stringify(clean));profile=clean;storageNotice="";renderSaved();updateFavorite();return true}
-  catch{const message="Enregistrement impossible : stockage indisponible, plein ou données invalides.";$("profileMessage").textContent=message;$("stationMessage").textContent=message;return false}
+ try{
+  if(profileWriteBlocked)throw new Error('Profil non chargé : remplacement bloqué.');
+  if(localStorage.getItem(PROFILE_KEY)!==profileSnapshot||localStorage.getItem(LEGACY_PROFILE_KEY)!==legacySnapshot)throw new Error('Profil modifié dans un autre onglet. Recharger avant de réessayer.');
+  const clean=validateProfile(next),raw=JSON.stringify(clean);
+  localStorage.setItem(PROFILE_KEY,raw);profileSnapshot=raw;profile=clean;storageNotice="";renderSaved();updateFavorite();return true;
+ }catch(e){const message="Enregistrement impossible. "+(e.message.includes('autre onglet')||profileWriteBlocked?e.message:'Stockage indisponible, plein ou données invalides.');$("profileMessage").textContent=message;$("stationMessage").textContent=message;return false}
+}
+function downloadProfile(data,filename='DragonRoute-profil.json'){
+ const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+ const link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function placeDescription(place){return `${place.label} · IGN · choix du ${new Date(place.resolvedAt).toLocaleDateString('fr-FR')}`}
+function clearRememberedInput(field){rememberedInputs[field]=null;favoriteInputs[field]=null;$(field+'PlaceNote').hidden=true}
+function resetRememberedInputs(){clearRememberedInput('start');clearRememberedInput('end')}
+async function resolveTripPlace(value,field){
+ const favorite=favoriteInputs[field];
+ if(favorite?.value===value&&!temporaryAddress(value)){rememberedInputs[field]=structuredClone(favorite);return favorite.place}
+ const place=await geocode(temporaryAddress(value)&&field==='start'?'__CURRENT__':value,field);
+ rememberedInputs[field]=temporaryAddress(value)?null:{value,place:{...place,source:'ign',resolvedAt:new Date().toISOString()}};
+ return place;
+}
+function resetAddressDuplicates(){$('addressDuplicates').hidden=true;$('allowAddressDuplicate').checked=false}
+function updateAddressDraft(){
+ $('addressPlaceStatus').textContent=addressDraft?`Lieu mémorisé : ${placeDescription(addressDraft.place)}.`:'Lieu non mémorisé : il sera recherché lors du trajet. Vérifier le lieu permet de le conserver dès maintenant.';
+}
+function invalidateAddressDraft(){addressLookupSequence++;addressDraft=null;$('resolveAddressBtn').disabled=false;resetAddressDuplicates();updateAddressDraft()}
+function resetAddressForm(){$('addressForm').reset();$('addressId').value='';$('cancelAddressEdit').hidden=true;invalidateAddressDraft()}
+async function resolveAddressDraft(){
+ const value=$('addressValue').value.trim();
+ if(!value||temporaryAddress(value)){$('profileMessage').textContent='Saisir une adresse fixe complète, pas le libellé GPS temporaire.';return}
+ const seq=++addressLookupSequence;const current=()=>seq===addressLookupSequence&&$('profileDialog').open&&$('addressValue').value.trim()===value;
+ $('resolveAddressBtn').disabled=true;$('addressPlaceStatus').textContent='Recherche du lieu…';
+ try{
+  const place=await geocode(value,'address',current);if(!current())return;
+  addressDraft={value,place:validateSavedPlace({...place,source:'ign',resolvedAt:new Date().toISOString()})};resetAddressDuplicates();updateAddressDraft();$('profileMessage').textContent='Lieu retenu. Enregistrer l’adresse pour le conserver.';
+ }catch(e){if(current()){$('profileMessage').textContent=e.message;updateAddressDraft()}}
+ finally{if(current())$('resolveAddressBtn').disabled=false}
 }
 function applyVehicle(){
   if($("fuel").value!==profile.vehicle.fuel){$("budgetPrice").value="";budgetReference=null}
@@ -48,7 +114,7 @@ function applyVehicle(){
   updateRange();
 }
 function renderSaved(){
-  $("savedAddresses").innerHTML=profile.addresses.length?profile.addresses.map(a=>`<div class="saved-row"><strong>${escapeHtml(a.name)}</strong><p>${escapeHtml(a.value)}</p><div class="dialog-actions"><button class="ghost" data-address-start="${escapeHtml(a.id)}">Départ</button><button class="ghost" data-address-end="${escapeHtml(a.id)}">Arrivée</button><button class="ghost" data-address-edit="${escapeHtml(a.id)}">Modifier</button><button class="ghost" data-address-remove="${escapeHtml(a.id)}">Supprimer</button></div></div>`).join(""):"<p class=note>Aucune adresse enregistrée.</p>";
+  $("savedAddresses").innerHTML=profile.addresses.length?profile.addresses.map(a=>`<div class="saved-row"><strong>${escapeHtml(a.name)}</strong><p>${escapeHtml(a.value)}</p><p>${a.place?`Lieu mémorisé : ${escapeHtml(placeDescription(a.place))}`:temporaryAddress(a.value)?"Adresse GPS temporaire à remplacer.":"Lieu à rechercher lors du trajet."}</p><div class="dialog-actions"><button class="ghost" data-address-start="${escapeHtml(a.id)}">Départ</button><button class="ghost" data-address-end="${escapeHtml(a.id)}">Arrivée</button><button class="ghost" data-address-edit="${escapeHtml(a.id)}">Modifier</button><button class="ghost" data-address-remove="${escapeHtml(a.id)}">Supprimer</button></div></div>`).join(""):"<p class=note>Aucune adresse enregistrée.</p>";
   $("savedStations").innerHTML=profile.stations.length?profile.stations.map(s=>`<div class="saved-row"><strong>${escapeHtml(s.city||"Station")}</strong><p>${escapeHtml(s.address)}</p><div class="dialog-actions"><button class="ghost" data-favorite-open="${escapeHtml(s.id)}">Voir la station</button><button class="ghost" data-favorite-remove="${escapeHtml(s.id)}">Retirer</button></div></div>`).join(""):"<p class=note>Aucune station enregistrée.</p>";
 }
 function openProfile(){
@@ -56,6 +122,7 @@ function openProfile(){
   $("profileMessage").textContent=storageNotice;
   for(const [id,key] of [["vehicleName","name"],["vehicleType","type"],["vehicleFuel","fuel"],["vehicleCons","cons"],["vehicleLiters","liters"]])$(id).value=profile.vehicle[key];
   $("savedDimensionsNote").textContent=profile.vehicle.dimensions?"Gabarit mémorisé : "+dimensionLabel(profile.vehicle.dimensions):"Aucun gabarit mémorisé.";
+  $("exportProfileBtn").disabled=profileWriteBlocked;$("exportLegacyProfileBtn").hidden=!legacyProfile;
   renderSaved();if(!$("profileDialog").open)$("profileDialog").showModal();
 }
 function updateFavorite(){
@@ -196,7 +263,7 @@ function makeGrid(){
 
 function choosePlace(places,field){
   const dialog=$("placeDialog");
-  $("placeTitle").textContent=field==="start"?"Quel lieu de départ ?":"Quel lieu d’arrivée ?";
+  $("placeTitle").textContent=field==="address"?"Quelle adresse enregistrer ?":field==="start"?"Quel lieu de départ ?":"Quel lieu d’arrivée ?";
   $("placeChoices").innerHTML=`<legend>Plusieurs lieux correspondent</legend>${places.map((p,i)=>`<label><input type="radio" name="placeChoice" value="${i}"><span>${escapeHtml(p.label)}</span></label>`).join("")}`;
   $("confirmPlace").disabled=true;
   dialog.showModal();
@@ -216,7 +283,8 @@ function geocodedPlace(feature){
   for(const detail of details)if(!parts.some(part=>part.toLocaleLowerCase("fr-FR").includes(detail.toLocaleLowerCase("fr-FR"))))parts.push(detail);
   return {lat:coordinates[1],lon:coordinates[0],label:parts.join(" · ")};
 }
-async function geocode(q,field){
+async function geocode(q,field,isCurrent=()=>true){
+  if(!isCurrent())throw new Error("Recherche du lieu annulée.");
   if(q==="__CURRENT__"){
     if(!currentPos) throw new Error("Position GPS non disponible");
     return {lat:currentPos[0],lon:currentPos[1],label:"Ma position"};
@@ -241,6 +309,7 @@ async function geocode(q,field){
       }
       throw e;
     }
+    if(!isCurrent())throw new Error("Recherche du lieu annulée.");
     if(d?.type!=="FeatureCollection"||!Array.isArray(d.features))throw new Error("Réponse de géocodage invalide.");
     if(!d.features.length)throw new Error(`Lieu introuvable en France : ${query}. Préciser la commune ou le code postal.`);
     places=[...new Map(d.features.map(geocodedPlace).filter(Boolean).map(p=>[`${p.lat},${p.lon},${p.label}`,p])).values()].slice(0,5);
@@ -249,6 +318,7 @@ async function geocode(q,field){
     if(geoCache.size>=30)geoCache.delete(geoCache.keys().next().value);
     geoCache.set(key,{at:performance.now(),places});
   }
+  if(!isCurrent())throw new Error("Recherche du lieu annulée.");
   return places.length===1?places[0]:choosePlace(places,field);
 }
 function validateDimensions(d){
@@ -1078,8 +1148,8 @@ async function run(){
     const sv=$("start").value.trim(),ev=$("end").value.trim();
     if(!sv||!ev)throw new Error("Départ et arrivée requis.");
     setStatus("Recherche du départ…","busy");health("hGeo","busy","géocodage…");
-    const ga=await geocode(sv==="Ma position"?"__CURRENT__":sv,"start");
-    setStatus("Recherche de l’arrivée…","busy");const gb=await geocode(ev,"end");
+    const ga=await resolveTripPlace(sv,"start");
+    setStatus("Recherche de l’arrivée…","busy");const gb=await resolveTripPlace(ev,"end");
     health("hGeo","ok","géocodage ✓");
     const a=[ga.lat,ga.lon],b=[gb.lat,gb.lon];
     setStatus("Calcul du trajet…","busy");
@@ -1175,7 +1245,7 @@ function gps(){
     if(p.coords.accuracy>200&&!confirm(`Position imprécise (±${Math.round(p.coords.accuracy)} m). Utiliser ce point comme départ ?`)){setStatus("Position non retenue. Saisie manuelle disponible.");return}
     clearResults();
     resetRange();
-    currentPos=[p.coords.latitude,p.coords.longitude];$("start").value="Ma position";
+    clearRememberedInput("start");currentPos=[p.coords.latitude,p.coords.longitude];$("start").value="Ma position";
     setStatus(`Position reçue (±${Math.round(p.coords.accuracy)} m).`,"ok");
   },e=>setStatus(`⚠️ GPS : ${e.message}`,"err"),{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
 }
@@ -1211,51 +1281,76 @@ function bindProfile(){
     try{const next=structuredClone(profile);next.vehicle.dimensions=routeDimensions();if(saveProfile(next)){$("savedDimensionsNote").textContent="Gabarit mémorisé : "+dimensionLabel(next.vehicle.dimensions);$("profileMessage").textContent="Gabarit du trajet enregistré."}}
     catch(e){$("profileMessage").textContent=e.message}
   });
-  const resetAddress=()=>{$("addressForm").reset();$("addressId").value="";$("cancelAddressEdit").hidden=true};
-  $("cancelAddressEdit").addEventListener("click",resetAddress);
-  for(const [button,input] of [["copyStartBtn","start"],["copyEndBtn","end"]])$(button).addEventListener("click",()=>{
-    if($(input).value==="Ma position"){$("profileMessage").textContent="Saisis une adresse complète pour enregistrer ce point GPS.";return}
-    $("addressValue").value=$(input).value;
+  $('profileDialog').addEventListener('close',()=>{addressLookupSequence++;profileImportSequence++;$('resolveAddressBtn').disabled=false;updateAddressDraft()});
+  $('cancelAddressEdit').addEventListener('click',resetAddressForm);
+  $('addressValue').addEventListener('input',invalidateAddressDraft);
+  $('addressName').addEventListener('input',resetAddressDuplicates);
+  $('resolveAddressBtn').addEventListener('click',resolveAddressDraft);
+  for(const [button,input] of [['copyStartBtn','start'],['copyEndBtn','end']])$(button).addEventListener('click',()=>{
+    const value=$(input).value.trim();
+    if(temporaryAddress(value)){$('profileMessage').textContent='Saisir une adresse fixe complète pour enregistrer ce point GPS.';return}
+    invalidateAddressDraft();$('addressValue').value=value;
+    const resolved=rememberedInputs[input];addressDraft=resolved?.value===value?structuredClone(resolved):null;updateAddressDraft();
   });
-  $("addressForm").addEventListener("submit",e=>{
-    e.preventDefault();const next=structuredClone(profile),value=$("addressValue").value.trim();
-    if(value==="Ma position"){$("profileMessage").textContent="Saisis une adresse complète, pas le libellé GPS temporaire.";return}
-    const entry={id:$("addressId").value||crypto.randomUUID(),name:$("addressName").value.trim(),value};
+  $('addressForm').addEventListener('submit',e=>{
+    e.preventDefault();const next=structuredClone(profile),value=$('addressValue').value.trim();
+    if(temporaryAddress(value)){$('profileMessage').textContent='Saisir une adresse complète, pas le libellé GPS temporaire.';return}
+    const entry={id:$('addressId').value||crypto.randomUUID(),name:$('addressName').value.trim(),value,...(addressDraft?.value===value?{place:structuredClone(addressDraft.place)}:{})};
+    const duplicates=duplicateAddresses(entry,next.addresses);
+    if(duplicates.length&&!$('allowAddressDuplicate').checked){$('addressDuplicates').hidden=false;$('addressDuplicateNote').textContent='Doublon possible avec : '+duplicates.map(a=>a.name).join(', ')+'. Aucun favori existant ne sera remplacé.';$('allowAddressDuplicate').focus();return}
     const index=next.addresses.findIndex(a=>a.id===entry.id);if(index<0)next.addresses.push(entry);else next.addresses[index]=entry;
-    if(saveProfile(next)){resetAddress();$("profileMessage").textContent="Adresse enregistrée."}
+    if(saveProfile(next)){resetAddressForm();$('profileMessage').textContent='Adresse enregistrée.'}
   });
-  $("savedAddresses").addEventListener("click",e=>{
+  $('savedAddresses').addEventListener('click',e=>{
     const button=e.target.closest('button');if(!button)return;
-    for(const [key,input] of [["addressStart","start"],["addressEnd","end"]])if(button.dataset[key]){
+    for(const [key,input] of [['addressStart','start'],['addressEnd','end']])if(button.dataset[key]){
       const a=profile.addresses.find(a=>a.id===button.dataset[key]);if(!a)return;
-      $(input).value=a.value;clearResults();if(input==="start")resetRange();setStatus("Adresse choisie. Trajet à recalculer.");$("profileDialog").close();$(input).focus();return;
+      if(temporaryAddress(a.value)){$('profileMessage').textContent='Cette adresse GPS temporaire doit être remplacée par une adresse fixe.';return}
+      $(input).value=a.value;clearRememberedInput(input);
+      if(a.place){favoriteInputs[input]={value:a.value,place:structuredClone(a.place)};rememberedInputs[input]=structuredClone(favoriteInputs[input]);$(input+'PlaceNote').textContent='Lieu mémorisé : '+placeDescription(a.place)+'.';$(input+'PlaceNote').hidden=false}
+      clearResults();if(input==='start')resetRange();setStatus('Adresse choisie. Trajet à recalculer.');$('profileDialog').close();$(input).focus();return;
     }
-    if(button.dataset.addressEdit){const a=profile.addresses.find(a=>a.id===button.dataset.addressEdit);if(a){$("addressId").value=a.id;$("addressName").value=a.name;$("addressValue").value=a.value;$("cancelAddressEdit").hidden=false;$("addressName").focus()}}
-    if(button.dataset.addressRemove){const next=structuredClone(profile);next.addresses=next.addresses.filter(a=>a.id!==button.dataset.addressRemove);if(saveProfile(next))$("profileMessage").textContent="Adresse supprimée."}
+    if(button.dataset.addressEdit){const a=profile.addresses.find(a=>a.id===button.dataset.addressEdit);if(a){invalidateAddressDraft();$('addressId').value=a.id;$('addressName').value=a.name;$('addressValue').value=a.value;addressDraft=a.place?{value:a.value,place:structuredClone(a.place)}:null;updateAddressDraft();$('cancelAddressEdit').hidden=false;$('addressName').focus()}}
+    if(button.dataset.addressRemove){const next=structuredClone(profile);next.addresses=next.addresses.filter(a=>a.id!==button.dataset.addressRemove);if(saveProfile(next)){$('profileMessage').textContent='Adresse supprimée.';if($('addressId').value===button.dataset.addressRemove)resetAddressForm()}}
   });
   $("savedStations").addEventListener("click",e=>{
     const button=e.target.closest('button');if(!button)return;
     if(button.dataset.favoriteOpen){$("profileDialog").close();openStation(button.dataset.favoriteOpen)}
     if(button.dataset.favoriteRemove){const next=structuredClone(profile);next.stations=next.stations.filter(s=>s.id!==button.dataset.favoriteRemove);if(saveProfile(next))$("profileMessage").textContent="Station retirée des favoris."}
   });
-  $("exportProfileBtn").addEventListener("click",()=>{
-    const url=URL.createObjectURL(new Blob([JSON.stringify(profile,null,2)],{type:"application/json"}));
-    const link=document.createElement('a');link.href=url;link.download="DragonRoute-profil.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  });
-  $("importProfileBtn").addEventListener("click",()=>$("importProfileFile").click());
-  $("importProfileFile").addEventListener("change",async e=>{
-    const file=e.target.files[0];if(!file)return;
+  $('exportProfileBtn').addEventListener('click',()=>{if(!profileWriteBlocked)downloadProfile(profile)});
+  $('exportLegacyProfileBtn').addEventListener('click',()=>{if(legacyProfile)downloadProfile(legacyProfile,'DragonRoute-profil-origine-v1.json')});
+  $('importProfileBtn').addEventListener('click',()=>$('importProfileFile').click());
+  $('exportBeforeImport').addEventListener('click',()=>{if(!profileWriteBlocked)downloadProfile(profile)});
+  $('cancelProfileImport').addEventListener('click',()=>$('profileImportDialog').close());
+  $('profileImportDialog').addEventListener('close',()=>{pendingProfileImport=null;profileImportSequence++;if($('profileDialog').open)$('importProfileBtn').focus()});
+  $('importProfileFile').addEventListener('change',async e=>{
+    const file=e.target.files[0];if(!file)return;const seq=++profileImportSequence;addressLookupSequence++;$('resolveAddressBtn').disabled=false;
     try{
-      if(file.size>100000)throw new Error("Fichier trop volumineux");
+      if(file.size>100000)throw new Error('Fichier trop volumineux');
       const next=validateProfile(JSON.parse(await file.text()));
-      if(confirm("Remplacer ce profil local par le contenu du fichier ?")&&saveProfile(next)){applyVehicle();openProfile();$("profileMessage").textContent="Profil importé."}
-    }catch{$("profileMessage").textContent="Import refusé : fichier invalide ou trop volumineux. Le profil existant est conservé."}
-    finally{e.target.value=""}
+      if(seq!==profileImportSequence||!$('profileDialog').open)return;
+      if(profileWriteBlocked)throw new Error('Le profil existant n’a pas pu être chargé. Son remplacement est bloqué.');
+      pendingProfileImport=next;
+      const duplicates=duplicateAddressCount(next.addresses),located=next.addresses.filter(a=>a.place).length;
+      $('profileImportSummary').textContent=`${next.addresses.length} adresse(s), dont ${located} avec un lieu mémorisé ; ${next.stations.length} station(s) favorite(s). Véhicule : ${next.vehicle.name||'Sans nom'} · ${({car:'voiture',caravan:'voiture avec caravane',van:'utilitaire',truck:'camion'})[next.vehicle.type]} · ${next.vehicle.fuel}, ${next.vehicle.cons} L/100 km ; ${next.vehicle.liters} L par défaut${next.vehicle.dimensions?", gabarit : "+dimensionLabel(next.vehicle.dimensions):""}. ${duplicates?duplicates+' doublon(s) possible(s) dans les adresses.':'Aucun doublon apparent dans les adresses.'}`;
+      $('profileImportCurrent').textContent=`Le profil actuel contient ${profile.addresses.length} adresse(s) et ${profile.stations.length} station(s). Il sera remplacé après confirmation.`;
+      $('profileImportNames').replaceChildren(...next.addresses.map(a=>{const li=document.createElement('li');li.textContent=a.name+' — '+a.value+(a.place?' · Lieu mémorisé : '+a.place.label:'');return li}));
+      $('profileImportMessage').textContent='';$('profileImportDialog').showModal();
+    }catch(e){if(seq===profileImportSequence)$('profileMessage').textContent='Import refusé : '+e.message+'. Le profil existant est conservé.'}
+    finally{e.target.value=''}
   });
-  $("eraseProfileBtn").addEventListener("click",()=>{
-    if(!confirm("Effacer le véhicule, les adresses et les stations de ce profil local ?"))return;
-    try{localStorage.removeItem(PROFILE_KEY);profile=emptyProfile();storageNotice="";applyVehicle();resetAddress();openProfile();$("profileMessage").textContent="Profil local effacé."}
-    catch{$("profileMessage").textContent="Suppression impossible : stockage indisponible."}
+  $('confirmProfileImport').addEventListener('click',()=>{
+    if(!pendingProfileImport)return;
+    if(saveProfile(pendingProfileImport)){resetRememberedInputs();resetAddressForm();applyVehicle();$('profileImportDialog').close();openProfile();$('profileMessage').textContent='Profil importé.'}
+    else $('profileImportMessage').textContent=$('profileMessage').textContent+' Le profil précédent est conservé.';
+  });
+  $('eraseProfileBtn').addEventListener('click',()=>{
+    if(!confirm('Effacer le véhicule, les adresses et les stations de ce profil local, ainsi que sa copie d’origine ? Les autres applications et aperçus seront conservés.'))return;
+    try{
+      if(localStorage.getItem(PROFILE_KEY)!==profileSnapshot||localStorage.getItem(LEGACY_PROFILE_KEY)!==legacySnapshot)throw new Error('Profil modifié dans un autre onglet. Recharger avant de réessayer.');
+      localStorage.removeItem(LEGACY_PROFILE_KEY);localStorage.removeItem(PROFILE_KEY);loadProfile();resetRememberedInputs();applyVehicle();resetAddressForm();openProfile();$('profileMessage').textContent='Profil local effacé.';
+    }catch(e){loadProfile();resetRememberedInputs();applyVehicle();resetAddressForm();openProfile();$('profileMessage').textContent='Suppression non terminée : '+e.message+'. Vérifier les données restantes avant de réessayer.'}
   });
 }
 function bind(){
@@ -1324,7 +1419,7 @@ function bind(){
   $("removeStopBtn").addEventListener("click",()=>{if(!busy&&trip){selectedStop=null;invalidateStationPrice();updateTripMetrics();renderStations(compared,stopWindow().mode);$("selectedStop").hidden=true;$("removeStopBtn").hidden=true;document.querySelectorAll('[data-station]').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed','false'));$("fuelStatus").textContent="Arrêt retiré. Trajet choisi restauré."}});
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
-  ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
+  ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{clearRememberedInput(id);if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
   $("stationsBtn").addEventListener("click",searchStations);
   $("stationCards").addEventListener("click",e=>{const button=e.target.closest('[data-select]');if(button)selectStation(button.dataset.select)});
   document.querySelectorAll('input[name="stopMode"],#stopKm,#fuel,#liters,#cons').forEach(el=>el.addEventListener("input",()=>{if(!busy){

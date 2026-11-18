@@ -33,8 +33,8 @@
         <h1>Mon trajet</h1>
         <p id="activeVehicle" class="note" hidden></p>
         <div class="route-fields">
-          <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div></div>
-          <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint" value="Valence" autocomplete="off" placeholder="Ville ou adresse"></div>
+          <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p></div>
+          <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint endPlaceNote" value="Valence" autocomplete="off" placeholder="Ville ou adresse"><p id="endPlaceNote" class="note" hidden></p></div>
         </div>
         <p id="addressHint" class="note">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>
         <details id="routingOptions" class="routing-options" open>
@@ -167,7 +167,7 @@
         <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · cdc4d9d · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 7ef587e · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -223,13 +223,23 @@
     <button class="primary" type="submit">Enregistrer le véhicule</button>
   </form>
   <section class="profile-section"><h3>Mes adresses</h3><div id="savedAddresses" class="saved-list"></div>
-    <form id="addressForm"><input id="addressId" type="hidden"><label for="addressName">Nom</label><input id="addressName" maxlength="80" required placeholder="Maison, travail…"><label for="addressValue">Adresse</label><input id="addressValue" maxlength="250" required placeholder="Rue, code postal, ville">
+    <form id="addressForm"><input id="addressId" type="hidden"><label for="addressName">Nom</label><input id="addressName" maxlength="80" required placeholder="Maison, travail…"><label for="addressValue">Adresse</label><input id="addressValue" aria-describedby="addressPlaceStatus" maxlength="250" required placeholder="Rue, code postal, ville">
+      <p id="addressPlaceStatus" class="note" role="status">Lieu non mémorisé : il sera recherché lors du trajet.</p><button id="resolveAddressBtn" class="ghost" type="button">Vérifier le lieu</button>
       <div class="dialog-actions"><button id="copyStartBtn" class="ghost" type="button">Reprendre le départ</button><button id="copyEndBtn" class="ghost" type="button">Reprendre l’arrivée</button></div>
+      <div id="addressDuplicates" class="profile-notice" hidden><p id="addressDuplicateNote"></p><label><input id="allowAddressDuplicate" type="checkbox" aria-describedby="addressDuplicateNote"> Enregistrer malgré ce doublon possible</label></div>
       <button class="primary" type="submit">Enregistrer l’adresse</button><button id="cancelAddressEdit" class="ghost" type="button" hidden>Annuler la modification</button>
     </form>
   </section>
   <section class="profile-section"><h3>Mes stations</h3><div id="savedStations" class="saved-list"></div></section>
-  <section class="profile-section"><h3>Mes données</h3><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
+  <section class="profile-section"><h3>Mes données</h3><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="exportLegacyProfileBtn" class="ghost" hidden>Exporter le profil d’origine</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
+</dialog>
+<dialog id="profileImportDialog" aria-labelledby="profileImportTitle" aria-describedby="profileImportSummary profileImportCurrent">
+  <div class="dialog-heading"><h2 id="profileImportTitle">Vérifier le profil à importer</h2><button id="cancelProfileImport" class="icon-btn" type="button" aria-label="Annuler l’import">×</button></div>
+  <p id="profileImportSummary"></p><p id="profileImportCurrent" class="note"></p>
+  <p class="note">Les lieux mémorisés et leur provenance viennent du fichier choisi ; ils ne sont pas vérifiés auprès du géocodeur pendant l’import. Les anciennes adresses sans point seront recherchées lors d’un trajet.</p>
+  <details><summary>Adresses contenues dans le fichier</summary><ul id="profileImportNames"></ul></details>
+  <p id="profileImportMessage" class="note" role="status"></p>
+  <div class="dialog-actions"><button id="exportBeforeImport" class="ghost" type="button">Exporter le profil actuel</button><button id="confirmProfileImport" class="primary" type="button">Remplacer mon profil</button></div>
 </dialog>
 <script src="./config.js"></script><script src="./app.js" defer></script>
 </body>
