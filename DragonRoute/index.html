@@ -247,6 +247,14 @@
             </section>
             <div class="ride-counts"><div><label for="rideSeats">Places proposées, hors conducteur</label><input id="rideSeats" type="number" min="1" max="8" step="1" value="1"></div><div><label for="ridePassengers">Passagers prévus pour la simulation</label><input id="ridePassengers" type="number" min="0" max="8" step="1" value="1"></div></div>
             <p class="note">Places à confirmer avec le véhicule. Sans rencontres ajoutées, le partage porte sur tout le trajet. Avec des rencontres, il porte uniquement sur la portion commune.</p>
+            <details id="rideTollAllocation" hidden><summary>Répartir les péages entre les portions</summary>
+              <p class="note">Affectation déclarée pour ce trajet : avant la prise en charge, avec les passagers ou après la dépose. Un tronçon qui traverse une rencontre reste non attribué : aucun découpage au kilomètre n’est supposé.</p>
+              <button id="rideTollBudget" type="button" class="ghost navigation-button">Choisir les péages dans le budget</button>
+              <fieldset id="rideTollFields" class="tariff-fields"><legend>Portions des péages connus</legend><ul id="rideTollList" class="shared-toll-list"></ul>
+              <label class="check-label"><input id="rideTollConfirm" type="checkbox" disabled> J’ai vérifié les portions choisies, leur sens et l’absence de chevauchement entre les tronçons.</label></fieldset>
+              <button id="rideTollReset" type="button" class="ghost" disabled>Effacer les affectations</button><p id="rideTollStatus" class="note" role="status"></p>
+              <p class="note">La couverture de tous les péages se confirme séparément dans le budget. Ces choix restent dans cette session ; ils ne sont pas sauvegardés dans Mes trajets.</p>
+            </details>
             <h4>Proposition de partage des frais</h4><dl id="rideCostLines" class="budget-lines"></dl><p id="rideCostNote" class="note" role="status"></p>
             <p class="note">Carburant consommé et péages de l’aller simple. Plein acheté, stationnement, ferries et autres coûts exclus. Partage à convenir ; aucun tarif d’offre ni paiement.</p>
             <a class="external-link" href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000041969704" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Cadre du partage des frais ↗</a>
