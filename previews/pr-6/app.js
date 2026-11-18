@@ -405,8 +405,78 @@ function updateFavorite(){
   $("favoriteBtn").textContent=saved?"Retirer des favoris":"Enregistrer la station";
   $("favoriteBtn").setAttribute("aria-pressed",String(Boolean(saved)));
 }
+// BEGIN STATION HOURS MODEL
+const PARIS_TIME=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+function parisLocal(ms){return PARIS_TIME.format(new Date(ms)).replace(' ','T')}
+function departureInstant(value){
+  if(!/^20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value))return {error:'Renseigner une date et une heure de départ entre 2000 et 2099 (heure de Paris).'};
+  const pseudo=Date.parse(value+'Z');
+  if(!Number.isFinite(pseudo)||new Date(pseudo).toISOString().slice(0,16)!==value)return {error:'Date ou heure de départ invalide.'};
+  // Europe/Paris uses UTC+1/+2 in this bounded period. Matching both candidates
+  // rejects nonexistent spring times and ambiguous autumn times explicitly.
+  const candidates=[pseudo-36e5,pseudo-72e5].filter(ms=>parisLocal(ms)===value);
+  if(candidates.length!==1)return {error:candidates.length?'Cette heure existe deux fois au changement d’heure. Choisir une heure non ambiguë.':'Cette heure n’existe pas au changement d’heure. Choisir une autre heure.'};
+  return {instant:candidates[0],error:''};
+}
+function stationSchedule(raw,declared){
+  let h;try{h=typeof raw==='string'?JSON.parse(raw):raw}catch{}
+  if(!h||typeof h!=='object'||Array.isArray(h))h={};
+  const rawAuto=h['@automate-24-24'],fromRaw=rawAuto==='1'?'yes':rawAuto===''?'no':null;
+  const fromField=declared==='Oui'?'yes':declared==='Non'?'no':null;
+  const conflict=fromRaw&&fromField&&fromRaw!==fromField;
+  const automate=conflict?'unknown':fromRaw||fromField||'unknown',days={};
+  const rows=Array.isArray(h.jour)?h.jour:h.jour?[h.jour]:[];
+  const minute=value=>{if(typeof value!=='string'||! /^(?:[01]?\d|2[0-3])[:.]\d{2}$|^24[:.]00$/.test(value))return null;const [hr,min]=value.split(/[:.]/).map(Number);return min<60?hr*60+min:null};
+  for(const row of rows.slice(0,20)){
+    if(!row||! /^(?:[1-7])$/.test(String(row['@id'])))continue;
+    const id=Number(row['@id']);
+    if(days[id]){days[id]={known:false,slots:[]};continue}
+    const slots=Array.isArray(row.horaire)?row.horaire:row.horaire?[row.horaire]:[];
+    const parsed=slots.slice(0,12).map(s=>[minute(s?.['@ouverture']),minute(s?.['@fermeture'])]);
+    const valid=parsed.length>0&&slots.length<=12&&parsed.every(([a,b])=>a!==null&&b!==null&&a<1440&&a!==b);
+    // Closed-day flags take precedence over stale placeholder slots in the feed.
+    const closed=String(row['@ferme'])==='1';
+    const validFlag=row['@ferme']==null||['','0','1'].includes(String(row['@ferme']));
+    days[id]={known:validFlag&&(closed||valid),closed,slots:closed?[]:parsed.filter(([a,b])=>a!==null&&b!==null&&a<1440&&a!==b)};
+  }
+  return {automate,conflict:Boolean(conflict),days};
+}
+function counterAt(schedule,arrival){
+  const local=parisLocal(arrival),weekday=new Date(local.slice(0,10)+'T12:00:00Z').getUTCDay()||7;
+  const t=Number(local.slice(11,13))*60+Number(local.slice(14,16)),day=schedule.days[weekday],previous=schedule.days[weekday===1?7:weekday-1];
+  const carry=previous?.known&&previous.slots.some(([a,b])=>b<a&&t<b);
+  if(carry&&day?.closed)return 'unknown';
+  if(day?.known&&day.slots.some(([a,b])=>a<=t&&(b<a||t<b)))return 'compatible';
+  if(carry)return 'compatible';
+  return day?.known&&previous?.known?'outside':'unknown';
+}
+function arrivalOpening(station,departure){
+  const schedule=stationSchedule(station.hours,station.automate),base={state:'unknown',kind:'unknown',arrival:null,automate:schedule.automate,counter:'unknown'};
+  if(!Number.isFinite(departure)||!Number.isFinite(station.accessSeconds)||station.accessSeconds<0)return {...base,reason:'Arrivée non estimée : départ ou durée d’accès manquant.'};
+  if(!/^(?:0[1-9]|[1-8]\d|9[0-5])\d{3}$/.test(station.postalCode||'')||!Number.isFinite(station.lat)||!Number.isFinite(station.lon)||station.lat<41.2||station.lat>51.2||station.lon< -5.5||station.lon>9.7)return {...base,reason:'Fuseau non qualifié pour cette station ; estimation limitée à la France métropolitaine.'};
+  const arrival=departure+station.accessSeconds*1000;if(!Number.isFinite(arrival)||Math.abs(arrival)>8.64e15)return base;
+  const counter=counterAt(schedule,arrival),result={...base,arrival,counter};
+  if(schedule.conflict)return {...result,reason:'Indications d’automate contradictoires : à vérifier.'};
+  if(schedule.automate==='yes'&&station.fuel!=='GPLc')return {...result,state:'compatible',kind:'automate',reason:'Automate 24 h/24 déclaré'};
+  if(counter==='compatible')return {...result,state:'compatible',kind:'counter',reason:'Dans les horaires habituels du guichet'};
+  if(counter==='outside'&&schedule.automate==='no')return {...result,state:'outside',kind:'counter',reason:'Hors horaires déclarés du guichet ; aucun automate 24 h/24 déclaré'};
+  return {...result,reason:station.fuel==='GPLc'&&schedule.automate==='yes'?'Guichet non confirmé à cette heure ; automate non qualifié pour le GPLc.':'Horaires à l’arrivée inconnus ou incomplets.'};
+}
+// END STATION HOURS MODEL
+
+function stationOpening(s){return arrivalOpening(s,departureInstant($("stationDeparture").value).instant)}
+function arrivalLabel(ms){return new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(ms))}
+function openingText(s){const o=stationOpening(s);return (o.arrival?`Arrivée estimée le ${arrivalLabel(o.arrival)} (Paris) · `:'')+o.reason}
+function refreshArrival(){
+  const d=departureInstant($("stationDeparture").value);
+  $("stationDeparture").setAttribute('aria-invalid',String(Boolean(d.error)));
+  $("stationDepartureStatus").textContent=d.error||`Départ fixé au ${arrivalLabel(d.instant)} (Paris). Durée routière d’accès, sans pauses ni trafic en direct.${d.instant<Date.now()-60000?' Heure passée : actualiser le départ pour un trajet à venir.':''}`;
+  if(stationSearch)renderStations(compared,stopWindow().mode);
+  if($("stationDialog").open&&currentStation)renderStationDetails(currentStation);
+}
+
 function stationInfo(r){
-  return {hours:r.horaires??null,automate:r.horaires_automate_24_24??null,services:Array.isArray(r.services_service)?r.services_service.filter(s=>typeof s==="string").map(s=>s.trim()).filter(Boolean).slice(0,50):[],receivedAt:new Date().toISOString()};
+  return {postalCode:typeof r.cp==="string"?r.cp:null,hours:r.horaires??null,automate:r.horaires_automate_24_24??null,services:Array.isArray(r.services_service)?r.services_service.filter(s=>typeof s==="string").map(s=>s.trim()).filter(Boolean).slice(0,50):[],receivedAt:new Date().toISOString()};
 }
 function hoursRows(raw){
   try{
@@ -424,9 +494,9 @@ function renderStationDetails(s){
   const rows=hoursRows(s.hours);
   $("stationTitle").textContent=s.city?`Station à ${s.city}`:"Station";
   $("stationDetails").innerHTML=`<p class="detail-address">${escapeHtml(s.address)}</p><p>${Number.isFinite(s.price)?`${escapeHtml(s.fuel)} : ${fmt(s.price,3)} €/L · ${escapeHtml(age(s.updated))}`:"Prix actuel non renseigné pour le carburant choisi."}</p>${Number.isFinite(s.distanceFromStart)?`<p>${fmt(s.distanceFromStart,1)} km depuis le départ · ${escapeHtml(stationRangeText(s.distanceFromStart))}</p>`:""}
-    <section class="detail-section"><h3>Horaires déclarés</h3><p class="note">Automate 24 h/24 : ${["Oui","Non"].includes(s.automate)?s.automate:"non renseigné"}. Les horaires de la boutique peuvent différer.</p>${rows.length?`<ul>${rows.map(row=>`<li>${escapeHtml(row)}</li>`).join("")}</ul>`:"<p>Horaires non renseignés.</p>"}</section>
+    <section class="detail-section"><h3>Horaires habituels à l’arrivée</h3><p class="station-opening" data-opening="${stationOpening(s).state}">${escapeHtml(openingText(s))}</p><p class="note">Départ + durée routière jusqu’à cette station, sans pauses ni trafic en direct. Jours fériés, fermetures exceptionnelles et disponibilité du carburant non vérifiés. L’automate déclaré ne précise pas les carburants accessibles.</p><h3>Horaires déclarés du guichet</h3><p class="note">Automate 24 h/24 : ${["Oui","Non"].includes(s.automate)?s.automate:"non renseigné"}. Le guichet, la boutique et l’automate sont distincts.</p>${rows.length?`<ul>${rows.map(row=>`<li>${escapeHtml(row)}</li>`).join("")}</ul>`:"<p>Horaires non renseignés.</p>"}</section>
     <section class="detail-section"><h3>Services déclarés</h3>${s.services?.length?`<ul>${s.services.map(service=>`<li>${escapeHtml(service)}</li>`).join("")}</ul>`:"<p>Services non renseignés.</p>"}</section>
-    <p class="note">Informations déclaratives, ouverture et disponibilité à confirmer sur place.${s.receivedAt?` Données reçues le ${escapeHtml(new Date(s.receivedAt).toLocaleString("fr-FR"))}.`:""}</p><a class="detail-source" href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener noreferrer">Source : données officielles des carburants ↗</a>`;
+    <p class="note">Source DGCCRF : horaires déclaratifs, sans date de mise à jour des horaires. La date du prix ne date pas les horaires. Ouverture et disponibilité à confirmer sur place.${s.receivedAt?` Données reçues le ${escapeHtml(new Date(s.receivedAt).toLocaleString("fr-FR"))}.`:""}</p><a class="detail-source" href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener noreferrer">Source : données officielles des carburants ↗</a>`;
 }
 async function openStation(id){
   if(busy)return;
@@ -855,7 +925,7 @@ function scoreCandidates(cands,base,m,liters,cons){
     if(extraKm<0||extraMin<0)continue;
     const purchase=liters*s.price;
     const detourFuelCost=extraKm*cons/100*s.price;
-    out.push({...s,distanceFromStart:d1/1000,extraKm,extraMin,purchase,detourFuelCost,real:purchase+detourFuelCost});
+    out.push({...s,distanceFromStart:d1/1000,accessSeconds:t1,extraKm,extraMin,purchase,detourFuelCost,real:purchase+detourFuelCost});
   }
   return out;
 }
@@ -871,7 +941,7 @@ async function scoreConstrainedCandidates(cands,liters,cons){
     // A shorter/faster recalculated route is not silently treated as a zero detour.
     if(extraKm<0||extraMin<0){incomparable++;continue}
     const purchase=liters*station.price,detourFuelCost=extraKm*cons/100*station.price;
-    scored.push({...station,via,distanceFromStart:via.legs[0].distance/1000,extraKm,extraMin,purchase,detourFuelCost,real:purchase+detourFuelCost});
+    scored.push({...station,via,distanceFromStart:via.legs[0].distance/1000,accessSeconds:via.legs[0].duration,extraKm,extraMin,purchase,detourFuelCost,real:purchase+detourFuelCost});
   }
   return {scored,note:[unavailable?`${unavailable} station(s) sans accès calculable.`:"",incomparable?`${incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:""].filter(Boolean).join(" ")};
 }
@@ -894,12 +964,15 @@ function filterStations(stations){
     if($(id).validity.badInput||(raw&&(!Number.isFinite(value)||value<0||value>max)))return {visible:[],error:`Détour maximal ${key==="km"?"en kilomètres":"en minutes"} : saisir une valeur de 0 à ${max}, ou laisser vide.`,excluded:{}};
     limits[key]=raw?value:Infinity;
   }
-  const excluded={detour:0,unknown:0,undeclared:0,range:0};
+  const excluded={detour:0,unknown:0,undeclared:0,range:0,hoursUnknown:0,hoursOutside:0,hoursOther:0};
+  const hoursFilter=$("stationOpeningFilter").value;
   const visible=stations.filter(s=>{
     if(s.extraKm>limits.km+1e-9||s.extraMin>limits.min+1e-9){excluded.detour++;return false}
     if(services.length&&!s.services.length){excluded.unknown++;return false}
     if(services.some(service=>!s.services.includes(service))){excluded.undeclared++;return false}
     if($("rangeOnly").checked&&range?.valid&&s.distanceFromStart>range.useful){excluded.range++;return false}
+    const opening=stationOpening(s);
+    if(hoursFilter!=="all"&&opening.state!==hoursFilter){excluded[opening.state==="unknown"?"hoursUnknown":opening.state==="outside"?"hoursOutside":"hoursOther"]++;return false}
     return true;
   });
   return {visible,excluded,error:""};
@@ -918,8 +991,10 @@ function renderStations(stations,mode,fit=false){
   $("stationListControls").hidden=!stations.length;
   $("eligibleCount").textContent=String(visible.length);
   $("stationFilterStatus").hidden=false;
-  const reasons=[excluded.detour?`${excluded.detour} au-delà du détour maximal`:"",excluded.unknown?`${excluded.unknown} aux services non renseignés`:"",excluded.undeclared?`${excluded.undeclared} sans tous les services requis déclarés`:"",excluded.range?`${excluded.range} hors portée estimée`:""].filter(Boolean);
-  const baseText=error||`${visible.length} sur ${stations.length} stations comparées satisfont les filtres.${reasons.length?" Écartées : "+reasons.join(" ; ")+".":""}`;
+  const reasons=[excluded.hoursUnknown?`${excluded.hoursUnknown} aux horaires inconnus`:"",excluded.hoursOutside?`${excluded.hoursOutside} hors horaires du guichet, sans automate déclaré`:"",excluded.hoursOther?`${excluded.hoursOther} aux horaires compatibles (hors vue choisie)`:"",excluded.detour?`${excluded.detour} au-delà du détour maximal`:"",excluded.unknown?`${excluded.unknown} aux services non renseignés`:"",excluded.undeclared?`${excluded.undeclared} sans tous les services requis déclarés`:"",excluded.range?`${excluded.range} hors portée estimée`:""].filter(Boolean);
+  const hoursCount=stations.reduce((a,s)=>{a[stationOpening(s).state]++;return a},{compatible:0,outside:0,unknown:0});
+  const hoursSummary=` Horaires habituels, avant filtres : ${hoursCount.compatible} compatibles, ${hoursCount.outside} hors guichet sans automate déclaré, ${hoursCount.unknown} inconnus. Aucune ouverture garantie.`;
+  const baseText=error||`${visible.length} sur ${stations.length} stations comparées satisfont les filtres.${reasons.length?" Écartées : "+reasons.join(" ; ")+".":""}`+hoursSummary;
   if(!visible.length){
     $("stationFilterStatus").textContent=baseText;
     $("stationCards").innerHTML=`<p class="note">${error?"Corriger la saisie ou réinitialiser les filtres.":stations.length&&excluded.range===stations.length?"Aucune station comparée dans la portée estimée. Ne pas compter sur cette estimation pour poursuivre sans carburant.":"Aucune station comparée ne satisfait tous les filtres. Modifier ou réinitialiser les filtres sans recalculer le trajet. Aucun élargissement automatique."}</p>`;
@@ -941,6 +1016,7 @@ function renderStations(stations,mode,fit=false){
     <div class="result-badges">${winners.filter(([,winner])=>winner(s)).map(([name])=>`<span class="result-badge">${name}</span>`).join("")}</div>
     <span class="station-index">Point ${s.number}</span><h3>${escapeHtml(s.city||`Station ${s.id}`)}</h3><div class="result-small">${escapeHtml(s.address)}</div>
     <div class="result-line">À ${fmt(s.distanceFromStart,1)} km du départ</div>
+    <p class="station-opening" data-opening="${stationOpening(s).state}">${escapeHtml(openingText(s))}</p>
     <p class="range-badge${range?.valid&&s.distanceFromStart>range.useful?" outside":""}">${escapeHtml(stationRangeText(s.distanceFromStart,range))}</p>
     <div class="price">${fmt(s.real)} € <span class="price-note">achat + carburant du détour</span></div>
     <div class="result-line"><b>${fmt(s.price,3)} €/L</b> · +${fmt(s.extraKm,1)} km · +${Math.round(s.extraMin)} min</div>
@@ -974,7 +1050,7 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   const a=P(coords[0]),b=P(coords.at(-1));
   $("startDot").setAttribute("cx",a[0]);$("startDot").setAttribute("cy",a[1]);
   $("endDot").setAttribute("cx",b[0]);$("endDot").setAttribute("cy",b[1]);
-  $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<g class="svg-station" role="button" tabindex="0" data-details="${escapeHtml(s.id)}" aria-label="Voir la station ${s.number} : ${escapeHtml(s.address)}"><circle class="${cl}" cx="${x}" cy="${y}" r="16"/><text x="${x}" y="${y+5}" text-anchor="middle">${s.number}</text></g>`}).join("");
+  $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<g class="svg-station" role="button" tabindex="0" data-details="${escapeHtml(s.id)}" aria-label="Voir la station ${s.number} : ${escapeHtml(s.address)} · ${escapeHtml(openingText(s))}"><title>${escapeHtml(openingText(s))}</title><circle class="${cl}" cx="${x}" cy="${y}" r="16"/><text x="${x}" y="${y+5}" text-anchor="middle">${s.number}</text></g>`}).join("");
   tollGuide.projection=P;drawTollMarkers();
   $("fallbackLabel").textContent=label||"Visualisation autonome";
 }
@@ -995,8 +1071,8 @@ function showOnMap(coords,stations,best,start,end,label,fit=true){
   L.circleMarker(end,{radius:7,color:"#111",weight:3,fillColor:"#fff",fillOpacity:1}).addTo(markerLayer);
   stations.forEach(s=>{
     const isBest=s.id===best?.id;
-    const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({className:"station-marker"+(isBest?" chosen":""),html:String(s.number),iconSize:[32,32],iconAnchor:[16,16]}),title:`Voir la station ${s.number} : ${s.address}`,keyboard:true}).addTo(markerLayer);
-    marker.getElement().setAttribute("aria-label",`Voir la station ${s.number} : ${s.address}`);
+    const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({className:"station-marker"+(isBest?" chosen":""),html:String(s.number),iconSize:[32,32],iconAnchor:[16,16]}),title:`Voir la station ${s.number} : ${s.address} · ${openingText(s)}`,keyboard:true}).addTo(markerLayer);
+    marker.getElement().setAttribute("aria-label",`Voir la station ${s.number} : ${s.address} · ${openingText(s)}`);
     marker.on("click",()=>openStation(s.id));
   });
   drawTollMarkers();
@@ -1680,10 +1756,10 @@ function bind(){
       rangeMeasuredAt=Date.now();updateRange();
     });
   }
-  for(const id of ["maxDetourKm","maxDetourMin","serviceChoices"]){$(id).addEventListener("input",()=>{if(!busy&&stationSearch)renderStations(compared,stopWindow().mode)})}
+  for(const id of ["maxDetourKm","maxDetourMin","serviceChoices","stationOpeningFilter"]){$(id).addEventListener("input",()=>{if(!busy&&stationSearch)renderStations(compared,stopWindow().mode)})}
   $("resetStationFilters").addEventListener("click",()=>{
     if(busy)return;
-    $("maxDetourKm").value="";$("maxDetourMin").value="";$("rangeOnly").checked=false;
+    $("maxDetourKm").value="";$("maxDetourMin").value="";$("stationOpeningFilter").value="all";$("rangeOnly").checked=false;
     document.querySelectorAll('[data-service]').forEach(el=>el.checked=false);
     $("stationListMode").value="recommended";
     if(stationSearch)renderStations(compared,stopWindow().mode);
@@ -1696,6 +1772,8 @@ function bind(){
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
   ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{clearRememberedInput(id);if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
+  $("stationDeparture").addEventListener("input",()=>{if(!busy)refreshArrival()});
+  $("stationDepartureNow").addEventListener("click",()=>{if(!busy){$("stationDeparture").value=parisLocal(Date.now());refreshArrival()}});
   $("stationsBtn").addEventListener("click",searchStations);
   $("stationCards").addEventListener("click",e=>{const button=e.target.closest('[data-select]');if(button)selectStation(button.dataset.select)});
   document.querySelectorAll('input[name="stopMode"],#stopKm,#fuel,#liters,#cons').forEach(el=>el.addEventListener("input",()=>{if(!busy){
@@ -1709,6 +1787,7 @@ function bind(){
 }
 
 makeGrid();bind();bindProfile();bindJournal();applyVehicle();updateRange();initPwa();
+$("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
 initMap();

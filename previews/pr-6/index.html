@@ -147,11 +147,17 @@
             <label class="check-label"><input id="rangeOnly" type="checkbox" disabled> Uniquement dans la portée estimée</label>
           </details>
           <p id="rangeStatus" class="note" role="status">Autonomie inconnue.</p>
+          <section class="arrival-options" aria-labelledby="arrivalHeading"><h3 id="arrivalHeading">Horaires à l’arrivée</h3>
+            <label for="stationDeparture">Départ prévu — heure de Paris</label><input id="stationDeparture" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59" aria-describedby="stationDepartureStatus">
+            <button id="stationDepartureNow" type="button" class="ghost">Partir maintenant</button><p id="stationDepartureStatus" class="note" role="status"></p>
+            <p class="note">Horaires habituels déclarés du guichet ou automate 24 h/24. Jours fériés et fermetures exceptionnelles non vérifiés ; aucune garantie d’ouverture ou de carburant disponible.</p>
+          </section>
           <details id="stationFilters"><summary>Filtrer les stations</summary>
             <div class="two-fields"><div><label for="maxDetourKm">Détour maximal (km)</label><input id="maxDetourKm" type="number" min="0" max="1000" step="0.1" inputmode="decimal" placeholder="Sans limite"></div><div><label for="maxDetourMin">Détour maximal (min)</label><input id="maxDetourMin" type="number" min="0" max="1440" step="0.1" inputmode="decimal" placeholder="Sans limite"></div></div>
             <p class="note">Distance et durée supplémentaires calculées par rapport au trajet choisi, hors temps du plein. Un champ vide ne fixe aucune limite.</p>
             <fieldset id="serviceFilters"><legend>Services nécessaires</legend><div id="serviceChoices"><p class="note">Les services déclarés apparaîtront après la recherche.</p></div></fieldset>
-            <p class="note">Tous les services cochés sont requis. Une information inconnue ou un service non déclaré ne satisfait pas ce filtre. Les horaires d’ouverture ne sont pas vérifiés ici.</p>
+            <p class="note">Tous les services cochés sont requis. Une information inconnue ou un service non déclaré ne satisfait pas ce filtre. </p>
+            <label for="stationOpeningFilter">Horaires habituels à l’arrivée estimée</label><select id="stationOpeningFilter"><option value="all">Toutes les informations</option><option value="compatible">Horaires déclarés compatibles uniquement</option><option value="unknown">Horaires inconnus — à vérifier</option><option value="outside">Hors guichet, sans automate déclaré</option></select><p class="note">Les inconnus ne satisfont pas le filtre « compatibles ». L’automate n’est pas utilisé pour qualifier l’accès au GPLc.</p>
             <button id="resetStationFilters" class="ghost" type="button">Réinitialiser les filtres</button>
           </details>
           <button id="stationsBtn" class="primary">Chercher les stations</button>
@@ -168,7 +174,7 @@
         <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 765f367 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · fbd2f86 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
