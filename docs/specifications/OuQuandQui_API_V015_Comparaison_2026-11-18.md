@@ -31,9 +31,9 @@ La donnée interne distingue `status: partial` et `status: unknown`, avec `total
 
 « Afficher ce trajet » sélectionne le tracé déjà calculé, sans nouvelle requête de routage. Les éventuelles stations, l’arrêt et les péages précédents nécessitent confirmation avant retrait. Le refus conserve le trajet et ses informations. Le nouveau tracé ne reprend aucun tarif de péage ; une activation antérieure de tarification automatique n’est pas relancée implicitement.
 
-Le mode, les métriques, la carte et la provenance suivent la sélection. Le départ souhaité de la comparaison devient le départ de la préparation ; vide reste vide. Le véhicule reprend les hypothèses de consommation et de prix saisies, dans la session ; la marche reprend sa limite souhaitée. Aucun profil n’est écrit. Les préférences automobiles sont conservées lors du choix à pied.
+Le mode, les métriques, la carte et la provenance suivent la sélection. Le départ souhaité de la comparaison devient le départ de la session de préparation ; vide reste vide. Le véhicule reprend les hypothèses de consommation et de prix saisies, dans la session ; la marche reprend sa limite souhaitée. Aucun profil n’est écrit. Les préférences automobiles sont conservées lors du choix à pied.
 
-Navigation, GPX, préparation sauvegardée et journal volontaire utilisent le trajet sélectionné. La comparaison et le nombre de personnes restent un brouillon de session : ils ne sont ni des passagers confirmés, ni un déplacement effectué, ni une nouvelle entrée du journal. Les sauvegardes conservent leur format 2 ; aucun nouveau format ou clé de stockage.
+Navigation, GPX, préparation sauvegardée et journal volontaire utilisent le trajet sélectionné. La comparaison et le nombre de personnes restent un brouillon de session : ils ne sont ni des passagers confirmés, ni un déplacement effectué, ni une nouvelle entrée du journal. Les sauvegardes conservent leur format 2 ; aucun nouveau format ou clé de stockage. La préparation automobile conserve son départ selon V012. La préparation à pied conserve le mode et la limite, mais pas le départ souhaité de la comparaison : cette hypothèse temporelle reste en session.
 
 ## Vérification
 
