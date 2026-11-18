@@ -687,7 +687,7 @@ function renderPreparedTrips(){
  if(selected)$('preparedDetails').innerHTML=preparedDescription(selected,true);
 }
 function openPreparedTrips(){
- if(busy)return;preparedDraft=null;preparedSelected=null;preparedImport=null;preparedSequence++;
+ if(busy)return;resetSavedTransit();preparedDraft=null;preparedSelected=null;preparedImport=null;preparedSequence++;
  $('preparedEditor').hidden=true;$('preparedMessage').textContent=preparedNotice;renderPreparedTrips();if(!$('preparedDialog').open)$('preparedDialog').showModal();
 }
 function showPreparedEditor(entry,mode){
@@ -765,7 +765,7 @@ function bindPreparedTrips(){
  $('preparedExport').addEventListener('click',()=>{if(!preparedBlocked)downloadProfile(preparedTrips,'DragonRoute-preparations.json')});
  $('preparedBackup').addEventListener('click',()=>{if(!preparedBlocked)downloadProfile(preparedTrips,'DragonRoute-preparations-avant-import.json')});
  $('preparedErase').addEventListener('click',()=>{
-  if(!confirm('Effacer toutes les préparations de cet environnement, y compris les anciennes sauvegardes originales ? Le profil, le journal et les autres aperçus seront conservés.'))return;
+  if(!confirm('Effacer les préparations route/marche de cet environnement, y compris leurs anciennes sauvegardes ? Les préparations collectives, le profil, le journal et les autres aperçus seront conservés.'))return;
   try{if(localStorage.getItem(PREPARED_KEY)!==preparedSnapshot||localStorage.getItem(PREPARED_V4_KEY)!==preparedV4Snapshot||localStorage.getItem(PREPARED_V3_KEY)!==preparedV3Snapshot||localStorage.getItem(PREPARED_V2_KEY)!==preparedV2Snapshot||localStorage.getItem(PREPARED_LEGACY_KEY)!==preparedLegacySnapshot)throw new Error('Données modifiées dans un autre onglet : recharger avant l’effacement.');localStorage.removeItem(PREPARED_LEGACY_KEY);localStorage.removeItem(PREPARED_V2_KEY);localStorage.removeItem(PREPARED_V4_KEY);localStorage.removeItem(PREPARED_V3_KEY);localStorage.removeItem(PREPARED_KEY);loadPreparedTrips();preparedSelected=null;preparedDraft=null;$('preparedEditor').hidden=true;renderPreparedTrips();$('preparedMessage').textContent='Préparations effacées.'}catch(e){$('preparedMessage').textContent='Effacement impossible. '+e.message}
  });
  $('preparedImportFile').addEventListener('change',async ev=>{
@@ -2399,6 +2399,35 @@ function networkAlerts(data,route,now){
  return {generated,items,rejected,outside};
 }
 // END TRANSIT NETWORK MODEL
+
+// BEGIN SAVED TRANSIT MODEL
+function validateSavedTransitEntry(e){
+ if(!e?.places||!e.criteria||!e.snapshot||e.snapshot.source!=='mobilites-m'||e.snapshot.route?.realtime!==false)throw new Error('Préparation collective incomplète ou source inconnue.');
+ const id=preparedText(e.id,80,true),name=preparedText(e.name,80,true),savedAt=preparedDate(e.savedAt),calculatedAt=preparedDate(e.snapshot.calculatedAt);
+ if(!/^[A-Za-z0-9-]+$/.test(id)||calculatedAt>savedAt)throw new Error('Identité ou dates de sauvegarde incohérentes.');
+ const places={start:preparedPoint(e.places.start),end:preparedPoint(e.places.end)},criteria={when:preparedText(e.criteria.when,16,true),direction:preparedEnum(e.criteria.direction,['depart','arrive']),walk:preparedNumber(e.criteria.walk,100,5000)};
+ const q=transitRequest([places.start.lat,places.start.lon],[places.end.lat,places.end.lon],{...criteria,walk:String(criteria.walk)},Date.parse(calculatedAt)),r=e.snapshot.route;
+ if(!Array.isArray(r.legs)||r.legs.length<1||r.legs.length>30)throw new Error('Étapes collectives invalides.');
+ const raw={startTime:r.start,endTime:r.end,duration:r.duration,legs:r.legs.map(l=>{
+  if(!l||l.realTime===true||l.cancelled===true||l.realtimeState==='CANCELED')throw new Error('Seuls les horaires théoriques peuvent être conservés.');
+  const from=transitPoint(l.from),to=transitPoint(l.to);
+  return {mode:l.mode,startTime:l.start,endTime:l.end,duration:(l.end-l.start)/1000,distance:l.distance,transitLeg:l.mode!=='WALK',realTime:false,from:{lat:from[0],lon:from[1],name:preparedText(l.fromName,250,true),stopId:l.stopId},to:{lat:to[0],lon:to[1],name:preparedText(l.toName,250,true),stopId:l.toStopId},routeShortName:l.line,headsign:l.direction,agencyName:l.agency,routeId:l.routeId,tripId:l.tripId,serviceDate:l.serviceDate};
+ })};
+ const route=transitItinerary(raw,q);let count=0;
+ route.legs.forEach((l,i)=>{const points=r.legs[i].points;if(points===null)return;if(!Array.isArray(points)||points.length<2||points.length>12000)throw new Error('Tracé collectif invalide.');count+=points.length;if(count>25000)throw new Error('Limite de 25 000 points atteinte.');l.points=points.map(transitPoint);if(!transitNear(l.points[0],l.from)||!transitNear(l.points.at(-1),l.to))throw new Error('Tracé incohérent avec les arrêts.');});
+ return {id,name,savedAt,places,criteria,snapshot:{source:'mobilites-m',calculatedAt,route}};
+}
+function validateSavedTransit(data){
+ if(data?.kind!=='dragonroute-transit-preparations'||data.version!==1||!Array.isArray(data.entries)||data.entries.length>20)throw new Error('Format collectif inconnu ou limite de 20 préparations dépassée.');
+ const clean={kind:'dragonroute-transit-preparations',version:1,entries:data.entries.map(validateSavedTransitEntry)};
+ if(new Set(clean.entries.map(e=>e.id)).size!==clean.entries.length)throw new Error('Identifiants collectifs dupliqués.');
+ if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>2000000)throw new Error('La sauvegarde collective dépasse 2 Mo.');return clean;
+}
+function savedTransitDuplicates(entry,entries){
+ const name=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr-FR'),key=e=>JSON.stringify([e.places.start.lat,e.places.start.lon,e.places.end.lat,e.places.end.lon,e.criteria]);
+ return entries.filter(e=>e.id!==entry.id&&(name(e.name)===name(entry.name)||key(e)===key(entry)));
+}
+// END SAVED TRANSIT MODEL
 let transitContext=null,transitJob=null,transitRoutes=[],transitMap=null,transitLayers=null,transitNextRequest=0;
 const transitClock=ms=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(ms);
 const transitMinutes=s=>`${Math.ceil(s/60)} min`;
@@ -2408,7 +2437,7 @@ function transitStoredPlace(value,field){
  return saved?structuredClone(saved.place):null;
 }
 function clearTransit(message=''){
- clearTransitNetwork();
+ clearTransitNetwork();transitCalculation=null;
  const job=transitJob;
  if(job){job.cancelled=true;job.controller.abort();if(job.resolving&&activeAbort===job.controller&&placePending){placePending.reject(new Error('Recherche de transports annulée.'));placePending=null;$('placeDialog').close()}}
  transitRoutes=[];$('transitResults').replaceChildren();$('transitCompareResults').replaceChildren();$('transitStatus').textContent=message;$('transitCancel').hidden=true;$('transitSearch').disabled=Boolean(job);
@@ -2472,10 +2501,10 @@ function drawTransit(index){
  }
 }
 function renderTransit(result,q){
- transitRoutes=result.routes;
+ transitRoutes=result.routes;transitCalculation=q;
  $('transitStatus').textContent=`${result.routes.length} itinéraire(s) collectif(s) compatible(s). ${result.excluded?`${result.excluded} proposition(s) écartée(s) : marche seule, doublon, limite ou données non qualifiées. `:''}Consulté le ${transitClock(Date.now())}.`;
  if(!result.routes.length){$('transitStatus').textContent+=' Aucun résultat ne satisfait ces critères. Les modifier puis relancer la recherche.';return}
- $('transitResults').innerHTML=result.routes.map((r,i)=>`<article class="comparison-card" data-transit-option="${i}"><h3>Option ${i+1} · ${transitMinutes(r.duration)}</h3><p><strong>${transitClock(r.start)} → ${transitClock(r.end)}</strong> · heure de Paris</p><p>${r.transfers} correspondance(s) · ${Math.ceil(r.walk)} m de marche (${transitMinutes(r.walking)}) · ${transitMinutes(r.riding)} à bord · ${transitMinutes(r.waiting)} d’attente en chemin</p><p class="note">${q.arrive?`Arrivée ${transitMinutes((q.instant-r.end)/1000)} avant l’heure limite.`:`Départ ${transitMinutes((r.start-q.instant)/1000)} après l’heure demandée ; ${transitMinutes((r.end-q.instant)/1000)} de cette heure à l’arrivée.`}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${escapeHtml(l.line)}`}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)}<br>${escapeHtml(l.agency)}`}</li>`).join('')}</ol><p class="note">Horaires théoriques. Perturbations et retards non vérifiés. Prix total inconnu ; aucune réservation. Accessibilité, bagages et vélo à bord non vérifiés.</p><button type="button" class="ghost" data-transit-map="${i}" aria-pressed="false">Voir le parcours ${i+1}</button><p class="note">La consultation réseau transmet les lignes et arrêts consultés à Mobilités M, uniquement à la demande.</p><button type="button" class="ghost" data-transit-network="${i}" disabled>Consulter les infos réseau · option ${i+1}</button></article>`).join('');
+ $('transitResults').innerHTML=result.routes.map((r,i)=>`<article class="comparison-card" data-transit-option="${i}"><h3>Option ${i+1} · ${transitMinutes(r.duration)}</h3><p><strong>${transitClock(r.start)} → ${transitClock(r.end)}</strong> · heure de Paris</p><p>${r.transfers} correspondance(s) · ${Math.ceil(r.walk)} m de marche (${transitMinutes(r.walking)}) · ${transitMinutes(r.riding)} à bord · ${transitMinutes(r.waiting)} d’attente en chemin</p><p class="note">${q.arrive?`Arrivée ${transitMinutes((q.instant-r.end)/1000)} avant l’heure limite.`:`Départ ${transitMinutes((r.start-q.instant)/1000)} après l’heure demandée ; ${transitMinutes((r.end-q.instant)/1000)} de cette heure à l’arrivée.`}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${escapeHtml(l.line)}`}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)}<br>${escapeHtml(l.agency)}`}</li>`).join('')}</ol><p class="note">Horaires théoriques. Perturbations et retards non vérifiés. Prix total inconnu ; aucune réservation. Accessibilité, bagages et vélo à bord non vérifiés.</p><button type="button" class="ghost" data-transit-map="${i}" aria-pressed="false">Voir le parcours ${i+1}</button><p class="note">La consultation réseau transmet les lignes et arrêts consultés à Mobilités M, uniquement à la demande.</p><button type="button" class="ghost" data-transit-network="${i}" disabled>Consulter les infos réseau · option ${i+1}</button><button type="button" class="ghost" data-transit-save="${i}" disabled>Enregistrer cette option collective ${i+1}</button></article>`).join('');
  drawTransit(0);
 }
 async function searchTransit(){
@@ -2506,7 +2535,7 @@ async function searchTransit(){
   finally{clearTimeout(timer)}
   if(job.compare&&current()&&!job.controller.signal.aborted){$('transitCompareResults').textContent='Comparaison des temps avec les modes routiers…';await compareTransitTimes(job,q,result)}
  }catch(e){if(current())$('transitStatus').textContent=e.message}
- finally{if(transitJob===job){transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=false}}
+ finally{if(transitJob===job){transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network],[data-transit-save]'))b.disabled=false}}
 }
 function bindTransit(){
  $('transitNetworkCancel').addEventListener('click',()=>clearTransitNetwork('Consultation annulée.'));
@@ -2516,7 +2545,7 @@ function bindTransit(){
  $('transitClose').addEventListener('click',()=>{$('transitDialog').close()});
  $('transitDialog').addEventListener('close',()=>{clearTransit();$('transitBtn').focus()});
  for(const id of ['transitWhen','transitDirection','transitWalk','transitCompare'])$(id).addEventListener('input',()=>clearTransit(transitContext?.a&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))?'Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.':'Critères modifiés : relancer la recherche.'));
- $('transitResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-map]');if(b)drawTransit(Number(b.dataset.transitMap));const n=e.target.closest('[data-transit-network]');if(n)loadTransitNetwork(Number(n.dataset.transitNetwork))});
+ $('transitResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-map]');if(b)drawTransit(Number(b.dataset.transitMap));const n=e.target.closest('[data-transit-network]');if(n)loadTransitNetwork(Number(n.dataset.transitNetwork));const t=e.target.closest('[data-transit-save]');if(t)saveTransitOption(Number(t.dataset.transitSave))});
  for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearTransit();transitContext=null;$('transitBtn').hidden=false;if($('transitDialog').open)$('transitDialog').close()});
 }
 
@@ -2556,6 +2585,62 @@ async function loadTransitNetwork(index){
  }finally{clearTimeout(timer);if(current()){transitNetworkJob=null;$('transitNetworkCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=false}}
 }
 function refreshTransitNetwork(){if(!transitNetworkView)return;const v=transitNetworkView,now=Date.now(),expiry=JSON.stringify([now-v.at>300000||now<v.at-60000,Boolean(v.alerts&&(now-v.alerts.generated>600000||now<v.alerts.generated-60000))]);if(expiry!==v.expiry)renderTransitNetwork()}
+
+const SAVED_TRANSIT_KEY='dragonroute.transit-prepared.v1.'+PROFILE_SCOPE;
+let savedTransit={kind:'dragonroute-transit-preparations',version:1,entries:[]},savedTransitRaw=null,savedTransitBlocked=false,savedTransitDraft=null,savedTransitSelected=null,savedTransitImport=null,savedTransitSequence=0,transitCalculation=null;
+const savedTransitClock=ms=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(ms);
+function loadSavedTransit(){
+ savedTransit={kind:'dragonroute-transit-preparations',version:1,entries:[]};savedTransitBlocked=false;savedTransitRaw=null;
+ try{savedTransitRaw=localStorage.getItem(SAVED_TRANSIT_KEY);if(savedTransitRaw!==null)savedTransit=validateSavedTransit(JSON.parse(savedTransitRaw));$('savedTransitMessage').textContent=''}catch{savedTransitBlocked=true;$('savedTransitMessage').textContent='Préparations collectives non chargées : données invalides, version inconnue ou stockage inaccessible. Aucun remplacement automatique.'}
+}
+function writeSavedTransit(next){
+ try{if(savedTransitBlocked)throw new Error('Stockage collectif protégé.');if(localStorage.getItem(SAVED_TRANSIT_KEY)!==savedTransitRaw)throw new Error('Préparations collectives modifiées dans un autre onglet. Fermer puis rouvrir Mes trajets avant de réessayer.');const clean=validateSavedTransit(next),raw=JSON.stringify(clean);localStorage.setItem(SAVED_TRANSIT_KEY,raw);savedTransit=clean;savedTransitRaw=raw;return true}catch(e){$('savedTransitMessage').textContent='Enregistrement impossible. '+e.message;return false}
+}
+function setPreparedTab(kind,focus=false){
+ if(kind==='road'){savedTransitSequence++;savedTransitImport=null}else{preparedSequence++;preparedImport=null}
+ for(const key of ['road','transit']){const on=key===kind,b=$(key==='road'?'preparedRoadTab':'preparedTransitTab');b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;$(key==='road'?'preparedRoadPanel':'savedTransitPanel').hidden=!on;if(on&&focus)b.focus()}
+}
+function resetSavedTransit(){savedTransitSequence++;savedTransitDraft=null;savedTransitImport=null;savedTransitSelected=null;$('savedTransitEditor').hidden=true;loadSavedTransit();renderSavedTransit();setPreparedTab('road')}
+function savedTransitDiagram(route){
+ const paths=route.legs.filter(l=>l.points),points=paths.flatMap(l=>l.points);if(!points.length)return '<p class="note">Tracé non conservé ; les étapes restent consultables.</p>';
+ const lat=points.map(p=>p[0]),lon=points.map(p=>p[1]),x=Math.min(...lon),y=Math.min(...lat),dx=Math.max(.001,Math.max(...lon)-x),dy=Math.max(.001,Math.max(...lat)-y),scale=Math.min(520/dx,180/dy),project=p=>[(p[1]-x)*scale+(600-dx*scale)/2,260-(p[0]-y)*scale-(260-dy*scale)/2];
+ return `<svg class="prepared-schema" viewBox="0 0 600 260" role="img" aria-label="Schéma historique des étapes collectives, sans fond de carte">${paths.map(l=>`<polyline points="${l.points.map(p=>project(p).map(n=>n.toFixed(2)).join(',')).join(' ')}" fill="none" stroke="${l.mode==='WALK'?'#d2b8ff':'#80bdff'}" stroke-width="5" ${l.mode==='WALK'?'stroke-dasharray="5 7"':''}/>`).join('')}</svg><p class="note">Schéma sans échelle : marche en pointillés violets, transport en bleu.${paths.length!==route.legs.length?' Certaines étapes n’ont pas de tracé conservé.':''}</p>`;
+}
+function savedTransitDescription(e,diagram=false){
+ const r=e.snapshot.route;return `<h3>${escapeHtml(e.name)}</h3><p>${escapeHtml(e.places.start.label)} → ${escapeHtml(e.places.end.label)}</p><p class="note">Enregistré le ${savedTransitClock(Date.parse(e.savedAt))}. Calcul consulté le ${savedTransitClock(Date.parse(e.snapshot.calculatedAt))}. Heure de Paris.</p><p><strong>Instantané théorique du ${savedTransitClock(r.start)} au ${savedTransitClock(r.end)} · ${transitMinutes(r.duration)}.</strong> Cette sauvegarde ne confirme pas les horaires actuels.</p><p>Demande : ${e.criteria.direction==='arrive'?'arrivée au plus tard':'départ à partir du'} ${escapeHtml(e.criteria.when.replace('T',' '))} (Paris), marche totale maximale ${e.criteria.walk} m. ${r.transfers} correspondance(s), ${Math.ceil(r.walk)} m à pied.</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attente : ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${savedTransitClock(l.start)} → ${savedTransitClock(l.end)} · ${TRANSIT_MODES[l.mode]} ${l.mode==='WALK'?'':escapeHtml(l.line)}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)} · ${escapeHtml(l.agency)}`}</li>`).join('')}</ol>${diagram?savedTransitDiagram(r):''}<p class="note">Source déclarée : <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · ODbL</a>. Pilote Grenoble. Prix et accessibilité inconnus ; aucune réservation. Retards et perturbations non conservés. Un import reste déclaratif : format contrôlé, circulation réelle non attestée.</p>`;
+}
+function renderSavedTransit(){
+ $('savedTransitExport').disabled=savedTransitBlocked;$('savedTransitImportFile').disabled=savedTransitBlocked;
+ $('savedTransitList').innerHTML=savedTransit.entries.length?savedTransit.entries.map(e=>`<article class="saved-row"><strong>${escapeHtml(e.name)}</strong><p>${escapeHtml(e.places.start.label)} → ${escapeHtml(e.places.end.label)}</p><p>Collectif · départ historique ${savedTransitClock(e.snapshot.route.start)} · ${transitMinutes(e.snapshot.route.duration)}</p><div class="row-actions"><button type="button" class="ghost" data-saved-transit-show="${e.id}">Consulter</button><button type="button" class="ghost" data-saved-transit-rename="${e.id}">Renommer</button><button type="button" class="ghost" data-saved-transit-delete="${e.id}">Supprimer</button></div></article>`).join(''):'<p class="note">Aucune préparation collective chargée. Après une recherche collective, choisir « Enregistrer cette option ».</p>';
+ const selected=savedTransit.entries.find(e=>e.id===savedTransitSelected);$('savedTransitView').hidden=!selected;$('savedTransitDetails').innerHTML=selected?savedTransitDescription(selected,true):'';
+}
+function editSavedTransit(entry,mode){savedTransitDraft={entry,mode};$('savedTransitEditor').hidden=false;$('savedTransitEditorTitle').textContent=mode==='rename'?'Renommer la préparation collective':'Enregistrer la préparation collective';$('savedTransitName').value=entry.name;$('savedTransitConfirm').checked=false;$('savedTransitDuplicate').checked=false;updateSavedTransitDraft();$('savedTransitName').focus()}
+function updateSavedTransitDraft(){
+ if(!savedTransitDraft)return;const entry={...savedTransitDraft.entry,name:$('savedTransitName').value},duplicates=savedTransitDuplicates(entry,savedTransit.entries);$('savedTransitDuplicateRow').hidden=!duplicates.length;$('savedTransitDuplicateNote').textContent=duplicates.length?'Ce nom ou ces paramètres figurent déjà dans les préparations collectives. Aucun remplacement automatique.':'';$('savedTransitSave').disabled=savedTransitBlocked||!entry.name.trim()||!$('savedTransitConfirm').checked||(duplicates.length&&!$('savedTransitDuplicate').checked);
+}
+function saveTransitOption(index){
+ if(busy||transitJob||!transitRoutes[index]||!transitCalculation||!transitContext?.places)return;
+ try{const q=transitCalculation,c=transitContext,entry=validateSavedTransitEntry({id:crypto.randomUUID(),name:(c.places.start+' → '+c.places.end).slice(0,80),savedAt:new Date().toISOString(),places:{start:{label:c.places.start,lat:c.a[0],lon:c.a[1]},end:{label:c.places.end,lat:c.b[0],lon:c.b[1]}},criteria:{when:q.when,direction:q.arrive?'arrive':'depart',walk:q.walk},snapshot:{source:'mobilites-m',calculatedAt:new Date(q.now).toISOString(),route:structuredClone(transitRoutes[index])}});clearTransit();$('transitDialog').close();openPreparedTrips();setPreparedTab('transit');editSavedTransit(entry,'new')}catch(e){$('transitStatus').textContent='Sauvegarde impossible. '+e.message}
+}
+function resumeSavedTransit(e){
+ if(busy)return;
+ clearTransit();transitContext={inputs:[e.places.start.label,e.places.end.label],signature:transitInputSignature(),a:[e.places.start.lat,e.places.start.lon],b:[e.places.end.lat,e.places.end.lon],places:{start:e.places.start.label,end:e.places.end.label}};showTransitPlaces();$('transitDirection').value=e.criteria.direction;$('transitWalk').value=String(e.criteria.walk);$('transitCompare').checked=false;
+ const t=departureInstant(e.criteria.when),valid=!t.error&&t.instant>Date.now()&&t.instant<=Date.now()+30*864e5;$('transitWhen').value=valid?e.criteria.when:'';
+ $('preparedDialog').close();$('transitDialog').showModal();$('transitStatus').textContent=`Préparation « ${e.name} » reprise : lieux mémorisés, aucun nouveau calcul. ${valid?'Vérifier les critères puis lancer la recherche.':'La date conservée est passée ou hors de la fenêtre de recherche : choisir une nouvelle date.'}`;$(valid?'transitTitle':'transitWhen').focus();
+}
+function bindSavedTransit(){
+ for(const [id,kind] of [['preparedRoadTab','road'],['preparedTransitTab','transit']]){const b=$(id);b.addEventListener('click',()=>setPreparedTab(kind));b.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();setPreparedTab(e.key==='Home'?'road':e.key==='End'?'transit':kind==='road'?'transit':'road',true)}})}
+ $('savedTransitName').addEventListener('input',()=>{$('savedTransitConfirm').checked=false;$('savedTransitDuplicate').checked=false;updateSavedTransitDraft()});for(const id of ['savedTransitConfirm','savedTransitDuplicate'])$(id).addEventListener('change',updateSavedTransitDraft);
+ $('savedTransitForm').addEventListener('submit',e=>{e.preventDefault();if(!savedTransitDraft)return;try{const entry=validateSavedTransitEntry({...savedTransitDraft.entry,name:$('savedTransitName').value});if(!$('savedTransitConfirm').checked||(savedTransitDuplicates(entry,savedTransit.entries).length&&!$('savedTransitDuplicate').checked))throw new Error('Confirmer la sauvegarde et le doublon éventuel.');const entries=savedTransitDraft.mode==='rename'?savedTransit.entries.map(x=>x.id===entry.id?entry:x):[...savedTransit.entries,entry];if(writeSavedTransit({...savedTransit,entries})){savedTransitDraft=null;savedTransitSelected=entry.id;$('savedTransitEditor').hidden=true;renderSavedTransit();$('savedTransitMessage').textContent='Préparation collective enregistrée dans ce navigateur.';$('savedTransitView').scrollIntoView({block:'start'})}}catch(err){$('savedTransitMessage').textContent=err.message}});
+ $('savedTransitList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.savedTransitShow||b.dataset.savedTransitRename||b.dataset.savedTransitDelete,e=savedTransit.entries.find(x=>x.id===id);if(!e)return;if(b.dataset.savedTransitRename)editSavedTransit(structuredClone(e),'rename');else if(b.dataset.savedTransitShow){savedTransitDraft=null;$('savedTransitEditor').hidden=true;savedTransitSelected=id;renderSavedTransit();$('savedTransitView').scrollIntoView({block:'start'})}else if(confirm(`Supprimer la préparation collective « ${e.name} » ?`)&&writeSavedTransit({...savedTransit,entries:savedTransit.entries.filter(x=>x.id!==id)})){savedTransitSelected=null;savedTransitDraft=null;$('savedTransitEditor').hidden=true;renderSavedTransit();$('savedTransitMessage').textContent='Préparation collective supprimée.'}});
+ $('savedTransitResume').addEventListener('click',()=>{const e=savedTransit.entries.find(x=>x.id===savedTransitSelected);if(e)resumeSavedTransit(e)});
+ for(const id of ['savedTransitExport','savedTransitBackup'])$(id).addEventListener('click',()=>{if(!savedTransitBlocked)downloadProfile(savedTransit,'OuQuandQui-preparations-collectives.json')});
+ $('savedTransitErase').addEventListener('click',()=>{if(!confirm('Effacer les préparations collectives de cet environnement ? Les préparations routières, le profil et le journal restent conservés.'))return;try{if(localStorage.getItem(SAVED_TRANSIT_KEY)!==savedTransitRaw)throw new Error('Données modifiées dans un autre onglet : fermer puis rouvrir Mes trajets.');localStorage.removeItem(SAVED_TRANSIT_KEY);resetSavedTransit();setPreparedTab('transit');$('savedTransitMessage').textContent='Préparations collectives effacées.'}catch(e){$('savedTransitMessage').textContent='Effacement impossible. '+e.message}});
+ $('savedTransitImportFile').addEventListener('change',async e=>{const seq=++savedTransitSequence,file=e.target.files?.[0];e.target.value='';savedTransitImport=null;if(!file)return;try{if(savedTransitBlocked)throw new Error('Stockage collectif protégé.');if(file.size>2000000)throw new Error('Fichier supérieur à 2 Mo.');const data=validateSavedTransit(JSON.parse(await file.text()));if(seq!==savedTransitSequence||!$('preparedDialog').open)return;savedTransitImport=data;$('savedTransitImportSummary').textContent=`${file.name} : ${data.entries.length} préparation(s) collective(s), en remplacement des ${savedTransit.entries.length} chargées.${data.entries.length?'':' Le fichier est vide ; la liste collective deviendra vide.'} Les préparations routières restent conservées.`;$('savedTransitImportDetails').innerHTML=data.entries.map(x=>`<details><summary>${escapeHtml(x.name)}</summary>${savedTransitDescription(x)}</details>`).join('');$('savedTransitImportConfirm').checked=false;$('savedTransitImportApply').disabled=true;$('savedTransitImportMessage').textContent='';$('savedTransitImportDialog').showModal()}catch(err){if(seq===savedTransitSequence)$('savedTransitMessage').textContent='Import collectif refusé. '+err.message}});
+ $('savedTransitImportConfirm').addEventListener('change',()=>{$('savedTransitImportApply').disabled=!savedTransitImport||!$('savedTransitImportConfirm').checked});
+ $('savedTransitImportApply').addEventListener('click',()=>{if(!savedTransitImport||!$('savedTransitImportConfirm').checked)return;if(writeSavedTransit(savedTransitImport)){savedTransitImport=null;savedTransitDraft=null;savedTransitSelected=null;$('savedTransitEditor').hidden=true;renderSavedTransit();$('savedTransitImportDialog').close();$('savedTransitMessage').textContent='Préparations collectives restaurées, aucun calcul ni appel réseau.'}else $('savedTransitImportMessage').textContent=$('savedTransitMessage').textContent});
+ const cancel=()=>{savedTransitSequence++;savedTransitImport=null};$('savedTransitImportDialog').addEventListener('cancel',cancel);$('savedTransitImportDialog').querySelector('.close-dialog').addEventListener('click',cancel);$('savedTransitImportDialog').addEventListener('close',()=>{if($('savedTransitImportDialog').open)return;cancel();if($('preparedDialog').open)$('savedTransitImportFile').focus()});$('preparedDialog').addEventListener('close',()=>{cancel();savedTransitDraft=null;if(!document.querySelector('dialog[open]'))$('preparedBtn').focus()});
+}
 
 function updateBudget(){
   updateTransitContext();
@@ -3085,7 +3170,7 @@ function bind(){
   }
 }
 
-loadPreparedTrips();makeGrid();bind();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindProspective();applyVehicle();updateRange();initPwa();
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
