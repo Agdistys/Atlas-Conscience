@@ -97,16 +97,29 @@
           <div><label for="comparisonPrice">Prix du carburant saisi (€/L, facultatif)</label><input id="comparisonPrice" type="number" min="0.001" max="10" step="any" placeholder="Inconnu"></div>
           <div><label for="comparisonWalkLimit">Limite de marche souhaitée (km, facultatif)</label><input id="comparisonWalkLimit" type="number" min="0.1" max="500" step="any" placeholder="Non renseignée"></div>
         </div>
+        <fieldset class="prospective-options"><legend>Empreinte carbone facultative</legend>
+          <label class="check-label"><input id="comparisonCarbonEnabled" type="checkbox"> Estimer le véhicule et la part du groupe</label>
+          <p id="comparisonCarbonAvailability" class="note"></p>
+          <div id="comparisonCarbonFields" hidden><label for="comparisonCarbonFactor">Modèle du véhicule</label><select id="comparisonCarbonFactor"></select><label for="comparisonCarbonOccupants">Total des occupants, conducteur compris</label><input id="comparisonCarbonOccupants" type="number" min="1" max="9" step="1" placeholder="À renseigner"></div>
+          <p class="note">Marche non estimée. Aucun classement carbone complet entre les deux modes ; une donnée absente n’est pas zéro.</p>
+        </fieldset>
         <label class="check-label"><input id="comparisonOnlyBefore" type="checkbox"> Uniquement les arrivées estimées au plus tard à l’heure limite</label>
         <p id="comparisonTimingStatus" class="note" role="status"></p>
         <button id="comparisonCalculate" class="primary" type="button">Calculer la comparaison</button>
         <button id="comparisonCancel" class="ghost navigation-button" type="button" hidden>Annuler le calcul</button>
         <p id="comparisonStatus" class="station-selection" role="status" aria-live="polite"></p>
         <p id="comparisonContext" class="note"></p>
-        <div id="comparisonSortWrap" hidden><label for="comparisonSort">Trier les valeurs</label><select id="comparisonSort"><option value="duration">Durée croissante</option><option value="distance">Distance croissante</option><option value="cost" disabled>Coût total · incomplet</option><option value="carbon" disabled>CO₂e · non estimé</option></select><p class="note">Égalités conservées à la précision affichée. Aucun score pondéré ; les modes indisponibles restent distincts.</p></div>
+        <div id="comparisonSortWrap" hidden><label for="comparisonSort">Trier les valeurs</label><select id="comparisonSort"><option value="duration">Durée croissante</option><option value="distance">Distance croissante</option><option value="cost" disabled>Coût total · incomplet</option><option value="carbon" disabled>CO₂e · comparaison incomplète</option></select><p class="note">Égalités conservées à la précision affichée. Aucun score pondéré ; les modes indisponibles restent distincts.</p></div>
         <div id="comparisonCards" class="comparison-cards"></div>
         <details id="comparisonExcludedWrap" hidden><summary>Consulter les trajets écartés par l’heure limite</summary><div id="comparisonExcluded" class="comparison-cards"></div></details>
         <button id="comparisonClose" class="ghost navigation-button" type="button">Fermer la comparaison</button>
+      </section>
+      <section id="routeCarbon" class="stops-section" hidden aria-labelledby="routeCarbonHeading">
+        <h2 id="routeCarbonHeading">Empreinte du trajet préparé</h2><p id="routeCarbonDistance" class="note"></p>
+        <label class="check-label"><input id="routeCarbonEnabled" type="checkbox"> Estimer ce trajet</label><p id="routeCarbonAvailability" class="note"></p>
+        <div id="routeCarbonFields" hidden><label for="routeCarbonFactor">Modèle du véhicule</label><select id="routeCarbonFactor"></select><label for="routeCarbonOccupants">Total des occupants, conducteur compris</label><input id="routeCarbonOccupants" type="number" min="1" max="9" step="1" placeholder="À renseigner"></div>
+        <div id="routeCarbonResult" role="status" aria-live="polite"></div>
+        <p class="note">Le modèle et l’occupation restent dans cette session. Après rechargement ou reprise d’une préparation, les choisir à nouveau. Aucun résultat ajouté au journal des déplacements.</p>
       </section>
       <section id="tripBudget" class="stops-section" hidden aria-labelledby="budgetHeading">
         <h2 id="budgetHeading">Budget du trajet</h2>
@@ -236,7 +249,7 @@
         </div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 43e0664 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 91e3bc2 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>

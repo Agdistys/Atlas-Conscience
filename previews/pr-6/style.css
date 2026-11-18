@@ -71,3 +71,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 .ride-counts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#rideText{width:100%;min-height:240px;resize:vertical;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;font:13px/1.6 system-ui}#rideSharing input{margin-bottom:10px}#ridesPanel h4{font-size:15px;margin-bottom:10px}
 
 .comparison-card{padding:16px;border:1px solid var(--line);border-radius:12px;margin:12px 0}.comparison-card h3{margin-top:0}.comparison-card button{width:100%}.comparison-card [aria-pressed="true"]{border-color:var(--green)}#comparisonPanel .settings{grid-template-columns:1fr}#comparisonPanel input{max-width:100%;min-width:0}#comparisonHeading:focus{outline:2px solid #f6ca69;outline-offset:4px}
+
+.prospective-options{margin:1rem 0;padding:1rem;border:1px solid var(--line);border-radius:12px;min-width:0}.prospective-carbon{margin-block:1rem}.prospective-carbon details{margin-top:.6rem}
