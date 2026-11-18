@@ -2348,6 +2348,29 @@ function transitResponse(data,q){
 }
 // END TRANSIT MODEL
 
+// BEGIN TRANSIT CARBON MODEL
+const TRANSIT_CARBON_FACTORS={TRAM:['tramway'],SUBWAY:['metro'],RAIL:['tgv','intercites','ter','rer'],BUS:['busthermique','buselectrique','autocar']};
+function transitCarbonFactors(mode){
+ const ids=Object.hasOwn(TRANSIT_CARBON_FACTORS,mode)?TRANSIT_CARBON_FACTORS[mode]:[];
+ return CARBON_DATA.factors.filter(f=>ids.includes(f.id)&&f.unit==='kgCO2e/person-km'&&f.scope==='construction-energy'&&[f.construction,f.energy].every(n=>typeof n==='number'&&Number.isFinite(n)&&n>=0)).map(f=>({...f}));
+}
+function estimateTransitCarbon(route,choices){
+ if(!Array.isArray(route?.legs)||!route.legs.length||route.legs.length>30||!Array.isArray(choices)||choices.length!==route.legs.length)throw new Error('Étapes ou choix d’empreinte invalides.');
+ const rows=Array.from(route.legs,(leg,index)=>{
+  const distance=leg?.distance,valid=typeof distance==='number'&&Number.isFinite(distance)&&distance>=0&&distance<=150000;
+  const options=transitCarbonFactors(leg?.mode),factor=options.find(f=>f.id===choices[index]),row={index,mode:leg?.mode,distanceMeters:valid?distance:null,status:'unavailable',valueKg:null,constructionKg:null,energyKg:null,factor:null};
+  if(!valid)return {...row,reason:'Distance de cette étape non vérifiable.'};
+  if(!options.length)return {...row,reason:leg.mode==='WALK'?'Marche non estimée : aucun facteur qualifié dans ce périmètre.':'Aucun modèle qualifié pour ce mode.'};
+  if(!factor)return {...row,reason:choices[index]?'Modèle incompatible avec cette étape.':'Choisir un modèle moyen pour cette étape.'};
+  const constructionKg=distance/1000*factor.construction,energyKg=distance/1000*factor.energy;
+  return {...row,status:'estimated',valueKg:constructionKg+energyKg,constructionKg,energyKg,factor,reason:null};
+ });
+ const known=rows.filter(r=>r.status==='estimated'),missing=rows.filter(r=>r.status!=='estimated'),sum=k=>known.reduce((n,r)=>n+r[k],0),subtotalKg=known.length?sum('valueKg'):null;
+ return {version:'transit-carbon-v1',dataset:CARBON_DATA.version,sourceCommit:CARBON_DATA.sourceCommit,retrievedAt:CARBON_DATA.retrievedAt,publisher:CARBON_DATA.publisher,scope:'construction-energy',persons:1,rows,estimatedSteps:known.length,missingSteps:missing.length,status:!known.length?'unavailable':missing.length?'partial':'complete',subtotalKg,totalKg:missing.length?null:subtotalKg,constructionKg:known.length?sum('constructionKg'):null,energyKg:known.length?sum('energyKg'):null,estimatedMeters:known.reduce((n,r)=>n+r.distanceMeters,0),missingMeters:missing.every(r=>r.distanceMeters!==null)?missing.reduce((n,r)=>n+r.distanceMeters,0):null};
+}
+// END TRANSIT CARBON MODEL
+
+
 // BEGIN TRANSIT NETWORK MODEL
 function networkLine(catalog,leg){
  if(!networkId(leg.routeId)||!Array.isArray(catalog)||catalog.length>3000)throw new Error('Catalogue des lignes non vérifiable.');
@@ -2437,7 +2460,7 @@ function transitStoredPlace(value,field){
  return saved?structuredClone(saved.place):null;
 }
 function clearTransit(message=''){
- clearTransitNetwork();transitCalculation=null;
+ clearTransitNetwork();clearTransitCarbon();transitCalculation=null;
  const job=transitJob;
  if(job){job.cancelled=true;job.controller.abort();if(job.resolving&&activeAbort===job.controller&&placePending){placePending.reject(new Error('Recherche de transports annulée.'));placePending=null;$('placeDialog').close()}}
  transitRoutes=[];$('transitResults').replaceChildren();$('transitCompareResults').replaceChildren();$('transitStatus').textContent=message;$('transitCancel').hidden=true;$('transitSearch').disabled=Boolean(job);
@@ -2478,7 +2501,7 @@ async function compareTransitTimes(job,q,result){
  if(current())renderTransitTimes(result.routes,roads,q);
 }
 function drawTransit(index){
- const route=transitRoutes[index];if(!route)return;
+ const route=transitRoutes[index];if(!route)return;if(transitCarbonView&&transitCarbonView.index!==index)clearTransitCarbon();
  document.querySelectorAll('[data-transit-map]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.transitMap)===index)));
  $('transitMapWrap').hidden=false;$('transitMapTitle').textContent=`Option ${index+1} · ${transitClock(route.start)} → ${transitClock(route.end)}`;
  if(transitLayers){transitLayers.remove();transitLayers=null}$('transitSketch').replaceChildren();
@@ -2501,10 +2524,10 @@ function drawTransit(index){
  }
 }
 function renderTransit(result,q){
- transitRoutes=result.routes;transitCalculation=q;
+ clearTransitCarbon();transitRoutes=result.routes;transitCalculation=q;
  $('transitStatus').textContent=`${result.routes.length} itinéraire(s) collectif(s) compatible(s). ${result.excluded?`${result.excluded} proposition(s) écartée(s) : marche seule, doublon, limite ou données non qualifiées. `:''}Consulté le ${transitClock(Date.now())}.`;
  if(!result.routes.length){$('transitStatus').textContent+=' Aucun résultat ne satisfait ces critères. Les modifier puis relancer la recherche.';return}
- $('transitResults').innerHTML=result.routes.map((r,i)=>`<article class="comparison-card" data-transit-option="${i}"><h3>Option ${i+1} · ${transitMinutes(r.duration)}</h3><p><strong>${transitClock(r.start)} → ${transitClock(r.end)}</strong> · heure de Paris</p><p>${r.transfers} correspondance(s) · ${Math.ceil(r.walk)} m de marche (${transitMinutes(r.walking)}) · ${transitMinutes(r.riding)} à bord · ${transitMinutes(r.waiting)} d’attente en chemin</p><p class="note">${q.arrive?`Arrivée ${transitMinutes((q.instant-r.end)/1000)} avant l’heure limite.`:`Départ ${transitMinutes((r.start-q.instant)/1000)} après l’heure demandée ; ${transitMinutes((r.end-q.instant)/1000)} de cette heure à l’arrivée.`}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${escapeHtml(l.line)}`}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)}<br>${escapeHtml(l.agency)}`}</li>`).join('')}</ol><p class="note">Horaires théoriques. Perturbations et retards non vérifiés. Prix total inconnu ; aucune réservation. Accessibilité, bagages et vélo à bord non vérifiés.</p><button type="button" class="ghost" data-transit-map="${i}" aria-pressed="false">Voir le parcours ${i+1}</button><p class="note">La consultation réseau transmet les lignes et arrêts consultés à Mobilités M, uniquement à la demande.</p><button type="button" class="ghost" data-transit-network="${i}" disabled>Consulter les infos réseau · option ${i+1}</button><button type="button" class="ghost" data-transit-save="${i}" disabled>Enregistrer cette option collective ${i+1}</button></article>`).join('');
+ $('transitResults').innerHTML=result.routes.map((r,i)=>`<article class="comparison-card" data-transit-option="${i}"><h3>Option ${i+1} · ${transitMinutes(r.duration)}</h3><p><strong>${transitClock(r.start)} → ${transitClock(r.end)}</strong> · heure de Paris</p><p>${r.transfers} correspondance(s) · ${Math.ceil(r.walk)} m de marche (${transitMinutes(r.walking)}) · ${transitMinutes(r.riding)} à bord · ${transitMinutes(r.waiting)} d’attente en chemin</p><p class="note">${q.arrive?`Arrivée ${transitMinutes((q.instant-r.end)/1000)} avant l’heure limite.`:`Départ ${transitMinutes((r.start-q.instant)/1000)} après l’heure demandée ; ${transitMinutes((r.end-q.instant)/1000)} de cette heure à l’arrivée.`}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${escapeHtml(l.line)}`}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)}<br>${escapeHtml(l.agency)}`}</li>`).join('')}</ol><p class="note">Horaires théoriques. Perturbations et retards non vérifiés. Prix total inconnu ; aucune réservation. Accessibilité, bagages et vélo à bord non vérifiés.</p><button type="button" class="ghost" data-transit-map="${i}" aria-pressed="false">Voir le parcours ${i+1}</button><p class="note">La consultation réseau transmet les lignes et arrêts consultés à Mobilités M, uniquement à la demande.</p><button type="button" class="ghost" data-transit-network="${i}" disabled>Consulter les infos réseau · option ${i+1}</button><button type="button" class="ghost" data-transit-save="${i}" disabled>Enregistrer cette option collective ${i+1}</button><button type="button" class="ghost" data-transit-carbon="${i}" disabled>Estimer l’empreinte · option ${i+1}</button></article>`).join('');
  drawTransit(0);
 }
 async function searchTransit(){
@@ -2535,7 +2558,7 @@ async function searchTransit(){
   finally{clearTimeout(timer)}
   if(job.compare&&current()&&!job.controller.signal.aborted){$('transitCompareResults').textContent='Comparaison des temps avec les modes routiers…';await compareTransitTimes(job,q,result)}
  }catch(e){if(current())$('transitStatus').textContent=e.message}
- finally{if(transitJob===job){transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network],[data-transit-save]'))b.disabled=false}}
+ finally{if(transitJob===job){transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network],[data-transit-save],[data-transit-carbon]'))b.disabled=false}}
 }
 function bindTransit(){
  $('transitNetworkCancel').addEventListener('click',()=>clearTransitNetwork('Consultation annulée.'));
@@ -2545,7 +2568,7 @@ function bindTransit(){
  $('transitClose').addEventListener('click',()=>{$('transitDialog').close()});
  $('transitDialog').addEventListener('close',()=>{clearTransit();$('transitBtn').focus()});
  for(const id of ['transitWhen','transitDirection','transitWalk','transitCompare'])$(id).addEventListener('input',()=>clearTransit(transitContext?.a&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))?'Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.':'Critères modifiés : relancer la recherche.'));
- $('transitResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-map]');if(b)drawTransit(Number(b.dataset.transitMap));const n=e.target.closest('[data-transit-network]');if(n)loadTransitNetwork(Number(n.dataset.transitNetwork));const t=e.target.closest('[data-transit-save]');if(t)saveTransitOption(Number(t.dataset.transitSave))});
+ $('transitResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-map]');if(b)drawTransit(Number(b.dataset.transitMap));const n=e.target.closest('[data-transit-network]');if(n)loadTransitNetwork(Number(n.dataset.transitNetwork));const t=e.target.closest('[data-transit-save]');if(t)saveTransitOption(Number(t.dataset.transitSave));const c=e.target.closest('[data-transit-carbon]');if(c)openTransitCarbon(Number(c.dataset.transitCarbon))});
  for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearTransit();transitContext=null;$('transitBtn').hidden=false;if($('transitDialog').open)$('transitDialog').close()});
 }
 
@@ -2585,6 +2608,28 @@ async function loadTransitNetwork(index){
  }finally{clearTimeout(timer);if(current()){transitNetworkJob=null;$('transitNetworkCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=false}}
 }
 function refreshTransitNetwork(){if(!transitNetworkView)return;const v=transitNetworkView,now=Date.now(),expiry=JSON.stringify([now-v.at>300000||now<v.at-60000,Boolean(v.alerts&&(now-v.alerts.generated>600000||now<v.alerts.generated-60000))]);if(expiry!==v.expiry)renderTransitNetwork()}
+
+let transitCarbonView=null;
+function clearTransitCarbon(focus=false){
+ const index=transitCarbonView?.index;transitCarbonView=null;$('transitCarbon').hidden=true;$('transitCarbonSteps').replaceChildren();$('transitCarbonResult').replaceChildren();
+ if(focus&&index!==undefined)document.querySelector(`[data-transit-carbon="${index}"]`)?.focus();
+}
+function openTransitCarbon(index){
+ const route=transitRoutes[index];if(busy||transitJob||!route)return;
+ transitCarbonView={index,route,choices:route.legs.map(()=>'')};$('transitCarbon').hidden=false;$('transitCarbonTitle').textContent=`Empreinte · option ${index+1}`;
+ $('transitCarbonSteps').innerHTML=route.legs.map((l,i)=>{const options=transitCarbonFactors(l.mode);return `<fieldset class="transit-carbon-step"><legend>Étape ${i+1} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?'':' '+escapeHtml(l.line)}</legend><p>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)} · ${fmt(l.distance/1000,3)} km</p>${options.length?`<label for="transitCarbonChoice${i}">Modèle moyen retenu pour l’étape ${i+1}</label><select id="transitCarbonChoice${i}" data-transit-factor="${i}"><option value="">Choisir un modèle — sinon non estimé</option>${options.map(f=>`<option value="${f.id}">${escapeHtml(f.label)}</option>`).join('')}</select><p class="note">Hypothèse choisie pour le calcul ; le nom de ligne ne confirme pas le véhicule ni sa motorisation.</p>`:`<p class="note">${l.mode==='WALK'?'Marche non estimée dans le jeu qualifié.':'Aucun facteur qualifié pour ce mode.'} Aucun zéro attribué.</p>`}</fieldset>`}).join('');
+ refreshTransitCarbon();$('transitCarbonTitle').focus();$('transitCarbonTitle').scrollIntoView({block:'start'});
+}
+function refreshTransitCarbon(){
+ const view=transitCarbonView;if(!view)return;if(transitRoutes[view.index]!==view.route){clearTransitCarbon();return}
+ const e=estimateTransitCarbon(view.route,view.choices),amount=n=>carbonAmount(n),factorNumber=n=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:12}).format(n);
+ const heading=e.status==='unavailable'?'Empreinte non estimée':e.status==='partial'?`Sous-total partiel : ${amount(e.subtotalKg)} pour une personne`:`Estimation des étapes : ${amount(e.totalKg)} pour une personne`;
+ $('transitCarbonResult').innerHTML=`<h4>${heading}</h4><p>${e.estimatedSteps} étape(s) estimée(s) sur ${e.rows.length} · ${fmt(e.estimatedMeters/1000,3)} km concernés.${e.missingSteps?` ${e.missingSteps} étape(s) non estimée(s)${e.missingMeters!==null?`, soit ${fmt(e.missingMeters/1000,3)} km`:''}. Empreinte totale indisponible.`:''}</p>${e.subtotalKg===null?'':`<p>Postes connus : construction ${amount(e.constructionKg)} ; énergie ${amount(e.energyKg)}. Somme sans arrondi intermédiaire.</p>`}<ol>${e.rows.map(r=>`<li>Étape ${r.index+1} · ${r.status==='estimated'?`${escapeHtml(r.factor.label)} : <strong>${amount(r.valueKg)}</strong><details><summary>Distance, facteur et calcul</summary><p>${fmt(r.distanceMeters/1000,3)} km × ${factorNumber(r.factor.construction+r.factor.energy)} kg CO₂e/personne-km. Construction : ${factorNumber(r.factor.construction)} ; énergie : ${factorNumber(r.factor.energy)}, dans la même unité.</p><p>Distance du calculateur Mobilités M ; modèle moyen choisi. <a href="${r.factor.source}" target="_blank" rel="noopener noreferrer">Fiche du modèle Impact CO₂</a>.</p></details>`:escapeHtml(r.reason)}</li>`).join('')}</ol><p class="note">Construction et énergie modélisées ; périmètre non exhaustif. Fréquentation moyenne déjà incluse dans les facteurs par personne : aucune seconde division par l’occupation. Ni mesure des véhicules du réseau, ni classement carbone entre options.</p>`;
+}
+function bindTransitCarbon(){
+ $('transitCarbonSteps').addEventListener('change',ev=>{const select=ev.target.closest('[data-transit-factor]');if(!select||!transitCarbonView)return;const index=Number(select.dataset.transitFactor);if(!Number.isInteger(index)||index<0||index>=transitCarbonView.choices.length)return;transitCarbonView.choices[index]=select.value;refreshTransitCarbon()});
+ $('transitCarbonClose').addEventListener('click',()=>clearTransitCarbon(true));
+}
 
 const SAVED_TRANSIT_KEY='dragonroute.transit-prepared.v1.'+PROFILE_SCOPE;
 let savedTransit={kind:'dragonroute-transit-preparations',version:1,entries:[]},savedTransitRaw=null,savedTransitBlocked=false,savedTransitDraft=null,savedTransitSelected=null,savedTransitImport=null,savedTransitSequence=0,transitCalculation=null;
@@ -3170,7 +3215,7 @@ function bind(){
   }
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindProspective();applyVehicle();updateRange();initPwa();
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
