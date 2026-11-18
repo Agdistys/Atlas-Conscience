@@ -4,7 +4,7 @@
 
 ## Parcours
 
-Chaque option collective calculée propose **Estimer l’empreinte**. L’action affiche le parcours concerné et un panneau numéroté. L’estimation est facultative, limitée à une personne et calculée localement, sans nouvelle requête. Les boutons sont disponibles après la fin de la recherche et de sa comparaison facultative.
+Chaque option collective calculée propose **Estimer l’empreinte**. L’action ouvre les étapes du parcours concerné dans un panneau numéroté. Elle ne recentre pas la carte et ne demande aucune nouvelle tuile. La carte reste commandée par « Voir le parcours ». L’estimation est facultative, limitée à une personne et calculée localement, sans nouvelle requête. Les boutons sont disponibles après la fin de la recherche et de sa comparaison facultative.
 
 Chaque étape à bord présente un choix de modèle, initialement vide, même lorsqu’un seul modèle est disponible. Le mode reçu du calculateur, la distance et le modèle choisi restent distincts. Le nom d’une ligne ne choisit jamais une motorisation de bus ou une catégorie de train. La sélection constitue une hypothèse de calcul, pas une vérification du véhicule effectivement utilisé.
 
@@ -56,7 +56,7 @@ Enregistrer le trajet collectif retire le panneau carbone. L’instantané V029 
 
 Neuf contrôles du modèle couvrent correspondances exactes des modes, provenance et unités, calcul de référence, postes et sommes, absence de seconde division, étapes sans facteur, choix incompatibles, zéro explicite et distances invalides, très petites valeurs, indépendance des données, limites et étapes manquantes.
 
-Huit scénarios navigateur, dans les quatre formats de l’Inspectrice, couvrent : action volontaire et sous-total sourcé sans appel, motorisation de bus explicitement choisie, mode non qualifié et changement de carte, retrait/critères/réouverture, sauvegarde sans estimation implicite, trajet routier et comparaison conservés, contenu externe échappé et clavier, coexistence avec les annonces réseau. Les parcours de sauvegarde et d’information réseau sont rejoués localement, soit 112 scénarios.
+Neuf scénarios navigateur, dans les quatre formats de l’Inspectrice, couvrent : action volontaire et sous-total sourcé sans appel, motorisation de bus explicitement choisie, mode non qualifié et changement de carte, retrait/critères/réouverture, sauvegarde sans estimation implicite, trajet routier et comparaison conservés, contenu externe échappé et clavier, coexistence avec les annonces réseau et ouverture d’une autre option sans agir sur la carte. Les parcours de sauvegarde et d’information réseau sont rejoués localement, soit 112 scénarios initiaux, puis 36 parcours carbone après suppression du recentrage implicite de la carte.
 
 La recette publiée est distincte : calcul réel entre Grenoble Gares et l’avenue Innsbruck, choix explicite du modèle reçu, vérification numérique à partir des facteurs figés et des distances, affichage partiel, absence d’appel carbone, sauvegarde sans hypothèses, concordance des fichiers publiés, captures ordinateur/mobile. Le rapport du commit livré conserve les nombres réellement exécutés. Aucun téléphone physique, mesure d’émissions, déplacement ou réservation n’est attesté.
 

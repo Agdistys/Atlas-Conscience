@@ -2616,7 +2616,7 @@ function clearTransitCarbon(focus=false){
 }
 function openTransitCarbon(index){
  const route=transitRoutes[index];if(busy||transitJob||!route)return;
- drawTransit(index);transitCarbonView={index,route,choices:route.legs.map(()=>'')};$('transitCarbon').hidden=false;$('transitCarbonTitle').textContent=`Empreinte · option ${index+1}`;
+ transitCarbonView={index,route,choices:route.legs.map(()=>'')};$('transitCarbon').hidden=false;$('transitCarbonTitle').textContent=`Empreinte · option ${index+1}`;
  $('transitCarbonSteps').innerHTML=route.legs.map((l,i)=>{const options=transitCarbonFactors(l.mode);return `<fieldset class="transit-carbon-step"><legend>Étape ${i+1} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?'':' '+escapeHtml(l.line)}</legend><p>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)} · ${fmt(l.distance/1000,3)} km</p>${options.length?`<label for="transitCarbonChoice${i}">Modèle moyen retenu pour l’étape ${i+1}</label><select id="transitCarbonChoice${i}" data-transit-factor="${i}"><option value="">Choisir un modèle — sinon non estimé</option>${options.map(f=>`<option value="${f.id}">${escapeHtml(f.label)}</option>`).join('')}</select><p class="note">Hypothèse choisie pour le calcul ; le nom de ligne ne confirme pas le véhicule ni sa motorisation.</p>`:`<p class="note">${l.mode==='WALK'?'Marche non estimée dans le jeu qualifié.':'Aucun facteur qualifié pour ce mode.'} Aucun zéro attribué.</p>`}</fieldset>`}).join('');
  refreshTransitCarbon();$('transitCarbonTitle').focus();$('transitCarbonTitle').scrollIntoView({block:'start'});
 }
