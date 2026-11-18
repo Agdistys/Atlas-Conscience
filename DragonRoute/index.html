@@ -15,7 +15,7 @@
 <div id="app">
   <header class="topbar">
     <div class="brand"><span class="dragon">🐉</span><strong>DragonRoute</strong><span class="badge">V3 PWA</span></div>
-    <div class="header-actions"><button id="profileBtn" class="ghost">Mon profil</button><button id="installBtn" class="ghost tiny-btn" hidden>＋ Installer</button></div>
+    <div class="header-actions"><button id="journalBtn" class="ghost" type="button">Mon journal</button><button id="profileBtn" class="ghost">Mon profil</button><button id="installBtn" class="ghost tiny-btn" hidden>＋ Installer</button></div>
   </header>
   <main class="stage">
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
@@ -64,6 +64,7 @@
         <p id="appliedRouting" class="note" hidden></p>
         <p id="resolvedPlaces" class="note" hidden></p>
         <button id="navigationBtn" class="ghost navigation-button" type="button" hidden>Navigation et tracé GPS</button>
+        <button id="journalRecordBtn" class="ghost navigation-button" type="button" hidden>J’ai effectué ce trajet</button>
       </section>
       <section id="tripBudget" class="stops-section" hidden aria-labelledby="budgetHeading">
         <h2 id="budgetHeading">Budget du trajet</h2>
@@ -207,6 +208,30 @@
   <p id="stationMessage" class="note" role="status"></p>
   <div class="dialog-actions"><button id="favoriteBtn" class="ghost" aria-pressed="false">Enregistrer la station</button><button id="detailChooseBtn" class="primary">Choisir cet arrêt</button></div>
 </dialog>
+<dialog id="journalDialog" aria-labelledby="journalTitle">
+  <div class="dialog-heading"><h2 id="journalTitle">Mon journal de mobilité</h2><button class="icon-btn close-dialog" aria-label="Fermer le journal" title="Fermer">×</button></div>
+  <p class="note">Journal volontaire dans ce navigateur, sans compte ni synchronisation. Une recherche n’est jamais enregistrée comme déplacement effectué. L’aperçu et le site public ont des journaux distincts.</p>
+  <label class="journal-toggle"><input id="journalEnable" type="checkbox"> Activer mon journal</label>
+  <p id="journalState" class="note"></p><p id="journalMessage" class="note" role="status" aria-live="polite"></p>
+  <div class="dialog-actions"><button id="journalCopy" class="ghost" type="button">Reprendre le trajet affiché</button><button id="journalNew" class="primary" type="button">Ajouter un trajet effectué</button></div>
+  <section id="journalEditor" class="profile-section" hidden aria-labelledby="journalFormTitle">
+    <h3 id="journalFormTitle">Confirmer un trajet effectué</h3><p id="journalOrigin" class="note"></p>
+    <form id="journalForm">
+      <label for="journalDate">Date du déplacement</label><input id="journalDate" type="date" min="1900-01-01" required>
+      <label for="journalMode">Mode de déplacement</label><select id="journalMode"><option value="car">Voiture</option><option value="truck">Poids lourd</option><option value="train">Train</option><option value="bus">Bus / car</option><option value="bike">Vélo</option><option value="walk">Marche</option><option value="other">Autre</option></select>
+      <label for="journalStart">Départ</label><input id="journalStart" maxlength="1000" required>
+      <label for="journalEnd">Arrivée</label><input id="journalEnd" maxlength="1000" required>
+      <label for="journalDistance">Distance effectuée (km, facultatif)</label><input id="journalDistance" type="number" inputmode="decimal" min="0" max="40000" step="0.001" aria-describedby="journalDistanceNote"><p id="journalDistanceNote" class="note">Laisser vide si la distance est inconnue. Zéro indique une distance déclarée de zéro kilomètre.</p>
+      <label for="journalNote">Note personnelle (facultatif)</label><textarea id="journalNote" maxlength="500" rows="2"></textarea>
+      <label class="journal-toggle"><input id="journalConfirm" type="checkbox" required><span id="journalConfirmText">J’ai effectué ce trajet.</span></label>
+      <div id="journalDuplicate" class="profile-notice" hidden><p id="journalDuplicateText"></p><label class="journal-toggle"><input id="journalRepeat" type="checkbox" aria-describedby="journalDuplicateText"> Il s’agit d’un autre déplacement.</label></div>
+      <div class="dialog-actions"><button class="primary" id="journalSave" type="submit">Enregistrer dans le journal</button><button id="journalCancel" class="ghost" type="button">Annuler</button></div>
+    </form>
+  </section>
+  <section class="profile-section" aria-labelledby="journalBalanceTitle"><h3 id="journalBalanceTitle">Bilan mensuel</h3><label for="journalMonth">Mois à consulter</label><input id="journalMonth" type="month"><p id="journalSummary" role="status"></p><ul id="journalModes"></ul><div id="journalEntries" class="saved-list"></div></section>
+  <section class="profile-section"><h3>Mes données de mobilité</h3><p class="note">L’export contient les lieux, dates et notes en clair. Il reste sur cet appareil jusqu’à son partage. Le journal accepte jusqu’à 1 000 trajets ; aucun ancien trajet n’est supprimé automatiquement.</p><div class="dialog-actions"><button id="journalExport" class="ghost" type="button">Exporter le journal</button><button id="journalErase" class="ghost" type="button">Effacer le journal</button></div></section>
+</dialog>
+
 <dialog id="profileDialog" aria-labelledby="profileTitle">
   <div class="dialog-heading"><h2 id="profileTitle">Mon profil</h2><button class="icon-btn close-dialog" aria-label="Fermer le profil" title="Fermer">×</button></div>
   <p class="note">Enregistré dans ce navigateur uniquement, sans compte ni synchronisation. Le profil d’essai est séparé du profil public.</p>
@@ -230,7 +255,7 @@
     </form>
   </section>
   <section class="profile-section"><h3>Mes stations</h3><div id="savedStations" class="saved-list"></div></section>
-  <section class="profile-section"><h3>Mes données</h3><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="exportLegacyProfileBtn" class="ghost" hidden>Exporter le profil d’origine</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
+  <section class="profile-section"><h3>Mes données</h3><p class="note">Le journal de mobilité s’exporte et s’efface séparément depuis Mon journal.</p><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="exportLegacyProfileBtn" class="ghost" hidden>Exporter le profil d’origine</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
 </dialog>
 <dialog id="profileImportDialog" aria-labelledby="profileImportTitle" aria-describedby="profileImportSummary profileImportCurrent">
   <div class="dialog-heading"><h2 id="profileImportTitle">Vérifier le profil à importer</h2><button id="cancelProfileImport" class="icon-btn" type="button" aria-label="Annuler l’import">×</button></div>
