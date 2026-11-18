@@ -2,13 +2,13 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-const ctx={TextEncoder};vm.createContext(ctx);vm.runInContext(fs.readFileSync('DragonRoute/app.js','utf8').split('// BEGIN JOURNAL MODEL\n')[1].split('// END JOURNAL MODEL')[0],ctx);
+const ctx={TextEncoder,structuredClone};vm.createContext(ctx);vm.runInContext(fs.readFileSync('DragonRoute/app.js','utf8').split('// BEGIN JOURNAL MODEL\n')[1].split('// END JOURNAL MODEL')[0],ctx);
 const entry=(patch={})=>({id:'test-a',date:'2026-10-12',start:'Lyon',end:'Valence',mode:'car',distanceMeters:100000,distanceSource:'declared',note:'',createdAt:'2026-10-12T12:00:00.000Z',updatedAt:'2026-10-12T12:00:00.000Z',revision:1,calculation:null,emissions:{version:'unavailable-v1',status:'unavailable',valueKg:null,factor:null},...patch});
 const journal=entries=>({version:1,enabled:true,entries});
 test('journal: strict dates, unknown values and future formats preserve an honest data contract',()=>{
  for(const d of ['2026-02-29','2026-02-30','2026-13-01','2026-1-02','1899-12-31',''])assert.throws(()=>ctx.journalDate(d));assert.equal(ctx.journalDate('2024-02-29'),'2024-02-29');
  for(const patch of [{mode:'plane'},{distanceMeters:-1},{distanceMeters:NaN},{distanceMeters:'0'},{distanceMeters:null},{distanceSource:'route'},{revision:0},{createdAt:'2026-02-30T12:00:00.000Z'},{emissions:{version:'future',valueKg:0}},{calculation:undefined}])assert.throws(()=>ctx.validateJournal(journal([entry(patch)])));
- assert.throws(()=>ctx.validateJournal({...journal([]),version:2}));assert.throws(()=>ctx.validateJournal(journal([entry(),entry()])));assert.throws(()=>ctx.validateJournal(journal(Array.from({length:1001},(_,i)=>entry({id:'a-'+i})))));
+ assert.throws(()=>ctx.validateJournal({...journal([]),version:999}));assert.throws(()=>ctx.validateJournal(journal([entry(),entry()])));assert.throws(()=>ctx.validateJournal(journal(Array.from({length:1001},(_,i)=>entry({id:'a-'+i})))));
  const unknown=ctx.validateJournal(journal([entry({distanceMeters:null,distanceSource:'unknown'})]));assert.equal(unknown.entries[0].distanceMeters,null);assert.equal(unknown.entries[0].emissions.valueKg,null);
 });
 test('journal: monthly totals distinguish unknown distance, declared zero and missing carbon',()=>{

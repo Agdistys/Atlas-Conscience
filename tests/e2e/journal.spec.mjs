@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import fs from 'node:fs';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
-const key='dragonroute.journal.v1.public';
+const key='dragonroute.journal.v2.public';
 const entry=(patch={})=>({id:'existing-a',date:'2026-10-12',start:'Lyon',end:'Valence',mode:'car',distanceMeters:100000,distanceSource:'declared',note:'',createdAt:'2026-10-12T12:00:00.000Z',updatedAt:'2026-10-12T12:00:00.000Z',revision:1,calculation:null,emissions:{version:'unavailable-v1',status:'unavailable',valueKg:null,factor:null},...patch});
 const journal=(entries=[],enabled=true)=>({version:1,enabled,entries});
 async function open(page){await page.locator('#journalBtn').click()}
@@ -49,9 +49,9 @@ test('journal : version inconnue protégée et date future refusée',async({page
 });
 
 test('journal : aperçu isolé, export sans champs étrangers et textes non interprétés',async({page},info)=>{
- const previewKey='dragonroute.journal.v1.preview:/DragonRoute/',e=entry({start:'<img src=x onerror=alert(1)>',note:'<script>oops</script>'});e.apiKey='secret-marker-journal';
- await seed(page,{[key]:journal([entry()]),[previewKey]:{...journal([e]),secret:'secret-marker-journal'},'dragonroute.journal.v1.preview:/autre/':'conserver'});await page.route('**/DragonRoute/',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('<body>','<body data-preview="true">')})});await page.goto('/DragonRoute/');await open(page);await page.locator('#journalMonth').fill('2026-10');await expect(page.locator('#journalEntries img')).toHaveCount(0);await expect(page.locator('#journalEntries')).toContainText('<img src=x');expect(JSON.stringify(await exportJournal(page))).not.toContain('secret-marker-journal');
- await page.locator('[data-journal-edit]').click();await checkAccessibility(page,info,'journal-edition');await checkOverflow(page);await capture(page,info,'journal-edition');await page.locator('#journalCancel').click();page.once('dialog',d=>d.accept());await page.locator('#journalErase').click();expect(await page.evaluate(k=>localStorage.getItem(k),previewKey)).toBeNull();expect(JSON.parse(await read(page)).entries).toHaveLength(1);expect(await page.evaluate(()=>localStorage.getItem('dragonroute.journal.v1.preview:/autre/'))).toBe('conserver');
+ const previewKey='dragonroute.journal.v2.preview:/DragonRoute/',e=entry({start:'<img src=x onerror=alert(1)>',note:'<script>oops</script>'});e.apiKey='secret-marker-journal';
+ await seed(page,{[key]:journal([entry()]),[previewKey]:{...journal([e]),secret:'secret-marker-journal'},'dragonroute.journal.v2.preview:/autre/':'conserver'});await page.route('**/DragonRoute/',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('<body>','<body data-preview="true">')})});await page.goto('/DragonRoute/');await open(page);await page.locator('#journalMonth').fill('2026-10');await expect(page.locator('#journalEntries img')).toHaveCount(0);await expect(page.locator('#journalEntries')).toContainText('<img src=x');expect(JSON.stringify(await exportJournal(page))).not.toContain('secret-marker-journal');
+ await page.locator('[data-journal-edit]').click();await checkAccessibility(page,info,'journal-edition');await checkOverflow(page);await capture(page,info,'journal-edition');await page.locator('#journalCancel').click();page.once('dialog',d=>d.accept());await page.locator('#journalErase').click();expect(await page.evaluate(k=>localStorage.getItem(k),previewKey)).toBeNull();expect(JSON.parse(await read(page)).entries).toHaveLength(1);expect(await page.evaluate(()=>localStorage.getItem('dragonroute.journal.v2.preview:/autre/'))).toBe('conserver');
 });
 
 test('journal : arrêt sélectionné inclus dans un instantané et jamais enregistré automatiquement',async({page})=>{

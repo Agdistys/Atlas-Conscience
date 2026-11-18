@@ -1,0 +1,12 @@
+[
+  {
+    "url": "https://impactco2.fr/api/v1/transport?km=1&transports=130&includeConstruction=1&occupencyRate=1",
+    "status": 200,
+    "body": "{\"data\":[{\"id\":130,\"name\":\"Voiture thermique (Moyenne - Diesel)\",\"value\":0.14225341222954335}],\"warning\":\"La requete n'est pas authentifiée. Nous nous reservons le droit de couper cette API aux utilisateurs anonymes, veuillez nous contacter à impactco2@ademe.fr pour obtenir une clé d'API gratuite.\"}"
+  },
+  {
+    "url": "https://impactco2.fr/api/v1/transport?km=1&transports=130&includeConstruction=1&occupencyRate=2",
+    "status": 200,
+    "body": "{\"data\":[{\"id\":130,\"name\":\"Voiture thermique (Moyenne - Diesel)\",\"value\":0.07112670611477168}],\"warning\":\"La requete n'est pas authentifiée. Nous nous reservons le droit de couper cette API aux utilisateurs anonymes, veuillez nous contacter à impactco2@ademe.fr pour obtenir une clé d'API gratuite.\"}"
+  }
+]
