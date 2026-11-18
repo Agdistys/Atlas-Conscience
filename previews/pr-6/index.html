@@ -174,10 +174,32 @@
           <div id="stationCards" class="cards"></div><p id="selectedStop" class="selection" hidden role="status"></p>
           <button id="removeStopBtn" class="ghost" type="button" hidden>Retirer l’arrêt</button>
         </div>
-        <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden><p id="rideTrip"></p><p class="note">Aucune offre de covoiturage connectée pour le moment.</p><a class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer">Rechercher sur BlaBlaCar ↗</a></div>
+        <div id="ridesPanel" role="tabpanel" aria-labelledby="ridesTab" hidden>
+          <h3>Préparer un covoiturage</h3><p id="rideTrip" class="note"></p>
+          <fieldset class="stop-modes"><legend>Rôle pour ce trajet</legend><label><input type="radio" name="rideRole" value="driver" checked> Je conduis</label><label><input type="radio" name="rideRole" value="passenger"> Je cherche une place</label></fieldset>
+          <label for="rideDeparture">Départ prévu (heure de Paris)</label><input id="rideDeparture" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59" aria-describedby="rideDepartureNote"><p id="rideDepartureNote" class="note"></p>
+          <div id="rideDriver">
+            <div class="ride-counts"><div><label for="rideSeats">Places proposées, hors conducteur</label><input id="rideSeats" type="number" min="1" max="8" step="1" value="1"></div><div><label for="ridePassengers">Passagers prévus pour la simulation</label><input id="ridePassengers" type="number" min="0" max="8" step="1" value="1"></div></div>
+            <p class="note">Places à confirmer avec le véhicule. Hypothèse de partage sur tout le trajet, sans embarquement intermédiaire.</p>
+            <h4>Proposition de partage des frais</h4><dl id="rideCostLines" class="budget-lines"></dl><p id="rideCostNote" class="note" role="status"></p>
+            <p class="note">Carburant consommé et péages de l’aller simple. Plein acheté, stationnement, ferries et autres coûts exclus. Partage à convenir ; aucun tarif d’offre ni paiement.</p>
+            <a class="external-link" href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000041969704" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Cadre du partage des frais ↗</a>
+          </div>
+          <div id="ridePassenger" hidden><label for="rideWanted">Places recherchées pour le groupe</label><input id="rideWanted" type="number" min="1" max="8" step="1" value="1"><p id="ridePassengerNote" class="note" role="status"></p></div>
+          <details id="rideSharing"><summary>Préparer un récapitulatif à partager</summary>
+            <p class="note">Saisir uniquement les secteurs ou points publics à communiquer. Les adresses du trajet et du profil ne sont pas recopiées. Ces lieux ne sont pas vérifiés sur la carte et aucun détour de prise en charge n’est calculé.</p>
+            <label for="rideFrom">Secteur de départ à partager</label><input id="rideFrom" maxlength="160" autocomplete="off" placeholder="Commune ou point public">
+            <label for="rideTo">Secteur d’arrivée à partager</label><input id="rideTo" maxlength="160" autocomplete="off" placeholder="Commune ou point public">
+            <label for="rideNeeds">Besoins ou conditions à convenir</label><input id="rideNeeds" maxlength="300" autocomplete="off" placeholder="Bagages, accessibilité… à confirmer">
+            <button id="ridePrepare" class="ghost navigation-button" type="button">Préparer le récapitulatif</button>
+            <div id="rideShare" hidden><label for="rideText">Texte à relire avant copie</label><textarea id="rideText" rows="12" readonly></textarea><label class="check-label"><input id="rideConsent" type="checkbox"> J’ai vérifié les lieux et les informations à copier.</label><button id="rideCopy" class="primary" type="button" disabled>Copier ce récapitulatif</button></div>
+            <p id="rideMessage" class="note" role="status"></p>
+          </details>
+          <p class="note">Préparation conservée seulement pendant cette session. Aucune offre de covoiturage connectée pour le moment. Recherche, publication d’une offre, contact et réservation restent chez le fournisseur.</p><a id="rideExternal" class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Ouvrir BlaBlaCar ↗</a><p class="note">Ce lien ouvre le site sans lui transmettre les paramètres du trajet.</p>
+        </div>
       </section>
       <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 78753f4 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · cc84891 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>

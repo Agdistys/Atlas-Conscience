@@ -469,7 +469,7 @@ function stationOpening(s){return arrivalOpening(s,departureInstant($("stationDe
 function arrivalLabel(ms){return new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(ms))}
 function openingText(s){const o=stationOpening(s);return (o.arrival?`Arrivée estimée le ${arrivalLabel(o.arrival)} (Paris) · `:'')+o.reason}
 function refreshArrival(){
-  updateResumePreparation();
+  updateResumePreparation();updateRides();
   const d=departureInstant($("stationDeparture").value);
   $("stationDeparture").setAttribute('aria-invalid',String(Boolean(d.error)));
   $("stationDepartureStatus").textContent=d.error||`Départ fixé au ${arrivalLabel(d.instant)} (Paris). Durée routière d’accès, sans pauses ni trafic en direct.${d.instant<Date.now()-60000?' Heure passée : actualiser le départ pour un trajet à venir.':''}`;
@@ -1523,12 +1523,106 @@ function renderTolls(fuelCost){
  for(const item of q?.items||[]){const li=document.createElement('li');li.textContent=`${item.label} : ${item.amountEur===null?'tarif inconnu':fmt(item.amountEur)+' €'}`;$("tollItems").append(li)}
 }
 
+// BEGIN CARPOOL MODEL
+function rideInteger(v,min,max){if(typeof v!=='number'||!Number.isInteger(v)||v<min||v>max)throw new Error('Nombre de places invalide.');return v}
+function rideCents(v){if(v===null)return null;if(typeof v!=='number'||!Number.isFinite(v)||v<0||v>4000000)throw new Error('Montant de frais invalide.');return Math.round((v+Number.EPSILON)*100)}
+function splitRideCosts(cost,passengers,seats){
+ rideInteger(seats,1,8);rideInteger(passengers,0,seats);
+ const fuel=rideCents(cost.fuelEuro),tolls=rideCents(cost.tollEuro);
+ if(!['unknown','partial','complete'].includes(cost.tollState)||(cost.tollState==='unknown'?tolls!==null:tolls===null))throw new Error('État des péages incohérent.');
+ const known=fuel!==null||tolls!==null,total=known?(fuel??0)+(tolls??0):null,perPassenger=total===null?null:Math.floor(total/(passengers+1));
+ return {fuel,tolls,known,total,complete:fuel!==null&&cost.tollState==='complete',occupants:passengers+1,passengers,seats,perPassenger,passengerTotal:perPassenger===null?null:perPassenger*passengers,driver:total===null?null:total-perPassenger*passengers};
+}
+function ridePlain(v,max,required=false){if(typeof v!=='string'||v.length>max||/[\u0000-\u001f\u007f-\u009f\u2028-\u202e\u2066-\u2069]/.test(v)||(required&&!v.trim()))throw new Error('Libellé de partage vide, trop long ou contenant un caractère de contrôle.');return v.trim()}
+// END CARPOOL MODEL
+
+let rideFingerprint='',rideRevision=0,rideDraft=null,rideCopying=false,rideEndpoints='';
+const rideMoney=c=>fmt(c/100)+' €';
+function rideBudgetSnapshot(){
+ if(!trip)return null;
+ const route=selectedStop?.via||trip.base,cons=Number($('cons').value),price=Number($('budgetPrice').value);
+ const fuelEuro=$('cons').validity.valid&&cons>=1&&cons<=100&&$('budgetPrice').value.trim()&&$('budgetPrice').validity.valid&&price>0&&price<=10?route.distance/1000*cons/100*price:null;
+ let tollEuro=null,tollStateName='unknown',tollSource='Péages indisponibles';
+ if(tableTolls.segments.length){tollEuro=tableTolls.segments.reduce((n,s)=>n+s.amount,0)/100;tollStateName=$('tariffComplete').checked?'complete':'partial';tollSource='Grilles APRR/AREA · '+(tollStateName==='complete'?'couverture déclarée par la personne':'tronçons partiels seulement')}
+ else if(tollState.quote){const q=tollState.quote;if(['estimated','no_tolls'].includes(q.status)){tollEuro=q.amountEur;tollStateName='complete'}else if(q.status==='partial'){tollEuro=q.knownSubtotalEur;tollStateName='partial'}tollSource=q.provider+' · '+(q.status==='no_tolls'?'absence de péage confirmée par le service':'estimation du service')}
+ const planned=departureInstant($('stationDeparture').value);
+ if(tableTolls.segments.length&&$('tariffDate').value!==$('stationDeparture').value.slice(0,10)){tollEuro=null;tollStateName='unknown';tollSource='Date des tronçons différente du départ prévu : actualiser le budget des péages'}
+ else if(!tableTolls.segments.length&&tollState.quote&&(!Number.isFinite(planned.instant)||Math.floor(Date.parse(tollState.quote.departureTime)/60000)!==Math.floor(planned.instant/60000))){tollEuro=null;tollStateName='unknown';tollSource='Départ du devis différent du départ prévu : actualiser les péages'}
+ return {fuelEuro,tollEuro,tollState:tollStateName,tollSource,routeKm:route.distance/1000,durationMinutes:Math.round(route.duration/60),fuel:$('fuel').value,price:fuelEuro===null?null:price,cons:cons,stop:Boolean(selectedStop),calculatedAt:selectedStop?.confirmedAt||trip.calculatedAt};
+}
+function rideCounts(){
+ const number=id=>{const el=$(id);if(!el.value.trim()||!el.validity.valid)throw new Error('Vérifier les places et le nombre de passagers.');return Number(el.value)};
+ const role=document.querySelector('input[name="rideRole"]:checked').value;
+ if(role==='passenger')return {role,wanted:rideInteger(number('rideWanted'),1,8)};
+ const seats=rideInteger(number('rideSeats'),1,8),passengers=rideInteger(number('ridePassengers'),0,seats);return {role,seats,passengers};
+}
+function invalidateRideDraft(message='Paramètres modifiés : préparer un nouveau récapitulatif.'){
+ rideRevision++;if(rideDraft)$('rideMessage').textContent=message;rideDraft=null;$('rideShare').hidden=true;$('rideText').value='';$('rideConsent').checked=false;$('rideCopy').disabled=true;
+}
+function updateRides(){
+ const role=document.querySelector('input[name="rideRole"]:checked').value,cost=rideBudgetSnapshot();
+ $('rideDriver').hidden=role!=='driver';$('ridePassenger').hidden=role!=='passenger';$('rideDeparture').value=$('stationDeparture').value;
+ if(trip){const endpoints=JSON.stringify([trip.a,trip.b]);if(rideEndpoints&&rideEndpoints!==endpoints){for(const id of ['rideFrom','rideTo','rideNeeds'])$(id).value='';$('rideMessage').textContent='Nouveaux lieux de trajet : renseigner à nouveau les secteurs à partager.'}rideEndpoints=endpoints}
+ const fields=['rideSeats','ridePassengers','rideWanted','rideFrom','rideTo','rideNeeds'].map(id=>$(id).value);
+ const fingerprint=JSON.stringify([trip?.calculatedAt,trip?.choice,selectedStop?.confirmedAt,trip?.routing,trip?.a,trip?.b,role,fields,$('stationDeparture').value,cost]);
+ if(fingerprint!==rideFingerprint){invalidateRideDraft();rideFingerprint=fingerprint}
+ $('ridePrepare').disabled=busy||!trip;$('rideCopy').disabled=busy||rideCopying||!rideDraft||!$('rideConsent').checked;
+ $('rideTrip').textContent=trip?`${trip.label} · itinéraire préparé, aucune offre intégrée.`:'Calculer un trajet pour préparer le covoiturage.';
+ const departure=departureInstant($('stationDeparture').value),future=!departure.error&&departure.instant>=Date.now()-60000;
+ if(rideDraft&&!future)invalidateRideDraft('Départ passé ou invalide : actualiser avant de partager.');
+ $('rideDeparture').setAttribute('aria-invalid',String(!future));$('rideDepartureNote').textContent=departure.error||(!future?'Départ passé : choisir une heure à venir.':'Même départ prévu que pour les horaires des stations. Durées sans trafic en direct.');
+ $('rideCostLines').replaceChildren();$('rideCostNote').textContent='';
+ if(!cost)return;
+ try{
+  const counts=rideCounts();
+  if(counts.role==='passenger'){$('ridePassengerNote').textContent=`Recherche de ${counts.wanted} place(s), sans disponibilité confirmée. Le prix sera celui de l’offre du fournisseur ; le budget du véhicule préparé n’est pas un prix passager.`;return}
+  const s=splitRideCosts(cost,counts.passengers,counts.seats),line=(label,value)=>{const div=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;div.append(dt,dd);$('rideCostLines').append(div)};
+  line('Carburant consommé',s.fuel===null?'À renseigner':rideMoney(s.fuel));line('Péages',s.tolls===null?'Inconnus':rideMoney(s.tolls)+(s.complete||cost.tollState==='complete'?' · estimation':' · partiels'));
+  line(s.complete?'Carburant + péages estimés':'Montant connu · incomplet',s.total===null?'Indisponible':rideMoney(s.total));
+  line(s.complete?'Par passager · proposition':'Par passager · sur montant connu',s.perPassenger===null?'Indisponible':!counts.passengers?'Aucun passager prévu':rideMoney(s.perPassenger));
+  line('Part du conducteur',s.driver===null?'Indisponible':rideMoney(s.driver)+(s.complete?'':' · partielle'));
+  $('rideCostNote').textContent=`Hypothèse : ${counts.passengers} passager(s) + le conducteur, soit ${s.occupants} personne(s), sur tout le trajet de ${fmt(cost.routeKm,1)} km${cost.stop?', arrêt station inclus':''}. ${s.complete?'Montants estimés ; couverture des péages selon le budget.':'Frais incomplets : aucune participation totale calculable.'} Parts égales au centime inférieur ; le conducteur garde le reliquat. ${cost.tollSource}.`;
+ }catch(e){$('rideCostNote').textContent=e.message;$('ridePassengerNote').textContent=e.message}
+}
+function prepareRideText(){
+ try{
+  updateBudget();if(busy||!trip)throw new Error('Calculer un trajet avant de préparer le récapitulatif.');
+  const counts=rideCounts(),cost=rideBudgetSnapshot(),from=ridePlain($('rideFrom').value,160,true),to=ridePlain($('rideTo').value,160,true),needs=ridePlain($('rideNeeds').value,300),departure=departureInstant($('stationDeparture').value);
+  if(departure.error||departure.instant<Date.now()-60000)throw new Error(departure.error||'Choisir une heure de départ à venir.');
+  const lines=['Préparation de covoiturage — à convenir',counts.role==='driver'?'Rôle : conducteur':'Rôle : recherche de place',`Secteurs saisis : ${from} → ${to}`,`Départ envisagé : ${arrivalLabel(departure.instant)} (Europe/Paris).`];
+  if(counts.role==='driver'){
+   const s=splitRideCosts(cost,counts.passengers,counts.seats);
+   lines.push(`Places proposées : ${counts.seats}, hors conducteur, à confirmer avec le véhicule.`,`Simulation : ${counts.passengers} passager(s) + 1 conducteur, sur l’ensemble de l’itinéraire routier préparé (${fmt(cost.routeKm,1)} km, ${cost.durationMinutes} min de route, hors pauses${cost.stop?', détour station inclus':''}).`,`Carburant consommé estimé : ${s.fuel===null?'inconnu':rideMoney(s.fuel)+' ; '+cost.fuel+', '+fmt(cost.cons,1)+' L/100 km, prix de référence '+fmt(cost.price,3)+' €/L'}.`,`Péages : ${s.tolls===null?'inconnus':rideMoney(s.tolls)}. ${cost.tollSource}.`);
+   if(s.total===null)lines.push('Frais indisponibles : aucune contribution calculable.');
+   else lines.push(`${s.complete?'Carburant + péages estimés':'Montant connu seulement — incomplet'} : ${rideMoney(s.total)}.`,counts.passengers?`Part ${s.complete?'indicative':'partielle sur montant connu'} par passager : ${rideMoney(s.perPassenger)} ; total passagers : ${rideMoney(s.passengerTotal)}.`:'Aucun passager prévu dans la simulation.',`Part ${s.complete?'indicative':'partielle'} du conducteur : ${rideMoney(s.driver)}. Parts égales au centime inférieur ; reliquat laissé au conducteur.`);
+   if(!s.complete)lines.push('Des frais restent inconnus : aucune participation totale calculable.');
+   lines.push('Durées sans trafic en direct ; pauses et embarquement non comptés. Périmètre : carburant consommé et péages de l’aller simple. Plein acheté, stationnement, ferries et autres coûts exclus. Partage de frais à convenir, pas un tarif d’offre ni un paiement.');
+  }else lines.push(`Places recherchées : ${counts.wanted}, disponibilité à confirmer. Prix de l’offre : inconnu. Aucun prix n’est déduit du budget du véhicule préparé.`);
+  lines.push(`Besoins ou conditions à convenir : ${needs||'non précisés'}.`,'Secteurs saisis non vérifiés sur la carte ; prise en charge intermédiaire et détour supplémentaire non calculés.','Aucune offre publiée, mise en relation ou réservation effectuée. Contact et réservation restent chez le fournisseur.',`Récapitulatif préparé le ${arrivalLabel(Date.now())} (Europe/Paris).`);
+  $('rideText').value=lines.join('\n');rideDraft={text:$('rideText').value,revision:rideRevision};$('rideShare').hidden=false;$('rideConsent').checked=false;$('rideCopy').disabled=true;$('rideMessage').textContent='Relire le récapitulatif avant de le copier. Aucune transmission effectuée.';$('rideText').focus();
+ }catch(e){invalidateRideDraft();$('rideMessage').textContent=e.message}
+}
+function bindRides(){
+ for(const el of document.querySelectorAll('input[name="rideRole"],#rideSeats,#ridePassengers,#rideWanted,#rideFrom,#rideTo,#rideNeeds'))el.addEventListener('input',updateRides);
+ $('rideDeparture').addEventListener('input',()=>{$('stationDeparture').value=$('rideDeparture').value;refreshArrival()});
+ $('ridePrepare').addEventListener('click',prepareRideText);
+ $('rideConsent').addEventListener('change',()=>{$('rideCopy').disabled=busy||rideCopying||!rideDraft||!$('rideConsent').checked});
+ $('rideCopy').addEventListener('click',async()=>{
+  updateBudget();if(busy||rideCopying||!rideDraft||!$('rideConsent').checked)return;
+  const d=rideDraft;rideCopying=true;$('rideCopy').disabled=true;
+  try{if(!navigator.clipboard?.writeText)throw new Error('Presse-papiers indisponible');await navigator.clipboard.writeText(d.text);$('rideMessage').textContent=d.revision===rideRevision?'Récapitulatif copié. Aucun message envoyé.':'Une version précédente a été copiée ; les paramètres ont changé entre-temps. Préparer un nouveau récapitulatif.'}
+  catch{if(d.revision===rideRevision){$('rideText').focus();$('rideText').select();$('rideMessage').textContent='Copie automatique indisponible. Le texte est sélectionné : utiliser la commande Copier du navigateur.'}}
+  finally{rideCopying=false;$('rideCopy').disabled=busy||!rideDraft||!$('rideConsent').checked}
+ });
+}
+
 function updateBudget(){
   $("navigationBtn").hidden=!trip;
   $("journalRecordBtn").hidden=!trip;$("savePreparationBtn").hidden=!trip;
   $("tripBudget").hidden=!trip;
   $("useStationPrice").disabled=busy||!selectedStop;
   syncTableTolls();syncTolls();
+  updateRides();
   if(!trip)return;
   const r=selectedStop?.via||trip.base,cons=Number($("cons").value),price=Number($("budgetPrice").value);
   const liters=Number.isFinite(cons)&&cons>=1&&cons<=100?r.distance/1000*cons/100:null;
@@ -1964,7 +2058,7 @@ function bind(){
   }
 }
 
-loadPreparedTrips();makeGrid();bind();bindProfile();bindJournal();bindPreparedTrips();applyVehicle();updateRange();initPwa();
+loadPreparedTrips();makeGrid();bind();bindProfile();bindJournal();bindPreparedTrips();bindRides();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
