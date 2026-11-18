@@ -2026,11 +2026,44 @@ function prospectiveCarbon(mode,distance,fuel,choice,group=null){
  const vehicleKg=distance/1000*(factor.construction+factor.energy),individualKg=vehicleKg/occupants;
  return {status:'estimated',reason:'',distanceMeters:distance,occupants,group,vehicleKg,individualKg,groupKg:group===null?null:individualKg*group,factor:structuredClone(factor),dataset:CARBON_DATA.version};
 }
+function segmentedCarbon(mode,route,nodes,fuel,choice,occupancies){
+ const missing=reason=>({status:'unavailable',reason,vehicleKg:null,driverKg:null,othersKg:null,portions:[],factor:null,dataset:null});
+ let distances;
+ try{
+  if(!Array.isArray(nodes)||nodes.filter(n=>n.kind!=='station').map(n=>n.kind).join(',')!=='start,pickup,dropoff,end'||nodes.filter(n=>n.kind==='station').length>1)throw new Error('Ordre des portions inconnu.');
+  meetingLegs(route,nodes);
+  const pickup=nodes.findIndex(n=>n.kind==='pickup'),dropoff=nodes.findIndex(n=>n.kind==='dropoff');
+  const sum=(a,b)=>route.legs.slice(a,b).reduce((n,l)=>n+l.distance,0);
+  distances=[sum(0,pickup),sum(pickup,dropoff),sum(dropoff,route.legs.length)];
+ }catch(e){return missing(e.message)}
+ const distance=distances.reduce((a,b)=>a+b,0),base=prospectiveCarbon(mode,distance,fuel,{...choice,occupants:1});
+ if(base.status!=='estimated')return missing(base.reason);
+ const keys=['before','shared','after'],counts=keys.map(k=>{const v=occupancies?.[k];return typeof v==='number'?v:typeof v==='string'&&v.trim()?Number(v):NaN});
+ if(counts.some(n=>!Number.isInteger(n)||n<1||n>9))return missing('Indiquer de 1 à 9 occupants pour chacune des trois portions, conducteur compris.');
+ const factor=base.factor.construction+base.factor.energy;
+ const portions=keys.map((kind,i)=>{const vehicleKg=distances[i]/1000*factor,individualKg=vehicleKg/counts[i];return {kind,distanceMeters:distances[i],occupants:counts[i],vehicleKg,individualKg,driverKg:individualKg,othersKg:vehicleKg-individualKg}});
+ const vehicleKg=portions.reduce((n,p)=>n+p.vehicleKg,0),driverKg=portions.reduce((n,p)=>n+p.driverKg,0);
+ return {status:'estimated',reason:'',distanceMeters:distance,vehicleKg,driverKg,othersKg:vehicleKg-driverKg,portions,factor:base.factor,dataset:base.dataset};
+}
 // END PROSPECTIVE CARBON MODEL
 function prospectiveMarkup(c){
  if(c.status!=='estimated')return `<p class="note">CO₂e non estimé. ${escapeHtml(c.reason)}</p>`;
- const f=c.factor;
- return `<p><strong>Véhicule entier : ${carbonAmount(c.vehicleKg)}</strong></p><p>Par occupant : ${carbonAmount(c.individualKg)} · partage égal entre ${c.occupants} occupant(s), conducteur compris.</p>${c.group===null?'':`<p><strong>Part attribuée au groupe : ${carbonAmount(c.groupKg)}</strong> · ${c.group} personne(s) parmi ${c.occupants} occupants. Cette part n’est pas ajoutée au total véhicule.</p>`}<details><summary>Facteur, source et méthode</summary><p>${escapeHtml(f.label)} · ${fmt(c.distanceMeters/1000,3)} km × ${fmt(f.construction+f.energy,6)} kg CO₂e/véhicule-km.</p><p>${CARBON_SCOPES[f.scope]} : construction ${fmt(f.construction,6)}, énergie ${fmt(f.energy,6)} kg CO₂e/véhicule-km. Valeurs moyennes, sans ajustement selon la consommation réelle, le chargement ou la météo. Infrastructures et alimentation humaine non modélisées ; aucune empreinte exhaustive.</p><p><a href="${f.source}" target="_blank" rel="noopener noreferrer">Source : ADEME / Impact CO₂</a> · jeu extrait le ${CARBON_DATA.retrievedAt} · version ${escapeHtml(c.dataset)}. Calcul local sur l’appareil, sans transmission des lieux pour cette estimation.</p></details>`;
+ return `<p><strong>Véhicule entier : ${carbonAmount(c.vehicleKg)}</strong></p><p>Par occupant : ${carbonAmount(c.individualKg)} · partage égal entre ${c.occupants} occupant(s), conducteur compris.</p>${c.group===null?'':`<p><strong>Part attribuée au groupe : ${carbonAmount(c.groupKg)}</strong> · ${c.group} personne(s) parmi ${c.occupants} occupants. Cette part n’est pas ajoutée au total véhicule.</p>`}${prospectiveMethodMarkup(c)}`;
+}
+function prospectiveMethodMarkup(c){
+ const f=c.factor;return `<details><summary>Facteur, source et méthode</summary><p>${escapeHtml(f.label)} · ${fmt(c.distanceMeters/1000,3)} km × ${fmt(f.construction+f.energy,6)} kg CO₂e/véhicule-km.</p><p>${CARBON_SCOPES[f.scope]} : construction ${fmt(f.construction,6)}, énergie ${fmt(f.energy,6)} kg CO₂e/véhicule-km. Valeurs moyennes, sans ajustement selon la consommation réelle, le chargement ou la météo. Infrastructures et alimentation humaine non modélisées ; aucune empreinte exhaustive.</p><p><a href="${f.source}" target="_blank" rel="noopener noreferrer">Source : ADEME / Impact CO₂</a> · jeu extrait le ${CARBON_DATA.retrievedAt} · version ${escapeHtml(c.dataset)}. Calcul local sur l’appareil, sans transmission des lieux pour cette estimation.</p></details>`;
+}
+const carbonPortionLabels={before:'Avant la prise en charge',shared:'Avec les passagers',after:'Après la dépose'};
+const carbonPortionInputs=['routeCarbonBefore','routeCarbonShared','routeCarbonAfter'];
+let segmentCarbonKey='';
+function clearSegmentOccupants(){for(const id of carbonPortionInputs)$(id).value=''}
+function syncSegmentCarbon(){
+ const plan=trip?.meetings,key=plan?JSON.stringify([trip.a,trip.b,trip.routing,plan.pickup,plan.dropoff,plan.stationPosition,$('fuel').value]):'';
+ if(key!==segmentCarbonKey){clearSegmentOccupants();segmentCarbonKey=key}
+}
+function segmentedCarbonMarkup(c){
+ if(c.status!=='estimated')return `<p class="note">CO₂e non estimé. ${escapeHtml(c.reason)}</p>`;
+ return `<p><strong>Véhicule entier : ${carbonAmount(c.vehicleKg)}</strong></p><p><strong>Part conducteur : ${carbonAmount(c.driverKg)}</strong></p><p>Autres occupants · parts cumulées : ${carbonAmount(c.othersKg)}.</p><p class="note">Le conducteur est supposé présent sur tout le trajet. Les autres occupants sont regroupés par portion ; leur identité n’est pas supposée constante. Les parts répartissent le total véhicule, sans le réduire. Arrondis d’affichage uniquement.</p><ol class="carbon-portions">${c.portions.map(p=>`<li><strong>${carbonPortionLabels[p.kind]}</strong><p>${fmt(p.distanceMeters/1000,3)} km · ${p.occupants} occupant(s), conducteur compris.</p><p>Véhicule : ${carbonAmount(p.vehicleKg)}<br>Par occupant : ${carbonAmount(p.individualKg)}<br>Autres occupants : ${carbonAmount(p.othersKg)}</p></li>`).join('')}</ol>${prospectiveMethodMarkup(c)}`;
 }
 function fillProspectiveChoices(prefix){
  const select=$(prefix+'Factor'),old=select.value,factors=prospectiveFactors($('fuel').value);
@@ -2044,17 +2077,23 @@ function updateProspectiveControls(prefix,available){
  for(const suffix of ['Factor','Occupants'])$(prefix+suffix).disabled=busy||!available||!$(prefix+'Enabled').checked;
 }
 function updateRouteCarbon(){
- $('routeCarbon').hidden=!trip;if(!trip)return;
- const mode=trip.routing.vehicle.type,available=mode==='car'&&prospectiveFactors($('fuel').value).length>0;
+ syncSegmentCarbon();$('routeCarbon').hidden=!trip;if(!trip)return;
+ const mode=trip.routing.vehicle.type,available=mode==='car'&&prospectiveFactors($('fuel').value).length>0,segmented=Boolean(trip.meetings);
  updateProspectiveControls('routeCarbon',available);
- const r=selectedStop?.via||trip.base,c=prospectiveCarbon(mode,r.distance,$('fuel').value,prospectiveRaw('routeCarbon'));
- $('routeCarbonAvailability').textContent=available?'Choisir la taille du véhicule et le nombre total d’occupants. Le carburant sert à proposer des modèles compatibles, sans sélectionner un modèle automatiquement.':'Aucun modèle compatible disponible pour ce mode ou carburant.';
- $('routeCarbonResult').innerHTML=prospectiveMarkup(c);$('routeCarbonResult').dataset.carbonState=c.status;
- $('routeCarbonDistance').textContent=`${fmt(r.distance/1000,1)} km${selectedStop?' · détour par la station inclus':' · trajet affiché'}. Hypothèses de préparation, pas un déplacement effectué.${trip.meetings?' Occupation supposée constante sur tout le trajet pour cette simulation carbone ; les changements de passagers aux rencontres ne sont pas modélisés.':''}`;
+ $('routeCarbonUniform').hidden=segmented;$('routeCarbonSegments').hidden=!segmented;
+ $('routeCarbonOccupants').disabled=busy||!available||!$('routeCarbonEnabled').checked||segmented;
+ for(const id of carbonPortionInputs)$(id).disabled=busy||!available||!$('routeCarbonEnabled').checked||!segmented;
+ $('routeCarbonClear').disabled=busy||!available||!carbonPortionInputs.some(id=>$(id).value);
+ const r=selectedStop?.via||trip.base,choice=prospectiveRaw('routeCarbon'),c=segmented?segmentedCarbon(mode,r,routePlanNodes(selectedStop?.station),$('fuel').value,choice,{before:$('routeCarbonBefore').value,shared:$('routeCarbonShared').value,after:$('routeCarbonAfter').value}):prospectiveCarbon(mode,r.distance,$('fuel').value,choice);
+ $('routeCarbonAvailability').textContent=available?(segmented?'Choisir le modèle et l’occupation de chaque portion. Les places proposées et le nombre de passagers du budget ne remplissent pas ces hypothèses.':'Choisir la taille du véhicule et le nombre total d’occupants. Le carburant sert à proposer des modèles compatibles, sans sélectionner un modèle automatiquement.'):'Aucun modèle compatible disponible pour ce mode ou carburant.';
+ $('routeCarbonResult').innerHTML=segmented?segmentedCarbonMarkup(c):prospectiveMarkup(c);$('routeCarbonResult').dataset.carbonState=c.status;
+ $('routeCarbonDistance').textContent=`${fmt(r.distance/1000,1)} km${selectedStop?' · détour par la station inclus':' · trajet affiché'}. Hypothèses de préparation, pas un déplacement effectué.${segmented?' Trois portions routières : avant la prise en charge, avec les passagers, après la dépose. Le plein suit sa position choisie.':''}`;
 }
-function resetProspective(){for(const prefix of ['routeCarbon','comparisonCarbon']){$(prefix+'Enabled').checked=false;$(prefix+'Factor').value='';$(prefix+'Occupants').value=''}updateRouteCarbon()}
+function resetProspective(){clearSegmentOccupants();segmentCarbonKey='';for(const prefix of ['routeCarbon','comparisonCarbon']){$(prefix+'Enabled').checked=false;$(prefix+'Factor').value='';$(prefix+'Occupants').value=''}updateRouteCarbon()}
 function bindProspective(){
  fillProspectiveChoices('routeCarbon');fillProspectiveChoices('comparisonCarbon');
+ $('routeCarbonClear').addEventListener('click',()=>{clearSegmentOccupants();updateRouteCarbon()});
+ for(const id of carbonPortionInputs)$(id).addEventListener('input',updateRouteCarbon);
  for(const suffix of ['Enabled','Factor','Occupants'])$('routeCarbon'+suffix).addEventListener('input',()=>{updateRouteCarbon();comparisonChanged()});
  $('comparisonCarbonEnabled').addEventListener('input',()=>updateProspectiveControls('comparisonCarbon',$('routeVehicle').value==='car'&&prospectiveFactors($('fuel').value).length>0));
 }
@@ -2101,6 +2140,7 @@ function openComparison(){
  $('comparisonArriveBy').value=$('routeArriveBy').value;$('comparisonOnlyBefore').checked=$('routeOnlyBefore').checked;
  fillProspectiveChoices('comparisonCarbon');
  for(const suffix of ['Enabled','Factor','Occupants']){const from=$('routeCarbon'+suffix),to=$('comparisonCarbon'+suffix);if(suffix==='Enabled')to.checked=from.checked;else to.value=from.value}
+ if(trip.meetings)$('comparisonCarbonOccupants').value='';
  const carbonAvailable=$('routeVehicle').value==='car'&&prospectiveFactors($('fuel').value).length>0;updateProspectiveControls('comparisonCarbon',carbonAvailable);$('comparisonCarbonAvailability').textContent=carbonAvailable?'Le groupe est supposé voyager dans le même véhicule. Les occupants incluent le conducteur et les éventuelles personnes hors groupe. Capacité du véhicule non vérifiée.':'Aucun modèle compatible pour le véhicule ou carburant choisi.';
  $('comparisonDeparture').value=$('stationDeparture').value;$('comparisonCons').value=$('cons').value;$('comparisonPrice').value='';$('comparisonWalkLimit').value=$('maxWalkKm').value;
  $('comparisonStatus').textContent='Vérifier les hypothèses, puis calculer les deux modes directs, sans rencontres ni arrêt carburant. Le trajet affiché reste en place jusqu’au choix.';

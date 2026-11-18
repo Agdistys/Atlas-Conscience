@@ -122,7 +122,13 @@
       <section id="routeCarbon" class="stops-section" hidden aria-labelledby="routeCarbonHeading">
         <h2 id="routeCarbonHeading">Empreinte du trajet préparé</h2><p id="routeCarbonDistance" class="note"></p>
         <label class="check-label"><input id="routeCarbonEnabled" type="checkbox"> Estimer ce trajet</label><p id="routeCarbonAvailability" class="note"></p>
-        <div id="routeCarbonFields" hidden><label for="routeCarbonFactor">Modèle du véhicule</label><select id="routeCarbonFactor"></select><label for="routeCarbonOccupants">Total des occupants, conducteur compris</label><input id="routeCarbonOccupants" type="number" min="1" max="9" step="1" placeholder="À renseigner"></div>
+        <div id="routeCarbonFields" hidden><label for="routeCarbonFactor">Modèle du véhicule</label><select id="routeCarbonFactor"></select><div id="routeCarbonUniform"><label for="routeCarbonOccupants">Total des occupants, conducteur compris</label><input id="routeCarbonOccupants" type="number" min="1" max="9" step="1" placeholder="À renseigner"></div>
+          <fieldset id="routeCarbonSegments" hidden><legend>Occupation par portion</legend><p class="note">Nombre total de personnes dans le véhicule, conducteur compris. Hypothèses à renseigner pour ce trajet.</p>
+            <label for="routeCarbonBefore">Avant la prise en charge</label><input id="routeCarbonBefore" type="number" min="1" max="9" step="1" placeholder="À renseigner">
+            <label for="routeCarbonShared">Avec les passagers</label><input id="routeCarbonShared" type="number" min="1" max="9" step="1" placeholder="À renseigner">
+            <label for="routeCarbonAfter">Après la dépose</label><input id="routeCarbonAfter" type="number" min="1" max="9" step="1" placeholder="À renseigner">
+            <button id="routeCarbonClear" class="ghost navigation-button" type="button">Effacer les occupants par portion</button>
+          </fieldset></div>
         <div id="routeCarbonResult" role="status" aria-live="polite"></div>
         <p class="note">Le modèle et l’occupation restent dans cette session. Après rechargement ou reprise d’une préparation, les choisir à nouveau. Aucun résultat ajouté au journal des déplacements.</p>
       </section>
