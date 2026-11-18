@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';import fs from 'node:fs/promises';
+import {test,expect} from '@playwright/test';import {createRequire} from 'node:module';const require=createRequire(import.meta.url);import fs from 'node:fs/promises';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
 const osrm='https://router.project-osrm.org/route/v1/driving/**',ign='https://data.geopf.fr/navigation/itineraire?**',key='dragonroute.prepared.v5.public';
 const pickup=[4.86,45.55],dropoff=[4.88,45.25];
@@ -12,10 +12,11 @@ function response(url){
  const p=u.searchParams,points=[p.get('start'),...(p.get('intermediates')?.split('|')||[]),p.get('end')].map(s=>s.split(',').map(Number)),r=routeResult(points);
  return {resource:'bdtopo-osrm',resourceVersion:'2026-11-18',profile:p.get('profile'),optimization:p.get('optimization'),crs:'EPSG:4326',distanceUnit:'meter',timeUnit:'second',distance:r.distance,duration:r.duration,constraints:p.has('constraints')?[{type:'banned',key:'waytype',operator:'=',value:'autoroute'}]:[],geometry:r.geometry,portions:points.slice(1).map((end,i)=>({start:points[i].join(','),end:end.join(','),...r.legs[i]}))};
 }
-async function setup(page,engine='osrm'){
+async function setup(page,engine='osrm',leaflet=false){
  await mockDragonRoute(page);const calls=[];page.on('request',r=>{if(r.url().includes('/route/v1/')||r.url().includes('/navigation/itineraire'))calls.push(r.url())});
  await page.route(osrm,r=>r.fulfill({json:response(r.request().url())}));await page.route(ign,r=>r.fulfill({json:response(r.request().url())}));
  await page.route(geocodingPattern,async r=>{const q=new URL(r.request().url()).searchParams.get('q'),p=q==='PRISE_PRIVEE'?pickup:q==='DEPOSE_PRIVEE'?dropoff:q.toLowerCase().includes('valence')?[4.8924,44.9334]:[4.8357,45.764];await r.fulfill({json:placesResponse(addressFeature(...p,q))})});
+ if(leaflet)for(const [file,contentType] of [['leaflet.js','application/javascript'],['leaflet.css','text/css']])await page.route('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/'+file,r=>r.fulfill({path:require.resolve('leaflet/dist/'+file),contentType}));
  await page.goto('/DragonRoute/');if(engine==='ign'){await page.locator('#routeOptimization').selectOption('shortest');await page.locator('#avoidHighways').check()}
  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await page.locator('#ridesTab').click();return calls;
 }
@@ -59,4 +60,10 @@ test('rencontres : récapitulatif distinct des adresses et changement de trajet 
 });
 test('rencontres : comparaison directe et changement vers la marche retirent explicitement les étapes',async({page})=>{
  await setup(page);await plan(page);await page.locator('#compareBtn').click();await expect(page.locator('#comparisonStatus')).toContainText('sans rencontres');await page.locator('#comparisonCalculate').click();await expect(page.locator('#comparisonStatus')).toContainText('2/2 trajets disponibles');page.once('dialog',d=>d.dismiss());await page.locator('[data-compare-select=walk]').click();await expect(page.locator('#meetingSummary')).toBeVisible();page.once('dialog',d=>d.accept());await page.locator('[data-compare-select=walk]').click();await expect(page.locator('#meetingSummary')).toBeHidden();await expect(page.locator('#meetingPending')).toBeHidden();await expect(page.locator('#stops')).toBeHidden();await page.locator('#savePreparationBtn').click();await expect(page.locator('#preparedEditor')).toBeVisible();
+});
+
+test('rencontres : repères Leaflet lisibles, centrés et accessibles au clavier',async({page},info)=>{
+ await setup(page,'osrm',true);await expect(page.locator('#hMap')).toHaveText('carte ✓');await plan(page);const markers=page.locator('.meeting-marker');await expect(markers).toHaveCount(2);await expect(markers.first()).toHaveText('P');await expect(markers.nth(1)).toHaveText('D');
+ const offsets=await markers.evaluateAll(elements=>elements.map(e=>{const box=e.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(e);const glyph=range.getBoundingClientRect();return {x:Math.abs((box.left+box.right)-(glyph.left+glyph.right))/2,y:Math.abs((box.top+box.bottom)-(glyph.top+glyph.bottom))/2}}));for(const offset of offsets){expect(offset.x).toBeLessThan(2);expect(offset.y).toBeLessThan(3)}
+ await markers.first().focus();await page.keyboard.press('Enter');await expect(page.locator('.leaflet-popup-content')).toContainText('Prise en charge : PRISE_PRIVEE');await page.locator('.leaflet-popup-close-button').click();await page.locator('#meetingSummary').scrollIntoViewIfNeeded();await capture(page,info,'rencontres-leaflet');await checkAccessibility(page,info,'rencontres-leaflet');await checkOverflow(page);
 });
