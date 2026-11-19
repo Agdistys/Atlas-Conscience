@@ -41,3 +41,9 @@ Limites inchangées : vingt préparations, vingt-cinq mille points par tracé, e
 Les contrôles du modèle couvrent aller-retour, migration, inconnus/zéro/partiel/complet, prix consommé, montants, sources, dates, doublons, exclusions et rapprochement des gares par nom. Les parcours navigateur couvrent enregistrement volontaire, export, rechargement, renommage, reprise, relecture de plusieurs tronçons, prix modifié, date/classe/arrêt/variante, passage BPNL, expiration, source absente, quota, concurrence, import annulé et confirmé, et priorité de la copie actuelle.
 
 Les simulations, essais locaux avec les services réels, inspection GitHub et vérification de l’aperçu publié sont consignés séparément dans le suivi de développement. Aucun essai sur téléphone physique ou parcours routier réel n’est déduit de ces contrôles. La couverture tarifaire reste limitée aux grilles déjà qualifiées ; aucune couverture nationale ni adéquation caravane/poids lourd n’est ajoutée par la mémorisation.
+
+## Incident de validation conservé
+
+La première inspection GitHub (`44598360393`, commit `f74bec4`) a atteint la borne globale de 45 minutes avant de produire un rapport navigateur complet. Le scénario de copie refusée du covoiturage a également dépassé sa minute sur le format 390 px ; sa trace s’arrête pendant la première préparation du récapitulatif, avant le test de copie. Aucune publication n’a été faite. La borne globale passe à 55 minutes dans le job de 60 minutes ; les délais individuels, l’absence de nouvelle tentative automatique et l’exigence de réussite complète restent inchangés. Les résultats et traces de cet essai sont conservés.
+
+Le recontrôle local ciblé du covoiturage a réussi ses 32 parcours sur les quatre formats, sans modification du produit ou des assertions. Le blocage isolé du navigateur hébergé n’a pas été reproduit ; la nouvelle inspection complète reste nécessaire.
