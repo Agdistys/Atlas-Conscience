@@ -116,3 +116,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 #savedSharedPanel .dialog-actions,#savedSharedPanel .row-actions{flex-wrap:wrap}#savedSharedPanel button,#savedSharedPanel input,#bikeTripSave{max-width:100%;white-space:normal}#savedSharedDetails,#savedSharedImportDetails,#bikesResumeInfo{overflow-wrap:anywhere}#savedSharedEditor{margin:16px 0}#savedSharedImportDialog{width:min(680px,94vw)}#savedSharedView{scroll-margin-top:6rem}
 
 #preparedDialog .tabs{flex-wrap:wrap}
+
+#walkingStatus[data-state="excluded"]{color:var(--gold);border-color:var(--gold);font-weight:650}#walkingStatus[data-state="invalid"]{color:var(--red);border-color:var(--red)}
