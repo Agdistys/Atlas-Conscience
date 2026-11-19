@@ -21,6 +21,38 @@ let profile,storageNotice="",profileSnapshots={},profileWriteBlocked=false,legac
 let tripVehicleId=null,vehicleDraftId=null;
 let addressDraft=null,addressLookupSequence=0,profileImportSequence=0,pendingProfileImport=null;
 const rememberedInputs={start:null,end:null},favoriteInputs={start:null,end:null};
+// BEGIN SHARED BIKES MODEL
+const BIKE_BASE='https://download.data.grandlyon.com/files/rdata/jcd_jcdecaux.jcdvelov/';
+const BIKE_MAX_AGE=300000;
+function bikeCount(v){return Number.isInteger(v)&&v>=0&&v<=10000?v:null}
+function bikeTimestamp(v){return Number.isInteger(v)&&v>=946684800&&v<=4102444800?v*1000:null}
+function bikeText(v,max=200){return typeof v==='string'?v.trim().slice(0,max):''}
+function bikeEnvelope(raw,key){if(raw?.version!=='2.3'||!Array.isArray(raw.data?.[key])||raw.data[key].length>2000)throw new Error('Format Vélo’v non reconnu ou trop volumineux.');return {rows:raw.data[key],updated:bikeTimestamp(raw.last_updated),ttl:Number.isInteger(raw.ttl)&&raw.ttl>=0&&raw.ttl<=86400?raw.ttl:60}}
+function bikeUnique(rows,key){const ids=new Map();for(const r of rows){const id=typeof r?.[key]==='string'&&r[key].length<=100?r[key]:'';if(id)ids.set(id,ids.has(id)?null:r)}return ids}
+function bikeCatalogue(raw){const e=bikeEnvelope(raw,'stations'),ids=bikeUnique(e.rows,'station_id'),rows=[];for(const [id,r] of ids){if(!r||!bikeText(r.name)||typeof r.lat!=='number'||typeof r.lon!=='number'||!Number.isFinite(r.lat)||!Number.isFinite(r.lon)||r.lat<45.5||r.lat>46.05||r.lon<4.5||r.lon>5.2)continue;rows.push({id,name:bikeText(r.name),address:bikeText(r.address),lat:r.lat,lon:r.lon,capacity:bikeCount(r.capacity)})}rows.sort((a,b)=>a.name.localeCompare(b.name,'fr',{numeric:true}));return {...e,rows,excluded:e.rows.length-rows.length}}
+function bikeTypes(raw){const e=bikeEnvelope(raw,'vehicle_types'),map=new Map();for(const [id,r] of bikeUnique(e.rows,'vehicle_type_id'))if(r?.form_factor==='bicycle'&&['human','electric_assist'].includes(r.propulsion_type))map.set(id,r.propulsion_type==='human'?'mechanical':'electric');return map}
+function bikeSnapshot(info,status,types,observed=Date.now()){
+ const c=bikeCatalogue(info),s=status?bikeEnvelope(status,'stations'):null,m=s?bikeUnique(s.rows,'station_id'):new Map(),t=types?bikeTypes(types):new Map();let missing=0,ambiguous=0;
+ const rows=c.rows.map((r,index)=>{const d=m.get(r.id);if(!d)missing++;if(m.has(r.id)&&!d)ambiguous++;
+  const bikes=bikeCount(d?.num_bikes_available),docks=bikeCount(d?.num_docks_available),typed={mechanical:null,electric:null};
+  const a=d?.vehicle_types_available;if(Array.isArray(a)&&a.length<=100){let valid=true,total=0;const seen=new Set(),parts={mechanical:0,electric:0},known=new Set();for(const item of a){const id=item?.vehicle_type_id,n=bikeCount(item?.count),kind=t.get(id);if(typeof id!=='string'||seen.has(id)||n===null){valid=false;break}seen.add(id);total+=n;if(kind){parts[kind]+=n;known.add(kind)}}if(valid&&(bikes===null||total===bikes))for(const kind of known)typed[kind]=parts[kind]}
+  return {...r,number:index+1,bikes,docks,...typed,installed:typeof d?.is_installed==='boolean'?d.is_installed:null,renting:typeof d?.is_renting==='boolean'?d.is_renting:null,returning:typeof d?.is_returning==='boolean'?d.is_returning:null,reported:bikeTimestamp(d?.last_reported)};
+ });return {rows,observed,infoUpdated:c.updated,statusUpdated:s?.updated??null,excluded:c.excluded,missing,ambiguous,unmatched:s?[...m.keys()].filter(id=>!c.rows.some(r=>r.id===id)).length:0};
+}
+function bikeFreshness(row,snapshot,now=Date.now()){
+ if(!Number.isFinite(now)||!Number.isFinite(snapshot.observed)||now<snapshot.observed-60000||!row.reported||!snapshot.statusUpdated||row.reported>now+60000||snapshot.statusUpdated>now+60000||row.reported>snapshot.statusUpdated+60000)return 'unknown';
+ return now-row.reported>BIKE_MAX_AGE||now-snapshot.statusUpdated>BIKE_MAX_AGE?'old':'recent';
+}
+function bikeRows(snapshot,{text='',need='all',type='all'}={},now=Date.now()){
+ const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr-FR'),query=norm(text.trim());
+ return snapshot.rows.filter(r=>{if(!norm(r.name+' '+r.address+' '+r.id).includes(query))return false;if(need==='all')return true;if(bikeFreshness(r,snapshot,now)!=='recent'||r.installed!==true)return false;
+  if(need==='return')return r.returning===true&&r.docks!==null&&r.docks>0;
+  if(need==='rent'){const n=type==='mechanical'?r.mechanical:type==='electric'?r.electric:r.bikes;return r.renting===true&&n!==null&&n>0}return false;
+ });
+}
+function bikeRetryAfter(value,now=Date.now()){if(!value)return now+60000;const n=/^\d+$/.test(value)?Number(value)*1000:Date.parse(value)-now;return Number.isFinite(n)?now+Math.max(60000,n):now+60000}
+// END SHARED BIKES MODEL
+
 // BEGIN PROFILE VALIDATION
 function defaultVehicle(){return {name:"",type:"car",fuel:"E10",cons:6.2,liters:40}}
 function emptyProfile(){return {version:3,vehicles:[],activeVehicleId:null,addresses:[],stations:[]}}
@@ -3319,7 +3351,72 @@ function bind(){
   }
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindProspective();applyVehicle();updateRange();initPwa();
+let bikesJob=null,bikesSnapshot=null,bikesPage=0,bikesMap=null,bikesLayer=null,bikesSelected=null,bikesNext=0,bikesExpiry='',bikesTimer=null;
+const bikesCache=new Map(),BIKE_PAGE_SIZE=25;
+const bikesDate=ms=>ms?new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',dateStyle:'short',timeStyle:'medium'}).format(ms):'date inconnue';
+function clearBikes(message=''){
+ if(bikesJob){bikesJob.controller.abort();bikesJob=null}bikesSnapshot=null;bikesSelected=null;bikesExpiry='';bikesPage=0;
+ $('bikesResults').replaceChildren();$('bikesStatus').textContent=message;$('bikesLoad').disabled=false;$('bikesCancel').hidden=true;$('bikesBrowse').hidden=true;$('bikesMapWrap').hidden=true;if(bikesLayer){bikesLayer.remove();bikesLayer=null}clearInterval(bikesTimer);bikesTimer=null;
+}
+async function bikesFetch(name,job){
+ const now=Date.now(),cached=bikesCache.get(name);if(cached&&now>=cached.at&&now<cached.until)return cached.raw;
+ const response=await fetch(BIKE_BASE+name+'.json',{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',redirect:'error'});
+ if(response.status===429){bikesNext=Math.max(bikesNext,bikeRetryAfter(response.headers.get('Retry-After')));throw new Error('Limite du service atteinte. Réessayer après '+bikesDate(bikesNext)+'.')}
+ if(!response.ok)throw new Error('Service indisponible (HTTP '+response.status+').');
+ if(Number(response.headers.get('Content-Length'))>2000000)throw new Error('Réponse trop volumineuse.');
+ const reader=response.body.getReader(),chunks=[];let length=0;while(true){const {done,value}=await reader.read();if(done)break;length+=value.byteLength;if(length>2000000){await reader.cancel();throw new Error('Réponse trop volumineuse.')}chunks.push(value)}const bytes=new Uint8Array(length);let pos=0;for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.length}
+ let raw;try{raw=JSON.parse(new TextDecoder().decode(bytes))}catch{throw new Error('Réponse illisible.')}const key=name==='vehicle_types'?'vehicle_types':'stations',env=bikeEnvelope(raw,key);
+ if(bikesJob===job&&!job.controller.signal.aborted)bikesCache.set(name,{raw,at:now,until:now+Math.max(60,env.ttl)*1000});return raw;
+}
+async function loadBikes(){
+ if(bikesJob)return;if(Date.now()<bikesNext){$('bikesStatus').textContent='Patienter avant une nouvelle consultation : '+bikesDate(bikesNext)+'.';return}
+ clearBikes('Consultation de Vélo’v…');const job={controller:new AbortController()};bikesJob=job;bikesNext=Date.now()+60000;$('bikesLoad').disabled=true;$('bikesCancel').hidden=false;
+ const timeout=setTimeout(()=>{job.timeout=true;job.controller.abort()},20000);
+ try{
+  const names=['station_information','station_status','vehicle_types'],results=await Promise.allSettled(names.map(n=>bikesFetch(n,job)));if(bikesJob!==job)return;
+  if(job.timeout)throw new Error('Délai dépassé. Relancer la consultation lorsque le service répond.');
+  if(results[0].status!=='fulfilled')throw results[0].reason;
+  const value=i=>results[i].status==='fulfilled'?results[i].value:null;
+  bikesSnapshot=bikeSnapshot(value(0),value(1),value(2));bikesSnapshot.failures=results.flatMap((r,i)=>r.status==='rejected'?[['Stations','Disponibilités','Types de vélos'][i]+' : '+(r.reason?.message||'indisponible')]:[]);
+  $('bikesBrowse').hidden=false;renderBikes(true);bikesTimer=setInterval(refreshBikes,15000);
+ }catch(e){if(bikesJob===job)clearBikes('Consultation impossible. '+e.message)}finally{clearTimeout(timeout);if(bikesJob===job)bikesJob=null;$('bikesLoad').disabled=Boolean(bikesJob);$('bikesCancel').hidden=!bikesJob}
+}
+function bikesFilters(){return {text:$('bikesQuery').value,need:$('bikesNeed').value,type:$('bikesType').value}}
+function renderBikes(resetMap=false){
+ if(!bikesSnapshot)return;const s=bikesSnapshot,now=Date.now(),rows=bikeRows(s,bikesFilters(),now),pages=Math.max(1,Math.ceil(rows.length/BIKE_PAGE_SIZE));bikesPage=Math.min(bikesPage,pages-1);const start=bikesPage*BIKE_PAGE_SIZE,visible=rows.slice(start,start+BIKE_PAGE_SIZE);
+ bikesExpiry=JSON.stringify(s.rows.map(r=>bikeFreshness(r,s,now)));
+ $('bikesType').disabled=$('bikesNeed').value!=='rent';
+ $('bikesStatus').textContent=`${rows.length} station(s) correspondante(s) sur ${s.rows.length} référencées. Consultation : ${bikesDate(s.observed)}. Flux de disponibilité : ${bikesDate(s.statusUpdated)}. ${s.failures.join(' ')} ${s.excluded?`${s.excluded} entrée(s) de station écartée(s). `:''}${s.missing?`${s.missing} station(s) sans état utilisable. `:''}${s.unmatched?`${s.unmatched} état(s) sans station référencée. `:''}${rows.length?'':'Aucun résultat pour ces critères ; cela ne prouve pas une absence de vélos sur le terrain.'}`;
+ $('bikesPageLabel').textContent=`Page ${bikesPage+1} sur ${pages} · ${visible.length} station(s) dans la liste et sur la carte`;$('bikesPrev').disabled=bikesPage===0;$('bikesNext').disabled=bikesPage===pages-1;
+ const active=document.activeElement?.dataset.bikesMap;
+ $('bikesResults').innerHTML=visible.map(r=>{const age=bikeFreshness(r,s,now),label={recent:'Annonce récente',old:'Annonce ancienne · plus de 5 minutes',unknown:'Date non vérifiable'}[age],count=n=>n===null?'Inconnu':String(n),state=v=>v===true?'Oui':v===false?'Non':'Inconnu';return `<article class="comparison-card bike-card ${r.id===bikesSelected?'bike-selected':''}" data-bike-id="${escapeHtml(r.id)}"><h3 tabindex="-1">${r.number}. ${escapeHtml(r.name)}</h3><p>${escapeHtml(r.address)||'Adresse non renseignée'}</p><p class="bike-age" data-bike-age="${age}">${label} · station : ${bikesDate(r.reported)}</p><dl class="bike-counts"><div><dt>Vélos annoncés</dt><dd>${count(r.bikes)}</dd></div><div><dt>Places annoncées</dt><dd>${count(r.docks)}</dd></div></dl><p>Mécaniques : ${count(r.mechanical)} · Électriques : ${count(r.electric)}</p><p class="note">Station installée : ${state(r.installed)} · Location : ${state(r.renting)} · Restitution : ${state(r.returning)}. Batterie et autonomie individuelles inconnues.</p><button type="button" class="ghost" data-bikes-map="${escapeHtml(r.id)}" aria-pressed="${r.id===bikesSelected}">Repérer la station ${r.number} sur la carte</button></article>`}).join('');
+ drawBikes(visible,resetMap);if(active){const b=[...$('bikesResults').querySelectorAll('[data-bikes-map]')].find(x=>x.dataset.bikesMap===active);b?.focus({preventScroll:true})}
+}
+function drawBikes(rows,reset){
+ $('bikesMapWrap').hidden=!rows.length;if(!rows.length)return;
+ if(!window.L){$('bikesMap').hidden=true;$('bikesMapNote').textContent='Carte indisponible. Toutes les stations restent consultables dans la liste.';return}
+ $('bikesMap').hidden=false;$('bikesMapNote').textContent='Les numéros relient la carte à la liste. Un point indique une station, sans garantie de disponibilité. Aucun itinéraire vélo calculé.';
+ if(!bikesMap){bikesMap=L.map('bikesMap');L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:19}).addTo(bikesMap)}
+ if(bikesLayer)bikesLayer.remove();bikesLayer=L.featureGroup().addTo(bikesMap);
+ for(const r of rows){const icon=L.divIcon({className:'bike-marker',html:'<span>'+r.number+'</span>',iconSize:[44,44],iconAnchor:[22,22]});const marker=L.marker([r.lat,r.lon],{icon,title:r.name,alt:'Station '+r.number+' · '+r.name,keyboard:true}).addTo(bikesLayer);marker.on('click',()=>selectBike(r.id,false))}
+ bikesMap.invalidateSize();if(reset||!bikesMap._loaded)bikesMap.fitBounds(bikesLayer.getBounds(),{padding:[25,25],maxZoom:15});
+}
+function selectBike(id,center){
+ const s=bikesSnapshot?.rows.find(r=>r.id===id);if(!s)return;bikesSelected=id;const cards=[...$('bikesResults').querySelectorAll('[data-bike-id]')];for(const c of cards){const selected=c.dataset.bikeId===id;c.classList.toggle('bike-selected',selected);c.querySelector('button').setAttribute('aria-pressed',String(selected));if(selected&&!center){c.querySelector('h3').focus();c.scrollIntoView({block:'nearest'})}}
+ if(center&&bikesMap&&!$('bikesMap').hidden){bikesMap.setView([s.lat,s.lon],16);$('bikesMapWrap').scrollIntoView({block:'nearest'});$('bikesMapTitle').focus({preventScroll:true})}else if(center)$('bikesMapNote').textContent='Carte indisponible. Station sélectionnée dans la liste : '+s.name;
+}
+function refreshBikes(){if(bikesSnapshot&&$('bikesDialog').open&&bikesExpiry!==JSON.stringify(bikesSnapshot.rows.map(r=>bikeFreshness(r,bikesSnapshot))))renderBikes(false)}
+function bindBikes(){
+ $('bikesBtn').addEventListener('click',()=>{clearBikes('Charger les stations pour consulter les annonces disponibles.');$('bikesDialog').showModal();$('bikesTitle').focus()});
+ $('bikesClose').addEventListener('click',()=>$('bikesDialog').close());$('bikesDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('bikesDialog').close()}});$('bikesDialog').addEventListener('close',()=>{clearBikes();$('bikesBtn').focus()});
+ $('bikesLoad').addEventListener('click',loadBikes);$('bikesCancel').addEventListener('click',()=>clearBikes('Consultation annulée.'));
+ for(const id of ['bikesQuery','bikesNeed','bikesType'])$(id).addEventListener(id==='bikesQuery'?'input':'change',()=>{bikesPage=0;bikesSelected=null;renderBikes(true)});
+ for(const [id,delta] of [['bikesPrev',-1],['bikesNext',1]])$(id).addEventListener('click',()=>{bikesPage+=delta;renderBikes(true);$('bikesPageLabel').focus()});
+ $('bikesResults').addEventListener('click',e=>{const b=e.target.closest('[data-bikes-map]');if(b)selectBike(b.dataset.bikesMap,true)});
+ document.addEventListener('visibilitychange',refreshBikes);
+}
+
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
