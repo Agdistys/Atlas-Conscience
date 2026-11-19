@@ -299,7 +299,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 5328856 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · b025396 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -566,6 +566,13 @@
   <div id="transitCycleOptions" hidden><label class="check-label"><input id="transitCycle" type="checkbox"> Inclure aussi le vélo classique personnel</label><div id="transitCycleFields" hidden><label for="transitCycleLimit">Distance souhaitée à vélo au maximum (km, facultatif)</label><input id="transitCycleLimit" type="number" min="0" max="300" step="any" aria-describedby="transitCycleHelp" placeholder="Non renseignée"><label for="transitCycleRule">Règle pour la distance à vélo</label><select id="transitCycleRule"><option value="soft">Préférence</option><option value="strict">Limite impérative</option></select></div><p id="transitCycleHelp" class="note">FOSSGIS recevra les mêmes coordonnées au lancement. Un vélo personnel est supposé disponible ; aucune location ni combinaison train + vélo. Préférence ou limite impérative, réévaluée sans nouveau calcul. Vide : non demandé ; zéro : zéro kilomètre. Durée hors pauses et trafic ; terrain, VAE et batterie non qualifiés. Essai gratuit modéré.</p></div>
   <div class="dialog-actions"><button id="transitSearch" class="primary" type="button">Chercher les transports collectifs</button><button id="transitCancel" class="ghost" type="button" hidden>Annuler la recherche</button></div>
   <p id="transitStatus" role="status" aria-live="polite"></p>
+  <section id="transitOptions" hidden aria-labelledby="transitOptionsTitle">
+   <h3 id="transitOptionsTitle">Comparer les options collectives</h3><p id="transitOptionsContext" class="note"></p>
+   <label for="transitOptionsSort">Classer les options admissibles par</label><select id="transitOptionsSort"><option value="elapsed">Temps comparé croissant</option><option value="duration">Durée en chemin croissante</option><option value="walk">Marche totale croissante</option><option value="transfers">Nombre de correspondances croissant</option></select>
+   <p id="transitOptionsStatus" role="status" aria-live="polite"></p><div id="transitOptionsTable" class="transit-table-scroll"></div>
+   <details id="transitOptionsExcluded" hidden><summary id="transitOptionsExcludedLabel">Options écartées</summary><div id="transitOptionsExcludedTable" class="transit-table-scroll"></div></details>
+   <p id="transitOptionsTimeHelp" class="note"></p><p class="note">Les numéros identifient les options, pas leur rang. Cliquer sur une option ouvre sa fiche et sa carte. Tri sur les minutes ou mètres affichés ; les ex æquo sont signalés, puis ordonnés par durée en chemin et numéro. Une valeur inconnue reste non classée. Prix et empreintes ne sont pas comparés ici. Le tri reste local à cette consultation.</p>
+  </section>
   <section id="transitMapWrap" hidden aria-labelledby="transitMapTitle"><h3 id="transitMapTitle"></h3><div id="transitMap" aria-label="Carte du parcours collectif"></div><svg id="transitSketch" role="img" aria-label="Schéma du parcours collectif, sans fond de carte" hidden></svg><p id="transitMapNote" class="note"></p></section>
   <section id="transitCompareResults" aria-label="Comparaison des modes" aria-live="polite"></section>
   <div id="transitResults"></div>

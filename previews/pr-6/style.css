@@ -118,3 +118,9 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 #preparedDialog .tabs{flex-wrap:wrap}
 
 #walkingStatus[data-state="excluded"]{color:var(--gold);border-color:var(--gold);font-weight:650}#walkingStatus[data-state="invalid"]{color:var(--red);border-color:var(--red)}
+
+.transit-options-table caption{text-align:left;padding:8px 0;font-weight:700;color:var(--text)}
+.transit-options-table small{display:block;margin:4px 0 7px}.transit-options-table button{padding:8px;min-height:44px}.transit-options-table button[aria-pressed=true]{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+@media(max-width:560px){.transit-options-table thead th:nth-child(1){width:21%}.transit-options-table thead th:nth-child(2){width:27%}.transit-options-table thead th:nth-child(3){width:23%}.transit-options-table thead th:nth-child(4){width:29%}.transit-options-table button{padding:6px 2px;width:100%;font-size:12px}.transit-options-table small{font-size:11px}.transit-options-table th,.transit-options-table td{vertical-align:top}}
+
+#transitOptions,#transitResults [data-transit-option] h3{scroll-margin-top:6rem}
