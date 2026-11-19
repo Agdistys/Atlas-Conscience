@@ -1,6 +1,6 @@
 import {expect} from '@playwright/test';import {createRequire} from 'node:module';const require=createRequire(import.meta.url);import fs from 'node:fs/promises';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from './dragonroute.mjs';
-const osrm='https://router.project-osrm.org/route/v1/driving/**',ign='https://data.geopf.fr/navigation/itineraire?**',key='dragonroute.prepared.v7.public';
+const osrm='https://router.project-osrm.org/route/v1/driving/**',ign='https://data.geopf.fr/navigation/itineraire?**',key='dragonroute.prepared.v8.public';
 const pickup=[4.86,45.55],dropoff=[4.88,45.25];
 function routeResult(points){
  const count=points.length,position=points.findIndex(p=>p[0]===4.87||p[0]===4.88&&p[1]===45.2);

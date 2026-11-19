@@ -874,7 +874,7 @@ function preparedMeetings(plan){
  if(pickup.lat===dropoff.lat&&pickup.lon===dropoff.lon)throw new Error('Prise en charge et dépose confondues.');
  return {pickup,dropoff,limits:{km:preparedNumber(plan.limits.km,0,1000),minutes:preparedNumber(plan.limits.minutes,0,1440)},stationPosition:preparedEnum(plan.stationPosition,['before','during','after'])};
 }
-function validatePreparedEntry(e,version=7){
+function validatePreparedEntry(e,version=8){
  if(!e||!e.places||!e.vehicle||!e.preferences||!e.snapshot)throw new Error('Préparation incomplète.');
  const v=e.vehicle,p=e.preferences,r=e.snapshot,walking=v.type==='walk',nullable=(v,min,max)=>v===null?null:preparedNumber(v,min,max);
  const vehicle=walking?{type:'walk'}:{type:preparedEnum(v.type,['car','truck']),fuel:preparedEnum(v.fuel,['E10','Gazole','SP95','SP98','E85','GPLc']),cons:preparedNumber(v.cons,1,100),liters:preparedNumber(v.liters,1,2000),dimensions:null};
@@ -890,7 +890,8 @@ function validatePreparedEntry(e,version=7){
   preferences={maxWalkKm:max,walkStrict:strict};
  }else{
  if(!Array.isArray(p.avoid)||p.avoid.length>3||new Set(p.avoid).size!==p.avoid.length||!Array.isArray(p.services)||p.services.length>50)throw new Error('Filtres de préparation invalides.');
- preferences={avoid:p.avoid.map(x=>preparedEnum(x,['tollways','highways','ferries'])),departure:p.departure===null?null:preparedText(p.departure,16,true),stopMode:preparedEnum(p.stopMode,['soon','near','around']),stopKm:preparedNumber(p.stopKm,version<7?5:.1,40000),stopTolerance:version<7?20:preparedNumber(p.stopTolerance,.1,40000),nearKm:version<7?50:preparedNumber(p.nearKm,.1,40000),rangeMode:preparedEnum(p.rangeMode,['none','km','liters']),rangeValue:nullable(p.rangeValue,0,5000),reserveKm:preparedNumber(p.reserveKm,0,500),rangeOnly:preparedBool(p.rangeOnly),maxDetourKm:nullable(p.maxDetourKm,0,1000),maxDetourMin:nullable(p.maxDetourMin,0,1440),services:p.services.map(x=>preparedText(x,200,true)),openingFilter:preparedEnum(p.openingFilter,['all','compatible','outside','unknown']),listMode:preparedEnum(p.listMode,['recommended','all','cost','price','detour'])};
+ preferences={avoid:p.avoid.map(x=>preparedEnum(x,['tollways','highways','ferries'])),departure:p.departure===null?null:preparedText(p.departure,16,true),stopMode:preparedEnum(p.stopMode,['soon','near','around']),stopKm:preparedNumber(p.stopKm,version<7?5:.1,40000),stopTolerance:version<7?20:preparedNumber(p.stopTolerance,.1,40000),nearKm:version<7?50:preparedNumber(p.nearKm,.1,40000),stationRadiusKm:version<8?12:preparedNumber(p.stationRadiusKm,1,30),stationSpacingKm:version<8?30:preparedNumber(p.stationSpacingKm,5,100),stationMaxPoints:version<8?24:preparedNumber(p.stationMaxPoints,2,24),rangeMode:preparedEnum(p.rangeMode,['none','km','liters']),rangeValue:nullable(p.rangeValue,0,5000),reserveKm:preparedNumber(p.reserveKm,0,500),rangeOnly:preparedBool(p.rangeOnly),maxDetourKm:nullable(p.maxDetourKm,0,1000),maxDetourMin:nullable(p.maxDetourMin,0,1440),services:p.services.map(x=>preparedText(x,200,true)),openingFilter:preparedEnum(p.openingFilter,['all','compatible','outside','unknown']),listMode:preparedEnum(p.listMode,['recommended','all','cost','price','detour'])};
+ if(!Number.isInteger(preferences.stationMaxPoints))throw new Error('Maximum de points entier requis.');
  if(preferences.departure!==null&&departureInstant(preferences.departure).error)throw new Error('Heure de départ de la préparation invalide ou ambiguë.');
  if(new Set(preferences.services).size!==preferences.services.length||(preferences.rangeMode!=='none'&&preferences.rangeValue===null)||(preferences.rangeMode==='none'&&preferences.rangeOnly)||(preferences.rangeMode==='liters'&&preferences.rangeValue>2000))throw new Error('Autonomie ou services incohérents.');
  }
@@ -905,12 +906,12 @@ function validatePreparedEntry(e,version=7){
  return clean;
 }
 function validatePreparedTrips(data){
- if(!data||data.kind!=='dragonroute-preparations'||![1,2,3,4,5,6,7].includes(data.version)||!Array.isArray(data.entries)||data.entries.length>20)throw new Error('Format inconnu ou limite de 20 préparations dépassée.');
+ if(!data||data.kind!=='dragonroute-preparations'||![1,2,3,4,5,6,7,8].includes(data.version)||!Array.isArray(data.entries)||data.entries.length>20)throw new Error('Format inconnu ou limite de 20 préparations dépassée.');
  if(data.version===1&&data.entries.some(e=>e?.vehicle?.type==='walk'))throw new Error('Le format 1 ne prend pas en charge la marche.');
  if(data.version>=3&&data.entries.some(e=>!e?.timing))throw new Error('Horaires de préparation manquants.');
  if(data.version>=4&&data.entries.some(e=>!e||!Object.hasOwn(e,'optimization')))throw new Error('Critère de préparation manquant.');
  if(data.version>=5&&data.entries.some(e=>!e||!Object.hasOwn(e,'meetings')))throw new Error('Champ rencontres manquant.');
- const clean={kind:'dragonroute-preparations',version:7,entries:data.entries.map(e=>validatePreparedEntry({...e,...(data.version<3?{timing:undefined}:{}),...(data.version<4?{optimization:null}:{}),...(data.version<5?{meetings:null}:{})},data.version))};
+ const clean={kind:'dragonroute-preparations',version:8,entries:data.entries.map(e=>validatePreparedEntry({...e,...(data.version<3?{timing:undefined}:{}),...(data.version<4?{optimization:null}:{}),...(data.version<5?{meetings:null}:{})},data.version))};
  if(new Set(clean.entries.map(e=>e.id)).size!==clean.entries.length)throw new Error('Identifiants de préparations dupliqués.');
  if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>2000000)throw new Error('Limite de 2 Mo atteinte. Exporter puis retirer des préparations avant de réessayer.');
  return clean;
@@ -923,19 +924,19 @@ function preparedDuplicates(entry,entries){
 }
 // END PREPARED TRIPS MODEL
 
-const PREPARED_KEY='dragonroute.prepared.v7.'+PROFILE_SCOPE,PREPARED_V6_KEY='dragonroute.prepared.v6.'+PROFILE_SCOPE,PREPARED_V5_KEY='dragonroute.prepared.v5.'+PROFILE_SCOPE,PREPARED_V4_KEY='dragonroute.prepared.v4.'+PROFILE_SCOPE,PREPARED_V3_KEY='dragonroute.prepared.v3.'+PROFILE_SCOPE,PREPARED_V2_KEY='dragonroute.prepared.v2.'+PROFILE_SCOPE,PREPARED_LEGACY_KEY='dragonroute.prepared.v1.'+PROFILE_SCOPE;
-let preparedV6Snapshot=null,preparedV5Snapshot=null,preparedV4Snapshot=null,preparedLegacySnapshot=null,preparedV2Snapshot=null,preparedV3Snapshot=null;
-let preparedTrips={kind:'dragonroute-preparations',version:7,entries:[]},preparedSnapshot=null,preparedBlocked=false,preparedNotice='',preparedDraft=null,preparedSelected=null,preparedImport=null,preparedSequence=0,resumePreparation=null,preparedRangePending=false;
+const PREPARED_KEY='dragonroute.prepared.v8.'+PROFILE_SCOPE,PREPARED_V7_KEY='dragonroute.prepared.v7.'+PROFILE_SCOPE,PREPARED_V6_KEY='dragonroute.prepared.v6.'+PROFILE_SCOPE,PREPARED_V5_KEY='dragonroute.prepared.v5.'+PROFILE_SCOPE,PREPARED_V4_KEY='dragonroute.prepared.v4.'+PROFILE_SCOPE,PREPARED_V3_KEY='dragonroute.prepared.v3.'+PROFILE_SCOPE,PREPARED_V2_KEY='dragonroute.prepared.v2.'+PROFILE_SCOPE,PREPARED_LEGACY_KEY='dragonroute.prepared.v1.'+PROFILE_SCOPE;
+let preparedV7Snapshot=null,preparedV6Snapshot=null,preparedV5Snapshot=null,preparedV4Snapshot=null,preparedLegacySnapshot=null,preparedV2Snapshot=null,preparedV3Snapshot=null;
+let preparedTrips={kind:'dragonroute-preparations',version:8,entries:[]},preparedSnapshot=null,preparedBlocked=false,preparedNotice='',preparedDraft=null,preparedSelected=null,preparedImport=null,preparedSequence=0,resumePreparation=null,preparedRangePending=false;
 const preparationInputs={start:null,end:null};
 function loadPreparedTrips(){
- preparedTrips={kind:'dragonroute-preparations',version:7,entries:[]};preparedBlocked=false;preparedNotice='';
- try{preparedSnapshot=localStorage.getItem(PREPARED_KEY);preparedV6Snapshot=localStorage.getItem(PREPARED_V6_KEY);preparedV5Snapshot=localStorage.getItem(PREPARED_V5_KEY);preparedV4Snapshot=localStorage.getItem(PREPARED_V4_KEY);preparedV3Snapshot=localStorage.getItem(PREPARED_V3_KEY);preparedV2Snapshot=localStorage.getItem(PREPARED_V2_KEY);preparedLegacySnapshot=localStorage.getItem(PREPARED_LEGACY_KEY);const raw=preparedSnapshot??preparedV6Snapshot??preparedV5Snapshot??preparedV4Snapshot??preparedV3Snapshot??preparedV2Snapshot??preparedLegacySnapshot;if(raw!==null){const sourceVersion=preparedSnapshot!==null?7:preparedV6Snapshot!==null?6:preparedV5Snapshot!==null?5:preparedV4Snapshot!==null?4:preparedV3Snapshot!==null?3:preparedV2Snapshot!==null?2:1;const data=JSON.parse(raw);if(data.version!==sourceVersion)throw new Error('Version incohérente avec le stockage.');preparedTrips=validatePreparedTrips(data)}if(preparedSnapshot===null&&(preparedV6Snapshot!==null||preparedV5Snapshot!==null||preparedV4Snapshot!==null||preparedV3Snapshot!==null||preparedV2Snapshot!==null||preparedLegacySnapshot!==null))preparedNotice='Anciennes préparations reprises en lecture. Un prochain enregistrement créera une nouvelle sauvegarde ; l’original restera conservé et exportable.';}
+ preparedTrips={kind:'dragonroute-preparations',version:8,entries:[]};preparedBlocked=false;preparedNotice='';
+ try{preparedSnapshot=localStorage.getItem(PREPARED_KEY);preparedV7Snapshot=localStorage.getItem(PREPARED_V7_KEY);preparedV6Snapshot=localStorage.getItem(PREPARED_V6_KEY);preparedV5Snapshot=localStorage.getItem(PREPARED_V5_KEY);preparedV4Snapshot=localStorage.getItem(PREPARED_V4_KEY);preparedV3Snapshot=localStorage.getItem(PREPARED_V3_KEY);preparedV2Snapshot=localStorage.getItem(PREPARED_V2_KEY);preparedLegacySnapshot=localStorage.getItem(PREPARED_LEGACY_KEY);const raw=preparedSnapshot??preparedV7Snapshot??preparedV6Snapshot??preparedV5Snapshot??preparedV4Snapshot??preparedV3Snapshot??preparedV2Snapshot??preparedLegacySnapshot;if(raw!==null){const sourceVersion=preparedSnapshot!==null?8:preparedV7Snapshot!==null?7:preparedV6Snapshot!==null?6:preparedV5Snapshot!==null?5:preparedV4Snapshot!==null?4:preparedV3Snapshot!==null?3:preparedV2Snapshot!==null?2:1;const data=JSON.parse(raw);if(data.version!==sourceVersion)throw new Error('Version incohérente avec le stockage.');preparedTrips=validatePreparedTrips(data)}if(preparedSnapshot===null&&(preparedV7Snapshot!==null||preparedV6Snapshot!==null||preparedV5Snapshot!==null||preparedV4Snapshot!==null||preparedV3Snapshot!==null||preparedV2Snapshot!==null||preparedLegacySnapshot!==null))preparedNotice='Anciennes préparations reprises en lecture. Un prochain enregistrement créera une nouvelle sauvegarde ; l’original restera conservé et exportable.';}
  catch{preparedBlocked=true;preparedNotice='Préparations non chargées : format inconnu, contenu invalide ou stockage inaccessible. Les données restent conservées ; aucun remplacement automatique.'}
 }
 function writePreparedTrips(next){
  try{
   if(preparedBlocked)throw new Error('Préparations non chargées : remplacement bloqué.');
-  if(localStorage.getItem(PREPARED_KEY)!==preparedSnapshot||localStorage.getItem(PREPARED_V6_KEY)!==preparedV6Snapshot||localStorage.getItem(PREPARED_V5_KEY)!==preparedV5Snapshot||localStorage.getItem(PREPARED_V4_KEY)!==preparedV4Snapshot||localStorage.getItem(PREPARED_V3_KEY)!==preparedV3Snapshot||localStorage.getItem(PREPARED_V2_KEY)!==preparedV2Snapshot||localStorage.getItem(PREPARED_LEGACY_KEY)!==preparedLegacySnapshot)throw new Error('Préparations modifiées dans un autre onglet. Recharger avant de réessayer.');
+  if(localStorage.getItem(PREPARED_KEY)!==preparedSnapshot||localStorage.getItem(PREPARED_V7_KEY)!==preparedV7Snapshot||localStorage.getItem(PREPARED_V6_KEY)!==preparedV6Snapshot||localStorage.getItem(PREPARED_V5_KEY)!==preparedV5Snapshot||localStorage.getItem(PREPARED_V4_KEY)!==preparedV4Snapshot||localStorage.getItem(PREPARED_V3_KEY)!==preparedV3Snapshot||localStorage.getItem(PREPARED_V2_KEY)!==preparedV2Snapshot||localStorage.getItem(PREPARED_LEGACY_KEY)!==preparedLegacySnapshot)throw new Error('Préparations modifiées dans un autre onglet. Recharger avant de réessayer.');
   const clean=validatePreparedTrips(next),raw=JSON.stringify(clean);localStorage.setItem(PREPARED_KEY,raw);preparedTrips=clean;preparedSnapshot=raw;return true;
  }catch(e){$('preparedMessage').textContent='Enregistrement impossible. '+e.message;return false}
 }
@@ -943,6 +944,7 @@ function capturePreparedTrip(){
  const r=selectedStop?.via||trip?.base;if(!trip||!r)throw new Error('Calculer un trajet avant de le sauvegarder.');
  if(!trip.meetings&&($('meetingPickup').value.trim()||$('meetingDropoff').value.trim()))throw new Error('Rencontres encore en préparation : les adopter ou les effacer avant de sauvegarder.');
  const walking=trip.routing.vehicle.type==='walk';
+ if(!walking&&!readSamplingSettings().valid)throw new Error(readSamplingSettings().error);
  if(!walking&&!stopWindow().valid)throw new Error(stopWindow().error);
  if(!walking)for(const id of ['stopKmInput','stopTolerance','nearKm','cons','liters','reserveKm','maxDetourKm','maxDetourMin',...($('rangeMode').value==='none'?[]:['rangeValue'])]){const el=$(id),required=['stopKmInput','stopTolerance','nearKm','cons','liters','reserveKm','rangeValue'].includes(id);if(!el.validity.valid||(required&&!el.value.trim()))throw new Error('Vérifier le champ « '+(el.labels?.[0]?.textContent||id)+' » avant de sauvegarder.')}
  const number=id=>$(id).value.trim()===''?null:Number($(id).value),rangeMode=$('rangeMode').value;
@@ -950,7 +952,7 @@ function capturePreparedTrip(){
  return validatePreparedEntry({meetings:trip.meetings?preparedMeetings(trip.meetings):null,optimization:trip.routing.optimization,id:crypto.randomUUID(),name:trip.label.slice(0,80),savedAt:new Date().toISOString(),places:{start:{label:label(trip.places.start,'start'),lat:trip.a[0],lon:trip.a[1]},end:{label:label(trip.places.end,'end'),lat:trip.b[0],lon:trip.b[1]}},
   timing:timingRecord(routeTimingRaw()),
   vehicle:walking?{type:'walk'}:{type:trip.routing.vehicle.type,dimensions:trip.routing.vehicle.dimensions||null,fuel:$('fuel').value,cons:number('cons'),liters:number('liters')},
-  preferences:walking?readWalkingCriteria():{avoid:[...trip.routing.avoid],departure:$('stationDeparture').value||null,stopMode:stopWindow().mode,stopKm:Number($('stopKmInput').value),stopTolerance:Number($('stopTolerance').value),nearKm:Number($('nearKm').value),rangeMode,rangeValue:rangeMode==='none'?null:number('rangeValue'),reserveKm:number('reserveKm'),rangeOnly:$('rangeOnly').checked,maxDetourKm:number('maxDetourKm'),maxDetourMin:number('maxDetourMin'),services:serviceSelection(),openingFilter:$('stationOpeningFilter').value,listMode:$('stationListMode').value},
+  preferences:walking?readWalkingCriteria():{avoid:[...trip.routing.avoid],departure:$('stationDeparture').value||null,stopMode:stopWindow().mode,stopKm:Number($('stopKmInput').value),stopTolerance:Number($('stopTolerance').value),nearKm:Number($('nearKm').value),stationRadiusKm:Number($('stationRadiusKm').value),stationSpacingKm:Number($('stationSpacingKm').value),stationMaxPoints:Number($('stationMaxPoints').value),rangeMode,rangeValue:rangeMode==='none'?null:number('rangeValue'),reserveKm:number('reserveKm'),rangeOnly:$('rangeOnly').checked,maxDetourKm:number('maxDetourKm'),maxDetourMin:number('maxDetourMin'),services:serviceSelection(),openingFilter:$('stationOpeningFilter').value,listMode:$('stationListMode').value},
   snapshot:{calculatedAt:selectedStop?.confirmedAt||trip.calculatedAt,engine:trip.routing.provider,distanceMeters:r.distance,durationSeconds:r.duration,geometry:r.geometry.coordinates.map(p=>p.slice(0,2)),stop:selectedStop?{id:selectedStop.station.id,address:selectedStop.station.address,city:selectedStop.station.city,lat:selectedStop.station.lat,lon:selectedStop.station.lon}:null}});
 }
 function preparedSchemaSvg(e){
@@ -966,12 +968,13 @@ function preparedDescription(e,withMap=false){
  <p>${e.vehicle.type==='truck'?'Poids lourd · '+escapeHtml(dimensionLabel(e.vehicle.dimensions)):'Véhicule léger'} · ${escapeHtml(e.vehicle.fuel)} · ${fmt(e.vehicle.cons,1)} L/100 km · ${fmt(e.vehicle.liters,0)} L à acheter.</p>
  <p>Évitements : ${escapeHtml(p.avoid.length?p.avoid.map(x=>avoidLabels[x]).join(', '):'aucun')}. Départ prévu : ${escapeHtml(p.departure?p.departure.replace('T',' ')+' (Paris)':'non renseigné')}.</p>
  <p>${s.stop?'Arrêt mémorisé, à rechercher à nouveau : '+escapeHtml(s.stop.address):'Aucun arrêt mémorisé.'}</p>
- <details><summary>Préférences conservées</summary><p>${escapeHtml({soon:'Au plus tôt',near:'Bon compromis dans les '+p.nearKm+' premiers km',around:'Vers '+p.stopKm+' km, marge ±'+p.stopTolerance+' km'}[p.stopMode])}. Détour maximal : ${p.maxDetourKm===null?'sans limite':fmt(p.maxDetourKm,1)+' km'} / ${p.maxDetourMin===null?'sans limite':fmt(p.maxDetourMin,1)+' min'}. Services : ${escapeHtml(p.services.join(', ')||'aucun requis')}. Filtre horaires : ${escapeHtml({all:'tous',compatible:'compatibles',unknown:'inconnus',outside:'hors guichet'}[p.openingFilter])}.</p><p>Autonomie : ${p.rangeMode==='none'?'inconnue':fmt(p.rangeValue,1)+(p.rangeMode==='km'?' km':' L')+', réserve '+fmt(p.reserveKm,0)+' km'}${p.rangeOnly?' · filtre de portée demandé':''}. L’autonomie conservée devra être actualisée au nouveau départ.</p></details>
+ <details><summary>Préférences conservées</summary><p>Collecte géographique : rayon ${fmt(p.stationRadiusKm,1)} km, espacement ${fmt(p.stationSpacingKm,1)} km, maximum ${p.stationMaxPoints} points. Accès routiers à recalculer ; couverture non exhaustive.</p><p>${escapeHtml({soon:'Au plus tôt',near:'Bon compromis dans les '+p.nearKm+' premiers km',around:'Vers '+p.stopKm+' km, marge ±'+p.stopTolerance+' km'}[p.stopMode])}. Détour maximal : ${p.maxDetourKm===null?'sans limite':fmt(p.maxDetourKm,1)+' km'} / ${p.maxDetourMin===null?'sans limite':fmt(p.maxDetourMin,1)+' min'}. Services : ${escapeHtml(p.services.join(', ')||'aucun requis')}. Filtre horaires : ${escapeHtml({all:'tous',compatible:'compatibles',unknown:'inconnus',outside:'hors guichet'}[p.openingFilter])}.</p><p>Autonomie : ${p.rangeMode==='none'?'inconnue':fmt(p.rangeValue,1)+(p.rangeMode==='km'?' km':' L')+', réserve '+fmt(p.reserveKm,0)+' km'}${p.rangeOnly?' · filtre de portée demandé':''}. L’autonomie conservée devra être actualisée au nouveau départ.</p></details>
  ${e.meetings?`<p>Rencontres mémorisées : prise en charge ${escapeHtml(e.meetings.pickup.label)} → dépose ${escapeHtml(e.meetings.dropoff.label)}. Plein ${meetingPositionText(e.meetings)}. Limites totales : +${e.meetings.limits.km} km / +${e.meetings.limits.minutes} min. À recalculer puis adopter après le nouveau trajet ; anciens frais non repris.</p>`:''}${criterion}${preparedTimingText(e)}${withMap?preparedSchemaSvg(e):''}<p class="note">Tracé et estimations historiques. Prix, péages, horaires des stations, disponibilité et circulation actuels non conservés. La reprise charge les paramètres ; elle demande un nouveau calcul et une nouvelle confirmation de l’arrêt.</p>`;
 }
 function renderPreparedTrips(){
+ $('preparedV7Export').hidden=preparedV7Snapshot===null;
  $('preparedV6Export').hidden=preparedV6Snapshot===null;
- $('preparedV5Export').hidden=preparedV5Snapshot===null;$('preparedRawExport').hidden=!preparedBlocked||(preparedSnapshot??preparedV6Snapshot??preparedV5Snapshot??preparedV4Snapshot??preparedV3Snapshot??preparedV2Snapshot??preparedLegacySnapshot)===null;
+ $('preparedV5Export').hidden=preparedV5Snapshot===null;$('preparedRawExport').hidden=!preparedBlocked||(preparedSnapshot??preparedV7Snapshot??preparedV6Snapshot??preparedV5Snapshot??preparedV4Snapshot??preparedV3Snapshot??preparedV2Snapshot??preparedLegacySnapshot)===null;
  $('preparedV4Export').hidden=preparedV4Snapshot===null;
  $('preparedLegacyExport').hidden=preparedLegacySnapshot===null;
  $('preparedV2Export').hidden=preparedV2Snapshot===null;$('preparedV3Export').hidden=preparedV3Snapshot===null;
@@ -1006,7 +1009,7 @@ function resumePreparedTrip(e){
  $('fuel').value=e.vehicle.fuel;$('cons').value=e.vehicle.cons;$('liters').value=e.vehicle.liters;
  document.querySelectorAll('.avoid-options input').forEach(el=>el.checked=p.avoid.includes(el.value));
  $('budgetPrice').value='';budgetReference=null;clearTableTolls();tollState.enabled=false;resetTollQuote();
- document.querySelector(`input[name="stopMode"][value="${p.stopMode}"]`).checked=true;$('stopKmInput').value=p.stopKm;$('stopTolerance').value=p.stopTolerance;$('nearKm').value=p.nearKm;
+ document.querySelector(`input[name="stopMode"][value="${p.stopMode}"]`).checked=true;$('stopKmInput').value=p.stopKm;$('stopTolerance').value=p.stopTolerance;$('nearKm').value=p.nearKm;$('stationRadiusKm').value=p.stationRadiusKm;$('stationSpacingKm').value=p.stationSpacingKm;$('stationMaxPoints').value=p.stationMaxPoints;
  $('rangeMode').value=p.rangeMode;$('rangeValue').value=p.rangeValue??'';$('reserveKm').value=p.reserveKm;$('rangeOnly').checked=p.rangeOnly;rangeMeasuredAt=null;
  $('maxDetourKm').value=p.maxDetourKm??'';$('maxDetourMin').value=p.maxDetourMin??'';$('stationOpeningFilter').value=p.openingFilter;$('stationListMode').value=p.listMode;
  $('serviceChoices').innerHTML=p.services.map(name=>`<label class="check-label"><input type="checkbox" data-service checked value="${escapeHtml(name)}"> ${escapeHtml(name)}</label>`).join('');
@@ -1040,21 +1043,22 @@ function bindPreparedTrips(){
    const entry=validatePreparedEntry({...preparedDraft.entry,name:$('preparedName').value});
    if(!$('preparedConfirm').checked||(preparedDuplicates(entry,preparedTrips.entries).length&&!$('preparedDuplicate').checked))throw new Error('Confirmer l’enregistrement et le doublon éventuel.');
    const entries=preparedDraft.mode==='rename'?preparedTrips.entries.map(e=>e.id===entry.id?entry:e):[...preparedTrips.entries,entry];
-   if(writePreparedTrips({kind:'dragonroute-preparations',version:7,entries})){preparedDraft=null;$('preparedEditor').hidden=true;preparedSelected=entry.id;renderPreparedTrips();$('preparedMessage').textContent='Préparation enregistrée dans ce navigateur.'}
+   if(writePreparedTrips({kind:'dragonroute-preparations',version:8,entries})){preparedDraft=null;$('preparedEditor').hidden=true;preparedSelected=entry.id;renderPreparedTrips();$('preparedMessage').textContent='Préparation enregistrée dans ce navigateur.'}
   }catch(e){$('preparedMessage').textContent=e.message}
  });
  $('preparedList').addEventListener('click',ev=>{
   const b=ev.target.closest('button');if(!b)return;const id=b.dataset.preparedShow||b.dataset.preparedRename||b.dataset.preparedDelete,e=preparedTrips.entries.find(x=>x.id===id);if(!e)return;
   if(b.dataset.preparedShow){preparedDraft=null;$('preparedEditor').hidden=true;preparedSelected=id;renderPreparedTrips();$('preparedView').scrollIntoView({block:'start'})}
   else if(b.dataset.preparedRename)showPreparedEditor(structuredClone(e),'rename');
-  else if(confirm(`Supprimer la préparation « ${e.name} » de ce navigateur ?`)&&writePreparedTrips({kind:'dragonroute-preparations',version:7,entries:preparedTrips.entries.filter(x=>x.id!==id)})){preparedSelected=null;preparedDraft=null;$('preparedEditor').hidden=true;renderPreparedTrips();$('preparedMessage').textContent='Préparation supprimée.'}
+  else if(confirm(`Supprimer la préparation « ${e.name} » de ce navigateur ?`)&&writePreparedTrips({kind:'dragonroute-preparations',version:8,entries:preparedTrips.entries.filter(x=>x.id!==id)})){preparedSelected=null;preparedDraft=null;$('preparedEditor').hidden=true;renderPreparedTrips();$('preparedMessage').textContent='Préparation supprimée.'}
  });
  $('preparedResumeBtn').addEventListener('click',()=>{const e=preparedTrips.entries.find(x=>x.id===preparedSelected);if(e)resumePreparedTrip(e)});
  $('preparedReviewStop').addEventListener('click',()=>{const id=resumePreparation?.entry.snapshot.stop?.id;if(id)openStation(id)});
  $('preparedDismiss').addEventListener('click',()=>{if(resumePreparation)resumePreparation.dismissed=true;updateResumePreparation()});
+ $('preparedV7Export').addEventListener('click',()=>{if(preparedV7Snapshot!==null)downloadCycleText(preparedV7Snapshot,'DragonRoute-preparations-originales-v7.json')});
  $('preparedV6Export').addEventListener('click',()=>{if(preparedV6Snapshot!==null)downloadCycleText(preparedV6Snapshot,'DragonRoute-preparations-originales-v6.json')});
  $('preparedV5Export').addEventListener('click',()=>{if(preparedV5Snapshot!==null)downloadCycleText(preparedV5Snapshot,'DragonRoute-preparations-originales-v5.json')});
- $('preparedRawExport').addEventListener('click',()=>{const raw=preparedSnapshot??preparedV6Snapshot??preparedV5Snapshot??preparedV4Snapshot??preparedV3Snapshot??preparedV2Snapshot??preparedLegacySnapshot;if(raw!==null)downloadCycleText(raw,'DragonRoute-preparations-original-non-valide.json')});
+ $('preparedRawExport').addEventListener('click',()=>{const raw=preparedSnapshot??preparedV7Snapshot??preparedV6Snapshot??preparedV5Snapshot??preparedV4Snapshot??preparedV3Snapshot??preparedV2Snapshot??preparedLegacySnapshot;if(raw!==null)downloadCycleText(raw,'DragonRoute-preparations-original-non-valide.json')});
  $('preparedV4Export').addEventListener('click',()=>{if(preparedV4Snapshot===null)return;try{downloadProfile(JSON.parse(preparedV4Snapshot),'DragonRoute-preparations-originales-v4.json')}catch{$('preparedMessage').textContent='Original illisible : aucun export JSON effectué.'}});
  $('preparedV3Export').addEventListener('click',()=>{if(preparedV3Snapshot===null)return;try{downloadProfile(JSON.parse(preparedV3Snapshot),'DragonRoute-preparations-originales-v3.json')}catch{$('preparedMessage').textContent='Original illisible : aucun export JSON effectué.'}});
  $('preparedV2Export').addEventListener('click',()=>{if(preparedV2Snapshot===null)return;try{downloadProfile(JSON.parse(preparedV2Snapshot),'DragonRoute-preparations-originales-v2.json')}catch{$('preparedMessage').textContent='Original illisible : aucun export JSON effectué.'}});
@@ -1063,7 +1067,7 @@ function bindPreparedTrips(){
  $('preparedBackup').addEventListener('click',()=>{if(!preparedBlocked)downloadProfile(preparedTrips,'DragonRoute-preparations-avant-import.json')});
  $('preparedErase').addEventListener('click',()=>{
   if(!confirm('Effacer les préparations route/marche de cet environnement, y compris leurs anciennes sauvegardes ? Les préparations collectives, le profil, le journal et les autres aperçus seront conservés.'))return;
-  try{if(localStorage.getItem(PREPARED_KEY)!==preparedSnapshot||localStorage.getItem(PREPARED_V6_KEY)!==preparedV6Snapshot||localStorage.getItem(PREPARED_V5_KEY)!==preparedV5Snapshot||localStorage.getItem(PREPARED_V4_KEY)!==preparedV4Snapshot||localStorage.getItem(PREPARED_V3_KEY)!==preparedV3Snapshot||localStorage.getItem(PREPARED_V2_KEY)!==preparedV2Snapshot||localStorage.getItem(PREPARED_LEGACY_KEY)!==preparedLegacySnapshot)throw new Error('Données modifiées dans un autre onglet : recharger avant l’effacement.');localStorage.removeItem(PREPARED_LEGACY_KEY);localStorage.removeItem(PREPARED_V2_KEY);localStorage.removeItem(PREPARED_V4_KEY);localStorage.removeItem(PREPARED_V3_KEY);localStorage.removeItem(PREPARED_V5_KEY);localStorage.removeItem(PREPARED_V6_KEY);localStorage.removeItem(PREPARED_KEY);loadPreparedTrips();preparedSelected=null;preparedDraft=null;$('preparedEditor').hidden=true;renderPreparedTrips();$('preparedMessage').textContent='Préparations effacées.'}catch(e){$('preparedMessage').textContent='Effacement impossible. '+e.message}
+  try{if(localStorage.getItem(PREPARED_KEY)!==preparedSnapshot||localStorage.getItem(PREPARED_V7_KEY)!==preparedV7Snapshot||localStorage.getItem(PREPARED_V6_KEY)!==preparedV6Snapshot||localStorage.getItem(PREPARED_V5_KEY)!==preparedV5Snapshot||localStorage.getItem(PREPARED_V4_KEY)!==preparedV4Snapshot||localStorage.getItem(PREPARED_V3_KEY)!==preparedV3Snapshot||localStorage.getItem(PREPARED_V2_KEY)!==preparedV2Snapshot||localStorage.getItem(PREPARED_LEGACY_KEY)!==preparedLegacySnapshot)throw new Error('Données modifiées dans un autre onglet : recharger avant l’effacement.');localStorage.removeItem(PREPARED_LEGACY_KEY);localStorage.removeItem(PREPARED_V2_KEY);localStorage.removeItem(PREPARED_V4_KEY);localStorage.removeItem(PREPARED_V3_KEY);localStorage.removeItem(PREPARED_V5_KEY);localStorage.removeItem(PREPARED_V7_KEY);localStorage.removeItem(PREPARED_V6_KEY);localStorage.removeItem(PREPARED_KEY);loadPreparedTrips();preparedSelected=null;preparedDraft=null;$('preparedEditor').hidden=true;renderPreparedTrips();$('preparedMessage').textContent='Préparations effacées.'}catch(e){$('preparedMessage').textContent='Effacement impossible. '+e.message}
  });
  $('preparedImportFile').addEventListener('change',async ev=>{
   const seq=++preparedSequence,file=ev.target.files?.[0];ev.target.value='';preparedImport=null;if(!file)return;
@@ -1490,6 +1494,12 @@ async function matrix(points){
   if(d.code!=="Ok"||!d.distances||!d.durations) throw new Error("Matrice routière indisponible");
   return d;
 }
+// BEGIN STATION SAMPLING MODEL
+function samplingSettings(raw){
+ const values={},limits={radius:[1,30],spacing:[5,100],maxPoints:[2,24]};
+ for(const [key,[min,max]] of Object.entries(limits)){const v=raw?.[key],n=(typeof v==='number'||typeof v==='string'&&v.trim())?Number(v):NaN;if(!Number.isFinite(n)||n<min||n>max||key==='maxPoints'&&!Number.isInteger(n))return {valid:false,field:key,error:`Renseigner ${key==='radius'?'le rayon':key==='spacing'?'l’espacement':'le maximum de points'} entre ${min} et ${max}${key==='maxPoints'?' (entier)':' km'}.`};values[key]=n}
+ return {valid:true,...values};
+}
 function hav(a,b){
   const R=6371,rad=Math.PI/180,dl=(b[0]-a[0])*rad,do_=(b[1]-a[1])*rad;
   const z=Math.sin(dl/2)**2+Math.cos(a[0]*rad)*Math.cos(b[0]*rad)*Math.sin(do_/2)**2;
@@ -1504,17 +1514,25 @@ function distSeg(p,a,b){
 function distRoute(p,c){
   let m=Infinity;for(let i=1;i<c.length;i++)m=Math.min(m,distSeg(p,c[i-1],c[i]));return m;
 }
-function sampleRoute(c,spacing=C.routeSampleEveryKm){
-  const out=[c[0]];let acc=0,last=c[0];
-  for(let i=1;i<c.length;i++){
-    acc+=hav(last,c[i]);last=c[i];
-    if(acc>=spacing){out.push(c[i]);acc=0}
-  }
-  if(hav(out.at(-1),c.at(-1))>2)out.push(c.at(-1));
-  if(out.length<=C.maxFuelSamples)return out;
-  const step=(out.length-1)/(C.maxFuelSamples-1),cut=[];
-  for(let i=0;i<C.maxFuelSamples;i++)cut.push(out[Math.round(i*step)]);
-  return cut;
+function stationSampling(coords,spacing,maxPoints){
+ if(!Array.isArray(coords)||coords.length<2||coords.some(p=>!Array.isArray(p)||p.length<2||!Number.isFinite(p[0])||Math.abs(p[0])>90||!Number.isFinite(p[1])||Math.abs(p[1])>180))throw new Error('Tracé de présélection invalide.');
+ if(!Number.isFinite(spacing)||spacing<5||spacing>100||!Number.isInteger(maxPoints)||maxPoints<2||maxPoints>24)throw new Error('Maillage de présélection invalide.');
+ const lengths=[0];for(let i=1;i<coords.length;i++)lengths.push(lengths.at(-1)+hav(coords[i-1],coords[i]));
+ const length=lengths.at(-1),requested=length===0?1:Math.ceil(length/spacing)+1,capped=requested>maxPoints,count=Math.min(requested,maxPoints);
+ const distances=Array.from({length:count},(_,i)=>i===count-1?length:capped?length*i/(count-1):i*spacing),points=[];let segment=1;
+ for(const d of distances){while(segment<lengths.length-1&&lengths[segment]<d)segment++;const size=lengths[segment]-lengths[segment-1],t=size?(d-lengths[segment-1])/size:0,a=coords[segment-1],b=coords[segment];points.push(d===0?coords[0].slice(0,2):d===length?coords.at(-1).slice(0,2):[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])])}
+ const maxGap=distances.reduce((max,d,i)=>i?Math.max(max,d-distances[i-1]):max,0);
+ return {points,distances,length,requested,capped,maxGap,limit:maxPoints};
+}
+// END STATION SAMPLING MODEL
+function readSamplingSettings(){return samplingSettings({radius:$('stationRadiusKm').value,spacing:$('stationSpacingKm').value,maxPoints:$('stationMaxPoints').value})}
+function stationSamplingPlan(settings=readSamplingSettings()){if(!settings.valid)throw new Error(settings.error);return stationSampling(trip.coords,settings.spacing,Math.min(settings.maxPoints,C.maxFuelSamples))}
+function samplingPlanText(settings,plan){return `${plan.points.length} point(s) de collecte, rayon ${fmt(settings.radius,1)} km autour de chaque point. Espacement demandé : ${fmt(settings.spacing,1)} km ; plus grand intervalle sur le tracé : ${fmt(plan.maxGap,1)} km.${plan.capped?` Plafond de ${plan.limit} points atteint : ${plan.requested} seraient nécessaires à cet espacement. Points répartis du départ à l’arrivée ; couverture partielle.`:''}${plan.maxGap>2*settings.radius?' Des espaces entre les points peuvent rester non consultés.':''}`}
+function updateSampling(){
+ const settings=readSamplingSettings();for(const [id,key] of [['stationRadiusKm','radius'],['stationSpacingKm','spacing'],['stationMaxPoints','maxPoints']])$(id).setAttribute('aria-invalid',String(settings.field===key));
+ let text=settings.error||'Calculer un trajet pour connaître le nombre de points à consulter.';
+ if(settings.valid&&trip)try{text=samplingPlanText(settings,stationSamplingPlan(settings))+' Au plus 100 lignes par réponse source ; ces prélèvements ne garantissent pas une couverture exhaustive.'}catch(e){text=e.message}
+ if($('samplingNote').textContent!==text)$('samplingNote').textContent=text;
 }
 function geomPoint(g){
   if(!g)return null;
@@ -1544,22 +1562,22 @@ async function stationsAround(p,fuel,radius=C.corridorRadiusKm){
   const rows=Array.isArray(d.results)?d.results:[];
   return {stations:rows.map(r=>stationFrom(r,fuel)).filter(Boolean),limited:rows.length>=100||Number(d.total_count)>rows.length};
 }
-async function collectStations(coords,fuel,isCurrent=()=>true){
+async function collectStations(coords,fuel,settings,plan,isCurrent=()=>true){
   health("hFuel","busy","carburants…");
-  const pts=sampleRoute(coords),all=[];let failed=0,limited=0;
+  const pts=plan.points,all=[];let failed=0,limited=0;
   dbg("Échantillons du corridor",pts.length);
   for(let i=0;i<pts.length;i+=4){
     if(!isCurrent())throw new Error("Recherche interrompue.");
     const batch=pts.slice(i,i+4);
-    const rs=await Promise.all(batch.map(p=>stationsAround(p,fuel).catch(e=>{failed++;dbg("Carburants partiel",e.message);return {stations:[],limited:false}})));
+    const rs=await Promise.all(batch.map(p=>stationsAround(p,fuel,settings.radius).catch(e=>{failed++;dbg("Carburants partiel",e.message);return {stations:[],limited:false}})));
     if(!isCurrent())throw new Error("Recherche interrompue.");
     for(const result of rs){all.push(...result.stations);if(result.limited)limited++}
   }
   const uniq=new Map();all.forEach(s=>uniq.set(s.id,s));
-  const arr=[...uniq.values()].filter(s=>distRoute([s.lat,s.lon],coords)<=C.corridorRadiusKm);
+  const arr=[...uniq.values()].filter(s=>distRoute([s.lat,s.lon],coords)<=settings.radius);
   health("hFuel",arr.length?"ok":"err",arr.length?"carburants ✓":"carburants ✕");
   if(failed===pts.length)throw new Error("Service carburants indisponible. Le trajet reste disponible.");
-  return {stations:arr,partial:failed>0,failed,limited,samples:pts.length};
+  return {stations:arr,partial:failed>0,failed,limited,samples:pts.length,settings,plan};
 }
 function progressKm(station,coords,totalKm){
   let length=0,best=Infinity,at=0;
@@ -3358,6 +3376,7 @@ function lock(value){
 }
 function windowBounds(w){return `Entre ${fmt(w.min,1)} et ${fmt(w.max,1)} km depuis le départ`}
 function updateWindow(){
+ updateSampling();
  const w=stopWindow(),target=stationDistance($('stopKmInput').value);
  $('distanceControl').hidden=w.mode!=='around';$('nearControl').hidden=w.mode!=='near';
  $('stopKm').max=String(Math.max(.1,Number.isFinite(w.length)?w.length:1000,target||0));
@@ -3417,14 +3436,14 @@ async function run(){
   }finally{if(walkRun===job)walkRun=null;lock(false);activeAbort=null}
 }
 function stationSearchSignature(){
- return JSON.stringify({inputs:['start','end','travelMode','routeOptimization','routeVehicle','stopKm','stopKmInput','stopTolerance','nearKm','fuel','liters','cons',...Object.values(dimensionFields)].map(id=>$(id).value),mode:stopWindow().mode,avoid:[...document.querySelectorAll('.avoid-options input:checked')].map(e=>e.value),routing:trip?.routing});
+ return JSON.stringify({inputs:['start','end','travelMode','routeOptimization','routeVehicle','stopKm','stopKmInput','stopTolerance','nearKm','stationRadiusKm','stationSpacingKm','stationMaxPoints','fuel','liters','cons',...Object.values(dimensionFields)].map(id=>$(id).value),mode:stopWindow().mode,avoid:[...document.querySelectorAll('.avoid-options input:checked')].map(e=>e.value),routing:trip?.routing});
 }
 function stationSearchNote(s){return [s.counts.overLimit?`${s.counts.overLimit} station(s) au-delà de la limite totale des rencontres : exclues.`:'',s.counts.unavailable?`${s.counts.unavailable} station(s) sans accès calculable.`:'',s.counts.incomparable?`${s.counts.incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:'',s.counts.matrix?`${s.counts.matrix} accès indisponible(s) ou trajet(s) recalculé(s) non comparable(s) : exclus du classement.`:''].filter(Boolean).join(' ')}
 function updateStationCoverage(){
  const s=stationSearch;if(!s){$('stationContinuation').hidden=true;return}
  const remaining=s.queue.length-s.cursor,n=stationPage(s.queue,s.cursor,C.maxCandidates).length,f=s.found;
  $('stationCoverage').hidden=false;
- $('stationCoverage').textContent=`Recherche par échantillons : ${f.samples} points, corridor de ${C.corridorRadiusKm} km. ${s.cursor} candidates examinées sur ${s.queue.length} dans la zone approchée. ${s.results.length} comparables dans la plage routière, ${s.outside} hors plage et ${s.rejected} non comparables.${remaining?' Limite atteinte : comparaison partielle. Continuer explicitement ci-dessous ou choisir une distance plus précise.':' Toutes les candidates reçues de cette sélection ont été examinées.'}${f.limited?` ${f.limited} réponse(s) limitée(s) par le service : couverture partielle.`:''}${f.failed?` ${f.failed} point(s) en échec : couverture partielle.`:''} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
+ $('stationCoverage').textContent=`Recherche par échantillons : ${samplingPlanText(f.settings,f.plan)} ${s.cursor} candidates examinées sur ${s.queue.length} dans la zone approchée. ${s.results.length} comparables dans la plage routière, ${s.outside} hors plage et ${s.rejected} non comparables.${remaining?' Limite atteinte : comparaison partielle. Continuer explicitement ci-dessous ou choisir une distance plus précise.':' Toutes les candidates reçues de cette sélection ont été examinées.'}${f.limited?` ${f.limited} réponse(s) limitée(s) par le service : couverture partielle.`:''}${f.failed?` ${f.failed} point(s) en échec : couverture partielle.`:''} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
  $('stationContinuation').hidden=false;$('continueStationsBtn').hidden=!remaining;$('continueStationsBtn').disabled=busy;
  $('continueStationsBtn').textContent=`Comparer ${n} autre${n>1?"s":""} station${n>1?"s":""}`;
  $('stationContinuationNote').textContent=`Stations reçues le ${new Date(s.at).toLocaleString('fr-FR')}. ${remaining} candidate(s) restent à examiner. Chaque continuation calcule au plus ${stationPageSize(C.maxCandidates)} accès parmi les stations déjà reçues ; les prix gardent leur date. Pour obtenir de nouvelles données ou changer de zone, relancer la recherche.`;
@@ -3432,6 +3451,7 @@ function updateStationCoverage(){
 async function searchStations(more=false){
  more=more===true;if(busy||!trip||trip.routing.vehicle.type==='walk')return;
  const w=stopWindow();if(!w.valid){updateWindow();$('fuelStatus').textContent=w.error;focusStationField({target:'stopKmInput',tolerance:'stopTolerance',near:'nearKm'}[w.field]||'stationsBtn');return}
+ const settings=readSamplingSettings();if(!settings.valid){updateSampling();$('fuelStatus').textContent=settings.error;focusStationField({radius:'stationRadiusKm',spacing:'stationSpacingKm',maxPoints:'stationMaxPoints'}[settings.field]);return}
  let session=more?stationSearch:null;
  if(more&&(!session||session.cursor>=session.queue.length))return;
  if(more&&(session.trip!==trip||session.base!==trip.base||session.signature!==stationSearchSignature())){clearStations();$('fuelStatus').textContent='Critères modifiés : relancer la recherche des stations.';return}
@@ -3442,7 +3462,7 @@ async function searchStations(more=false){
  try{
   if(!session){
    const fuel=$('fuel').value,liters=valueNum('liters',1,2000),cons=valueNum('cons',1,100),window=stopWindow();$('fuelStatus').textContent='Recherche des stations…';
-   const found=await collectStations(trip.coords,fuel,current);if(!current())throw new Error('Recherche interrompue.');
+   const found=await collectStations(trip.coords,fuel,settings,stationSamplingPlan(settings),current);if(!current())throw new Error('Recherche interrompue.');
    session={found,queue:chooseCandidates(found.stations,trip.coords),cursor:0,rejected:0,outside:0,results:[],counts:{overLimit:0,unavailable:0,incomparable:0,matrix:0},liters,cons,fuel,window,trip,base:trip.base,signature:job.signature,at:new Date().toISOString()};stationSearch=session;
    $('stationCount').textContent=String(found.stations.length);$('stationSummary').hidden=false;updateStationCoverage();
    if(!session.queue.length)throw new Error(`Aucune station ${fuel} reçue dans la zone demandée.`);
@@ -3811,6 +3831,7 @@ function bind(){
     if(el.id==='stopKm')$('stopKmInput').value=el.value;
     clearStations();updateWindow();updateRange();updateBudget();
   }}));
+  for(const id of ['stationRadiusKm','stationSpacingKm','stationMaxPoints'])$(id).addEventListener('input',()=>{if(!busy||stationJob){clearStations();updateSampling();$('fuelStatus').textContent='Zone de collecte modifiée. Relancer volontairement la recherche des stations.'}});
   $('fitStationTarget').addEventListener('click',()=>{if(busy)return;const w=stopWindow();if(w.beyond&&w.length>=.1){$('stopKmInput').value=String(w.length);changeStationWindow()}});
   $('widenStationWindow').addEventListener('click',()=>{if(busy)return;const next=widerStationWindow(stopWindow());if(next){$({near:'nearKm',tolerance:'stopTolerance'}[next.key]).value=String(next.value);changeStationWindow()}});
   $('editStationFuel').addEventListener('click',()=>focusStationField('fuel'));
