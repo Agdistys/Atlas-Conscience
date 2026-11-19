@@ -112,3 +112,7 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 #comparisonCycleFields input,#transitCycleFields input{max-width:100%}#savedCycleView{scroll-margin-top:6rem}
 
 #bikeTripMap{height:340px}#bikeTripSketch{width:100%;height:300px;background:#17212b}#bikeTripStatus,#bikeTripPlaces,#bikeTripResult{overflow-wrap:anywhere}#bikeTripMap .leaflet-control-attribution{background:#fff;color:#333}#bikeTripMap .leaflet-control-attribution a{color:#164f83;text-decoration:underline}[data-bike-trip-role][aria-pressed="true"]{outline:2px solid var(--green)}@media(max-width:560px){#bikeTripMap{height:260px}}
+
+#savedSharedPanel .dialog-actions,#savedSharedPanel .row-actions{flex-wrap:wrap}#savedSharedPanel button,#savedSharedPanel input,#bikeTripSave{max-width:100%;white-space:normal}#savedSharedDetails,#savedSharedImportDetails,#bikesResumeInfo{overflow-wrap:anywhere}#savedSharedEditor{margin:16px 0}#savedSharedImportDialog{width:min(680px,94vw)}#savedSharedView{scroll-margin-top:6rem}
+
+#preparedDialog .tabs{flex-wrap:wrap}

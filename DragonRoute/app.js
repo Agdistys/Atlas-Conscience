@@ -139,6 +139,78 @@ function bikeTripTotals(parts,rentMinutes,returnMinutes){
 }
 // END SHARED BIKE TRIP MODEL
 
+// BEGIN SAVED SHARED BIKE MODEL
+function sharedStation(s){
+ if(!s)throw new Error('Station enregistrée absente.');
+ const p=bikeTripPoint([s.lon,s.lat]);return {id:preparedText(s.id,100,true),name:preparedText(s.name,200,true),address:preparedText(s.address,200),lon:p[0],lat:p[1]};
+}
+function sharedAvailability(a,stations,capturedAt){
+ if(!a||a.source!=='velov-gbfs')throw new Error('Source de disponibilité inconnue.');
+ const observed=preparedDate(a.observed);if(Date.parse(observed)>Date.parse(capturedAt))throw new Error('Dates de disponibilité incohérentes.');
+ const stamp=v=>v===null?null:preparedNumber(v,946684800000,4102444800000),rows={};
+ for(const role of ['pickup','dropoff']){
+  const r=a[role];if(!r)throw new Error('Annonce de station absente.');const clean={id:stations[role].id,reported:stamp(r.reported)};
+  for(const k of ['mechanical','docks']){if(r[k]!==null&&bikeCount(r[k])===null)throw new Error('Compte de station invalide.');clean[k]=r[k]}
+  for(const k of ['installed','renting','returning'])clean[k]=r[k]===null?null:preparedBool(r[k]);
+  rows[role]=clean;
+ }
+ return {source:'velov-gbfs',observed,infoUpdated:stamp(a.infoUpdated),statusUpdated:stamp(a.statusUpdated),...rows};
+}
+function validateSavedSharedEntry(e){
+ if(e?.snapshot?.source!=='lyon-shared-bike'||!e.criteria||!e.stations||!e.places)throw new Error('Préparation partagée incomplète ou source inconnue.');
+ const id=preparedText(e.id,80,true),name=preparedText(e.name,80,true),savedAt=preparedDate(e.savedAt),capturedAt=preparedDate(e.snapshot.capturedAt);
+ if(!/^[A-Za-z0-9-]+$/.test(id)||Date.parse(capturedAt)>Date.parse(savedAt))throw new Error('Identité ou dates partagées incohérentes.');
+ const places={start:preparedPoint(e.places.start),end:preparedPoint(e.places.end)},stations={pickup:sharedStation(e.stations.pickup),dropoff:sharedStation(e.stations.dropoff)};
+ for(const p of Object.values(places))bikeTripPoint([p.lon,p.lat]);bikeTripStations({rows:Object.values(stations)},stations.pickup.id,stations.dropoff.id);
+ const criteria={strictAvailability:preparedBool(e.criteria.strictAvailability)};
+ for(const k of ['rentMinutes','returnMinutes']){const v=e.criteria[k];if(v!==null&&(typeof v!=='number'||!Number.isFinite(v)||v<0||v>120))throw new Error('Temps partagé invalide.');criteria[k]=v}
+ const list=e.snapshot.parts;if(!Array.isArray(list)||list.length!==3)throw new Error('Trois étapes enregistrées requises.');
+ const points=[places.start,stations.pickup,stations.dropoff,places.end].map(p=>[p.lon,p.lat]);
+ const parts=list.map((p,i)=>{
+  if(!p||p.mode!==['walk','bike','walk'][i])throw new Error('Ordre ou mode des étapes invalide.');
+  const at=preparedDate(p.at);if(Date.parse(at)>Date.parse(capturedAt))throw new Error('Étape postérieure à la capture.');
+  const version=p.version===null?null:preparedText(p.version,100),cached=preparedBool(p.cached),geometry=cycleGeometry({type:'LineString',coordinates:p.points});
+  const distance=preparedNumber(p.distance,0,300000),duration=preparedNumber(p.duration,0,604800);
+  if(i===1){
+   if(p.source!=='fossgis-bike')throw new Error('Profil cyclable inconnu.');
+   const checked=validateSavedCycleEntry({id,name,savedAt,places:{start:{label:stations.pickup.name,...stations.pickup},end:{label:stations.dropoff.name,...stations.dropoff}},criteria:{maxKm:null},snapshot:{source:'fossgis-bike',profile:'bicycle',calculatedAt:at,route:{points:geometry,distance,duration,steps:p.steps,dataVersion:version}}});
+   return {mode:'bike',source:'fossgis-bike',at,cached,version,points:checked.snapshot.route.points,distance,duration,steps:checked.snapshot.route.steps,pushing:checked.snapshot.route.pushingMeters};
+  }
+  const same=points[i].every((v,j)=>v===points[i+1][j]);
+  if(p.source==='same-point'){
+   if(!same||distance!==0||duration!==0||geometry.some(g=>g.some((v,j)=>v!==points[i][j])))throw new Error('Marche nulle incohérente.');
+  }else{
+   if(p.source!=='ign-pedestrian'||distance===0||duration===0)throw new Error('Profil ou métriques piétonnes invalides.');
+   if(cycleGap(geometry[0],points[i])>150||cycleGap(geometry.at(-1),points[i+1])>150)throw new Error('Marche éloignée des lieux enregistrés.');
+   let measured=0;for(let j=1;j<geometry.length;j++){const gap=cycleGap(geometry[j-1],geometry[j]);if(gap>5000)throw new Error('Marche discontinue.');measured+=gap}
+   if(Math.abs(measured-distance)>Math.max(75,distance*.05))throw new Error('Distance piétonne incohérente.');
+  }
+  return {mode:'walk',source:p.source,at,cached,version,points:geometry,distance,duration};
+ });
+ bikeTripTotals(parts,criteria.rentMinutes,criteria.returnMinutes);
+ return {id,name,savedAt,places,stations,criteria,snapshot:{source:'lyon-shared-bike',capturedAt,parts,availability:sharedAvailability(e.snapshot.availability,stations,capturedAt)}};
+}
+function validateSavedShared(d){
+ if(d?.kind!=='dragonroute-shared-bike-preparations'||d.version!==1||!Array.isArray(d.entries)||d.entries.length>20)throw new Error('Format partagé inconnu ou limite de 20 préparations dépassée.');
+ const clean={kind:'dragonroute-shared-bike-preparations',version:1,entries:d.entries.map(validateSavedSharedEntry)};
+ if(new Set(clean.entries.map(e=>e.id)).size!==clean.entries.length)throw new Error('Identifiants partagés dupliqués.');
+ if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>2000000)throw new Error('La sauvegarde partagée dépasse 2 Mo.');return clean;
+}
+function parseSavedSharedText(text){if(typeof text!=='string'||new TextEncoder().encode(text).length>2000000)throw new Error('Fichier partagé supérieur à 2 Mo.');return validateSavedShared(JSON.parse(text))}
+function savedSharedDuplicates(e,entries){
+ const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr-FR'),key=x=>JSON.stringify([x.places,x.stations.pickup.id,x.stations.dropoff.id,x.criteria]);
+ return entries.filter(x=>x.id!==e.id&&(norm(x.name)===norm(e.name)||key(x)===key(e)));
+}
+function savedSharedTotals(e){
+ const t=bikeTripTotals(e.snapshot.parts,e.criteria.rentMinutes,e.criteria.returnMinutes),a=e.snapshot.availability,s={observed:Date.parse(a.observed),statusUpdated:a.statusUpdated,rows:[a.pickup,a.dropoff]},fresh=bikeTripAvailability(s,a.pickup,a.dropoff,Date.parse(e.snapshot.capturedAt));
+ return {...t,admissible:!e.criteria.strictAvailability||(fresh.pickup&&fresh.dropoff)};
+}
+function sharedStationChanges(entry,snapshot){
+ return ['pickup','dropoff'].map(role=>{const old=entry.stations[role],row=snapshot?.rows.find(r=>r.id===old.id);return {role,old,row:row||null,changed:!!row&&(row.name!==old.name||row.address!==old.address||row.lon!==old.lon||row.lat!==old.lat),gap:row?cycleGap([old.lon,old.lat],[row.lon,row.lat]):null}});
+}
+// END SAVED SHARED BIKE MODEL
+
+
 
 // BEGIN PROFILE VALIDATION
 function defaultVehicle(){return {name:"",type:"car",fuel:"E10",cons:6.2,liters:40}}
@@ -858,7 +930,7 @@ function renderPreparedTrips(){
  if(selected)$('preparedDetails').innerHTML=preparedDescription(selected,true);
 }
 function openPreparedTrips(){
- if(busy)return;resetSavedTransit();resetSavedCycle();preparedDraft=null;preparedSelected=null;preparedImport=null;preparedSequence++;
+ if(busy)return;resetSavedTransit();resetSavedCycle();resetSavedShared();preparedDraft=null;preparedSelected=null;preparedImport=null;preparedSequence++;
  $('preparedEditor').hidden=true;$('preparedMessage').textContent=preparedNotice;renderPreparedTrips();if(!$('preparedDialog').open)$('preparedDialog').showModal();
 }
 function showPreparedEditor(entry,mode){
@@ -2891,9 +2963,9 @@ function loadSavedTransit(){
 function writeSavedTransit(next){
  try{if(savedTransitBlocked)throw new Error('Stockage collectif protégé.');if(localStorage.getItem(SAVED_TRANSIT_KEY)!==savedTransitRaw)throw new Error('Préparations collectives modifiées dans un autre onglet. Fermer puis rouvrir Mes trajets avant de réessayer.');const clean=validateSavedTransit(next),raw=JSON.stringify(clean);localStorage.setItem(SAVED_TRANSIT_KEY,raw);savedTransit=clean;savedTransitRaw=raw;return true}catch(e){$('savedTransitMessage').textContent='Enregistrement impossible. '+e.message;return false}
 }
-const PREPARED_TABS=[['preparedRoadTab','road','preparedRoadPanel'],['preparedTransitTab','transit','savedTransitPanel'],['preparedCycleTab','cycle','savedCyclePanel']];
+const PREPARED_TABS=[['preparedRoadTab','road','preparedRoadPanel'],['preparedTransitTab','transit','savedTransitPanel'],['preparedCycleTab','cycle','savedCyclePanel'],['preparedSharedTab','shared','savedSharedPanel']];
 function setPreparedTab(kind,focus=false){
- if(kind!=='road'){preparedSequence++;preparedImport=null}if(kind!=='transit'){savedTransitSequence++;savedTransitImport=null}if(kind!=='cycle'){savedCycleSequence++;savedCycleImport=null}
+ if(kind!=='road'){preparedSequence++;preparedImport=null}if(kind!=='transit'){savedTransitSequence++;savedTransitImport=null}if(kind!=='cycle'){savedCycleSequence++;savedCycleImport=null}if(kind!=='shared'){savedSharedSequence++;savedSharedImport=null}
  for(const [id,key,panel] of PREPARED_TABS){const on=key===kind,b=$(id);b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;$(panel).hidden=!on;if(on&&focus)b.focus()}
 }
 function resetSavedTransit(){savedTransitSequence++;savedTransitDraft=null;savedTransitImport=null;savedTransitSelected=null;$('savedTransitEditor').hidden=true;loadSavedTransit();renderSavedTransit();setPreparedTab('road')}
@@ -3469,7 +3541,8 @@ function bind(){
 let bikesJob=null,bikesSnapshot=null,bikesPage=0,bikesMap=null,bikesLayer=null,bikesSelected=null,bikesNext=0,bikesExpiry='',bikesTimer=null;
 const bikesCache=new Map(),BIKE_PAGE_SIZE=25;
 const bikesDate=ms=>ms?new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',dateStyle:'short',timeStyle:'medium'}).format(ms):'date inconnue';
-function clearBikes(message=''){
+function clearBikes(message='',keepResume=false){
+ if(!keepResume){bikeTripResume=null;bikeTripFixed=null;bikeTripForceFresh=false;$('bikesResumeInfo').hidden=true}$('bikesResumeAccept').hidden=true;
  clearBikeTrip('',true);
  if(bikesJob){bikesJob.controller.abort();bikesJob=null}bikesSnapshot=null;bikesSelected=null;bikesExpiry='';bikesPage=0;
  $('bikesResults').replaceChildren();$('bikesStatus').textContent=message;$('bikesLoad').disabled=false;$('bikesCancel').hidden=true;$('bikesBrowse').hidden=true;$('bikesMapWrap').hidden=true;if(bikesLayer){bikesLayer.remove();bikesLayer=null}clearInterval(bikesTimer);bikesTimer=null;
@@ -3486,7 +3559,7 @@ async function bikesFetch(name,job){
 }
 async function loadBikes(){
  if(bikesJob||bikeTripJob)return;if(Date.now()<bikesNext){$('bikesStatus').textContent='Patienter avant une nouvelle consultation : '+bikesDate(bikesNext)+'.';return}
- clearBikes('Consultation de Vélo’v…');const job={controller:new AbortController()};bikesJob=job;bikesNext=Date.now()+60000;$('bikesLoad').disabled=true;$('bikesCancel').hidden=false;
+ if(bikeTripResume)bikesCache.clear();clearBikes('Consultation de Vélo’v…',true);const job={controller:new AbortController()};bikesJob=job;bikesNext=Date.now()+60000;$('bikesLoad').disabled=true;$('bikesCancel').hidden=false;
  const timeout=setTimeout(()=>{job.timeout=true;job.controller.abort()},20000);
  try{
   const names=['station_information','station_status','vehicle_types'],results=await Promise.allSettled(names.map(n=>bikesFetch(n,job)));if(bikesJob!==job)return;
@@ -3494,8 +3567,8 @@ async function loadBikes(){
   if(results[0].status!=='fulfilled')throw results[0].reason;
   const value=i=>results[i].status==='fulfilled'?results[i].value:null;
   bikesSnapshot=bikeSnapshot(value(0),value(1),value(2));bikesSnapshot.failures=results.flatMap((r,i)=>r.status==='rejected'?[['Stations','Disponibilités','Types de vélos'][i]+' : '+(r.reason?.message||'indisponible')]:[]);
-  $('bikesBrowse').hidden=false;renderBikes(true);bikesTimer=setInterval(refreshBikes,15000);
- }catch(e){if(bikesJob===job)clearBikes('Consultation impossible. '+e.message)}finally{clearTimeout(timeout);if(bikesJob===job)bikesJob=null;$('bikesLoad').disabled=Boolean(bikesJob);$('bikesCancel').hidden=!bikesJob}
+  $('bikesBrowse').hidden=false;renderBikes(true);reconcileSharedStations();bikesTimer=setInterval(refreshBikes,15000);
+ }catch(e){if(bikesJob===job)clearBikes('Consultation impossible. '+e.message,true)}finally{clearTimeout(timeout);if(bikesJob===job)bikesJob=null;$('bikesLoad').disabled=Boolean(bikesJob);$('bikesCancel').hidden=!bikesJob}
 }
 function bikesFilters(){return {text:$('bikesQuery').value,need:$('bikesNeed').value,type:$('bikesType').value}}
 function renderBikes(resetMap=false){
@@ -3525,13 +3598,14 @@ function refreshBikes(){if(bikesSnapshot&&$('bikesDialog').open&&bikesExpiry!==J
 function bindBikes(){
  $('bikesBtn').addEventListener('click',()=>{clearBikes('Charger les stations pour consulter les annonces disponibles.');$('bikesDialog').showModal();$('bikesTitle').focus()});
  $('bikesClose').addEventListener('click',()=>$('bikesDialog').close());$('bikesDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('bikesDialog').close()}});$('bikesDialog').addEventListener('close',()=>{clearBikes();$('bikesBtn').focus()});
- $('bikesLoad').addEventListener('click',loadBikes);$('bikesCancel').addEventListener('click',()=>clearBikes('Consultation annulée.'));
+ $('bikesLoad').addEventListener('click',loadBikes);$('bikesCancel').addEventListener('click',()=>clearBikes('Consultation annulée.',true));
  for(const id of ['bikesQuery','bikesNeed','bikesType'])$(id).addEventListener(id==='bikesQuery'?'input':'change',()=>{bikesPage=0;bikesSelected=null;renderBikes(true)});
  for(const [id,delta] of [['bikesPrev',-1],['bikesNext',1]])$(id).addEventListener('click',()=>{bikesPage+=delta;renderBikes(true);$('bikesPageLabel').focus()});
  $('bikesResults').addEventListener('click',e=>{const b=e.target.closest('[data-bikes-map]');if(b)selectBike(b.dataset.bikesMap,true)});
  document.addEventListener('visibilitychange',refreshBikes);
 }
 
+let bikeTripResume=null,bikeTripFixed=null,bikeTripForceFresh=false;
 let bikeTripChoice={pickup:null,dropoff:null},bikeTripJob=null,bikeTripResult=null,bikeTripMap=null,bikeTripLayer=null;
 const bikeTripFields=['bikeTripStart','bikeTripEnd','bikeTripRent','bikeTripReturn'];
 function bikeTripSignature(){return JSON.stringify([bikeTripChoice,...bikeTripFields.map(id=>$(id).value),$('bikeTripStrict').checked])}
@@ -3553,7 +3627,7 @@ function renderBikeTripAvailability(){
 }
 function chooseBikeTrip(role,id){
  if(!['pickup','dropoff'].includes(role)||!bikesSnapshot?.rows.some(r=>r.id===id))return;
- clearBikeTrip('Station choisie. Calculer le parcours après avoir choisi les deux stations.');bikeTripChoice[role]=id;renderBikeTripChoice();$('bikeTripTitle').scrollIntoView({block:'start'});$('bikeTripTitle').focus({preventScroll:true});
+ bikeTripResume=null;$('bikesResumeInfo').hidden=true;clearBikeTrip('Station choisie. Calculer le parcours après avoir choisi les deux stations.');bikeTripChoice[role]=id;renderBikeTripChoice();$('bikeTripTitle').scrollIntoView({block:'start'});$('bikeTripTitle').focus({preventScroll:true});
 }
 function renderBikeTripSummary(){
  const r=bikeTripResult;if(!r)return;
@@ -3580,16 +3654,16 @@ async function searchBikeTrip(){
  clearBikeTrip('Vérification des lieux…');const signature=bikeTripSignature(),job={controller:new AbortController()};bikeTripJob=job;activeAbort=job.controller;lock(true);$('bikesLoad').disabled=true;$('bikeTripSearch').disabled=true;$('bikeTripCancel').hidden=false;const current=()=>bikeTripJob===job&&signature===bikeTripSignature();let timer,step='Lieux';
  try{
   const work=async()=>{
-   const places=[];for(const [i,id] of ['bikeTripStart','bikeTripEnd'].entries()){const v=$(id).value.trim(),field=i?'end':'start',p=transitStoredPlace(v,field)||await geocode(v,field,current);if(!current())return;bikeTripPoint([p.lon,p.lat]);places.push(p)}
+   const places=[];for(const [i,id] of ['bikeTripStart','bikeTripEnd'].entries()){const v=$(id).value.trim(),field=i?'end':'start',p=(bikeTripFixed?.[field]?.label===v?bikeTripFixed[field]:null)||transitStoredPlace(v,field)||await geocode(v,field,current);if(!current())return;bikeTripPoint([p.lon,p.lat]);places.push(p)}
    const {pickup,dropoff}=stations,points=[[places[0].lon,places[0].lat],[pickup.lon,pickup.lat],[dropoff.lon,dropoff.lat],[places[1].lon,places[1].lat]],labels=[places[0].label,pickup.name,dropoff.name,places[1].label],parts=[];
    for(let i=0;i<3;i++){
     if(!current())return;step=['Marche vers la station','Vélo entre les stations','Marche vers l’arrivée'][i];$('bikeTripStatus').textContent=step+'…';let part;
-    if(i===1){const v=await loadComparedCycle([...points[i]].reverse(),[...points[i+1]].reverse(),job,current);part={mode:'bike',distance:v.route.distance,duration:v.route.duration,points:v.route.points,source:'FOSSGIS vélo classique',at:v.at,cached:v.cached,version:v.route.dataVersion,pushing:v.route.pushingMeters}}
-    else if(points[i].every((n,j)=>n===points[i+1][j]))part={mode:'walk',distance:0,duration:0,points:[points[i],points[i+1]],source:'Même point demandé, aucune marche calculée',at:Date.now(),version:null};
-    else{const r=await ignRoute([points[i],points[i+1]].map(p=>[...p].reverse()),{provider:'ign',vehicle:{type:'walk'},avoid:[],optimization:'fastest'});part={mode:'walk',distance:r.distance,duration:r.duration,points:r.geometry.coordinates.map(p=>p.slice(0,2)),source:'IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes',at:Date.now(),version:r.resourceVersion}}
+    if(i===1){if(bikeTripForceFresh)cycleCache.delete(cycleRequest(points[i],points[i+1],C.cyclingApi).url);const v=await loadComparedCycle([...points[i]].reverse(),[...points[i+1]].reverse(),job,current);part={mode:'bike',sourceKey:'fossgis-bike',steps:v.route.steps,distance:v.route.distance,duration:v.route.duration,points:v.route.points,source:'FOSSGIS vélo classique',at:v.at,cached:v.cached,version:v.route.dataVersion,pushing:v.route.pushingMeters}}
+    else if(points[i].every((n,j)=>n===points[i+1][j]))part={mode:'walk',sourceKey:'same-point',distance:0,duration:0,points:[points[i],points[i+1]],source:'Même point demandé, aucune marche calculée',at:Date.now(),version:null};
+    else{if(bikeTripForceFresh)ignCache.delete(JSON.stringify([[points[i],points[i+1]].map(p=>[...p].reverse()),[],'pedestrian','fastest']));const r=await ignRoute([points[i],points[i+1]].map(p=>[...p].reverse()),{provider:'ign',vehicle:{type:'walk'},avoid:[],optimization:'fastest'});part={mode:'walk',sourceKey:'ign-pedestrian',distance:r.distance,duration:r.duration,points:r.geometry.coordinates.map(p=>p.slice(0,2)),source:'IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes',at:Date.now(),version:r.resourceVersion}}
     if(!current())return;parts.push({...part,from:labels[i],to:labels[i+1]});
    }
-   bikeTripTotals(parts,null,null);bikeTripResult={parts,...stations};$('bikeTripResult').hidden=false;$('bikeTripPlaces').textContent=labels.join(' → ');$('bikeTripSteps').innerHTML=parts.map((p,i)=>`<li><strong>${i+1}. ${p.mode==='walk'?'Marche':'Vélo classique'}</strong> · ${escapeHtml(p.from)} → ${escapeHtml(p.to)}<br>${fmt(p.distance/1000,2)} km · ${Math.ceil(p.duration/60)} min estimées${p.pushing?` · ${Math.ceil(p.pushing)} m annoncés vélo à la main`:''}.<p class="note">${escapeHtml(p.source)} · consulté le ${bikesDate(p.at)}${p.cached?' · cache daté':''}. ${p.version?'Version : '+escapeHtml(p.version):'Version des données non fournie.'}</p></li>`).join('');renderBikeTripSummary();drawBikeTrip(parts);$('bikeTripStatus').textContent='Les trois étapes sont calculées. Vérifier les temps de prise/restitution et les disponibilités datées.';$('bikeTripResultTitle').focus();
+   bikeTripTotals(parts,null,null);bikeTripResult={parts,...stations,places:{start:places[0],end:places[1]}};bikeTripForceFresh=false;$('bikeTripResult').hidden=false;$('bikeTripPlaces').textContent=labels.join(' → ');$('bikeTripSteps').innerHTML=parts.map((p,i)=>`<li><strong>${i+1}. ${p.mode==='walk'?'Marche':'Vélo classique'}</strong> · ${escapeHtml(p.from)} → ${escapeHtml(p.to)}<br>${fmt(p.distance/1000,2)} km · ${Math.ceil(p.duration/60)} min estimées${p.pushing?` · ${Math.ceil(p.pushing)} m annoncés vélo à la main`:''}.<p class="note">${escapeHtml(p.source)} · consulté le ${bikesDate(p.at)}${p.cached?' · cache daté':''}. ${p.version?'Version : '+escapeHtml(p.version):'Version des données non fournie.'}</p></li>`).join('');renderBikeTripSummary();drawBikeTrip(parts);$('bikeTripStatus').textContent='Les trois étapes sont calculées. Vérifier les temps de prise/restitution et les disponibilités datées.';$('bikeTripResultTitle').focus();
   };
   await Promise.race([work(),new Promise((_,reject)=>{timer=setTimeout(()=>{job.controller.abort();reject(new Error('Délai global dépassé. Aucun parcours complet présenté.'))},90000)})]);
  }catch(e){if(current())clearBikeTrip('Parcours incomplet — '+step+' : '+e.message)}finally{clearTimeout(timer);if(bikeTripJob===job){bikeTripJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('bikesLoad').disabled=false;$('bikeTripSearch').disabled=C.cyclingApi!==CYCLE_ENDPOINT;$('bikeTripCancel').hidden=true}}
@@ -3759,8 +3833,78 @@ function bindSavedCycle(){
  const cancel=()=>{savedCycleSequence++;savedCycleImport=null};$('savedCycleImportDialog').addEventListener('cancel',cancel);$('savedCycleImportDialog').querySelector('.close-dialog').addEventListener('click',cancel);$('savedCycleImportDialog').addEventListener('close',()=>{if($('savedCycleImportDialog').open)return;cancel();if($('preparedDialog').open&&!$('savedCyclePanel').hidden)$('savedCycleImportFile').focus()});$('preparedDialog').addEventListener('close',()=>{if($('preparedDialog').open)return;cancel();savedCycleDraft=null});
 }
 
+const SAVED_SHARED_KEY='dragonroute.shared-bike-prepared.v1.'+PROFILE_SCOPE;
+let savedShared={kind:'dragonroute-shared-bike-preparations',version:1,entries:[]},savedSharedRaw=null,savedSharedBlocked=false,savedSharedDraft=null,savedSharedSelected=null,savedSharedImport=null,savedSharedSequence=0;
+function loadSavedShared(){
+ savedShared={kind:'dragonroute-shared-bike-preparations',version:1,entries:[]};savedSharedRaw=null;savedSharedBlocked=false;$('savedSharedMessage').textContent='';
+ try{savedSharedRaw=localStorage.getItem(SAVED_SHARED_KEY);if(savedSharedRaw!==null)savedShared=parseSavedSharedText(savedSharedRaw)}catch{savedSharedBlocked=true;$('savedSharedMessage').textContent='Préparations partagées non chargées : données invalides, version inconnue ou stockage inaccessible. Le fichier d’origine reste protégé.'}
+}
+function writeSavedShared(next){
+ try{if(savedSharedBlocked)throw new Error('Stockage partagé protégé.');if(localStorage.getItem(SAVED_SHARED_KEY)!==savedSharedRaw)throw new Error('Préparations partagées modifiées dans un autre onglet. Fermer puis rouvrir Mes trajets avant de réessayer.');const clean=validateSavedShared(next),raw=JSON.stringify(clean);localStorage.setItem(SAVED_SHARED_KEY,raw);savedShared=clean;savedSharedRaw=raw;return true}catch(e){$('savedSharedMessage').textContent='Enregistrement impossible. '+e.message;return false}
+}
+function resetSavedShared(){savedSharedSequence++;savedSharedDraft=null;savedSharedImport=null;savedSharedSelected=null;$('savedSharedEditor').hidden=true;loadSavedShared();renderSavedShared()}
+function updateSavedSharedDraft(){
+ if(!savedSharedDraft)return;const e={...savedSharedDraft.entry,name:$('savedSharedName').value},dups=savedSharedDuplicates(e,savedShared.entries);$('savedSharedDuplicateRow').hidden=!dups.length;$('savedSharedDuplicateNote').textContent=dups.length?'Ce nom ou ces lieux et critères figurent déjà dans les préparations partagées. Vérifier avant de conserver une autre préparation.':'';$('savedSharedSave').disabled=savedSharedBlocked||!e.name.trim()||!$('savedSharedConfirm').checked||(dups.length&&!$('savedSharedDuplicate').checked);
+}
+function editSavedShared(e,mode){savedSharedDraft={entry:e,mode};$('savedSharedEditor').hidden=false;$('savedSharedEditorTitle').textContent=mode==='rename'?'Renommer la préparation partagée':'Enregistrer la préparation partagée';$('savedSharedName').value=e.name;$('savedSharedConfirm').checked=false;$('savedSharedDuplicate').checked=false;updateSavedSharedDraft();$('savedSharedName').focus()}
+function bindSavedShared(){
+ $('bikesResumeAccept').addEventListener('click',acceptSharedStations);
+ $('bikeTripSave').addEventListener('click',offerSavedShared);
+ $('savedSharedName').addEventListener('input',()=>{$('savedSharedConfirm').checked=false;$('savedSharedDuplicate').checked=false;updateSavedSharedDraft()});for(const id of ['savedSharedConfirm','savedSharedDuplicate'])$(id).addEventListener('change',updateSavedSharedDraft);
+ $('savedSharedForm').addEventListener('submit',ev=>{ev.preventDefault();if(!savedSharedDraft)return;try{const e=validateSavedSharedEntry({...savedSharedDraft.entry,name:$('savedSharedName').value,savedAt:savedSharedDraft.mode==='new'?new Date().toISOString():savedSharedDraft.entry.savedAt});if(!$('savedSharedConfirm').checked||(savedSharedDuplicates(e,savedShared.entries).length&&!$('savedSharedDuplicate').checked))throw new Error('Confirmer la sauvegarde et le doublon éventuel.');const entries=savedSharedDraft.mode==='rename'?savedShared.entries.map(x=>x.id===e.id?e:x):[...savedShared.entries,e];if(writeSavedShared({...savedShared,entries})){savedSharedDraft=null;savedSharedSelected=e.id;$('savedSharedEditor').hidden=true;renderSavedShared();$('savedSharedMessage').textContent='Préparation partagée enregistrée dans ce navigateur.';$('savedSharedView').scrollIntoView({block:'start'})}}catch(e){$('savedSharedMessage').textContent=e.message}});
+ $('savedSharedList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.savedSharedShow||b.dataset.savedSharedRename||b.dataset.savedSharedDelete,e=savedShared.entries.find(x=>x.id===id);if(!e)return;if(b.dataset.savedSharedRename)editSavedShared(structuredClone(e),'rename');else if(b.dataset.savedSharedShow){savedSharedDraft=null;$('savedSharedEditor').hidden=true;savedSharedSelected=id;renderSavedShared();$('savedSharedView').scrollIntoView({block:'start'})}else if(confirm(`Supprimer la préparation partagée « ${e.name} » ?`)&&writeSavedShared({...savedShared,entries:savedShared.entries.filter(x=>x.id!==id)})){savedSharedDraft=null;savedSharedSelected=null;$('savedSharedEditor').hidden=true;renderSavedShared();$('savedSharedMessage').textContent='Préparation partagée supprimée.'}});
+ $('savedSharedResume').addEventListener('click',()=>{const e=savedShared.entries.find(x=>x.id===savedSharedSelected);if(e)resumeSavedShared(e)});
+ for(const id of ['savedSharedExport','savedSharedBackup'])$(id).addEventListener('click',()=>{if(!savedSharedBlocked)downloadProfile(savedShared,'OuQuandQui-preparations-partagees.json')});
+ $('savedSharedRawExport').addEventListener('click',()=>{if(savedSharedRaw!==null)downloadCycleText(savedSharedRaw,'OuQuandQui-partage-original-non-valide.json')});
+ $('savedSharedErase').addEventListener('click',()=>{if(!confirm('Effacer les préparations partagées de cet environnement ? Exporter une copie avant de confirmer. Les autres préparations restent conservées.'))return;try{if(localStorage.getItem(SAVED_SHARED_KEY)!==savedSharedRaw)throw new Error('Données modifiées dans un autre onglet : fermer puis rouvrir Mes trajets.');localStorage.removeItem(SAVED_SHARED_KEY);resetSavedShared();$('savedSharedMessage').textContent='Préparations partagées effacées.'}catch(e){$('savedSharedMessage').textContent='Effacement impossible. '+e.message}});
+ $('savedSharedImportFile').addEventListener('change',async ev=>{const seq=++savedSharedSequence,file=ev.target.files?.[0];ev.target.value='';savedSharedImport=null;if(!file)return;try{if(savedSharedBlocked)throw new Error('Stockage partagé protégé.');if(file.size>2000000)throw new Error('Fichier supérieur à 2 Mo.');const data=parseSavedSharedText(await file.text());if(seq!==savedSharedSequence||!$('preparedDialog').open||$('savedSharedPanel').hidden)return;savedSharedImport=data;$('savedSharedImportSummary').textContent=`${file.name} : ${data.entries.length} préparation(s) vélo, en remplacement des ${savedShared.entries.length} chargées.${data.entries.length?'':' Le fichier vide effacera la liste partagée après confirmation.'}`;$('savedSharedImportDetails').innerHTML=data.entries.map(e=>`<details><summary>${escapeHtml(e.name)}</summary>${savedSharedDescription(e)}</details>`).join('');$('savedSharedImportConfirm').checked=false;$('savedSharedImportApply').disabled=true;$('savedSharedImportMessage').textContent='';$('savedSharedImportDialog').showModal()}catch(e){if(seq===savedSharedSequence)$('savedSharedMessage').textContent='Import partagé refusé. '+e.message}});
+ $('savedSharedImportConfirm').addEventListener('change',()=>{$('savedSharedImportApply').disabled=!savedSharedImport||!$('savedSharedImportConfirm').checked});
+ $('savedSharedImportApply').addEventListener('click',()=>{if(!savedSharedImport||!$('savedSharedImportConfirm').checked)return;if(writeSavedShared(savedSharedImport)){savedSharedImport=null;savedSharedDraft=null;savedSharedSelected=null;$('savedSharedEditor').hidden=true;renderSavedShared();$('savedSharedImportDialog').close();$('savedSharedMessage').textContent='Préparations partagées restaurées. Aucun calcul ni appel réseau.'}else $('savedSharedImportMessage').textContent=$('savedSharedMessage').textContent});
+ const cancel=()=>{savedSharedSequence++;savedSharedImport=null};$('savedSharedImportDialog').addEventListener('cancel',cancel);$('savedSharedImportDialog').querySelector('.close-dialog').addEventListener('click',cancel);$('savedSharedImportDialog').addEventListener('close',()=>{if($('savedSharedImportDialog').open)return;cancel();if($('preparedDialog').open&&!$('savedSharedPanel').hidden)$('savedSharedImportFile').focus()});$('preparedDialog').addEventListener('close',()=>{if($('preparedDialog').open)return;cancel();savedSharedDraft=null});
+}
+function savedSharedDiagram(parts){
+ const points=parts.flatMap(p=>p.points),xs=points.map(p=>p[0]),ys=points.map(p=>p[1]),x=Math.min(...xs),y=Math.min(...ys),dx=Math.max(.001,Math.max(...xs)-x),dy=Math.max(.001,Math.max(...ys)-y),scale=Math.min(550/dx,220/dy);
+ return '<svg class="prepared-schema" viewBox="0 0 600 260" role="img" aria-label="Schéma historique marche et vélo partagé, sans fond de carte">'+parts.map(p=>'<polyline points="'+p.points.map(([lon,lat])=>(25+(lon-x)*scale).toFixed(2)+','+(240-(lat-y)*scale).toFixed(2)).join(' ')+'" fill="none" stroke="'+(p.mode==='walk'?'#d2b8ff':'#80bdff')+'" stroke-width="5" '+(p.mode==='walk'?'stroke-dasharray="6 7"':'')+'/>').join('')+'</svg><p class="note">Schéma local sans échelle : marche violette, vélo bleu. Trois tracés conservés, sans raccordement ajouté.</p>';
+}
+function savedSharedDescription(e,diagram=false){
+ const t=savedSharedTotals(e),a=e.snapshot.availability,c=e.criteria,mins=v=>v===null?'inconnu':fmt(v,1)+' min',labels=[e.places.start.label,e.stations.pickup.name,e.stations.dropoff.name,e.places.end.label];
+ const timing=!t.admissible?'Le filtre strict n’était pas satisfait à la capture.':t.duration===null?'Durée assemblée non estimée : temps manquant ou écart entre tracés supérieur à 30 m.':'Somme historique des étapes et temps renseignés : '+Math.ceil(t.duration/60)+' min, hors pauses supplémentaires et accès fin aux bornes.';
+ const announcements=['pickup','dropoff'].map((role,i)=>{const s=e.stations[role],r=a[role],count=i?r.docks:r.mechanical;return '<p><strong>'+['Prise','Restitution'][i]+' · '+escapeHtml(s.name)+'</strong> · identifiant '+escapeHtml(s.id)+'<br>'+escapeHtml(s.address||'Adresse non renseignée')+'<br>Ancienne annonce : '+(count===null?'compte inconnu':count+' '+(i?'place(s)':'vélo(s) mécanique(s)'))+' · '+bikesDate(r.reported)+'.</p>'}).join('');
+ return '<h3>'+escapeHtml(e.name)+'</h3><p>'+escapeHtml(labels.join(' → '))+'</p><p class="note">Enregistré le '+savedTransitClock(Date.parse(e.savedAt))+'. Capture du '+savedTransitClock(Date.parse(e.snapshot.capturedAt))+'. Heure de Paris.</p><p class="app-notice">Préparation historique. Les disponibilités actuelles ne sont pas vérifiées ; aucune réservation.</p><p>'+fmt(t.distance/1000,2)+' km dont '+fmt(t.walking/1000,2)+' km à pied · '+Math.ceil(t.moving/60)+' min de déplacement estimées.</p><p>'+timing+'</p><p>Temps personnels conservés : prise '+mins(c.rentMinutes)+', restitution '+mins(c.returnMinutes)+'. Filtre de disponibilité récente : '+(c.strictAvailability?'demandé':'non demandé')+'.</p><ol class="transit-legs">'+e.snapshot.parts.map((p,i)=>'<li><strong>'+['Marche','Vélo classique','Marche'][i]+'</strong> · '+escapeHtml(labels[i])+' → '+escapeHtml(labels[i+1])+'<br>'+fmt(p.distance/1000,2)+' km · '+Math.ceil(p.duration/60)+' min'+(p.pushing?' · '+Math.ceil(p.pushing)+' m annoncés vélo à la main':'')+'.<p class="note">'+({ 'ign-pedestrian':'IGN piéton','fossgis-bike':'FOSSGIS vélo classique','same-point':'Même point demandé, sans marche calculée'}[p.source])+' · consultation conservée du '+savedTransitClock(Date.parse(p.at))+(p.cached?' · cache daté':'')+'. '+(p.version?'Version : '+escapeHtml(p.version):'Version des données inconnue.')+'</p></li>').join('')+'</ol>'+(diagram?savedSharedDiagram(e.snapshot.parts):'')+'<p class="note">Écarts historiques entre tracés : '+t.joins.map(n=>fmt(n,1)+' m').join(' puis ')+'. Accès réel aux bornes non vérifié.</p><details><summary>Stations et anciennes annonces conservées</summary>'+announcements+'<p class="note">Consultation du catalogue : '+savedTransitClock(Date.parse(a.observed))+'. Flux de disponibilité : '+bikesDate(a.statusUpdated)+'. Ces annonces ne sont jamais utilisées comme disponibilités actuelles.</p></details><p class="note">Sources déclarées : <a href="https://data.grandlyon.com/" target="_blank" rel="noopener noreferrer">Vélo’v / Métropole de Lyon</a>, IGN BD TOPO (Licence Ouverte 2.0), <a href="https://routing.openstreetmap.de/about.html" target="_blank" rel="noopener noreferrer">FOSSGIS</a> et <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap · ODbL</a>. Un import est déclaratif et n’authentifie pas les sources. Prix de location, empreinte, batterie et état actuel du parcours inconnus. Aucun déplacement effectué déduit.</p>';
+}
+function renderSavedShared(){
+ for(const id of ['savedSharedExport','savedSharedImportFile','savedSharedBackup'])$(id).disabled=savedSharedBlocked;
+ $('savedSharedRawExport').hidden=!savedSharedBlocked||savedSharedRaw===null;
+ $('savedSharedList').innerHTML=savedShared.entries.length?savedShared.entries.map(e=>'<article class="saved-row"><strong>'+escapeHtml(e.name)+'</strong><p>'+escapeHtml(e.places.start.label)+' → '+escapeHtml(e.places.end.label)+'</p><p>Marche et vélo partagé · '+fmt(bikeTripTotals(e.snapshot.parts,null,null).distance/1000,2)+' km · capture du '+savedTransitClock(Date.parse(e.snapshot.capturedAt))+'</p><div class="row-actions"><button type="button" class="ghost" data-saved-shared-show="'+e.id+'">Consulter</button><button type="button" class="ghost" data-saved-shared-rename="'+e.id+'">Renommer</button><button type="button" class="ghost" data-saved-shared-delete="'+e.id+'">Supprimer</button></div></article>').join(''):'<p class="note">Aucune préparation partagée chargée. Après le calcul des trois étapes, choisir « Enregistrer ce parcours partagé ».</p>';
+ const e=savedShared.entries.find(x=>x.id===savedSharedSelected);$('savedSharedView').hidden=!e;$('savedSharedDetails').innerHTML=e?savedSharedDescription(e,true):'';
+}
+function offerSavedShared(){
+ if(busy||bikeTripJob||!bikeTripResult||!bikesSnapshot)return;
+ try{
+  const r=bikeTripResult,now=new Date().toISOString(),s=bikesSnapshot,availability={source:'velov-gbfs',observed:new Date(s.observed).toISOString(),infoUpdated:s.infoUpdated,statusUpdated:s.statusUpdated};
+  for(const role of ['pickup','dropoff']){const row=r[role];availability[role]={reported:row.reported,mechanical:row.mechanical,docks:row.docks,installed:row.installed,renting:row.renting,returning:row.returning}}
+  const e=validateSavedSharedEntry({id:crypto.randomUUID(),name:(r.places.start.label+' → '+r.places.end.label).slice(0,80),savedAt:now,places:r.places,stations:{pickup:r.pickup,dropoff:r.dropoff},criteria:{rentMinutes:bikeTripMinutes($('bikeTripRent').value,'Prise'),returnMinutes:bikeTripMinutes($('bikeTripReturn').value,'Restitution'),strictAvailability:$('bikeTripStrict').checked},snapshot:{source:'lyon-shared-bike',capturedAt:now,availability,parts:r.parts.map(p=>({...p,source:p.sourceKey,at:new Date(p.at).toISOString(),cached:Boolean(p.cached)}))}});
+  $('bikesDialog').close();clearBikes();openPreparedTrips();setPreparedTab('shared');editSavedShared(e,'new');
+ }catch(e){$('bikeTripStatus').textContent='Sauvegarde impossible. '+e.message}
+}
+function resumeSavedShared(e){
+ if(busy)return;clearBikes();bikeTripResume=structuredClone(e);bikeTripFixed=structuredClone(e.places);bikeTripForceFresh=true;
+ $('bikeTripStart').value=e.places.start.label;$('bikeTripEnd').value=e.places.end.label;$('bikeTripRent').value=e.criteria.rentMinutes===null?'':String(e.criteria.rentMinutes);$('bikeTripReturn').value=e.criteria.returnMinutes===null?'':String(e.criteria.returnMinutes);$('bikeTripStrict').checked=e.criteria.strictAvailability;
+ $('preparedDialog').close();$('bikesDialog').showModal();$('bikesResumeInfo').hidden=false;$('bikesResumeText').textContent='Préparation « '+e.name+' » reprise sans consultation ni calcul. Charger les stations pour vérifier les deux identifiants mémorisés, puis confirmer leur réutilisation.';$('bikesResumeAccept').hidden=true;$('bikesTitle').focus();
+}
+function reconcileSharedStations(){
+ if(!bikeTripResume)return;const rows=sharedStationChanges(bikeTripResume,bikesSnapshot),complete=rows.every(r=>r.row);
+ $('bikesResumeInfo').hidden=false;$('bikesResumeText').textContent=rows.map((r,i)=>['Prise','Restitution'][i]+' : '+r.old.name+' ['+r.old.id+'] → '+(!r.row?'absente du catalogue reçu':r.changed?r.row.name+' · '+(r.row.address||'adresse non renseignée')+' · déplacement de coordonnées '+fmt(r.gap,1)+' m':'identité, nom et coordonnées concordants')+'.').join(' ')+' '+(complete?'Confirmer les stations du catalogue reçu avant le calcul. Les disponibilités restent indépendantes.':'Choisir manuellement de nouvelles stations ; aucune substitution automatique.');
+ $('bikesResumeAccept').hidden=!complete;
+}
+function acceptSharedStations(){
+ if(!bikeTripResume||!bikesSnapshot)return;
+ try{const e=bikeTripResume;bikeTripStations(bikesSnapshot,e.stations.pickup.id,e.stations.dropoff.id);bikeTripChoice={pickup:e.stations.pickup.id,dropoff:e.stations.dropoff.id};bikeTripResume=null;$('bikesResumeAccept').hidden=true;$('bikesResumeText').textContent='Stations du catalogue reçu confirmées. Lancer le calcul pour préparer les trois étapes ; disponibilités et réservation restent distinctes.';renderBikeTripChoice();$('bikeTripTitle').scrollIntoView({block:'start'});$('bikeTripTitle').focus()}catch(e){$('bikesResumeText').textContent=e.message}
+}
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindCycleJournal();bindProspective();applyVehicle();updateRange();initPwa();
+
+
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
