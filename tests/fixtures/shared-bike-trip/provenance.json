@@ -1,0 +1,127 @@
+{
+  "source": "Réponses réelles avec points publics à Lyon ; stations GBFS 2002 puis 3011, coordonnées de la fixture producteur V032. Aucune disponibilité ni déplacement déclaré.",
+  "requests": [
+    {
+      "file": "walk-access.json",
+      "url": "https://data.geopf.fr/navigation/itineraire?resource=bdtopo-osrm&profile=pedestrian&optimization=fastest&start=4.832126%2C45.757974&end=4.830428%2C45.758149&geometryFormat=geojson&crs=EPSG%3A4326&distanceUnit=meter&timeUnit=second&getSteps=false&getBbox=false",
+      "at": "2026-11-19T04:30:29.600760+00:00",
+      "status": 200,
+      "headers": {
+        "date": "Thu, 19 Nov 2026 04:30:29 GMT",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "645",
+        "x-ratelimit-limit-second": "1",
+        "ratelimit-limit": "10",
+        "www-authenticate": "Key realm=\"kong\"",
+        "cache-control": "private, max-age=1814400",
+        "access-control-allow-origin": "*",
+        "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin",
+        "origin-agent-cluster": "?1",
+        "referrer-policy": "no-referrer",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "x-content-type-options": "nosniff",
+        "x-dns-prefetch-control": "off",
+        "x-download-options": "noopen",
+        "x-frame-options": "SAMEORIGIN",
+        "x-permitted-cross-domain-policies": "none",
+        "x-xss-protection": "0",
+        "etag": "W/\"285-2T+mB7hUDcJ3nA+pzmZ1E3pBm3M\"",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET, PUT, POST, DELETE, PATCH, OPTIONS",
+        "access-control-allow-headers": "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Content-Disposition,Content-Length,X-Community",
+        "access-control-max-age": "1728000",
+        "x-iplb-request-id": "564B5408:F3FF_91EFC1E7:01BB_6AFE7B65_BCC0159A:253CE7",
+        "x-iplb-instance": "61217",
+        "connection": "close"
+      },
+      "sha256": "2e1af81d526528e7ca70a1ae13ed885a0e3a40f125c6b874aeb276bbfa81db39",
+      "points": [
+        [
+          4.832126,
+          45.757974
+        ],
+        [
+          4.830428,
+          45.758149
+        ]
+      ]
+    },
+    {
+      "file": "cycle.json",
+      "url": "https://routing.openstreetmap.de/routed-bike/route/v1/driving/4.830428,45.758149;4.857555,45.75991?overview=full&geometries=geojson&steps=true&alternatives=false",
+      "at": "2026-11-19T04:30:30.706871+00:00",
+      "status": 200,
+      "headers": {
+        "Server": "nginx",
+        "Date": "Thu, 19 Nov 2026 04:30:30 GMT",
+        "Content-Type": "application/json; charset=UTF-8",
+        "Content-Length": "22150",
+        "Connection": "close",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type",
+        "Content-Disposition": "inline; filename=\"response.json\""
+      },
+      "sha256": "fc88aebe9fbcf780f2219e0c3edcc0c03300f7e978da7a822c29186bbade7fdd",
+      "points": [
+        [
+          4.830428,
+          45.758149
+        ],
+        [
+          4.857555,
+          45.75991
+        ]
+      ]
+    },
+    {
+      "file": "walk-exit.json",
+      "url": "https://data.geopf.fr/navigation/itineraire?resource=bdtopo-osrm&profile=pedestrian&optimization=fastest&start=4.857555%2C45.75991&end=4.858507%2C45.760146&geometryFormat=geojson&crs=EPSG%3A4326&distanceUnit=meter&timeUnit=second&getSteps=false&getBbox=false",
+      "at": "2026-11-19T04:30:31.449887+00:00",
+      "status": 200,
+      "headers": {
+        "date": "Thu, 19 Nov 2026 04:30:31 GMT",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "813",
+        "x-ratelimit-limit-second": "1",
+        "ratelimit-limit": "10",
+        "www-authenticate": "Key realm=\"kong\"",
+        "cache-control": "private, max-age=1814400",
+        "access-control-allow-origin": "*",
+        "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin",
+        "origin-agent-cluster": "?1",
+        "referrer-policy": "no-referrer",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "x-content-type-options": "nosniff",
+        "x-dns-prefetch-control": "off",
+        "x-download-options": "noopen",
+        "x-frame-options": "SAMEORIGIN",
+        "x-permitted-cross-domain-policies": "none",
+        "x-xss-protection": "0",
+        "etag": "W/\"32d-Ef0EEtCfArVDb0Z7nTyXnGHb24E\"",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET, PUT, POST, DELETE, PATCH, OPTIONS",
+        "access-control-allow-headers": "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Content-Disposition,Content-Length,X-Community",
+        "access-control-max-age": "1728000",
+        "x-iplb-request-id": "564B5408:F401_91EFC1E7:01BB_6AFE7B67_BCFA21A0:2C6F24",
+        "x-iplb-instance": "61218",
+        "connection": "close"
+      },
+      "sha256": "bcf9b1070e2a0dd367a23e725701c927d3e2bf4f3032f69d46645dd0e1931b79",
+      "points": [
+        [
+          4.857555,
+          45.75991
+        ],
+        [
+          4.858507,
+          45.760146
+        ]
+      ]
+    }
+  ]
+}

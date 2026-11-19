@@ -116,6 +116,29 @@ function bikeRows(snapshot,{text='',need='all',type='all'}={},now=Date.now()){
 }
 function bikeRetryAfter(value,now=Date.now()){if(!value)return now+60000;const n=/^\d+$/.test(value)?Number(value)*1000:Date.parse(value)-now;return Number.isFinite(n)?now+Math.max(60000,n):now+60000}
 // END SHARED BIKES MODEL
+// BEGIN SHARED BIKE TRIP MODEL
+function bikeTripPoint(p){p=cyclePoint(p);if(p[0]<4.5||p[0]>5.2||p[1]<45.5||p[1]>46.05)throw new Error('Ce parcours avec vélo partagé est limité au pilote Lyon.');return p}
+function bikeTripMinutes(raw,label){if(raw==null||String(raw).trim()==='')return null;if(!['string','number'].includes(typeof raw))throw new Error('Temps invalide.');const n=Number(raw);if(!Number.isFinite(n)||n<0||n>120)throw new Error(label+' : renseigner de 0 à 120 minutes ou laisser vide.');return n}
+function bikeTripStations(snapshot,pickupId,dropoffId){
+ const pickup=snapshot?.rows.find(r=>r.id===pickupId),dropoff=snapshot?.rows.find(r=>r.id===dropoffId);
+ if(!pickup||!dropoff)throw new Error('Choisir les stations de prise et de restitution dans la liste.');
+ const a=bikeTripPoint([pickup.lon,pickup.lat]),b=bikeTripPoint([dropoff.lon,dropoff.lat]);
+ if(pickup.id===dropoff.id||cycleGap(a,b)<10)throw new Error('Choisir deux stations distinctes et éloignées d’au moins 10 m.');
+ return {pickup,dropoff};
+}
+function bikeTripAvailability(snapshot,pickup,dropoff,now=Date.now()){
+ return {pickup:!!pickup&&bikeRows(snapshot,{need:'rent',type:'mechanical'},now).some(r=>r.id===pickup.id),dropoff:!!dropoff&&bikeRows(snapshot,{need:'return'},now).some(r=>r.id===dropoff.id)};
+}
+function bikeTripTotals(parts,rentMinutes,returnMinutes){
+ if(!Array.isArray(parts)||parts.length!==3||parts.some((p,i)=>!p||p.mode!==['walk','bike','walk'][i]||!Array.isArray(p.points)||p.points.length<2||![p.distance,p.duration].every(n=>typeof n==='number'&&Number.isFinite(n)&&n>=0)))throw new Error('Trois étapes cohérentes sont nécessaires.');
+ for(const p of parts)p.points.forEach(cyclePoint);
+ for(const t of [rentMinutes,returnMinutes])if(t!==null&&(typeof t!=='number'||!Number.isFinite(t)||t<0||t>120))throw new Error('Temps de prise ou de restitution invalide.');
+ const joins=[cycleGap(parts[0].points.at(-1),parts[1].points[0]),cycleGap(parts[1].points.at(-1),parts[2].points[0])],moving=parts.reduce((n,p)=>n+p.duration,0),distance=parts.reduce((n,p)=>n+p.distance,0),missing=[rentMinutes,returnMinutes].filter(t=>t===null).length;
+ // 30 m is a disclosed application threshold, not a surveyed connection.
+ return {distance,moving,walking:parts[0].distance+parts[2].distance,joins,missing,duration:missing||joins.some(n=>n>30)?null:moving+(rentMinutes+returnMinutes)*60,price:null,carbon:null};
+}
+// END SHARED BIKE TRIP MODEL
+
 
 // BEGIN PROFILE VALIDATION
 function defaultVehicle(){return {name:"",type:"car",fuel:"E10",cons:6.2,liters:40}}
@@ -3447,6 +3470,7 @@ let bikesJob=null,bikesSnapshot=null,bikesPage=0,bikesMap=null,bikesLayer=null,b
 const bikesCache=new Map(),BIKE_PAGE_SIZE=25;
 const bikesDate=ms=>ms?new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',dateStyle:'short',timeStyle:'medium'}).format(ms):'date inconnue';
 function clearBikes(message=''){
+ clearBikeTrip('',true);
  if(bikesJob){bikesJob.controller.abort();bikesJob=null}bikesSnapshot=null;bikesSelected=null;bikesExpiry='';bikesPage=0;
  $('bikesResults').replaceChildren();$('bikesStatus').textContent=message;$('bikesLoad').disabled=false;$('bikesCancel').hidden=true;$('bikesBrowse').hidden=true;$('bikesMapWrap').hidden=true;if(bikesLayer){bikesLayer.remove();bikesLayer=null}clearInterval(bikesTimer);bikesTimer=null;
 }
@@ -3461,7 +3485,7 @@ async function bikesFetch(name,job){
  if(bikesJob===job&&!job.controller.signal.aborted)bikesCache.set(name,{raw,at:now,until:now+Math.max(60,env.ttl)*1000});return raw;
 }
 async function loadBikes(){
- if(bikesJob)return;if(Date.now()<bikesNext){$('bikesStatus').textContent='Patienter avant une nouvelle consultation : '+bikesDate(bikesNext)+'.';return}
+ if(bikesJob||bikeTripJob)return;if(Date.now()<bikesNext){$('bikesStatus').textContent='Patienter avant une nouvelle consultation : '+bikesDate(bikesNext)+'.';return}
  clearBikes('Consultation de Vélo’v…');const job={controller:new AbortController()};bikesJob=job;bikesNext=Date.now()+60000;$('bikesLoad').disabled=true;$('bikesCancel').hidden=false;
  const timeout=setTimeout(()=>{job.timeout=true;job.controller.abort()},20000);
  try{
@@ -3480,9 +3504,9 @@ function renderBikes(resetMap=false){
  $('bikesType').disabled=$('bikesNeed').value!=='rent';
  $('bikesStatus').textContent=`${rows.length} station(s) correspondante(s) sur ${s.rows.length} référencées. Consultation : ${bikesDate(s.observed)}. Flux de disponibilité : ${bikesDate(s.statusUpdated)}. ${s.failures.join(' ')} ${s.excluded?`${s.excluded} entrée(s) de station écartée(s). `:''}${s.missing?`${s.missing} station(s) sans état utilisable. `:''}${s.unmatched?`${s.unmatched} état(s) sans station référencée. `:''}${rows.length?'':'Aucun résultat pour ces critères ; cela ne prouve pas une absence de vélos sur le terrain.'}`;
  $('bikesPageLabel').textContent=`Page ${bikesPage+1} sur ${pages} · ${visible.length} station(s) dans la liste et sur la carte`;$('bikesPrev').disabled=bikesPage===0;$('bikesNext').disabled=bikesPage===pages-1;
- const active=document.activeElement?.dataset.bikesMap;
- $('bikesResults').innerHTML=visible.map(r=>{const age=bikeFreshness(r,s,now),label={recent:'Annonce récente',old:'Annonce ancienne · plus de 5 minutes',unknown:'Date non vérifiable'}[age],count=n=>n===null?'Inconnu':String(n),state=v=>v===true?'Oui':v===false?'Non':'Inconnu';return `<article class="comparison-card bike-card ${r.id===bikesSelected?'bike-selected':''}" data-bike-id="${escapeHtml(r.id)}"><h3 tabindex="-1">${r.number}. ${escapeHtml(r.name)}</h3><p>${escapeHtml(r.address)||'Adresse non renseignée'}</p><p class="bike-age" data-bike-age="${age}">${label} · station : ${bikesDate(r.reported)}</p><dl class="bike-counts"><div><dt>Vélos annoncés</dt><dd>${count(r.bikes)}</dd></div><div><dt>Places annoncées</dt><dd>${count(r.docks)}</dd></div></dl><p>Mécaniques : ${count(r.mechanical)} · Électriques : ${count(r.electric)}</p><p class="note">Station installée : ${state(r.installed)} · Location : ${state(r.renting)} · Restitution : ${state(r.returning)}. Batterie et autonomie individuelles inconnues.</p><button type="button" class="ghost" data-bikes-map="${escapeHtml(r.id)}" aria-pressed="${r.id===bikesSelected}">Repérer la station ${r.number} sur la carte</button></article>`}).join('');
- drawBikes(visible,resetMap);if(active){const b=[...$('bikesResults').querySelectorAll('[data-bikes-map]')].find(x=>x.dataset.bikesMap===active);b?.focus({preventScroll:true})}
+ const active=document.activeElement?.dataset.bikesMap,activeRole=document.activeElement?.dataset.bikeTripRole,activeStation=document.activeElement?.dataset.bikeTripStation;
+ $('bikesResults').innerHTML=visible.map(r=>{const age=bikeFreshness(r,s,now),label={recent:'Annonce récente',old:'Annonce ancienne · plus de 5 minutes',unknown:'Date non vérifiable'}[age],count=n=>n===null?'Inconnu':String(n),state=v=>v===true?'Oui':v===false?'Non':'Inconnu';return `<article class="comparison-card bike-card ${r.id===bikesSelected?'bike-selected':''}" data-bike-id="${escapeHtml(r.id)}"><h3 tabindex="-1">${r.number}. ${escapeHtml(r.name)}</h3><p>${escapeHtml(r.address)||'Adresse non renseignée'}</p><p class="bike-age" data-bike-age="${age}">${label} · station : ${bikesDate(r.reported)}</p><dl class="bike-counts"><div><dt>Vélos annoncés</dt><dd>${count(r.bikes)}</dd></div><div><dt>Places annoncées</dt><dd>${count(r.docks)}</dd></div></dl><p>Mécaniques : ${count(r.mechanical)} · Électriques : ${count(r.electric)}</p><p class="note">Station installée : ${state(r.installed)} · Location : ${state(r.renting)} · Restitution : ${state(r.returning)}. Batterie et autonomie individuelles inconnues.</p><button type="button" class="ghost" data-bikes-map="${escapeHtml(r.id)}" aria-pressed="${r.id===bikesSelected}">Repérer la station ${r.number} sur la carte</button><div class="dialog-actions"><button type="button" class="ghost" data-bike-trip-role="pickup" data-bike-trip-station="${escapeHtml(r.id)}" aria-pressed="${bikeTripChoice.pickup===r.id}">Prendre un vélo ici</button><button type="button" class="ghost" data-bike-trip-role="dropoff" data-bike-trip-station="${escapeHtml(r.id)}" aria-pressed="${bikeTripChoice.dropoff===r.id}">Rendre le vélo ici</button></div></article>`}).join('');
+ renderBikeTripChoice();drawBikes(visible,resetMap);if(active){const b=[...$('bikesResults').querySelectorAll('[data-bikes-map]')].find(x=>x.dataset.bikesMap===active);b?.focus({preventScroll:true})}else if(activeRole){[...$('bikesResults').querySelectorAll('[data-bike-trip-role]')].find(b=>b.dataset.bikeTripRole===activeRole&&b.dataset.bikeTripStation===activeStation)?.focus({preventScroll:true})}
 }
 function drawBikes(rows,reset){
  $('bikesMapWrap').hidden=!rows.length;if(!rows.length)return;
@@ -3506,6 +3530,76 @@ function bindBikes(){
  for(const [id,delta] of [['bikesPrev',-1],['bikesNext',1]])$(id).addEventListener('click',()=>{bikesPage+=delta;renderBikes(true);$('bikesPageLabel').focus()});
  $('bikesResults').addEventListener('click',e=>{const b=e.target.closest('[data-bikes-map]');if(b)selectBike(b.dataset.bikesMap,true)});
  document.addEventListener('visibilitychange',refreshBikes);
+}
+
+let bikeTripChoice={pickup:null,dropoff:null},bikeTripJob=null,bikeTripResult=null,bikeTripMap=null,bikeTripLayer=null;
+const bikeTripFields=['bikeTripStart','bikeTripEnd','bikeTripRent','bikeTripReturn'];
+function bikeTripSignature(){return JSON.stringify([bikeTripChoice,...bikeTripFields.map(id=>$(id).value),$('bikeTripStrict').checked])}
+function clearBikeTrip(message='',reset=false){
+ const job=bikeTripJob;bikeTripJob=null;if(job){job.controller.abort();if(activeAbort===job.controller){if(placePending){placePending.reject(new Error('Parcours partagé annulé.'));placePending=null;$('placeDialog').close()}activeAbort=null;lock(false)}}
+ bikeTripResult=null;$('bikeTripResult').hidden=true;$('bikeTripStatus').textContent=(message+' '+(C.cyclingApi!==CYCLE_ENDPOINT?'Le service vélo est désactivé.':'')).trim();$('bikeTripSearch').disabled=C.cyclingApi!==CYCLE_ENDPOINT;$('bikeTripCancel').hidden=true;$('bikesLoad').disabled=Boolean(bikesJob);
+ if(bikeTripLayer){bikeTripLayer.remove();bikeTripLayer=null}$('bikeTripSketch').replaceChildren();if(reset)bikeTripChoice={pickup:null,dropoff:null};renderBikeTripChoice();
+}
+function renderBikeTripChoice(){
+ const rows=bikesSnapshot?.rows||[];
+ for(const role of ['pickup','dropoff']){const r=rows.find(r=>r.id===bikeTripChoice[role]);$('bikeTrip'+(role==='pickup'?'Pickup':'Dropoff')).textContent=r?`${r.number}. ${r.name}`:'À choisir dans la liste';}
+ for(const b of document.querySelectorAll('[data-bike-trip-role]'))b.setAttribute('aria-pressed',String(bikeTripChoice[b.dataset.bikeTripRole]===b.dataset.bikeTripStation));
+ renderBikeTripAvailability();
+}
+function renderBikeTripAvailability(){
+ if(!bikesSnapshot)return;const rows=bikesSnapshot.rows,p=rows.find(r=>r.id===bikeTripChoice.pickup),d=rows.find(r=>r.id===bikeTripChoice.dropoff),a=bikeTripAvailability(bikesSnapshot,p,d);
+ $('bikeTripAvailability').textContent=[p?`Prise : ${a.pickup?'vélo mécanique annoncé récemment':'disponibilité mécanique non confirmée'} · annonce ${bikesDate(p.reported)}.`:'',d?`Restitution : ${a.dropoff?'place annoncée récemment':'place non confirmée'} · annonce ${bikesDate(d.reported)}.`:''].filter(Boolean).join(' ');
+ if(bikeTripResult)renderBikeTripSummary();
+}
+function chooseBikeTrip(role,id){
+ if(!['pickup','dropoff'].includes(role)||!bikesSnapshot?.rows.some(r=>r.id===id))return;
+ clearBikeTrip('Station choisie. Calculer le parcours après avoir choisi les deux stations.');bikeTripChoice[role]=id;renderBikeTripChoice();$('bikeTripTitle').scrollIntoView({block:'start'});$('bikeTripTitle').focus({preventScroll:true});
+}
+function renderBikeTripSummary(){
+ const r=bikeTripResult;if(!r)return;
+ try{
+  const rent=bikeTripMinutes($('bikeTripRent').value,'Prise du vélo'),back=bikeTripMinutes($('bikeTripReturn').value,'Restitution'),t=bikeTripTotals(r.parts,rent,back),availability=bikeTripAvailability(bikesSnapshot,r.pickup,r.dropoff),strict=$('bikeTripStrict').checked,admissible=!strict||(availability.pickup&&availability.dropoff);
+  $('bikeTripMetrics').textContent=`${fmt(t.distance/1000,2)} km dans les trois étapes, dont ${fmt(t.walking/1000,2)} km à pied. ${Math.ceil(t.moving/60)} min de déplacement estimées, hors prise et restitution.`;
+  $('bikeTripTiming').textContent=!admissible?'Ne satisfait pas le filtre de disponibilité récente. Parcours conservé comme préparation, sans disponibilité confirmée.':t.duration===null?`Durée avec prise et restitution non estimée : ${t.missing?'renseigner les deux temps. ':''}${t.joins.some(n=>n>30)?'raccordement entre les tracés supérieur à 30 m.':''}`:`Somme estimée des étapes et temps renseignés : ${Math.ceil(t.duration/60)} min. Hors pauses supplémentaires et accès fin aux bornes.`;
+  $('bikeTripJoins').textContent=`Écarts entre les tracés aux stations : ${t.joins.map(n=>fmt(n,1)+' m').join(' puis ')}. Au-delà de 30 m, la durée assemblée est retirée. Les rattachements de chaque moteur peuvent différer des points demandés de 150 m au maximum. Aucun chemin de raccordement n’est inventé ; l’accès exact aux bornes reste à vérifier.`;
+  $('bikeTripAssumptions').textContent=`Temps de prise : ${rent===null?'inconnu':fmt(rent,1)+' min renseignées'}. Restitution : ${back===null?'inconnue':fmt(back,1)+' min renseignées'}. Ces temps personnels ne viennent pas de Vélo’v. Prix de location et empreinte non estimés ; réservation, accès au service et batterie non confirmés.`;
+ }catch(e){$('bikeTripTiming').textContent=e.message;$('bikeTripAssumptions').textContent='Durée assemblée non estimée tant que les temps sont invalides.'}
+}
+function drawBikeTrip(parts){
+ if(bikeTripLayer){bikeTripLayer.remove();bikeTripLayer=null}const coords=parts.flatMap(p=>p.points),ns='http://www.w3.org/2000/svg';$('bikeTripMap').hidden=!window.L;$('bikeTripSketch').toggleAttribute('hidden',Boolean(window.L));$('bikeTripSketch').replaceChildren();$('bikeTripMapNote').textContent='Violet en pointillés : marche. Bleu : vélo. Tracés distincts, sans ligne droite ajoutée entre les étapes.';
+ if(window.L)try{
+  if(!bikeTripMap){bikeTripMap=L.map('bikeTripMap',{scrollWheelZoom:false});L.tileLayer(C.tileUrl,{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(bikeTripMap);new ResizeObserver(()=>{bikeTripMap.invalidateSize();if(bikeTripLayer&&bikeTripMap.getSize().x>0)bikeTripMap.fitBounds(bikeTripLayer.getBounds(),{padding:[25,25],animate:false})}).observe($('bikeTripMap'))}
+  bikeTripLayer=L.featureGroup().addTo(bikeTripMap);for(const p of parts){const points=p.points.map(([lon,lat])=>[lat,lon]);L.polyline(points,{color:'#fff',weight:10}).addTo(bikeTripLayer);L.polyline(points,{color:p.mode==='walk'?'#7043a3':'#1674d8',weight:6,dashArray:p.mode==='walk'?'6 7':undefined}).addTo(bikeTripLayer);for(const [point,name] of [[points[0],p.from],[points.at(-1),p.to]]){const text=document.createElement('span');text.textContent=name;L.circleMarker(point,{radius:5,color:'#123252',fillColor:'#fff',fillOpacity:1}).bindTooltip(text).addTo(bikeTripLayer)}}bikeTripMap.invalidateSize();bikeTripMap.fitBounds(bikeTripLayer.getBounds(),{padding:[25,25]});return;
+ }catch{$('bikeTripMap').hidden=true;$('bikeTripSketch').removeAttribute('hidden')}
+ const xs=coords.map(p=>p[0]),ys=coords.map(p=>p[1]),minX=Math.min(...xs),minY=Math.min(...ys),scale=Math.min(560/Math.max(.001,Math.max(...xs)-minX),280/Math.max(.001,Math.max(...ys)-minY));
+ for(const part of parts){const line=document.createElementNS(ns,'polyline');line.setAttribute('points',part.points.map(([x,y])=>`${20+(x-minX)*scale},${300-(y-minY)*scale}`).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke',part.mode==='walk'?'#d2b8ff':'#80bdff');line.setAttribute('stroke-width','5');if(part.mode==='walk')line.setAttribute('stroke-dasharray','6 7');$('bikeTripSketch').append(line)}$('bikeTripMapNote').textContent+=' Fond de carte indisponible : schéma des tracés reçus, sans échelle.';
+}
+async function searchBikeTrip(){
+ if(busy||bikeTripJob)return;let stations;
+ try{stations=bikeTripStations(bikesSnapshot,bikeTripChoice.pickup,bikeTripChoice.dropoff);if(![$('bikeTripStart').value.trim(),$('bikeTripEnd').value.trim()].every(Boolean))throw new Error('Renseigner les lieux de départ et d’arrivée.');bikeTripMinutes($('bikeTripRent').value,'Prise du vélo');bikeTripMinutes($('bikeTripReturn').value,'Restitution');if(C.cyclingApi!==CYCLE_ENDPOINT)throw new Error('Le service vélo est désactivé.');const a=bikeTripAvailability(bikesSnapshot,stations.pickup,stations.dropoff);if($('bikeTripStrict').checked&&(!a.pickup||!a.dropoff))throw new Error('Le filtre exige un vélo mécanique et une place annoncés récemment. Actualiser les données ou retirer ce filtre pour préparer sans garantie de disponibilité.');}catch(e){$('bikeTripStatus').textContent=e.message;return}
+ clearBikeTrip('Vérification des lieux…');const signature=bikeTripSignature(),job={controller:new AbortController()};bikeTripJob=job;activeAbort=job.controller;lock(true);$('bikesLoad').disabled=true;$('bikeTripSearch').disabled=true;$('bikeTripCancel').hidden=false;const current=()=>bikeTripJob===job&&signature===bikeTripSignature();let timer,step='Lieux';
+ try{
+  const work=async()=>{
+   const places=[];for(const [i,id] of ['bikeTripStart','bikeTripEnd'].entries()){const v=$(id).value.trim(),field=i?'end':'start',p=transitStoredPlace(v,field)||await geocode(v,field,current);if(!current())return;bikeTripPoint([p.lon,p.lat]);places.push(p)}
+   const {pickup,dropoff}=stations,points=[[places[0].lon,places[0].lat],[pickup.lon,pickup.lat],[dropoff.lon,dropoff.lat],[places[1].lon,places[1].lat]],labels=[places[0].label,pickup.name,dropoff.name,places[1].label],parts=[];
+   for(let i=0;i<3;i++){
+    if(!current())return;step=['Marche vers la station','Vélo entre les stations','Marche vers l’arrivée'][i];$('bikeTripStatus').textContent=step+'…';let part;
+    if(i===1){const v=await loadComparedCycle([...points[i]].reverse(),[...points[i+1]].reverse(),job,current);part={mode:'bike',distance:v.route.distance,duration:v.route.duration,points:v.route.points,source:'FOSSGIS vélo classique',at:v.at,cached:v.cached,version:v.route.dataVersion,pushing:v.route.pushingMeters}}
+    else if(points[i].every((n,j)=>n===points[i+1][j]))part={mode:'walk',distance:0,duration:0,points:[points[i],points[i+1]],source:'Même point demandé, aucune marche calculée',at:Date.now(),version:null};
+    else{const r=await ignRoute([points[i],points[i+1]].map(p=>[...p].reverse()),{provider:'ign',vehicle:{type:'walk'},avoid:[],optimization:'fastest'});part={mode:'walk',distance:r.distance,duration:r.duration,points:r.geometry.coordinates.map(p=>p.slice(0,2)),source:'IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes',at:Date.now(),version:r.resourceVersion}}
+    if(!current())return;parts.push({...part,from:labels[i],to:labels[i+1]});
+   }
+   bikeTripTotals(parts,null,null);bikeTripResult={parts,...stations};$('bikeTripResult').hidden=false;$('bikeTripPlaces').textContent=labels.join(' → ');$('bikeTripSteps').innerHTML=parts.map((p,i)=>`<li><strong>${i+1}. ${p.mode==='walk'?'Marche':'Vélo classique'}</strong> · ${escapeHtml(p.from)} → ${escapeHtml(p.to)}<br>${fmt(p.distance/1000,2)} km · ${Math.ceil(p.duration/60)} min estimées${p.pushing?` · ${Math.ceil(p.pushing)} m annoncés vélo à la main`:''}.<p class="note">${escapeHtml(p.source)} · consulté le ${bikesDate(p.at)}${p.cached?' · cache daté':''}. ${p.version?'Version : '+escapeHtml(p.version):'Version des données non fournie.'}</p></li>`).join('');renderBikeTripSummary();drawBikeTrip(parts);$('bikeTripStatus').textContent='Les trois étapes sont calculées. Vérifier les temps de prise/restitution et les disponibilités datées.';$('bikeTripResultTitle').focus();
+  };
+  await Promise.race([work(),new Promise((_,reject)=>{timer=setTimeout(()=>{job.controller.abort();reject(new Error('Délai global dépassé. Aucun parcours complet présenté.'))},90000)})]);
+ }catch(e){if(current())clearBikeTrip('Parcours incomplet — '+step+' : '+e.message)}finally{clearTimeout(timer);if(bikeTripJob===job){bikeTripJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('bikesLoad').disabled=false;$('bikeTripSearch').disabled=C.cyclingApi!==CYCLE_ENDPOINT;$('bikeTripCancel').hidden=true}}
+}
+function bindBikeTrip(){
+ $('bikesBtn').addEventListener('click',()=>{for(const [id,src] of [['bikeTripStart','start'],['bikeTripEnd','end']])$(id).value=$(src).value.trim();$('bikeTripRent').value='';$('bikeTripReturn').value='';$('bikeTripStrict').checked=false;renderBikeTripChoice()});
+ $('bikesResults').addEventListener('click',e=>{const b=e.target.closest('[data-bike-trip-role]');if(b)chooseBikeTrip(b.dataset.bikeTripRole,b.dataset.bikeTripStation)});
+ for(const id of ['bikeTripStart','bikeTripEnd'])$(id).addEventListener('input',()=>clearBikeTrip('Lieux modifiés : recalculer les trois étapes.'));
+ for(const id of ['bikeTripRent','bikeTripReturn','bikeTripStrict'])$(id).addEventListener(id==='bikeTripStrict'?'change':'input',()=>{if(bikeTripJob)clearBikeTrip('Paramètres modifiés : calcul annulé.');else renderBikeTripSummary()});
+ $('bikeTripSearch').addEventListener('click',searchBikeTrip);$('bikeTripCancel').addEventListener('click',()=>clearBikeTrip('Parcours partagé annulé.'));
 }
 
 let cycleJob=null,cycleContext=null,cycleResult=null,cycleMap=null,cycleLayer=null,cycleNext=0;
@@ -3666,7 +3760,7 @@ function bindSavedCycle(){
 }
 
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindCycle();bindSavedCycle();bindCycleJournal();bindProspective();applyVehicle();updateRange();initPwa();
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindCycleJournal();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
