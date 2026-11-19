@@ -67,4 +67,3 @@ Références officielles consultées le 19 novembre 2026, en complément des qua
 Contrôles du modèle : configuration connue/personnalisée/absente, vrais états désactivés, absence de secrets et de liens dérivés de paramètres, catégories transmises, filtres, clés exactes, anciens formats, contenu invalide, stockage inaccessible et absence de mutation.
 
 Parcours navigateur sur quatre formats : absence de requête/écriture à la consultation, configuration simulée, séparation des aperçus, relecture, conflit externe, raccourcis sans sauvegarde implicite, verrou pendant calcul, clavier et affichage. Recette séparée sur la page réelle, comparaison des fichiers/métadonnées du commit publié et capture des échanges déclenchés. Les valeurs de test et simulations sont distinguées des consultations réelles ; aucune qualification de téléphone physique ou audit exhaustif des fournisseurs.
-
