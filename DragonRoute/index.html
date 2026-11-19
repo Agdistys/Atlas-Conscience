@@ -214,8 +214,13 @@
             <label><input type="radio" name="stopMode" value="near"> Bon compromis proche</label>
             <label><input type="radio" name="stopMode" value="around"> Vers une distance choisie</label>
           </fieldset>
-          <div id="distanceControl" hidden><label for="stopKm">Distance depuis le départ <output id="stopKmLabel" for="stopKm">100 km</output></label><input id="stopKm" type="range" min="0" max="1000" step="5" value="100"></div>
-          <p id="windowNote" class="note">Stations classées par distance routière depuis le départ.</p>
+          <div id="distanceControl" hidden>
+            <label for="stopKm">Distance depuis le départ <output id="stopKmLabel" for="stopKm">100 km</output></label><input id="stopKm" type="range" min="0.1" max="1000" step="any" value="100" aria-describedby="windowNote">
+            <div class="two-fields"><div><label for="stopKmInput">Distance cible (km)</label><input id="stopKmInput" type="number" min="0.1" max="40000" step="any" value="100" aria-describedby="windowNote"></div><div><label for="stopTolerance">Marge avant/après (km)</label><input id="stopTolerance" type="number" min="0.1" max="40000" step="any" value="20" aria-describedby="windowNote"></div></div>
+          </div>
+          <div id="nearControl" hidden><label for="nearKm">Proximité maximale (km)</label><input id="nearKm" type="number" min="0.1" max="40000" step="any" value="50" aria-describedby="windowNote"></div>
+          <button id="fitStationTarget" class="ghost" type="button" hidden>Viser la fin du trajet</button>
+          <p id="windowNote" class="note" role="status">Stations classées par distance routière depuis le départ.</p>
           <label for="liters">Litres à acheter</label><input id="liters" type="number" min="1" max="2000" step="1" value="40">
           <details id="rangeOptions"><summary>Autonomie et réserve</summary>
             <label for="rangeMode">Autonomie au point de départ</label><select id="rangeMode"><option value="none">Non renseignée</option><option value="km">Distance restante estimée (km)</option><option value="liters">Carburant restant estimé (L)</option></select>
@@ -238,6 +243,7 @@
           <button id="stationsBtn" class="primary">Chercher les stations</button>
           <button id="cancelStationsBtn" class="ghost" type="button" hidden>Arrêter la recherche</button>
           <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
+          <div id="stationEmpty" hidden><p id="stationEmptyNote" class="note" role="status"></p><div class="row-actions"><button id="widenStationWindow" class="ghost" type="button">Élargir la zone</button><button id="editStationFuel" class="ghost" type="button">Modifier le carburant</button><button id="editStationFilters" class="ghost" type="button">Modifier les filtres</button></div></div>
           <div id="stationSummary" class="summary" hidden><div class="metric"><b id="stationCount">—</b><small>stations reçues</small></div><div class="metric"><b id="testedCount">—</b><small>comparées dans la zone</small></div><div class="metric"><b id="eligibleCount">—</b><small>après les filtres</small></div></div>
           <p id="stationCoverage" class="note" hidden tabindex="-1"></p>
           <div id="stationContinuation" hidden><p id="stationContinuationNote" class="note"></p><button id="continueStationsBtn" class="ghost" type="button" aria-describedby="stationContinuationNote">Comparer les candidates suivantes</button></div>
@@ -316,7 +322,7 @@
       <label class="check-label"><input id="preparedConfirm" type="checkbox"> Enregistrer ces informations dans ce navigateur</label><button id="preparedSave" class="primary" type="submit" disabled>Enregistrer</button>
     </form>
   </section>
-  <div class="dialog-actions"><button id="preparedV5Export" class="ghost" type="button" hidden>Exporter l’original format 5</button><button id="preparedRawExport" class="ghost" type="button" hidden>Exporter la copie originale non chargée</button><button id="preparedV4Export" class="ghost" type="button" hidden>Exporter l’original format 4</button><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
+  <div class="dialog-actions"><button id="preparedV6Export" class="ghost" type="button" hidden>Exporter l’original format 6</button><button id="preparedV5Export" class="ghost" type="button" hidden>Exporter l’original format 5</button><button id="preparedRawExport" class="ghost" type="button" hidden>Exporter la copie originale non chargée</button><button id="preparedV4Export" class="ghost" type="button" hidden>Exporter l’original format 4</button><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
   <div id="preparedList"></div>
   <section id="preparedView" class="detail-section" hidden aria-label="Préparation enregistrée"><div id="preparedDetails"></div><button id="preparedResumeBtn" class="primary" type="button">Préparer à nouveau ce trajet</button></section>
   </div>
