@@ -1,5 +1,5 @@
 import {expect} from '@playwright/test';import fs from 'node:fs/promises';import {mockDragonRoute} from './dragonroute.mjs';
-export const key='dragonroute.prepared.v9.public',old='dragonroute.prepared.v7.public';
+export const key='dragonroute.prepared.v10.public',old='dragonroute.prepared.v7.public';
 const pattern='https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?**';
 export const records=[{id:'A',lat:45.4,lon:4.87},{id:'B',lat:45.2,lon:4.88},{id:'C',lat:45.4,lon:5.00}].map(s=>({id:s.id,adresse:s.id+' route test',cp:'26000',ville:'Valence',geom:[s.lat,s.lon],e10_prix:1.72,e10_maj:'2026-09-16T18:00:00Z',horaires_automate_24_24:'Oui',services_service:['Toilettes publiques']}));
 export async function setup(page,{long=false,limited=false,fail=0,cap=20}={}){await mockDragonRoute(page);const calls=[],pending=[],control={hold:false};await page.route('**/DragonRoute/config.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('maxCandidates: 20',`maxCandidates: ${cap}`)})});
