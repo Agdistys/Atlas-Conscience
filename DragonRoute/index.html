@@ -239,7 +239,8 @@
           <button id="cancelStationsBtn" class="ghost" type="button" hidden>Arrêter la recherche</button>
           <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
           <div id="stationSummary" class="summary" hidden><div class="metric"><b id="stationCount">—</b><small>stations reçues</small></div><div class="metric"><b id="testedCount">—</b><small>comparées dans la zone</small></div><div class="metric"><b id="eligibleCount">—</b><small>après les filtres</small></div></div>
-          <p id="stationCoverage" class="note" hidden></p>
+          <p id="stationCoverage" class="note" hidden tabindex="-1"></p>
+          <div id="stationContinuation" hidden><p id="stationContinuationNote" class="note"></p><button id="continueStationsBtn" class="ghost" type="button" aria-describedby="stationContinuationNote">Comparer les candidates suivantes</button></div>
           <p id="stationFilterStatus" class="note" role="status" hidden></p>
           <p id="filteredStopNote" class="note" hidden></p>
           <div id="stationListControls" hidden>
