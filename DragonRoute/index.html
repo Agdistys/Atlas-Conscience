@@ -336,7 +336,7 @@
       </form>
     </section>
     <div class="dialog-actions"><button id="savedCycleExport" class="ghost" type="button">Exporter les préparations vélo</button><label class="file-button" for="savedCycleImportFile">Importer des préparations vélo<input id="savedCycleImportFile" type="file" accept="application/json,.json"></label><button id="savedCycleErase" class="ghost" type="button">Effacer les préparations vélo</button></div>
-    <div id="savedCycleList"></div><section id="savedCycleView" class="detail-section" hidden aria-label="Préparation vélo enregistrée"><div id="savedCycleDetails"></div><div class="dialog-actions"><button id="savedCycleGpx" class="ghost" type="button">Télécharger ce tracé historique (GPX)</button><button id="savedCycleResume" class="primary" type="button">Préparer à nouveau ce trajet vélo</button></div></section>
+    <div id="savedCycleList"></div><section id="savedCycleView" class="detail-section" hidden aria-label="Préparation vélo enregistrée"><div id="savedCycleDetails"></div><div class="dialog-actions"><button id="savedCycleGpx" class="ghost" type="button">Télécharger ce tracé historique (GPX)</button><button id="savedCycleJournal" class="ghost" type="button">Déclarer ce trajet effectué</button><button id="savedCycleResume" class="primary" type="button">Préparer à nouveau ce trajet vélo</button></div></section>
   </section>
 </dialog>
 <dialog id="savedTransitImportDialog" aria-labelledby="savedTransitImportTitle"><div class="dialog-heading"><h2 id="savedTransitImportTitle">Vérifier les préparations collectives</h2><button type="button" class="icon-btn close-dialog" aria-label="Annuler l’import collectif">×</button></div><p id="savedTransitImportSummary"></p><p class="note">Ces informations sont déclaratives et peuvent être personnelles. Aucun appel réseau. La liste collective sera remplacée après confirmation ; les autres données restent conservées.</p><button id="savedTransitBackup" class="ghost" type="button">Exporter la liste collective actuelle</button><div id="savedTransitImportDetails"></div><label class="check-label"><input id="savedTransitImportConfirm" type="checkbox"> Remplacer les préparations collectives par ce fichier</label><p id="savedTransitImportMessage" class="note" role="status"></p><button id="savedTransitImportApply" class="primary" type="button" disabled>Confirmer le remplacement collectif</button></dialog>
@@ -391,6 +391,7 @@
   <label class="journal-toggle"><input id="journalEnable" type="checkbox"> Activer mon journal</label>
   <p id="journalState" class="note"></p><p id="journalMessage" class="note" role="status" aria-live="polite"></p>
   <div class="dialog-actions"><button id="journalCopy" class="ghost" type="button">Reprendre le trajet affiché</button><button id="journalNew" class="primary" type="button">Ajouter un trajet effectué</button></div>
+  <button id="journalCyclePending" class="primary" type="button" hidden>Examiner le brouillon vélo</button>
   <button id="journalCollectivePending" class="primary" type="button" hidden>Examiner le brouillon collectif</button>
   <section id="journalEditor" class="profile-section" hidden aria-labelledby="journalFormTitle">
     <h3 id="journalFormTitle">Confirmer un trajet effectué</h3><p id="journalOrigin" class="note"></p>
@@ -488,6 +489,7 @@
   <div id="cycleMap" role="region" aria-label="Carte du trajet à vélo"></div><svg id="cycleSketch" viewBox="0 0 600 320" role="img" aria-label="Schéma du tracé vélo, sans fond de carte" hidden></svg><p id="cycleMapNote" class="note"></p>
   <details><summary>Voies et passages vélo à la main annoncés</summary><p class="note">Détail du moteur, à consulter à l’arrêt. Ce n’est pas un guidage en déplacement ; la signalisation et les conditions réelles restent à vérifier.</p><ol id="cycleSteps"></ol></details>
   <button id="cycleSave" class="primary" type="button">Enregistrer ce parcours vélo</button>
+  <button id="cycleJournal" class="ghost" type="button">Déclarer ce trajet effectué</button>
   <button id="cycleExport" class="ghost" type="button">Télécharger le tracé vélo (GPX)</button><p id="cycleExportNote" class="note" role="status"></p>
   <p class="note">Le fichier contient les lieux et le tracé préparé ; aucune altitude ou position en temps réel. La sauvegarde volontaire est accessible dans « Mes trajets » ; elle conserve un instantané daté et n’ajoute aucun déplacement au journal. Prix et empreinte non estimés.</p>
  </section>
