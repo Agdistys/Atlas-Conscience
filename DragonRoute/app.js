@@ -21,6 +21,39 @@ let profile,storageNotice="",profileSnapshots={},profileWriteBlocked=false,legac
 let tripVehicleId=null,vehicleDraftId=null;
 let addressDraft=null,addressLookupSequence=0,profileImportSequence=0,pendingProfileImport=null;
 const rememberedInputs={start:null,end:null},favoriteInputs={start:null,end:null};
+// BEGIN CYCLING MODEL
+const CYCLE_ENDPOINT='https://routing.openstreetmap.de/routed-bike/route/v1/driving/';
+function cycleNumber(v,min,max){if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max)throw new Error('Donnée cyclable numérique invalide.');return v}
+function cyclePoint(p){if(!Array.isArray(p)||p.length!==2)throw new Error('Coordonnées cyclables invalides.');return [cycleNumber(p[0],-5.5,9.7),cycleNumber(p[1],41,51.2)]}
+function cycleGap(a,b){const rad=Math.PI/180,dlat=(b[1]-a[1])*rad,dlon=(b[0]-a[0])*rad,h=Math.sin(dlat/2)**2+Math.cos(a[1]*rad)*Math.cos(b[1]*rad)*Math.sin(dlon/2)**2;return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(Math.max(0,1-h)))}
+function cycleLimit(raw){if(raw===''||raw===null||raw===undefined)return null;const n=Number(raw);if(!Number.isFinite(n)||n<.1||n>300)throw new Error('La distance souhaitée doit être comprise entre 0,1 et 300 km, ou laissée vide.');return n}
+function cyclePreference(distance,limit){return limit===null?'Aucune limite personnelle renseignée.':distance>limit*1000?'Limite souhaitée dépassée. Le tracé reste consultable.':'Distance dans la limite souhaitée ; effort et autonomie non vérifiés.'}
+function cycleRequest(a,b,endpoint=CYCLE_ENDPOINT){
+ if(endpoint!==CYCLE_ENDPOINT)throw new Error('Le service vélo est désactivé ou non qualifié.');a=cyclePoint(a);b=cyclePoint(b);const gap=cycleGap(a,b);if(gap<10||gap>150000)throw new Error('Choisir deux lieux distincts, à moins de 150 km à vol d’oiseau pour cet essai.');
+ return {a,b,url:endpoint+[a,b].map(p=>p.join(',')).join(';')+'?'+new URLSearchParams({overview:'full',geometries:'geojson',steps:'true',alternatives:'false'})};
+}
+function cycleGeometry(g){if(g?.type!=='LineString'||!Array.isArray(g.coordinates)||g.coordinates.length<2||g.coordinates.length>25000)throw new Error('Tracé cyclable absent ou trop volumineux.');return g.coordinates.map(cyclePoint)}
+function cycleResponse(d,q){
+ if(d?.code==='NoRoute'||d?.code==='NoSegment')throw new Error('Aucun parcours vélo trouvé entre ces lieux. Préciser les points ou essayer un autre trajet.');
+ if(d?.code!=='Ok'||!Array.isArray(d.routes)||d.routes.length!==1||!Array.isArray(d.waypoints)||d.waypoints.length!==2)throw new Error('Réponse cyclable non reconnue.');
+ const r=d.routes[0],points=cycleGeometry(r.geometry),distance=cycleNumber(r.distance,1,300000),duration=cycleNumber(r.duration,1,604800);
+ for(const [i,p] of [q.a,q.b].entries()){const w=d.waypoints[i];if(cycleNumber(w.distance,0,150)>150||cycleGap(cyclePoint(w.location),p)>150||cycleGap(i?points.at(-1):points[0],p)>150)throw new Error('Le tracé est trop éloigné du lieu demandé. Préciser l’adresse.');}
+ if(!Array.isArray(r.legs)||r.legs.length!==1)throw new Error('Étapes cyclables incohérentes.');const leg=r.legs[0];
+ if(!Array.isArray(leg.steps)||leg.steps.length<2||leg.steps.length>1500)throw new Error('Détail cyclable manquant ou trop volumineux.');
+ const steps=leg.steps.map(s=>{if(!['cycling','pushing bike'].includes(s.mode))throw new Error('Ce parcours comporte un mode non qualifié (transport ou traversée). Aucun trajet vélo direct n’est présenté.');return {mode:s.mode,distance:cycleNumber(s.distance,0,300000),duration:cycleNumber(s.duration,0,604800),name:typeof s.name==='string'?s.name.slice(0,240):''}});
+ const close=(a,b,t)=>Math.abs(a-b)<=t;
+ if(!close(cycleNumber(leg.distance,1,300000),distance,Math.max(10,distance*.001))||!close(cycleNumber(leg.duration,1,604800),duration,Math.max(10,duration*.001))||!close(steps.reduce((n,s)=>n+s.distance,0),distance,Math.max(10,distance*.001))||!close(steps.reduce((n,s)=>n+s.duration,0),duration,Math.max(10,duration*.001)))throw new Error('Distances ou durées cyclables incohérentes.');
+ let measured=0;for(let i=1;i<points.length;i++){const gap=cycleGap(points[i-1],points[i]);if(gap>5000)throw new Error('Tracé cyclable discontinu.');measured+=gap}
+ if(Math.abs(measured-distance)>Math.max(75,distance*.05))throw new Error('La longueur du tracé ne concorde pas avec la distance.');
+ return {points,distance,duration,steps,pushingMeters:steps.filter(s=>s.mode==='pushing bike').reduce((n,s)=>n+s.distance,0),dataVersion:typeof d.data_version==='string'?d.data_version.slice(0,100):null};
+}
+function cycleXml(v){return String(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
+function cycleGpx(r,places,at){
+ const points=cycleGeometry({type:'LineString',coordinates:r.points}),title=cycleXml(places.start+' → '+places.end),desc=cycleXml(`Vélo classique. Tracé préparé, non relevé GPS. ${r.distance} m ; ${r.duration} s hors pauses. Calcul consulté le ${at}. OSRM / FOSSGIS ; données © OpenStreetMap (ODbL). Pente, état, accès réel et autonomie non vérifiés.`);
+ return `<?xml version="1.0" encoding="UTF-8"?><gpx version="1.1" creator="OùQuandQui" xmlns="http://www.topografix.com/GPX/1/1"><metadata><name>${title}</name><desc>${desc}</desc><link href="https://routing.openstreetmap.de/about.html"><text>OSRM / FOSSGIS</text></link></metadata><trk><name>${title}</name><desc>${desc}</desc><src>OpenStreetMap · ODbL · FOSSGIS routed-bike</src><trkseg>${points.map(([lon,lat])=>`<trkpt lat="${lat}" lon="${lon}"></trkpt>`).join('')}</trkseg></trk></gpx>`;
+}
+// END CYCLING MODEL
+
 // BEGIN SHARED BIKES MODEL
 const BIKE_BASE='https://download.data.grandlyon.com/files/rdata/jcd_jcdecaux.jcdvelov/';
 const BIKE_MAX_AGE=300000;
@@ -3416,7 +3449,68 @@ function bindBikes(){
  document.addEventListener('visibilitychange',refreshBikes);
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindProspective();applyVehicle();updateRange();initPwa();
+let cycleJob=null,cycleContext=null,cycleResult=null,cycleMap=null,cycleLayer=null,cycleNext=0;
+const cycleCache=new Map();
+function clearCycle(message=''){
+ const job=cycleJob;cycleJob=null;if(job){job.controller.abort();if(activeAbort===job.controller){activeAbort=null;if(placePending){placePending.reject(new Error('Calcul vélo annulé.'));placePending=null;$('placeDialog').close()}lock(false)}}
+ cycleResult=null;$('cycleResult').hidden=true;$('cycleStatus').textContent=message;$('cycleSearch').disabled=C.cyclingApi!==CYCLE_ENDPOINT;$('cycleCancel').hidden=true;$('cycleExportNote').textContent='';if(cycleLayer){cycleLayer.remove();cycleLayer=null}$('cycleSketch').replaceChildren();
+}
+function openCycle(){
+ if(busy)return;clearCycle();const inputs=['start','end'].map(id=>$(id).value.trim());cycleContext={inputs,signature:transitInputSignature()};
+ $('cyclePlaces').textContent=`Départ : ${inputs[0]||'à renseigner'}. Arrivée : ${inputs[1]||'à renseigner'}.`;
+ if(C.cyclingApi!==CYCLE_ENDPOINT)$('cycleStatus').textContent='Le service vélo est actuellement désactivé.';
+ $('cycleDialog').showModal();$('cycleTitle').focus();
+}
+function showCyclePreference(){if(!cycleResult)return;try{$('cyclePreference').textContent=cyclePreference(cycleResult.route.distance,cycleLimit($('cycleMax').value))}catch(e){$('cyclePreference').textContent=e.message}}
+function drawCycle(r){
+ const points=r.points.map(([lon,lat])=>[lat,lon]);if(cycleLayer){cycleLayer.remove();cycleLayer=null}
+ $('cycleMap').hidden=!window.L;$('cycleSketch').toggleAttribute('hidden',Boolean(window.L));$('cycleSketch').replaceChildren();$('cycleMapNote').textContent='Bleu : parcours cyclable calculé. Les points marquent les extrémités du tracé ; le rattachement à l’adresse peut différer de 150 m au maximum.';
+ if(window.L){try{if(!cycleMap){cycleMap=L.map('cycleMap',{scrollWheelZoom:false});L.tileLayer(C.tileUrl,{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(cycleMap);new ResizeObserver(()=>{cycleMap.invalidateSize();if(cycleLayer)cycleMap.fitBounds(cycleLayer.getBounds(),{padding:[24,24]})}).observe($('cycleMap'))}
+  cycleLayer=L.featureGroup().addTo(cycleMap);L.polyline(points,{color:'#fff',weight:10}).addTo(cycleLayer);L.polyline(points,{color:'#1674d8',weight:6}).addTo(cycleLayer);
+  for(const [p,label] of [[points[0],'Départ du tracé vélo'],[points.at(-1),'Arrivée du tracé vélo']])L.circleMarker(p,{radius:7,color:'#123252',fillColor:'#fff',fillOpacity:1}).bindTooltip(label).addTo(cycleLayer);cycleMap.invalidateSize();cycleMap.fitBounds(points,{padding:[24,24]});return;
+ }catch{$('cycleMap').hidden=true;$('cycleSketch').removeAttribute('hidden')}}
+ const xs=r.points.map(p=>p[0]),ys=r.points.map(p=>p[1]),minX=Math.min(...xs),minY=Math.min(...ys),dx=Math.max(.001,Math.max(...xs)-minX),dy=Math.max(.001,Math.max(...ys)-minY),scale=Math.min(560/dx,280/dy),line=document.createElementNS('http://www.w3.org/2000/svg','polyline');line.setAttribute('points',r.points.map(([x,y])=>`${20+(x-minX)*scale},${300-(y-minY)*scale}`).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke','#80bdff');line.setAttribute('stroke-width','5');$('cycleSketch').append(line);$('cycleMapNote').textContent='Fond de carte indisponible : schéma du vrai tracé reçu, sans échelle. Distance et détail restent consultables.';
+}
+function renderCycle(r,places,at,cached){
+ cycleResult={route:r,places,at};$('cycleResult').hidden=false;$('cyclePlaces').textContent=places.start+' → '+places.end;
+ $('cycleStatus').textContent=`Parcours vélo disponible. ${cached?'Résultat conservé en mémoire, consulté':'Calcul consulté'} le ${bikesDate(at)}. ${r.dataVersion?'Version des données : '+r.dataVersion+'.':'Date des données routières non fournie.'}`;
+ $('cycleMetrics').textContent=`${fmt(r.distance/1000,2)} km · ${Math.ceil(r.duration/60)} min estimées, hors pauses. ${r.pushingMeters>0?`${Math.ceil(r.pushingMeters)} m annoncés vélo à la main.`:'Passages vélo à la main : aucun annoncé.'}`;
+ $('cycleSteps').innerHTML=r.steps.filter(s=>s.distance>0).map(s=>`<li><strong>${s.mode==='pushing bike'?'Vélo à la main':'Vélo'}</strong> · ${escapeHtml(s.name)||'Voie sans nom'} · ${Math.ceil(s.distance)} m</li>`).join('');showCyclePreference();drawCycle(r);
+}
+async function cycleFetch(q,job){
+ const response=await fetch(q.url,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'origin',redirect:'error'});
+ if(response.status===429){cycleNext=Math.max(cycleNext,bikeRetryAfter(response.headers.get('Retry-After')));throw new Error('Limite du service vélo atteinte. Réessayer après '+bikesDate(cycleNext)+'.')}
+ if(!response.ok&&response.status!==400)throw new Error('Service vélo indisponible (HTTP '+response.status+').');
+ if(Number(response.headers.get('Content-Length'))>2000000)throw new Error('Réponse vélo trop volumineuse.');const reader=response.body.getReader(),chunks=[];let length=0;
+ while(true){const {done,value}=await reader.read();if(done)break;length+=value.byteLength;if(length>2000000){await reader.cancel();throw new Error('Réponse vélo trop volumineuse.')}chunks.push(value)}
+ const bytes=new Uint8Array(length);let pos=0;for(const c of chunks){bytes.set(c,pos);pos+=c.byteLength}let data;try{data=JSON.parse(new TextDecoder().decode(bytes))}catch{throw new Error('Réponse vélo illisible.')}return cycleResponse(data,q);
+}
+async function searchCycle(){
+ if(busy||cycleJob||!cycleContext)return;const context=cycleContext;
+ try{if(context.signature!==transitInputSignature())throw new Error('Lieux modifiés : rouvrir le calcul vélo.');if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée dans Mon trajet.');cycleLimit($('cycleMax').value);if(C.cyclingApi!==CYCLE_ENDPOINT)throw new Error('Le service vélo est désactivé.');if(Date.now()<cycleNext)throw new Error('Patienter avant un nouveau calcul vélo : '+bikesDate(cycleNext)+'.')}catch(e){$('cycleStatus').textContent=e.message;return}
+ clearCycle('Vérification des lieux auprès de l’IGN…');const job={controller:new AbortController()};cycleJob=job;activeAbort=job.controller;lock(true);$('cycleSearch').disabled=true;$('cycleCancel').hidden=false;const current=()=>cycleJob===job&&context.signature===transitInputSignature();let timer;
+ try{
+  const work=async()=>{
+   const a=transitStoredPlace(context.inputs[0],'start')||await resolveTripPlace(context.inputs[0],'start',current);if(!current())return;
+   const b=transitStoredPlace(context.inputs[1],'end')||await resolveTripPlace(context.inputs[1],'end',current);if(!current())return;
+   const q=cycleRequest([a.lon,a.lat],[b.lon,b.lat],C.cyclingApi),places={start:a.label,end:b.label},now=Date.now(),cached=cycleCache.get(q.url);
+   if(cached&&now>=cached.at&&now-cached.at<300000){renderCycle(cached.route,places,cached.at,true);return}
+   cycleNext=now+5000;$('cyclePlaces').textContent=places.start+' → '+places.end;$('cycleStatus').textContent='Calcul auprès du moteur vélo FOSSGIS…';
+   const route=await cycleFetch(q,job);if(!current())return;const at=Date.now();if(cycleCache.size>=8)cycleCache.delete(cycleCache.keys().next().value);cycleCache.set(q.url,{route,at});renderCycle(route,places,at,false);
+  };
+  await Promise.race([work(),new Promise((_,reject)=>{timer=setTimeout(()=>{job.controller.abort();reject(new Error('Délai du calcul vélo dépassé. Relancer plus tard.'))},30000)})]);
+ }catch(e){if(current())clearCycle(e.name==='AbortError'?'Calcul vélo interrompu.':e.message)}
+ finally{clearTimeout(timer);if(cycleJob===job){cycleJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('cycleSearch').disabled=C.cyclingApi!==CYCLE_ENDPOINT;$('cycleCancel').hidden=true}}
+}
+function bindCycle(){
+ $('cycleBtn').addEventListener('click',openCycle);$('cycleSearch').addEventListener('click',searchCycle);$('cycleCancel').addEventListener('click',()=>clearCycle('Calcul vélo annulé.'));
+ $('cycleClose').addEventListener('click',()=>$('cycleDialog').close());$('cycleDialog').addEventListener('close',()=>{clearCycle();$('cycleBtn').focus()});$('cycleDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('cycleDialog').close()}});
+ $('cycleMax').addEventListener('input',showCyclePreference);
+ for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearCycle();cycleContext=null;if($('cycleDialog').open)$('cycleDialog').close()});
+ $('cycleExport').addEventListener('click',()=>{if(!cycleResult||cycleJob)return;try{const r=cycleResult,url=URL.createObjectURL(new Blob([cycleGpx(r.route,r.places,new Date(r.at).toISOString())],{type:'application/gpx+xml;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='OuQuandQui_trajet_velo.gpx';document.body.append(a);try{a.click()}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}$('cycleExportNote').textContent='Téléchargement demandé. Tracé préparé, sans guidage en direct ni carte hors ligne.'}catch(e){$('cycleExportNote').textContent=e.message}});
+}
+
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindCycle();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");

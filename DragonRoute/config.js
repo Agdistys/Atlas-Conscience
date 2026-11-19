@@ -5,6 +5,8 @@ window.DRAGONROUTE_CONFIG = Object.freeze({
   tollsApi: "",
   // Public IGN service: light vehicles without motorways, no key required.
   ignRouting: true,
+  // Non-commercial, low-traffic trial only; reviewed FOSSGIS policy in V033.
+  cyclingApi: "https://routing.openstreetmap.de/routed-bike/route/v1/driving/",
   geocodingApi: "https://data.geopf.fr/geocodage/search",
   osrm: "https://router.project-osrm.org",
   fuelApi: "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records",
