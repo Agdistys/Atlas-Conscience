@@ -225,7 +225,7 @@ test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
   let previous;
-  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'travelMode', 'savedVehicleSelect', 'start', 'gpsBtn', 'end', 'transitBtn', 'routeOptimization', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore', 'goBtn']) {
+  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'travelMode', 'savedVehicleSelect', 'start', 'gpsBtn', 'end', 'transitBtn', 'bikesBtn', 'routeOptimization', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore', 'goBtn']) {
     await page.keyboard.press('Tab');
     // Native date inputs expose several keyboard segments inside the same element.
     if (['stationDeparture','routeArriveBy'].includes(previous)) {
@@ -246,6 +246,14 @@ test('parcours clavier et mouvement reduit', async ({ page }) => {
       await page.keyboard.press('Escape');
       await expect(page.locator('#transitDialog')).toBeHidden();
       await expect(page.locator('#transitBtn')).toBeFocused();
+    }
+    if (id === 'bikesBtn') {
+      await page.keyboard.press('Enter');
+      await expect(page.locator('#bikesDialog')).toBeVisible();
+      await expect(page.locator('#bikesTitle')).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(page.locator('#bikesDialog')).toBeHidden();
+      await expect(page.locator('#bikesBtn')).toBeFocused();
     }
     if (id === 'journalBtn') {
       await page.keyboard.press('Enter');
