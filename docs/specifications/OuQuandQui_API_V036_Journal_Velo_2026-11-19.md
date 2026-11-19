@@ -26,7 +26,7 @@ Le mode global du journal décrit le déplacement déclaré. Les portions annonc
 
 ## Empreinte facultative et révisions
 
-L’estimation reste décochée à chaque ouverture et aucun facteur n’est présélectionné. Le modèle mécanique ou électrique est choisi pour le déplacement déclaré, indépendamment du profil classique utilisé par le calculateur. Ce choix dans le journal ne valide aucun routage, batterie ou autonomie VAE.
+Pour un nouveau brouillon, l’estimation reste décochée et aucun facteur n’est présélectionné. Lors d’une correction, le modèle antérieurement choisi reste visible, mais aucun recalcul ne se fait sans demande explicite. Le modèle mécanique ou électrique est choisi pour le déplacement déclaré, indépendamment du profil classique utilisé par le calculateur. Ce choix dans le journal ne valide aucun routage, batterie ou autonomie VAE.
 
 Les facteurs ADEME / Impact CO₂ déjà figés en V009 sont réutilisés localement. Le modèle mécanique porte la construction seule ; le modèle électrique porte construction et énergie. Ces périmètres restent séparés dans le bilan. Les unités par personne-kilomètre ne sont pas divisées à nouveau par un nombre de voyageurs. L’alimentation humaine et les impacts non fournis par le modèle ne sont pas ajoutés ni supposés inclus.
 
