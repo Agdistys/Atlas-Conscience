@@ -5,7 +5,7 @@ const fuelField={E10:"e10",Gazole:"gazole",SP98:"sp98",SP95:"sp95",E85:"e85",GPL
 const log=[];
 let map=null, routeLayer=null, markerLayer=null, currentPos=null, activeAbort=null, deferredInstall=null;
 let trip=null, compared=[], busy=false,stationSearch=null;
-let comparison=null;
+let comparison=null,transitComparedCycle=null;
 let mapView=null,currentStation=null,detailSequence=0;
 let orsLastRequest=-Infinity;
 let ignLastRequest=-Infinity;
@@ -54,6 +54,9 @@ function cycleGpx(r,places,at){
 }
 // END CYCLING MODEL
 
+// BEGIN CYCLE COMPARISON MODEL
+function cycleComparisonChoice(enabled,limit){return {enabled:enabled===true,maxKm:enabled===true?cycleLimit(limit):null}}
+// END CYCLE COMPARISON MODEL
 // BEGIN SAVED CYCLE MODEL
 function validateSavedCycleEntry(e){
  if(!e?.places||!e.criteria||e.snapshot?.source!=='fossgis-bike'||e.snapshot.profile!=='bicycle')throw new Error('Préparation vélo incomplète ou profil non reconnu.');
@@ -2286,7 +2289,7 @@ function comparisonHypotheses(raw){
  return {travelers,...timing,carbon:prospectiveChoice(raw.carbon),cons:comparisonNumber(raw.cons,1,100),price:comparisonNumber(raw.price,.001,10,true),maxWalkKm:walkLimit(raw.maxWalkKm)};
 }
 function comparisonCost(mode,distance,h){
- if(!['car','walk'].includes(mode)||typeof distance!=='number'||!Number.isFinite(distance)||distance<0)throw new Error('Trajet de comparaison invalide.');
+ if(!['car','walk','cycle'].includes(mode)||typeof distance!=='number'||!Number.isFinite(distance)||distance<0)throw new Error('Trajet de comparaison invalide.');
  // No complete budget is available: neither missing tolls nor walking costs are zero.
  const liters=mode==='car'?distance/1000*h.cons/100:null;
  const fuel=liters!==null&&h.price!==null?liters*h.price:null;
@@ -2300,7 +2303,7 @@ function orderComparison(entries,criterion){
 // END COMPARISON MODEL
 const comparisonFields=['comparisonTravelers','comparisonDeparture','comparisonCons','comparisonPrice','comparisonWalkLimit','comparisonArriveBy'];
 function comparisonRaw(){return {...Object.fromEntries(['travelers','departure','cons','price','maxWalkKm','arriveBy'].map((k,i)=>[k,$(comparisonFields[i]).value])),onlyBefore:$('comparisonOnlyBefore').checked,carbon:prospectiveRaw('comparisonCarbon')}}
-function comparisonSignature(){return JSON.stringify({a:trip?.a,b:trip?.b,fields:['start','end','routeOptimization','routeVehicle','cons','fuel','budgetPrice','maxWalkKm','stationDeparture','routeArriveBy',...comparisonFields].map(id=>$(id).value),onlyBefore:$('routeOnlyBefore').checked,carbon:['routeCarbon','comparisonCarbon'].map(p=>prospectiveRaw(p)),avoid:[...document.querySelectorAll('.avoid-options input')].map(el=>[el.value,el.checked])})}
+function comparisonSignature(){return JSON.stringify({a:trip?.a,b:trip?.b,fields:['start','end','routeOptimization','routeVehicle','cons','fuel','budgetPrice','maxWalkKm','stationDeparture','routeArriveBy',...comparisonFields].map(id=>$(id).value),onlyBefore:$('routeOnlyBefore').checked,cycle:[$('comparisonCycle').checked,$('comparisonCycleLimit').value],carbon:['routeCarbon','comparisonCarbon'].map(p=>prospectiveRaw(p)),avoid:[...document.querySelectorAll('.avoid-options input')].map(el=>[el.value,el.checked])})}
 function comparisonCarSettings(){const avoid=[...document.querySelectorAll('.avoid-options input:checked')].map(el=>el.value);return routingSettings($('routeVehicle').value,avoid)}
 function clearComparison(message=''){
  if(comparison?.running){comparison.cancelled=true;comparison.controller?.abort()}
@@ -2319,20 +2322,21 @@ function openComparison(){
  if(trip.meetings)$('comparisonCarbonOccupants').value='';
  const carbonAvailable=$('routeVehicle').value==='car'&&prospectiveFactors($('fuel').value).length>0;updateProspectiveControls('comparisonCarbon',carbonAvailable);$('comparisonCarbonAvailability').textContent=carbonAvailable?'Le groupe est supposé voyager dans le même véhicule. Les occupants incluent le conducteur et les éventuelles personnes hors groupe. Capacité du véhicule non vérifiée.':'Aucun modèle compatible pour le véhicule ou carburant choisi.';
  $('comparisonDeparture').value=$('stationDeparture').value;$('comparisonCons').value=$('cons').value;$('comparisonPrice').value='';$('comparisonWalkLimit').value=$('maxWalkKm').value;
- $('comparisonStatus').textContent='Vérifier les hypothèses, puis calculer les deux modes directs, sans rencontres ni arrêt carburant. Le trajet affiché reste en place jusqu’au choix.';
+ $('comparisonStatus').textContent='Vérifier les hypothèses, puis calculer les modes demandés, sans rencontres ni arrêt carburant. Le trajet affiché reste en place jusqu’au choix.';
  $('comparisonHeading').focus();
 }
 function renderComparison(op){
  if(comparison!==op)return;
  const available=op.entries.filter(e=>e.status==='ready').length;
- $('comparisonStatus').textContent=op.running?'Calcul des deux modes…':op.cancelled?'Comparaison annulée. Aucun nouveau trajet sélectionné.':`${available}/2 trajets disponibles. ${available===2?'Comparaison des distances et durées disponible.':'Comparaison partielle.'} Coûts totaux et empreintes incomplets.`;
+ $('comparisonStatus').textContent=op.running?'Calcul des modes demandés…':op.cancelled?'Comparaison annulée. Aucun nouveau trajet sélectionné.':`${available}/${op.entries.length} trajets disponibles. ${available===op.entries.length?'Comparaison des distances et durées disponible.':'Comparaison partielle.'} Coûts totaux et empreintes incomplets.`;
  $('comparisonSortWrap').hidden=!available;
  const h=op.hypotheses;
  $('comparisonContext').textContent=`${op.source.places.start} → ${op.source.places.end}. Aller simple, sans arrêt. Groupe de ${h.travelers} personne(s), capacité du véhicule non vérifiée. ${h.departure===null?'Départ non renseigné.':`Départ souhaité : ${arrivalLabel(h.departure)} (Paris).`} ${h.arriveBy===null?'Heure limite non renseignée.':`Heure limite : ${arrivalLabel(h.arriveBy)} (Paris).`} ${h.departure!==null&&h.departure<Date.now()-60000?'Départ passé : actualiser pour un trajet à venir.':''} Estimations sans garantie d’arrivée. Calculs hors trafic temps réel et pauses ; la date et le nombre de personnes ne sont pas transmis aux moteurs. Résultats obtenus le ${new Date(op.at).toLocaleString('fr-FR')}, cache de calcul possible.`;
  const cards=[],excluded=[];let compatible=0;
  orderComparison(op.entries,$('comparisonSort').value).forEach(e=>{
-  const title=e.mode==='car'?'Véhicule léger':'À pied';
+  const title=e.mode==='car'?'Véhicule léger':e.mode==='cycle'?'À vélo classique':'À pied';
   if(e.status!=='ready'){cards.push(`<article class="comparison-card" data-compare-mode="${e.mode}"><h3>${title}</h3><p>${escapeHtml(e.status==='pending'?'Calcul en attente…':e.error)}</p></article>`);return}
+  if(e.mode==='cycle'){const time=timingEstimate(e.route.duration,h),hidden=h.onlyBefore&&!time.admissible;if(time.admissible)compatible++;(hidden?excluded:cards).push(cycleComparisonCard(e,op,time,hidden));return}
   const emission=prospectiveCarbon(e.mode,e.route.distance,op.fuel,h.carbon,h.travelers),cost=comparisonCost(e.mode,e.route.distance,h),w=e.mode==='walk'?walkingDistance(e.route.distance,h.maxWalkKm):null;
   const time=timingEstimate(e.route.duration,h),hidden=h.onlyBefore&&!time.admissible;if(time.admissible)compatible++;
   const html=`<article class="comparison-card" data-compare-mode="${e.mode}" data-timing-state="${time.state}"><h3>${title}</h3><p class="station-selection">${escapeHtml(timingText(time))}</p><dl class="budget-lines"><div><dt>Distance</dt><dd>${fmt(e.route.distance/1000,1)} km</dd></div><div><dt>Durée estimée</dt><dd>${Math.round(e.route.duration/60)} min</dd></div><div><dt>Carburant du véhicule</dt><dd>${e.mode==='walk'?'Sans objet':cost.fuel===null?'Prix non renseigné':`${fmt(cost.fuel)} € · partiel`}</dd></div><div><dt>Coût total du groupe</dt><dd>${cost.status==='partial'?'Incomplet':'Non estimé'}</dd></div><div><dt>CO₂e du groupe (allocation)</dt><dd>${emission.status==='estimated'?carbonAmount(emission.groupKg):'Non estimée'}</dd></div></dl><div class="prospective-carbon" data-carbon-state="${emission.status}">${prospectiveMarkup(emission)}</div><p class="note">${e.mode==='car'?`${fmt(cost.liters)} L estimés · ${escapeHtml(op.fuel)} · ${h.price===null?'prix absent':`${fmt(h.price,3)} €/L saisi`}. Péages, stationnement et autres frais inconnus. Aucun prix de station ni péage d’un autre tracé repris.`:'Budget de marche non estimé. Pente, escaliers, revêtement et accessibilité non vérifiés.'}</p>${w?`<p class="station-selection">${w.limit===null?'Limite de marche non renseignée.':w.exceeded?`Limite souhaitée dépassée (${fmt(w.limit,1)} km). ${hidden?'Sélection écartée par le filtre horaire.':'Cette limite de distance reste une préférence souple.'}`:`Dans la limite souhaitée de ${fmt(w.limit,1)} km ; difficulté non évaluée.`}</p>`:''}<p class="note">${escapeHtml(routingLabel(e.settings))}${e.route.resourceVersion?' · données '+escapeHtml(e.route.resourceVersion):''}</p><button type="button" class="ghost navigation-button" data-compare-select="${e.mode}" aria-pressed="${op.selected===e.mode}" ${op.running||hidden?'disabled':''}>${op.selected===e.mode?'Trajet affiché':'Afficher ce trajet'}</button></article>`;
@@ -2345,15 +2349,17 @@ function renderComparison(op){
 }
 async function runComparison(){
  if(busy||!trip)return;
- let hypotheses;try{hypotheses=comparisonHypotheses(comparisonRaw())}catch(e){clearComparison('Vérifier les hypothèses : '+e.message);return}
+ let hypotheses,cycleChoice;try{hypotheses=comparisonHypotheses(comparisonRaw());cycleChoice=cycleComparisonChoice($('comparisonCycle').checked,$('comparisonCycleLimit').value)}catch(e){clearComparison('Vérifier les hypothèses : '+e.message);return}
  const source={a:[...trip.a],b:[...trip.b],places:{...trip.places}},car=comparisonCarSettings();
  const op={source,hypotheses,fuel:$('fuel').value,signature:comparisonSignature(),at:new Date().toISOString(),running:true,cancelled:false,entries:[{mode:'car',settings:car,status:'pending'},{mode:'walk',settings:routingSettings('walk',[]),status:'pending'}],controller:new AbortController()};
+ op.cycleChoice=cycleChoice;if(cycleChoice.enabled)op.entries.push({mode:'cycle',status:'pending'});
  comparison=op;activeAbort=op.controller;lock(true);renderComparison(op);$('comparisonCancel').disabled=false;
  let ignQuota=false;
  try{
   for(const entry of op.entries){
    if(op.cancelled||comparison!==op)break;
    try{
+    if(entry.mode==='cycle'){const view=await loadComparedCycle(source.a,source.b,op,()=>comparison===op&&!op.cancelled&&op.signature===comparisonSignature());if(op.cancelled||comparison!==op)break;if(op.signature!==comparisonSignature()){comparisonChanged();break}entry.cycle=view;entry.route=view.route;entry.status='ready';continue}
     if(entry.mode==='car'&&car.vehicle.type!=='car')throw new Error('Comparaison véhicule léger indisponible pour le profil choisi. Aucun poids lourd ou caravane remplacé par une voiture.');
     if(ignQuota&&entry.settings.provider==='ign')throw new Error('Quota IGN atteint : ce second calcul n’a pas été demandé. Relancer plus tard.');
     ensureRouting(entry.settings);
@@ -2365,12 +2371,12 @@ async function runComparison(){
   }
  }finally{
   op.running=false;op.at=new Date().toISOString();if(activeAbort===op.controller)activeAbort=null;lock(false);
-  if(comparison===op){if(op.cancelled)op.entries=[];renderComparison(op)}
+  if(comparison===op){if(op.signature!==comparisonSignature())comparisonChanged();else{if(op.cancelled)op.entries=[];renderComparison(op)}}
   $('comparisonCancel').hidden=true;
  }
 }
 function chooseComparison(mode){
- const op=comparison;if(busy||!op||op.running||op.cancelled)return;
+ const op=comparison;if(busy||!op||op.running||op.cancelled||mode==='cycle')return;
  if(op.signature!==comparisonSignature()){comparisonChanged();return}
  const entry=op.entries.find(e=>e.mode===mode&&e.status==='ready');if(!entry||op.selected===mode||(op.hypotheses.onlyBefore&&!timingEstimate(entry.route.duration,op.hypotheses).admissible))return;
  if((trip?.meetings||selectedStop||compared.length||tableTolls.segments.length||tollState.quote)&&!confirm('Afficher ce trajet direct retire les rencontres, les stations, l’arrêt et les péages précédents. Continuer ?'))return;
@@ -2392,8 +2398,9 @@ function bindComparison(){
  $('comparisonClose').addEventListener('click',()=>{if(!busy){clearComparison();$('compareBtn').focus()}});
  $('comparisonCancel').addEventListener('click',()=>{if(comparison?.running){comparison.cancelled=true;comparison.controller.abort();$('comparisonStatus').textContent='Annulation en cours…';$('comparisonCancel').disabled=true}});
  $('comparisonOnlyBefore').addEventListener('change',()=>{if(comparison&&!comparison.running){if($('comparisonOnlyBefore').checked&&comparison.hypotheses.arriveBy===null){$('comparisonOnlyBefore').checked=false;$('comparisonTimingStatus').textContent='Renseigner une heure limite puis relancer la comparaison.';return}comparison.hypotheses.onlyBefore=$('comparisonOnlyBefore').checked;renderComparison(comparison)}});
+ $('comparisonCycle').addEventListener('change',()=>{$('comparisonCycleFields').hidden=!$('comparisonCycle').checked;comparisonChanged()});$('comparisonCycleLimit').addEventListener('input',comparisonChanged);
  $('comparisonSort').addEventListener('change',()=>{if(comparison&&!comparison.running)renderComparison(comparison)});
- $('comparisonCards').addEventListener('click',e=>{const b=e.target.closest('[data-compare-select]');if(b)chooseComparison(b.dataset.compareSelect)});
+ $('comparisonCards').addEventListener('click',e=>{const c=e.target.closest('[data-compare-cycle]');if(c){const op=comparison,entry=op?.entries.find(x=>x.mode==='cycle'&&x.status==='ready');if(!busy&&entry&&op.signature===comparisonSignature()&&(!op.hypotheses.onlyBefore||timingEstimate(entry.route.duration,op.hypotheses).admissible))openComparedCycle(entry.cycle,op.source.places,op.cycleChoice.maxKm,c);return}const b=e.target.closest('[data-compare-select]');if(b)chooseComparison(b.dataset.compareSelect)});
  for(const id of [...comparisonFields,'comparisonCarbonEnabled','comparisonCarbonFactor','comparisonCarbonOccupants'])$(id).addEventListener('input',comparisonChanged);
  const fields=['start','end','travelMode','routeOptimization','routeVehicle','maxWalkKm','fuel','cons','budgetPrice','stationDeparture','routeArriveBy','routeOnlyBefore','tollDeparture','tariffDate','tariffClass'];
  for(const event of ['input','change'])$('sheet').addEventListener(event,e=>{if(fields.includes(e.target.id)||e.target.matches('.avoid-options input,#truckDimensions input'))comparisonChanged()});
@@ -2420,7 +2427,7 @@ function transitRequest(a,b,raw,now=Date.now()){
  return {...q,a:[...a],b:[...b],url:TRANSIT_ENDPOINT+'?'+new URLSearchParams({fromPlace:a.join(','),toPlace:b.join(','),date:q.when.slice(0,10),time:q.when.slice(11),mode:'TRANSIT,WALK',arriveBy:String(q.arrive),ignoreRealtimeUpdates:'true',numItineraries:'3',maxWalkDistance:String(q.walk),locale:'fr'})};
 }
 function transitRoadTiming(mode,route,q){
- if(!['car','walk'].includes(mode))throw new Error('Mode non pris en charge.');
+ if(!['car','walk','cycle'].includes(mode))throw new Error('Mode non pris en charge.');
  const duration=transitNumber(route.duration,1,21600),distance=transitNumber(route.distance,0,150000);
  const start=q.arrive?q.instant-duration*1000:q.instant,end=q.arrive?q.instant:q.instant+duration*1000;
  if(start<q.now)throw new Error('Départ estimé déjà passé pour cette heure d’arrivée.');
@@ -2430,7 +2437,7 @@ function transitRoadTiming(mode,route,q){
 function transitTimeRows(routes,roads,q){
  const rows=routes.map((r,i)=>({mode:'transit',label:`Collectif · option ${i+1}`,start:r.start,end:r.end,duration:r.duration,elapsed:q.arrive?(q.instant-r.start)/1000:(r.end-q.instant)/1000,status:'ready',price:null,carbon:null}));
  if(!rows.length)rows.push({mode:'transit',label:'Transports collectifs',status:'unavailable',reason:'Aucune option collective disponible pour ces critères.'});
- for(const mode of ['car','walk']){const item=roads[mode];rows.push({...item,mode,label:mode==='car'?'Véhicule léger':'Marche directe',status:item?.status||'unavailable',reason:item?.reason||'Mode indisponible.'})}
+ for(const mode of ['car','walk',...(Object.hasOwn(roads,'cycle')?['cycle']:[])]){const item=roads[mode];rows.push({...item,mode,label:mode==='car'?'Véhicule léger':mode==='cycle'?'Vélo classique':'Marche directe',status:item?.status||'unavailable',reason:item?.reason||'Mode indisponible.'})}
  return rows.map((r,i)=>({...r,index:i})).sort((a,b)=>a.status!==b.status?a.status==='ready'?-1:1:a.status==='ready'?Math.ceil(a.elapsed/60)-Math.ceil(b.elapsed/60)||a.index-b.index:a.index-b.index);
 }
 function transitPolyline(encoded){
@@ -2589,6 +2596,7 @@ function transitStoredPlace(value,field){
  return saved?structuredClone(saved.place):null;
 }
 function clearTransit(message=''){
+ transitComparedCycle=null;
  clearTransitNetwork();clearTransitCarbon();transitCalculation=null;
  const job=transitJob;
  if(job){job.cancelled=true;job.controller.abort();if(job.resolving&&activeAbort===job.controller&&placePending){placePending.reject(new Error('Recherche de transports annulée.'));placePending=null;$('placeDialog').close()}}
@@ -2614,10 +2622,10 @@ function openTransit(){
 function renderTransitTimes(routes,roads,q){
  const rows=transitTimeRows(routes,roads,q),sourceLinks={ign:'<a href="https://cartes.gouv.fr/" target="_blank" rel="noopener noreferrer">IGN · BD TOPO</a>',osrm:'<a href="https://project-osrm.org/" target="_blank" rel="noopener noreferrer">OSRM · OpenStreetMap</a>',ors:'<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">openrouteservice.org by HeiGIT · OpenStreetMap</a>'};
  const sources=[...new Set(Object.values(roads).filter(r=>r.status==='ready').map(r=>sourceLinks[r.provider]).filter(Boolean))];
- $('transitCompareResults').innerHTML=`<h3>Comparer les temps</h3><p class="note">Même départ et même arrivée, pour une personne. Heure commune : ${transitClock(q.instant)} (Paris). ${q.arrive?'Comparaison entre le départ et l’heure limite, marge d’arrivée comprise.':'Comparaison depuis l’heure demandée, attente avant départ comprise.'} Places, accessibilité et disponibilité à bord non vérifiées.</p><div class="transit-table-scroll" role="region" aria-label="Comparaison des temps de déplacement" tabindex="0"><table><thead><tr><th scope="col">Mode</th><th scope="col">Temps comparé</th><th scope="col">Horaires et durée en chemin</th></tr></thead><tbody>${rows.map(r=>`<tr data-transit-mode="${r.mode}" data-transit-state="${r.status}"><th scope="row">${escapeHtml(r.label)}</th>${r.status==='ready'?`<td>${transitMinutes(r.elapsed)}</td><td>${transitClock(r.start)} → ${transitClock(r.end)}<br>${transitMinutes(r.duration)} en chemin</td>`:`<td>Indisponible</td><td>${escapeHtml(r.reason)}</td>`}</tr>`).join('')}</tbody></table></div><p class="note">Tri par minutes affichées, égalités conservées. Voiture et marche : estimations hors trafic et pauses, sans contrainte de calendrier routier. Les évitements et le profil saisis sont respectés ou le mode est déclaré indisponible. Prix totaux et empreintes non comparés ; aucun coût absent ne devient zéro. La carte représente toujours l’option collective choisie.</p>${sources.length?`<p class="note">Sources routières : ${sources.join(' · ')}.</p>`:''}`;
+ $('transitCompareResults').innerHTML=`<h3>Comparer les temps</h3><p class="note">Même départ et même arrivée, pour une personne. Heure commune : ${transitClock(q.instant)} (Paris). ${q.arrive?'Comparaison entre le départ et l’heure limite, marge d’arrivée comprise.':'Comparaison depuis l’heure demandée, attente avant départ comprise.'} Places, accessibilité et disponibilité à bord non vérifiées.</p><div class="transit-table-scroll" role="region" aria-label="Comparaison des temps de déplacement" tabindex="0"><table><thead><tr><th scope="col">Mode</th><th scope="col">Temps comparé</th><th scope="col">Horaires et durée en chemin</th></tr></thead><tbody>${rows.map(r=>`<tr data-transit-mode="${r.mode}" data-transit-state="${r.status}"><th scope="row">${escapeHtml(r.label)}</th>${r.status==='ready'?`<td>${transitMinutes(r.elapsed)}</td><td>${transitClock(r.start)} → ${transitClock(r.end)}<br>${transitMinutes(r.duration)} en chemin</td>`:`<td>Indisponible</td><td>${escapeHtml(r.reason)}</td>`}</tr>`).join('')}</tbody></table></div><p class="note">Tri par minutes affichées, égalités conservées. Voiture et marche : estimations hors trafic et pauses, sans contrainte de calendrier routier. Les évitements et le profil saisis sont respectés ou le mode est déclaré indisponible. Prix totaux et empreintes non comparés ; aucun coût absent ne devient zéro. La carte représente toujours l’option collective choisie.</p>${sources.length?`<p class="note">Sources routières : ${sources.join(' · ')}.</p>`:''}${roads.cycle?transitCycleDescription():''}`;
 }
 async function compareTransitTimes(job,q,result){
- const roads={},current=()=>transitJob===job&&!job.cancelled;let ignQuota=false;
+ const roads={},signature=transitInputSignature(),current=()=>transitJob===job&&!job.cancelled&&signature===transitInputSignature();let ignQuota=false;
  for(const mode of ['car','walk']){
   if(!current())return;
   try{
@@ -2626,6 +2634,9 @@ async function compareTransitTimes(job,q,result){
    const routeResult=await route([q.a,q.b],true,false,job.settings[mode]);if(!current())return;
    roads[mode]={...transitRoadTiming(mode,routeResult,q),provider:job.settings[mode].provider};
   }catch(e){if(!current())return;roads[mode]={status:'unavailable',reason:e.message};if(e.message.includes('Limite du service IGN'))ignQuota=true}
+ }
+ if(current()&&job.cycleChoice.enabled){
+  try{const view=await loadComparedCycle(q.a,q.b,job,current);if(!current())return;roads.cycle={...transitRoadTiming('cycle',view.route,q),provider:'fossgis-bike'};transitComparedCycle={view,places:{...transitContext.places},maxKm:job.cycleChoice.maxKm,signature:transitInputSignature()}}catch(e){if(!current())return;roads.cycle={status:'unavailable',reason:e.message}}
  }
  if(current())renderTransitTimes(result.routes,roads,q);
 }
@@ -2661,10 +2672,10 @@ function renderTransit(result,q){
 }
 async function searchTransit(){
  if(transitJob||busy||!transitContext)return;
- const raw={when:$('transitWhen').value,direction:$('transitDirection').value,walk:$('transitWalk').value},context=transitContext;
+ const raw={when:$('transitWhen').value,direction:$('transitDirection').value,walk:$('transitWalk').value},context=transitContext;let cycleChoice;
  if(context.signature!==transitInputSignature()){updateTransitContext();return}
- try{if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée avant la recherche.');transitCriteria(raw);if(Date.now()<transitNextRequest)throw new Error('Patienter quelques secondes avant une nouvelle recherche.')}catch(e){clearTransit(e.message);return}
- clearTransit();const job={controller:new AbortController(),cancelled:false,resolving:true,compare:$('transitCompare').checked,vehicle:$('routeVehicle').value,settings:{car:comparisonCarSettings(),walk:routingSettings('walk',[])}};
+ try{if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée avant la recherche.');transitCriteria(raw);cycleChoice=cycleComparisonChoice($('transitCompare').checked&&$('transitCycle').checked,$('transitCycleLimit').value);if(Date.now()<transitNextRequest)throw new Error('Patienter quelques secondes avant une nouvelle recherche.')}catch(e){clearTransit(e.message);return}
+ clearTransit();const job={controller:new AbortController(),cancelled:false,resolving:true,cycleChoice,compare:$('transitCompare').checked,vehicle:$('routeVehicle').value,settings:{car:comparisonCarSettings(),walk:routingSettings('walk',[])}};
  transitJob=job;activeAbort=job.controller;lock(true);transitNextRequest=Date.now()+3000;
  $('transitSearch').disabled=true;$('transitCancel').hidden=false;
  const current=()=>transitJob===job&&!job.cancelled&&transitContext===context&&context.signature===transitInputSignature();
@@ -2685,9 +2696,9 @@ async function searchTransit(){
    if(!current())return;result=transitResponse(data,q);renderTransit(result,q);
   }catch(e){if(!current())return;$('transitStatus').textContent=e.name==='AbortError'?'Le service n’a pas répondu à temps. Relancer la recherche si nécessaire.':e.message}
   finally{clearTimeout(timer)}
-  if(job.compare&&current()&&!job.controller.signal.aborted){$('transitCompareResults').textContent='Comparaison des temps avec les modes routiers…';await compareTransitTimes(job,q,result)}
+  if(job.compare&&current()&&!job.controller.signal.aborted){$('transitCompareResults').textContent='Comparaison des temps avec les modes demandés…';await compareTransitTimes(job,q,result)}
  }catch(e){if(current())$('transitStatus').textContent=e.message}
- finally{if(transitJob===job){transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network],[data-transit-save],[data-transit-carbon],[data-transit-journal]'))b.disabled=false}}
+ finally{if(transitJob===job){if(context.signature!==transitInputSignature())updateTransitContext();transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network],[data-transit-save],[data-transit-carbon],[data-transit-journal]'))b.disabled=false;if(!$('transitDialog').open&&!document.querySelector('dialog[open]'))$('transitBtn').focus()}}
 }
 function bindTransit(){
  $('transitNetworkCancel').addEventListener('click',()=>clearTransitNetwork('Consultation annulée.'));
@@ -2695,8 +2706,10 @@ function bindTransit(){
  $('transitBtn').addEventListener('click',openTransit);$('transitSearch').addEventListener('click',searchTransit);
  $('transitCancel').addEventListener('click',()=>clearTransit('Recherche annulée.'));
  $('transitClose').addEventListener('click',()=>{$('transitDialog').close()});
- $('transitDialog').addEventListener('close',()=>{clearTransit();$('transitBtn').focus()});
- for(const id of ['transitWhen','transitDirection','transitWalk','transitCompare'])$(id).addEventListener('input',()=>clearTransit(transitContext?.a&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))?'Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.':'Critères modifiés : relancer la recherche.'));
+ $('transitDialog').addEventListener('close',()=>{if($('transitDialog').open)return;clearTransit();if(!document.querySelector('dialog[open]'))$('transitBtn').focus()});
+ for(const id of ['transitWhen','transitDirection','transitWalk','transitCompare','transitCycle','transitCycleLimit'])$(id).addEventListener('input',()=>clearTransit(transitContext?.a&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))?'Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.':'Critères modifiés : relancer la recherche.'));
+ $('transitCompare').addEventListener('change',()=>{$('transitCycleOptions').hidden=!$('transitCompare').checked;if(!$('transitCompare').checked){$('transitCycle').checked=false;$('transitCycleFields').hidden=true}});$('transitCycle').addEventListener('change',()=>{$('transitCycleFields').hidden=!$('transitCycle').checked});
+ $('transitCompareResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-cycle]'),c=transitComparedCycle;if(b&&c&&!busy&&c.signature===transitInputSignature())openComparedCycle(c.view,c.places,c.maxKm,b)});
  $('transitResults').addEventListener('click',e=>{const j=e.target.closest('[data-transit-journal]');if(j)journalFromTransit(Number(j.dataset.transitJournal));const b=e.target.closest('[data-transit-map]');if(b)drawTransit(Number(b.dataset.transitMap));const n=e.target.closest('[data-transit-network]');if(n)loadTransitNetwork(Number(n.dataset.transitNetwork));const t=e.target.closest('[data-transit-save]');if(t)saveTransitOption(Number(t.dataset.transitSave));const c=e.target.closest('[data-transit-carbon]');if(c)openTransitCarbon(Number(c.dataset.transitCarbon))});
  for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearTransit();transitContext=null;$('transitBtn').hidden=false;if($('transitDialog').open)$('transitDialog').close()});
 }
@@ -3533,10 +3546,34 @@ async function searchCycle(){
 }
 function bindCycle(){
  $('cycleBtn').addEventListener('click',openCycle);$('cycleSearch').addEventListener('click',searchCycle);$('cycleCancel').addEventListener('click',()=>clearCycle('Calcul vélo annulé.'));
- $('cycleClose').addEventListener('click',()=>$('cycleDialog').close());$('cycleDialog').addEventListener('close',()=>{if($('cycleDialog').open)return;clearCycle();cycleContext=null;if(!document.querySelector('dialog[open]'))$('cycleBtn').focus()});$('cycleDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('cycleDialog').close()}});
+ $('cycleClose').addEventListener('click',()=>$('cycleDialog').close());$('cycleDialog').addEventListener('close',()=>{if($('cycleDialog').open)return;const back=cycleContext?.returnFocus;clearCycle();cycleContext=null;if(back?.isConnected&&back.getClientRects().length&&!back.disabled)back.focus();else if(!document.querySelector('dialog[open]'))$('cycleBtn').focus()});$('cycleDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('cycleDialog').close()}});
  $('cycleMax').addEventListener('input',showCyclePreference);
  for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearCycle();cycleContext=null;if($('cycleDialog').open)$('cycleDialog').close()});
  $('cycleExport').addEventListener('click',()=>{if(!cycleResult||cycleJob)return;try{const r=cycleResult,url=URL.createObjectURL(new Blob([cycleGpx(r.route,r.places,new Date(r.at).toISOString())],{type:'application/gpx+xml;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='OuQuandQui_trajet_velo.gpx';document.body.append(a);try{a.click()}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}$('cycleExportNote').textContent='Téléchargement demandé. Tracé préparé, sans guidage en direct ni carte hors ligne.'}catch(e){$('cycleExportNote').textContent=e.message}});
+}
+
+async function loadComparedCycle(a,b,owner,current){
+ const q=cycleRequest([a[1],a[0]],[b[1],b[0]],C.cyclingApi),now=Date.now();
+ if(!current()||owner.controller.signal.aborted)throw new DOMException('Calcul vélo annulé.','AbortError');
+ const cached=cycleCache.get(q.url);if(cached&&now>=cached.at&&now-cached.at<300000)return {route:cached.route,q,at:cached.at,cached:true};
+ if(Date.now()<cycleNext)throw new Error('Patienter avant un nouveau calcul vélo : '+bikesDate(cycleNext)+'.');
+ const job={controller:new AbortController()};let timer,abort;cycleNext=now+5000;
+ try{
+  const stopped=new Promise((_,reject)=>{abort=()=>{job.controller.abort();reject(new DOMException('Calcul vélo annulé.','AbortError'))};owner.controller.signal.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>{job.controller.abort();reject(new Error('Délai du calcul vélo dépassé. Relancer plus tard.'))},30000)});
+  const route=await Promise.race([cycleFetch(q,job),stopped]);if(!current()||owner.controller.signal.aborted)throw new DOMException('Calcul vélo annulé.','AbortError');
+  const at=Date.now();if(cycleCache.size>=8)cycleCache.delete(cycleCache.keys().next().value);cycleCache.set(q.url,{route,at});return {route,q,at,cached:false};
+ }finally{clearTimeout(timer);owner.controller.signal.removeEventListener('abort',abort)}
+}
+function comparedCycleNote(view,maxKm){
+ return `<p class="station-selection">${escapeHtml(cyclePreference(view.route.distance,maxKm))}${maxKm===null?'':` Repère : ${fmt(maxKm,2)} km.`}</p><p class="note">${view.cached?'Résultat conservé en mémoire, consulté':'Calcul consulté'} le ${bikesDate(view.at)}. ${view.route.dataVersion?'Version annoncée : '+escapeHtml(view.route.dataVersion)+'.':'Date des données routières inconnue.'} ${view.route.pushingMeters>0?`${Math.ceil(view.route.pushingMeters)} m annoncés vélo à la main.`:'Aucun passage vélo à la main annoncé.'}</p><p class="note">Vélo classique personnel supposé disponible. Durée hors pauses ; terrain, matériel, allure du groupe, VAE et accessibilité non qualifiés. Coût et empreinte non estimés. <a href="https://routing.openstreetmap.de/about.html" target="_blank" rel="noopener noreferrer">FOSSGIS</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap · ODbL</a>.</p>`;
+}
+function cycleComparisonCard(e,op,time,hidden){
+ return `<article class="comparison-card" data-compare-mode="cycle" data-timing-state="${time.state}"><h3>À vélo classique</h3><p class="station-selection">${escapeHtml(timingText(time))}</p><dl class="budget-lines"><div><dt>Distance</dt><dd>${fmt(e.route.distance/1000,1)} km</dd></div><div><dt>Durée estimée</dt><dd>${Math.round(e.route.duration/60)} min</dd></div><div><dt>Coût total du groupe</dt><dd>Non estimé</dd></div><div><dt>CO₂e du groupe</dt><dd>Non estimée</dd></div></dl>${comparedCycleNote(e.cycle,op.cycleChoice.maxKm)}<button type="button" class="ghost navigation-button" data-compare-cycle aria-haspopup="dialog" ${op.running||hidden?'disabled':''}>Consulter le parcours vélo</button></article>`;
+}
+function transitCycleDescription(){const c=transitComparedCycle;return c?`<section aria-label="Parcours vélo comparé">${comparedCycleNote(c.view,c.maxKm)}<button type="button" class="ghost navigation-button" data-transit-cycle aria-haspopup="dialog">Consulter le parcours vélo</button></section>`:''}
+function openComparedCycle(view,places,maxKm,returnFocus){
+ if(busy)return;clearCycle();cycleContext={inputs:[places.start,places.end],signature:transitInputSignature(),forceFresh:true,fixedPlaces:{start:{label:places.start,lon:view.q.a[0],lat:view.q.a[1]},end:{label:places.end,lon:view.q.b[0],lat:view.q.b[1]}},returnFocus};
+ $('cycleMax').value=maxKm??'';$('cycleDialog').showModal();renderCycle(view.route,places,view.at,view.cached,view.q);$('cycleTitle').focus();
 }
 
 const SAVED_CYCLE_KEY='dragonroute.cycling-prepared.v1.'+PROFILE_SCOPE;
@@ -3565,7 +3602,7 @@ function updateSavedCycleDraft(){
 function editSavedCycle(e,mode){savedCycleDraft={entry:e,mode};$('savedCycleEditor').hidden=false;$('savedCycleEditorTitle').textContent=mode==='rename'?'Renommer la préparation vélo':'Enregistrer la préparation vélo';$('savedCycleName').value=e.name;$('savedCycleConfirm').checked=false;$('savedCycleDuplicate').checked=false;updateSavedCycleDraft();$('savedCycleName').focus()}
 function offerSavedCycle(){
  if(busy||cycleJob||!cycleResult?.q)return;
- try{const r=cycleResult,e=validateSavedCycleEntry({id:crypto.randomUUID(),name:(r.places.start+' → '+r.places.end).slice(0,80),savedAt:new Date().toISOString(),places:{start:{label:r.places.start,lat:r.q.a[1],lon:r.q.a[0]},end:{label:r.places.end,lat:r.q.b[1],lon:r.q.b[0]}},criteria:{maxKm:cycleLimit($('cycleMax').value)},snapshot:{source:'fossgis-bike',profile:'bicycle',calculatedAt:new Date(r.at).toISOString(),route:structuredClone(r.route)}});clearCycle();$('cycleDialog').close();openPreparedTrips();setPreparedTab('cycle');editSavedCycle(e,'new')}catch(e){$('cycleStatus').textContent='Sauvegarde impossible. '+e.message}
+ try{const r=cycleResult,e=validateSavedCycleEntry({id:crypto.randomUUID(),name:(r.places.start+' → '+r.places.end).slice(0,80),savedAt:new Date().toISOString(),places:{start:{label:r.places.start,lat:r.q.a[1],lon:r.q.a[0]},end:{label:r.places.end,lat:r.q.b[1],lon:r.q.b[0]}},criteria:{maxKm:cycleLimit($('cycleMax').value)},snapshot:{source:'fossgis-bike',profile:'bicycle',calculatedAt:new Date(r.at).toISOString(),route:structuredClone(r.route)}});clearCycle();if($('transitDialog').open)$('transitDialog').close();$('cycleDialog').close();openPreparedTrips();setPreparedTab('cycle');editSavedCycle(e,'new')}catch(e){$('cycleStatus').textContent='Sauvegarde impossible. '+e.message}
 }
 function resumeSavedCycle(e){
  if(busy)return;clearCycle();cycleContext={inputs:[e.places.start.label,e.places.end.label],signature:transitInputSignature(),fixedPlaces:structuredClone(e.places),forceFresh:true};$('cycleMax').value=e.criteria.maxKm===null?'':String(e.criteria.maxKm);$('cyclePlaces').textContent=e.places.start.label+' → '+e.places.end.label;

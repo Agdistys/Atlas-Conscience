@@ -108,3 +108,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 @media(max-width:600px){#cycleMap{height:280px}}
 
 #savedCyclePanel .dialog-actions,#savedCyclePanel .row-actions{flex-wrap:wrap}#savedCyclePanel button,#savedCyclePanel input,#cycleSave{max-width:100%;white-space:normal}#savedCycleDetails,#savedCycleImportDetails{overflow-wrap:anywhere}#savedCycleEditor{margin:16px 0}#savedCycleImportDialog{width:min(680px,94vw)}
+
+#comparisonCycleFields input,#transitCycleFields input{max-width:100%}#savedCycleView{scroll-margin-top:6rem}
