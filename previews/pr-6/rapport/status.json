@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-11-19T06:19:31.712Z",
-  "commit": "1ceff48209bd812cb811afdc8a1f07e9f3e330f9",
+  "generatedAt": "2026-11-19T07:06:29.782Z",
+  "commit": "cafc30450f1c8963f68d3d38cbca9007e54755d0",
   "state": "inspection",
-  "passed": 1452,
-  "total": 1452,
+  "passed": 1516,
+  "total": 1516,
   "stages": {
     "contract": {
       "exitCode": 0,
@@ -25890,7 +25890,7 @@
               "impact": "serious",
               "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">OSRM / FOSSGIS</a>",
               "target": [
-                ".note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+                "#cycleDialog > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -25915,7 +25915,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener noreferrer\">OpenStreetMap (ODbL)</a>",
               "target": [
-                ".note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+                "#cycleDialog > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -25940,7 +25940,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/fixthemap\" target=\"_blank\" rel=\"noopener noreferrer\">Signaler une erreur cartographique</a>",
               "target": [
-                ".note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+                "#cycleDialog > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -26609,25 +26609,12 @@
                     "contrastRatio": 0,
                     "fontSize": "7.5pt (10px)",
                     "fontWeight": "normal",
-                    "messageKey": "imgNode",
+                    "messageKey": "elmPartiallyObscuring",
                     "expectedContrastRatio": "4.5:1"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<div class=\"leaflet-control-attribution leaflet-control\">",
-                      "target": [
-                        "#cycleMap > .leaflet-control-container > .leaflet-bottom.leaflet-right > .leaflet-control-attribution.leaflet-control"
-                      ]
-                    },
-                    {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"830\" height=\"408\" viewBox=\"-69 -34 830 408\" style=\"transform: translate3d(-69px, -34px, 0px);\">",
-                      "target": [
-                        "svg[width=\"830\"]"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
                 }
               ],
               "all": [],
@@ -26637,7 +26624,7 @@
               "target": [
                 "#cycleMap > .leaflet-control-container > .leaflet-bottom.leaflet-right > .leaflet-control-attribution.leaflet-control"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
             },
             {
               "any": [
@@ -27009,134 +26996,6 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"cycleMaxHelp\" class=\"note\">Repère personnel : son dépassement sera signalé, sans modifier le parcours. Laisser vide si la limite est inconnue.</p>",
-              "target": [
-                "#cycleMaxHelp"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">",
-              "target": [
-                "#cycleDialog > .note:nth-child(7)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">Service et confidentialité</a>",
-              "target": [
-                "#cycleDialog > .note:nth-child(7) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Essai en France métropolitaine, jusqu’à 150 km entre les points à vol d’oiseau et 300 km de parcours. Pente, état des voies, fermetures et accessibilité non vérifiés. Aucun réglage automobile, arrêt carburant ou rendez-vous de covoiturage n’est repris.</p>",
-              "target": [
-                "#cycleDialog > .note:nth-child(8)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
                     "messageKey": "nonBmp"
                   },
                   "relatedNodes": [],
@@ -27172,7 +27031,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"336\" viewBox=\"-31 -28 377 336\" style=\"transform: translate3d(-31px, -28px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"336\" viewBox=\"-31 -28 377 336\" style=\"transform: translate3d(-31.7575px, -28.285px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"377\"]"
                       ]
@@ -27210,7 +27069,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"336\" viewBox=\"-31 -28 377 336\" style=\"transform: translate3d(-31px, -28px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"336\" viewBox=\"-31 -28 377 336\" style=\"transform: translate3d(-31.7575px, -28.285px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"377\"]"
                       ]
@@ -27248,7 +27107,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"336\" viewBox=\"-31 -28 377 336\" style=\"transform: translate3d(-31px, -28px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"336\" viewBox=\"-31 -28 377 336\" style=\"transform: translate3d(-31.7575px, -28.285px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"377\"]"
                       ]
@@ -27781,134 +27640,6 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"cycleMaxHelp\" class=\"note\">Repère personnel : son dépassement sera signalé, sans modifier le parcours. Laisser vide si la limite est inconnue.</p>",
-              "target": [
-                "#cycleMaxHelp"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">",
-              "target": [
-                "#cycleDialog > .note:nth-child(7)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">Service et confidentialité</a>",
-              "target": [
-                "#cycleDialog > .note:nth-child(7) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Essai en France métropolitaine, jusqu’à 150 km entre les points à vol d’oiseau et 300 km de parcours. Pente, état des voies, fermetures et accessibilité non vérifiés. Aucun réglage automobile, arrêt carburant ou rendez-vous de covoiturage n’est repris.</p>",
-              "target": [
-                "#cycleDialog > .note:nth-child(8)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
                     "messageKey": "nonBmp"
                   },
                   "relatedNodes": [],
@@ -27944,7 +27675,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"336\" viewBox=\"-28 -28 341 336\" style=\"transform: translate3d(-28px, -28px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"336\" viewBox=\"-28 -28 341 336\" style=\"transform: translate3d(-28.7575px, -28.285px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"341\"]"
                       ]
@@ -27982,7 +27713,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"336\" viewBox=\"-28 -28 341 336\" style=\"transform: translate3d(-28px, -28px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"336\" viewBox=\"-28 -28 341 336\" style=\"transform: translate3d(-28.7575px, -28.285px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"341\"]"
                       ]
@@ -28020,7 +27751,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"336\" viewBox=\"-28 -28 341 336\" style=\"transform: translate3d(-28px, -28px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"336\" viewBox=\"-28 -28 341 336\" style=\"transform: translate3d(-28.7575px, -28.285px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"341\"]"
                       ]
@@ -41812,82 +41543,6 @@
                 ".leaflet-control-zoom-out > span[aria-hidden=\"true\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<div class=\"leaflet-control-attribution leaflet-control\">",
-                      "target": [
-                        ".leaflet-control-attribution"
-                      ]
-                    },
-                    {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"468\" height=\"385\" viewBox=\"-39 -32 468 385\" style=\"transform: translate3d(-39px, -32px, 0px);\">",
-                      "target": [
-                        "svg[pointer-events=\"none\"]"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div class=\"leaflet-control-attribution leaflet-control\">",
-              "target": [
-                ".leaflet-control-attribution"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "7.5pt (10px)",
-                    "fontWeight": "normal",
-                    "messageKey": "imgNode",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<div class=\"leaflet-control-attribution leaflet-control\">",
-                      "target": [
-                        ".leaflet-control-attribution"
-                      ]
-                    },
-                    {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"468\" height=\"385\" viewBox=\"-39 -32 468 385\" style=\"transform: translate3d(-39px, -32px, 0px);\">",
-                      "target": [
-                        "svg[pointer-events=\"none\"]"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because element contains an image node"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://leafletjs.com\" title=\"A JavaScript library for interactive maps\">",
-              "target": [
-                "a[href$=\"leafletjs.com\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
             },
             {
               "any": [
@@ -58010,6 +57665,1478 @@
     },
     {
       "project": "desktop-1440",
+      "state": "accessibilite-partage-journal-brouillon",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+                      "target": [
+                        "#journalNote"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+              "target": [
+                "#journalNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 21
+    },
+    {
+      "project": "desktop-1440",
+      "state": "accessibilite-partage-journal-bilan",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 22
+    },
+    {
+      "project": "desktop-1440",
+      "state": "accessibilite-partage-journal-importe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Journal volontaire dans ce navigateur, sans compte ni synchronisation. Une recherche n’est jamais enregistrée comme déplacement effectué. L’aperçu et le site public ont des journaux distincts.</p>",
+              "target": [
+                "#journalDialog > .note:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label class=\"journal-toggle\"><input id=\"journalEnable\" type=\"checkbox\" style=\"\"> Activer mon journal</label>",
+              "target": [
+                "#journalDialog > .journal-toggle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalState\" class=\"note\">Journal activé. Chaque ajout reste volontaire.</p>",
+              "target": [
+                "#journalState"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalMessage\" class=\"note\" role=\"status\" aria-live=\"polite\">Sauvegarde importée. Sources, calculs et historiques conservés ; aucun nouveau calcul.</p>",
+              "target": [
+                "#journalMessage"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h3 id=\"journalBalanceTitle\">Bilan mensuel</h3>",
+              "target": [
+                "#journalBalanceTitle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"journalMonth\">Mois à consulter</label>",
+              "target": [
+                "label[for=\"journalMonth\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 22
+    },
+    {
+      "project": "desktop-1440",
+      "state": "accessibilite-partage-journal-clavier",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+                      "target": [
+                        "#journalNote"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+              "target": [
+                "#journalNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 21
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-partage-journal-brouillon",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+                      "target": [
+                        "#journalNote"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+              "target": [
+                "#journalNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 21
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-partage-journal-bilan",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 22
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-partage-journal-importe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Journal volontaire dans ce navigateur, sans compte ni synchronisation. Une recherche n’est jamais enregistrée comme déplacement effectué. L’aperçu et le site public ont des journaux distincts.</p>",
+              "target": [
+                "#journalDialog > .note:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label class=\"journal-toggle\"><input id=\"journalEnable\" type=\"checkbox\" style=\"\"> Activer mon journal</label>",
+              "target": [
+                "#journalDialog > .journal-toggle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalState\" class=\"note\">Journal activé. Chaque ajout reste volontaire.</p>",
+              "target": [
+                "#journalState"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalMessage\" class=\"note\" role=\"status\" aria-live=\"polite\">Sauvegarde importée. Sources, calculs et historiques conservés ; aucun nouveau calcul.</p>",
+              "target": [
+                "#journalMessage"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 22
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-partage-journal-clavier",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+                      "target": [
+                        "#journalNote"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+              "target": [
+                "#journalNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 21
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-partage-journal-brouillon",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+                      "target": [
+                        "#journalNote"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+              "target": [
+                "#journalNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 21
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-partage-journal-bilan",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 22
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-partage-journal-importe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Journal volontaire dans ce navigateur, sans compte ni synchronisation. Une recherche n’est jamais enregistrée comme déplacement effectué. L’aperçu et le site public ont des journaux distincts.</p>",
+              "target": [
+                "#journalDialog > .note:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label class=\"journal-toggle\"><input id=\"journalEnable\" type=\"checkbox\" style=\"\"> Activer mon journal</label>",
+              "target": [
+                "#journalDialog > .journal-toggle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalState\" class=\"note\">Journal activé. Chaque ajout reste volontaire.</p>",
+              "target": [
+                "#journalState"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalMessage\" class=\"note\" role=\"status\" aria-live=\"polite\">Sauvegarde importée. Sources, calculs et historiques conservés ; aucun nouveau calcul.</p>",
+              "target": [
+                "#journalMessage"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h3 id=\"journalBalanceTitle\">Bilan mensuel</h3>",
+              "target": [
+                "#journalBalanceTitle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"journalMonth\">Mois à consulter</label>",
+              "target": [
+                "label[for=\"journalMonth\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalSummary\" role=\"status\">1 trajet(s) confirmé(s) · 3,13 km renseignés. Empreinte partielle : 0/1 trajet(s) entièrement estimé(s) dans le périmètre du modèle.</p>",
+              "target": [
+                "#journalSummary"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalCarbonSummary\">",
+              "target": [
+                "#journalCarbonSummary"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 22
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-partage-journal-clavier",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+                      "target": [
+                        "#journalNote"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+              "target": [
+                "#journalNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 21
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-partage-journal-brouillon",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+                      "target": [
+                        "#journalNote"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+              "target": [
+                "#journalNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 21
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-partage-journal-bilan",
+      "violations": [],
+      "incomplete": [],
+      "rulesPassed": 22
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-partage-journal-importe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Journal volontaire dans ce navigateur, sans compte ni synchronisation. Une recherche n’est jamais enregistrée comme déplacement effectué. L’aperçu et le site public ont des journaux distincts.</p>",
+              "target": [
+                "#journalDialog > .note:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label class=\"journal-toggle\"><input id=\"journalEnable\" type=\"checkbox\" style=\"\"> Activer mon journal</label>",
+              "target": [
+                "#journalDialog > .journal-toggle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalState\" class=\"note\">Journal activé. Chaque ajout reste volontaire.</p>",
+              "target": [
+                "#journalState"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalMessage\" class=\"note\" role=\"status\" aria-live=\"polite\">Sauvegarde importée. Sources, calculs et historiques conservés ; aucun nouveau calcul.</p>",
+              "target": [
+                "#journalMessage"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h3 id=\"journalBalanceTitle\">Bilan mensuel</h3>",
+              "target": [
+                "#journalBalanceTitle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"journalMonth\">Mois à consulter</label>",
+              "target": [
+                "label[for=\"journalMonth\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalSummary\" role=\"status\">1 trajet(s) confirmé(s) · 3,13 km renseignés. Empreinte partielle : 0/1 trajet(s) entièrement estimé(s) dans le périmètre du modèle.</p>",
+              "target": [
+                "#journalSummary"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"journalCarbonSummary\">",
+              "target": [
+                "#journalCarbonSummary"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"journalDialog\" aria-labelledby=\"journalTitle\" open=\"\">",
+                      "target": [
+                        "#journalDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<li>Marche : 1 trajet(s), 2 étape(s), 0,56 km renseignés.  · 2 étape(s) sans estimation.</li>",
+              "target": [
+                "#journalModes > li:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 22
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-partage-journal-clavier",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+                      "target": [
+                        "#journalNote"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<textarea id=\"journalNote\" maxlength=\"500\" rows=\"2\" style=\"\"></textarea>",
+              "target": [
+                "#journalNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 21
+    },
+    {
+      "project": "desktop-1440",
       "state": "accessibilite-partage-sauvegarde",
       "violations": [],
       "incomplete": [
@@ -63496,6 +64623,31 @@
               "all": [],
               "none": [],
               "impact": "serious",
+              "html": "<button id=\"bikeTripJournal\" type=\"button\" class=\"ghost\">Déclarer ce parcours effectué</button>",
+              "target": [
+                "#bikeTripJournal"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
               "html": "<button id=\"bikeTripSave\" type=\"button\" class=\"ghost\">Enregistrer ce parcours partagé</button>",
               "target": [
                 "#bikeTripSave"
@@ -64807,6 +65959,31 @@
               "all": [],
               "none": [],
               "impact": "serious",
+              "html": "<button id=\"bikeTripJournal\" type=\"button\" class=\"ghost\">Déclarer ce parcours effectué</button>",
+              "target": [
+                "#bikeTripJournal"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
               "html": "<button id=\"bikeTripSave\" type=\"button\" class=\"ghost\">Enregistrer ce parcours partagé</button>",
               "target": [
                 "#bikeTripSave"
@@ -65466,998 +66643,6 @@
               "html": "<p class=\"note\">Ce filtre utilise les annonces reçues, pas une réservation ni une garantie à l’arrivée. Actualiser les stations réinitialise leurs choix et le parcours préparé.</p>",
               "target": [
                 "section[aria-labelledby=\"bikeTripTitle\"] > .note:nth-child(7)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikeTripRent\">Temps prévu pour prendre le vélo (min)</label>",
-              "target": [
-                "label[for=\"bikeTripRent\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikeTripReturn\">Temps prévu pour rendre le vélo (min)</label>",
-              "target": [
-                "label[for=\"bikeTripReturn\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Temps personnels facultatifs. Une case vide reste inconnue ; zéro signifie zéro minute renseignée. Aucun prix de location, batterie ou autonomie supposés.</p>",
-              "target": [
-                "section[aria-labelledby=\"bikeTripTitle\"] > .note:nth-child(9)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">",
-              "target": [
-                "section[aria-labelledby=\"bikeTripTitle\"] > .note:nth-child(10)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">Service vélo et confidentialité</a>",
-              "target": [
-                ".note:nth-child(10) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripStatus\" role=\"status\">Les trois étapes sont calculées. Vérifier les temps de prise/restitution et les disponibilités datées.</p>",
-              "target": [
-                "#bikeTripStatus"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "11.3pt (15px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3 id=\"bikeTripResultTitle\" tabindex=\"-1\">Les trois étapes du parcours</h3>",
-              "target": [
-                "#bikeTripResultTitle"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripPlaces\">Place Bellecour, Lyon → BELLECOUR / ST EXUPÉRY → 3011 - PART-DIEU / CUIRASSIERS → Gare Part-Dieu, Lyon</p>",
-              "target": [
-                "#bikeTripPlaces"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripMetrics\">3,13 km dans les trois étapes, dont 0,56 km à pied. 24 min de déplacement estimées, hors prise et restitution.</p>",
-              "target": [
-                "#bikeTripMetrics"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripAssumptions\" class=\"note\">Temps de prise : inconnu. Restitution : inconnue. Ces temps personnels ne viennent pas de Vélo’v. Prix de location et empreinte non estimés ; réservation, accès au service et batterie non confirmés.</p>",
-              "target": [
-                "#bikeTripAssumptions"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<li><strong>1. Marche</strong> · Place Bellecour, Lyon → BELLECOUR / ST EXUPÉRY<br>0,22 km · 3 min estimées.<p class=\"note\">IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes · consulté le 19/11/2026 07:00:00. Version : 2026-11-18</p></li>",
-              "target": [
-                "li:nth-child(1)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<strong>1. Marche</strong>",
-              "target": [
-                "li:nth-child(1) > strong"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes · consulté le 19/11/2026 07:00:00. Version : 2026-11-18</p>",
-              "target": [
-                "li:nth-child(1) > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<li><strong>2. Vélo classique</strong> · BELLECOUR / ST EXUPÉRY → 3011 - PART-DIEU / CUIRASSIERS<br>2,57 km · 16 min estimées · 3 m annoncés vélo à la main.<p class=\"note\">FOSSGIS vélo classique · consulté le 19/11/2026 07:00:00. Version des données non fournie.</p></li>",
-              "target": [
-                "li:nth-child(2)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<strong>2. Vélo classique</strong>",
-              "target": [
-                "li:nth-child(2) > strong"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">FOSSGIS vélo classique · consulté le 19/11/2026 07:00:00. Version des données non fournie.</p>",
-              "target": [
-                "li:nth-child(2) > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<li><strong>3. Marche</strong> · 3011 - PART-DIEU / CUIRASSIERS → Gare Part-Dieu, Lyon<br>0,35 km · 6 min estimées.<p class=\"note\">IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes · consulté le 19/11/2026 07:00:00. Version : 2026-11-18</p></li>",
-              "target": [
-                "li:nth-child(3)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<strong>3. Marche</strong>",
-              "target": [
-                "li:nth-child(3) > strong"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes · consulté le 19/11/2026 07:00:00. Version : 2026-11-18</p>",
-              "target": [
-                "li:nth-child(3) > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripMapNote\" class=\"note\">Violet en pointillés : marche. Bleu : vélo. Tracés distincts, sans ligne droite ajoutée entre les étapes. Fond de carte indisponible : schéma des tracés reçus, sans échelle.</p>",
-              "target": [
-                "#bikeTripMapNote"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripJoins\" class=\"note\">",
-              "target": [
-                "#bikeTripJoins"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">",
-              "target": [
-                "#bikeTripResult > .note:nth-child(12)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/\" target=\"_blank\" rel=\"noopener noreferrer\">IGN · BD TOPO · Licence Ouverte 2.0</a>",
-              "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">FOSSGIS</a>",
-              "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener noreferrer\">OpenStreetMap · ODbL</a>",
-              "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://www.openstreetmap.org/fixthemap\" target=\"_blank\" rel=\"noopener noreferrer\">Signaler une erreur cartographique</a>",
-              "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikesQuery\">Nom, adresse ou numéro de station</label>",
-              "target": [
-                "label[for=\"bikesQuery\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikesNeed\">Afficher</label>",
-              "target": [
-                "label[for=\"bikesNeed\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">« Récemment » : annonce de la station et flux datant de 5 minutes au maximum. Les dates absentes, futures ou anciennes ne satisfont pas les filtres. Les nombres restent des annonces, sans réservation ni garantie à l’arrivée.</p>",
-              "target": [
-                "#bikesBrowse > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "12.3pt (16.38px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3 id=\"bikesMapTitle\" tabindex=\"-1\">Repérer les stations</h3>",
-              "target": [
-                "#bikesMapTitle"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikesMapNote\" class=\"note\">Carte indisponible. Toutes les stations restent consultables dans la liste.</p>",
-              "target": [
-                "#bikesMapNote"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             }
@@ -67636,7 +67821,7 @@
               "impact": "serious",
               "html": "<p class=\"note\">",
               "target": [
-                "#bikeTripResult > .note:nth-child(12)"
+                "#bikeTripResult > .note:nth-child(13)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -67668,7 +67853,7 @@
               "impact": "serious",
               "html": "<a href=\"https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/\" target=\"_blank\" rel=\"noopener noreferrer\">IGN · BD TOPO · Licence Ouverte 2.0</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -67700,7 +67885,7 @@
               "impact": "serious",
               "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">FOSSGIS</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -67732,7 +67917,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener noreferrer\">OpenStreetMap · ODbL</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -67764,7 +67949,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/fixthemap\" target=\"_blank\" rel=\"noopener noreferrer\">Signaler une erreur cartographique</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
+                ".note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -69256,7 +69441,7 @@
               "impact": "serious",
               "html": "<p class=\"note\">",
               "target": [
-                "#bikeTripResult > .note:nth-child(12)"
+                "#bikeTripResult > .note:nth-child(13)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -69288,7 +69473,7 @@
               "impact": "serious",
               "html": "<a href=\"https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/\" target=\"_blank\" rel=\"noopener noreferrer\">IGN · BD TOPO · Licence Ouverte 2.0</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -69320,7 +69505,7 @@
               "impact": "serious",
               "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">FOSSGIS</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -69352,7 +69537,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener noreferrer\">OpenStreetMap · ODbL</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -69384,7 +69569,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/fixthemap\" target=\"_blank\" rel=\"noopener noreferrer\">Signaler une erreur cartographique</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
+                ".note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -70075,998 +70260,6 @@
                 "label[for=\"bikeTripRent\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikeTripReturn\">Temps prévu pour rendre le vélo (min)</label>",
-              "target": [
-                "label[for=\"bikeTripReturn\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Temps personnels facultatifs. Une case vide reste inconnue ; zéro signifie zéro minute renseignée. Aucun prix de location, batterie ou autonomie supposés.</p>",
-              "target": [
-                "section[aria-labelledby=\"bikeTripTitle\"] > .note:nth-child(9)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">",
-              "target": [
-                "section[aria-labelledby=\"bikeTripTitle\"] > .note:nth-child(10)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">Service vélo et confidentialité</a>",
-              "target": [
-                ".note:nth-child(10) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripStatus\" role=\"status\">Les trois étapes sont calculées. Vérifier les temps de prise/restitution et les disponibilités datées.</p>",
-              "target": [
-                "#bikeTripStatus"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "11.3pt (15px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3 id=\"bikeTripResultTitle\" tabindex=\"-1\">Les trois étapes du parcours</h3>",
-              "target": [
-                "#bikeTripResultTitle"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripPlaces\">Place Bellecour, Lyon → BELLECOUR / ST EXUPÉRY → 3011 - PART-DIEU / CUIRASSIERS → Gare Part-Dieu, Lyon</p>",
-              "target": [
-                "#bikeTripPlaces"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripMetrics\">3,13 km dans les trois étapes, dont 0,56 km à pied. 24 min de déplacement estimées, hors prise et restitution.</p>",
-              "target": [
-                "#bikeTripMetrics"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripAssumptions\" class=\"note\">Temps de prise : inconnu. Restitution : inconnue. Ces temps personnels ne viennent pas de Vélo’v. Prix de location et empreinte non estimés ; réservation, accès au service et batterie non confirmés.</p>",
-              "target": [
-                "#bikeTripAssumptions"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<li><strong>1. Marche</strong> · Place Bellecour, Lyon → BELLECOUR / ST EXUPÉRY<br>0,22 km · 3 min estimées.<p class=\"note\">IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes · consulté le 19/11/2026 07:00:00. Version : 2026-11-18</p></li>",
-              "target": [
-                "li:nth-child(1)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<strong>1. Marche</strong>",
-              "target": [
-                "li:nth-child(1) > strong"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes · consulté le 19/11/2026 07:00:00. Version : 2026-11-18</p>",
-              "target": [
-                "li:nth-child(1) > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<li><strong>2. Vélo classique</strong> · BELLECOUR / ST EXUPÉRY → 3011 - PART-DIEU / CUIRASSIERS<br>2,57 km · 16 min estimées · 3 m annoncés vélo à la main.<p class=\"note\">FOSSGIS vélo classique · consulté le 19/11/2026 07:00:00. Version des données non fournie.</p></li>",
-              "target": [
-                "li:nth-child(2)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<strong>2. Vélo classique</strong>",
-              "target": [
-                "li:nth-child(2) > strong"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">FOSSGIS vélo classique · consulté le 19/11/2026 07:00:00. Version des données non fournie.</p>",
-              "target": [
-                "li:nth-child(2) > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<li><strong>3. Marche</strong> · 3011 - PART-DIEU / CUIRASSIERS → Gare Part-Dieu, Lyon<br>0,35 km · 6 min estimées.<p class=\"note\">IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes · consulté le 19/11/2026 07:00:00. Version : 2026-11-18</p></li>",
-              "target": [
-                "li:nth-child(3)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<strong>3. Marche</strong>",
-              "target": [
-                "li:nth-child(3) > strong"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">IGN piéton · résultat éventuellement conservé en mémoire pendant cinq minutes · consulté le 19/11/2026 07:00:00. Version : 2026-11-18</p>",
-              "target": [
-                "li:nth-child(3) > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripMapNote\" class=\"note\">Violet en pointillés : marche. Bleu : vélo. Tracés distincts, sans ligne droite ajoutée entre les étapes. Fond de carte indisponible : schéma des tracés reçus, sans échelle.</p>",
-              "target": [
-                "#bikeTripMapNote"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikeTripJoins\" class=\"note\">",
-              "target": [
-                "#bikeTripJoins"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">",
-              "target": [
-                "#bikeTripResult > .note:nth-child(12)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/\" target=\"_blank\" rel=\"noopener noreferrer\">IGN · BD TOPO · Licence Ouverte 2.0</a>",
-              "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">FOSSGIS</a>",
-              "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener noreferrer\">OpenStreetMap · ODbL</a>",
-              "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<a href=\"https://www.openstreetmap.org/fixthemap\" target=\"_blank\" rel=\"noopener noreferrer\">Signaler une erreur cartographique</a>",
-              "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikesQuery\">Nom, adresse ou numéro de station</label>",
-              "target": [
-                "label[for=\"bikesQuery\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikesNeed\">Afficher</label>",
-              "target": [
-                "label[for=\"bikesNeed\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">« Récemment » : annonce de la station et flux datant de 5 minutes au maximum. Les dates absentes, futures ou anciennes ne satisfont pas les filtres. Les nombres restent des annonces, sans réservation ni garantie à l’arrivée.</p>",
-              "target": [
-                "#bikesBrowse > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "12.3pt (16.38px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3 id=\"bikesMapTitle\" tabindex=\"-1\">Repérer les stations</h3>",
-              "target": [
-                "#bikesMapTitle"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikesMapNote\" class=\"note\">Carte indisponible. Toutes les stations restent consultables dans la liste.</p>",
-              "target": [
-                "#bikesMapNote"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikesPageLabel\" tabindex=\"-1\">Page 1 sur 1 · 1 station(s) dans la liste et sur la carte</p>",
-              "target": [
-                "#bikesPageLabel"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             }
           ]
         }
@@ -72243,7 +71436,7 @@
               "impact": "serious",
               "html": "<p class=\"note\">",
               "target": [
-                "#bikeTripResult > .note:nth-child(12)"
+                "#bikeTripResult > .note:nth-child(13)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -72275,7 +71468,7 @@
               "impact": "serious",
               "html": "<a href=\"https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/\" target=\"_blank\" rel=\"noopener noreferrer\">IGN · BD TOPO · Licence Ouverte 2.0</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -72307,7 +71500,7 @@
               "impact": "serious",
               "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">FOSSGIS</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -72339,7 +71532,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener noreferrer\">OpenStreetMap · ODbL</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -72371,7 +71564,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/fixthemap\" target=\"_blank\" rel=\"noopener noreferrer\">Signaler une erreur cartographique</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
+                ".note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -73895,7 +73088,7 @@
               "impact": "serious",
               "html": "<p class=\"note\">",
               "target": [
-                "#bikeTripResult > .note:nth-child(12)"
+                "#bikeTripResult > .note:nth-child(13)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -73927,7 +73120,7 @@
               "impact": "serious",
               "html": "<a href=\"https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/\" target=\"_blank\" rel=\"noopener noreferrer\">IGN · BD TOPO · Licence Ouverte 2.0</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -73959,7 +73152,7 @@
               "impact": "serious",
               "html": "<a href=\"https://routing.openstreetmap.de/about.html\" target=\"_blank\" rel=\"noopener noreferrer\">FOSSGIS</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -73991,7 +73184,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener noreferrer\">OpenStreetMap · ODbL</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+                "#bikeTripResult > .note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
@@ -74023,7 +73216,7 @@
               "impact": "serious",
               "html": "<a href=\"https://www.openstreetmap.org/fixthemap\" target=\"_blank\" rel=\"noopener noreferrer\">Signaler une erreur cartographique</a>",
               "target": [
-                ".note:nth-child(12) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
+                ".note:nth-child(13) > a[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },

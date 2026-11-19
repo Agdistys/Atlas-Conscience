@@ -346,13 +346,41 @@ function reviseCarbon(entry,previous,choice,at){
  return entry;
 }
 
-const JOURNAL_MODES={car:'Voiture',truck:'Poids lourd',train:'Train',bus:'Bus / car',bike:'Vélo',walk:'Marche',other:'Autre',collective:'Trajet collectif à étapes'};
+const JOURNAL_MODES={car:'Voiture',truck:'Poids lourd',train:'Train',bus:'Bus / car',bike:'Vélo',walk:'Marche',other:'Autre',collective:'Trajet collectif à étapes',shared:'Marche et vélo partagé'};
 // Collective entries retain one journey and an ordered list of declared steps.
 const JOURNAL_STEP_MODES={walk:'Marche',bus:'Bus / car',train:'Train',tram:'Tram',metro:'Métro',funicular:'Funiculaire',cable:'Téléphérique / télécabine',other:'Autre'};
-const JOURNAL_STEP_FACTORS={walk:[],bus:['busthermique','buselectrique','autocar'],train:['tgv','intercites','ter','rer'],tram:['tramway'],metro:['metro'],funicular:[],cable:[],other:[]};
+const JOURNAL_STEP_FACTORS={bike:['velo','veloelectrique'],walk:[],bus:['busthermique','buselectrique','autocar'],train:['tgv','intercites','ter','rer'],tram:['tramway'],metro:['metro'],funicular:[],cable:[],other:[]};
+const JOURNAL_SHARED_MODES={walk:'Marche',bike:'Vélo',other:'Autre'};
+function journalIsStaged(e){return e?.mode==='collective'||e?.mode==='shared'}
+function journalChain(e){return e[e.mode]}
+function journalStageModes(e){return e.mode==='shared'?JOURNAL_SHARED_MODES:JOURNAL_STEP_MODES}
+function validateSharedJournalOrigin(o){
+ if(!o||o.version!=='shared-bike-origin-v1'||o.source!=='lyon-shared-bike'||!o.stations||!Array.isArray(o.steps)||o.steps.length!==3)throw new Error('Origine marche et vélo partagé inconnue.');
+ const capturedAt=journalInstant(o.capturedAt),start=journalText(o.start,1000,true),end=journalText(o.end,1000,true),stations={};
+ for(const role of ['pickup','dropoff']){const s=o.stations[role];if(!s)throw new Error('Station historique absente.');stations[role]={id:journalText(s.id,100,true),name:journalText(s.name,200,true)}}
+ if(stations.pickup.id===stations.dropoff.id)throw new Error('Stations historiques identiques.');
+ const times={};for(const k of ['rentMinutes','returnMinutes'])times[k]=o[k]===null?null:journalNumber(o[k],120);
+ const labels=[start,stations.pickup.name,stations.dropoff.name,end];
+ const steps=o.steps.map((s,i)=>{
+  if(!s||s.mode!==['walk','bike','walk'][i]||!['ign-pedestrian','same-point','fossgis-bike'].includes(s.source)||(i===1)!==(s.source==='fossgis-bike'))throw new Error('Mode ou source d’origine incohérent.');
+  const distanceMeters=journalNumber(s.distanceMeters,300000),durationSeconds=journalNumber(s.durationSeconds,604800),pushingMeters=journalNumber(s.pushingMeters,300300),calculatedAt=journalInstant(s.calculatedAt);
+  if(Date.parse(calculatedAt)>Date.parse(capturedAt)||s.start!==labels[i]||s.end!==labels[i+1]||s.line!=='')throw new Error('Lieux ou dates d’origine incohérents.');
+  if(s.source==='same-point'?(distanceMeters!==0||durationSeconds!==0):(distanceMeters<=0||durationSeconds<=0))throw new Error('Mesures d’origine incohérentes.');
+  if(i!==1?pushingMeters!==0:pushingMeters>distanceMeters+Math.max(10,distanceMeters*.001))throw new Error('Distance vélo à la main incohérente.');
+  return {mode:s.mode,source:s.source,start:labels[i],end:labels[i+1],line:'',distanceMeters,durationSeconds,pushingMeters,calculatedAt,resourceVersion:s.resourceVersion===null?null:journalText(s.resourceVersion,150,true)};
+ });
+ return {version:'shared-bike-origin-v1',source:'lyon-shared-bike',capturedAt,start,end,stations,...times,steps};
+}
+function sharedJournalDraft(preparation,now,id){
+ const p=preparation,s=p.snapshot,labels=[p.places.start.label,p.stations.pickup.name,p.stations.dropoff.name,p.places.end.label];
+ const origin=validateSharedJournalOrigin({version:'shared-bike-origin-v1',source:s.source,capturedAt:s.capturedAt,start:labels[0],end:labels[3],stations:p.stations,rentMinutes:p.criteria.rentMinutes,returnMinutes:p.criteria.returnMinutes,steps:s.parts.map((v,i)=>({mode:v.mode,source:v.source,start:labels[i],end:labels[i+1],line:'',distanceMeters:v.distance,durationSeconds:v.duration,pushingMeters:v.pushing??0,calculatedAt:v.at,resourceVersion:typeof v.version==='string'&&!v.version.trim()?null:v.version??null}))});
+ const key=journalText(id,70,true),at=journalInstant(now),steps=origin.steps.map((s,i)=>({id:key+'-'+i,mode:s.mode,start:s.start,end:s.end,line:'',distanceMeters:s.distanceMeters,included:true,emissions:unavailableCarbon(),emissionsHistory:[]}));
+ return {id:key,date:'',start:origin.start,end:origin.end,mode:'shared',distanceMeters:journalTotalDistance(steps),distanceSource:'declared',note:'',createdAt:at,updatedAt:at,revision:1,calculation:null,emissions:unavailableCarbon(),emissionsHistory:[],shared:{version:1,origin,steps}};
+}
+
 function journalFactorCompatible(f,mode){return f.mode===mode||mode==='tram'&&f.id==='tramway'||mode==='metro'&&f.id==='metro'}
 function journalStepInput(e,s){return {date:e.date,start:s.start,end:s.end,mode:s.mode,distanceMeters:s.distanceMeters}}
-function journalSegments(e){return e.mode==='collective'?e.collective.steps.filter(s=>s.included).map(s=>({...s,date:e.date})): [e]}
+function journalSegments(e){return journalIsStaged(e)?journalChain(e).steps.filter(s=>s.included).map(s=>({...s,date:e.date})): [e]}
 function journalKnownMeters(e){return journalSegments(e).reduce((n,s)=>n+(s.distanceMeters??0),0)}
 function journalAllCarbon(e){return journalSegments(e).every(currentCarbon)}
 function journalTotalDistance(steps){return steps.some(s=>s.distanceMeters===null)?null:steps.reduce((n,s)=>n+s.distanceMeters,0)}
@@ -362,10 +390,10 @@ function validateJournalHistory(history){
 }
 function validateJournalCollective(c,e){
  if(!c||c.version!==1||!c.origin||!Array.isArray(c.steps)||c.steps.length<1||c.steps.length>30)throw new Error('Étapes collectives invalides.');
- const o=c.origin;if(o.source!=='mobilites-m'||!Array.isArray(o.steps)||o.steps.length<1||o.steps.length>30)throw new Error('Origine collective inconnue.');
- const simple=s=>{if(!s||!Object.hasOwn(JOURNAL_STEP_MODES,s.mode))throw new Error('Mode d’étape inconnu.');return {mode:s.mode,start:journalText(s.start,1000,true),end:journalText(s.end,1000,true),line:journalText(s.line,150),distanceMeters:s.distanceMeters===null?null:journalNumber(s.distanceMeters,150000)}};
- const origin={source:o.source,calculatedAt:journalInstant(o.calculatedAt),departure:journalInstant(o.departure),arrival:journalInstant(o.arrival),start:journalText(o.start,1000,true),end:journalText(o.end,1000,true),steps:Array.from(o.steps,simple)};
- if(origin.arrival<origin.departure)throw new Error('Heures de préparation incohérentes.');
+ const o=c.origin;if(e.mode!=='shared'&&(o.source!=='mobilites-m'||!Array.isArray(o.steps)||o.steps.length<1||o.steps.length>30))throw new Error('Origine collective inconnue.');
+ const simple=s=>{if(!s||!Object.hasOwn(journalStageModes(e),s.mode))throw new Error('Mode d’étape inconnu.');return {mode:s.mode,start:journalText(s.start,1000,true),end:journalText(s.end,1000,true),line:journalText(s.line,150),distanceMeters:s.distanceMeters===null?null:journalNumber(s.distanceMeters,e.mode==='shared'?300000:150000)}};
+ const origin=e.mode==='shared'?validateSharedJournalOrigin(o):{source:o.source,calculatedAt:journalInstant(o.calculatedAt),departure:journalInstant(o.departure),arrival:journalInstant(o.arrival),start:journalText(o.start,1000,true),end:journalText(o.end,1000,true),steps:Array.from(o.steps,simple)};
+ if(e.mode!=='shared'&&origin.arrival<origin.departure)throw new Error('Heures de préparation incohérentes.');
  const steps=Array.from(c.steps,s=>{const a=simple(s);if(typeof s.included!=='boolean')throw new Error('Déclaration d’étape manquante.');a.included=s.included;a.id=journalText(s.id,80,true);if(!/^[A-Za-z0-9-]+$/.test(a.id))throw new Error('Identifiant d’étape invalide.');a.emissions=validateCarbon(s.emissions);a.emissionsHistory=validateJournalHistory(s.emissionsHistory??[]);if(a.emissions.status==='estimated'&&(!a.included||!JOURNAL_STEP_FACTORS[a.mode].includes(a.emissions.factor.id)||!currentCarbon({...a,date:e.date})))throw new Error('Empreinte non conforme à l’étape.');return a});
  if(new Set(steps.map(s=>s.id)).size!==steps.length)throw new Error('Étapes dupliquées.');
  if(!steps.some(s=>s.included))throw new Error('Déclarer au moins une étape effectuée.');
@@ -399,7 +427,7 @@ function emptyJournal(){return {version:3,enabled:false,entries:[]}}
 function validateJournal(data){
  if(!data||![1,2,3].includes(data.version)||typeof data.enabled!=='boolean'||!Array.isArray(data.entries)||data.entries.length>1000)throw new Error('Format ou capacité du journal invalide.');
  const entries=data.entries.map(e=>{
-  if(!e||(e.mode==='collective'&&data.version!==3)||!Object.hasOwn(JOURNAL_MODES,e.mode)||!['route','declared','unknown'].includes(e.distanceSource)||!Number.isSafeInteger(e.revision)||e.revision<1||e.revision>100000)throw new Error('Entrée de journal invalide.');
+  if(!e||(journalIsStaged(e)&&data.version!==3)||!Object.hasOwn(JOURNAL_MODES,e.mode)||!['route','declared','unknown'].includes(e.distanceSource)||!Number.isSafeInteger(e.revision)||e.revision<1||e.revision>100000)throw new Error('Entrée de journal invalide.');
   const clean={id:journalText(e.id,80,true),date:journalDate(e.date),start:journalText(e.start,1000,true),end:journalText(e.end,1000,true),mode:e.mode,distanceMeters:e.distanceMeters===null?null:journalNumber(e.distanceMeters,40000000),distanceSource:e.distanceSource,note:journalText(e.note,500),createdAt:journalInstant(e.createdAt),updatedAt:journalInstant(e.updatedAt),revision:e.revision,calculation:null,emissions:{version:'unavailable-v1',status:'unavailable',valueKg:null,factor:null}};
   if(!/^[A-Za-z0-9-]+$/.test(clean.id)||clean.updatedAt<clean.createdAt||(clean.distanceMeters===null)!==(clean.distanceSource==='unknown'))throw new Error('Entrée incohérente.');
   if(e.calculation!==null)clean.calculation=validateJournalCalculation(e.calculation,data.version);
@@ -408,8 +436,8 @@ function validateJournal(data){
   clean.emissions=validateCarbon(e.emissions);
   if(clean.emissions.status==='estimated'&&!currentCarbon(clean))throw new Error('Estimation non conforme au trajet.');
   clean.emissionsHistory=validateJournalHistory(e.emissionsHistory??[]);
-  if(clean.mode==='collective')clean.collective=validateJournalCollective(e.collective,clean);
-  else if(e.collective!=null)throw new Error('Étapes inattendues pour ce mode.');
+  if(journalIsStaged(clean))clean[clean.mode]=validateJournalCollective(e[clean.mode],clean);
+  if((e.collective!=null&&e.mode!=='collective')||(e.shared!=null&&e.mode!=='shared'))throw new Error('Étapes inattendues pour ce mode.');
   return clean;
  });
  if(new Set(entries.map(e=>e.id)).size!==entries.length)throw new Error('Identifiants de journal dupliqués.');
@@ -462,6 +490,7 @@ function writeJournal(next){
  }catch(e){$('journalMessage').textContent='Enregistrement impossible. '+(journalBlocked||e.message.includes('autre onglet')||e.message.includes('volumineux')?e.message:'Stockage indisponible, plein ou données invalides. Le formulaire et les données précédentes sont conservés.');return false}
 }
 function renderJournal(){
+ $('journalCollectivePending').textContent=pendingCollectiveJournal?.mode==='shared'?'Examiner le brouillon marche et vélo partagé':'Examiner le brouillon collectif';
  $('journalEnable').checked=journal.enabled;$('journalEnable').disabled=journalBlocked;
  $('journalNew').disabled=!journal.enabled||journalBlocked;if($('journalCollectivePending'))$('journalCollectivePending').hidden=!pendingCollectiveJournal||!journal.enabled||journalBlocked;$('journalCyclePending').hidden=!pendingCycleJournal||!journal.enabled||journalBlocked;$('journalCopy').disabled=!journal.enabled||journalBlocked||!trip||busy;
  $('journalExport').disabled=journalBlocked;$('journalImportBtn').disabled=journalBlocked;$('journalExportLegacy').hidden=journalLegacySnapshot===null;$('journalExportV2').hidden=journalV2Snapshot===null;
@@ -471,7 +500,7 @@ function renderJournal(){
  $('journalSummary').textContent=`${total.count} trajet(s) confirmé(s) · ${km(total.meters)} renseignés${total.unknown?` · bilan partiel : ${total.unknown} distance(s) non renseignée(s)`:''}. ${total.count?(!Object.keys(total.carbonGroups).length?'CO₂e non estimé.':`Empreinte partielle : ${total.count-total.carbonUnknown}/${total.count} trajet(s) entièrement estimé(s) dans le périmètre du modèle.`):'Aucun déplacement confirmé ce mois-ci.'}`;
  $('journalCarbonSummary').textContent=Object.entries(total.carbonGroups).map(([scope,g])=>`${CARBON_SCOPES[scope]} : ${carbonAmount(g.valueKg)} pour ${g.count} trajet(s), part individuelle.`).join(' ') + (total.count?` ${total.carbonUnknown} trajet(s) sans estimation complète. ${total.missingSegments} distance(s) d’étape manquante(s). Les sous-totaux incluent uniquement les étapes estimées. Un voyage avec plusieurs modes apparaît dans chaque mode ; il n’est compté qu’une fois dans le total. Périmètres présentés séparément ; ce bilan ne constitue pas une empreinte complète.`:'');
  $('journalModes').replaceChildren();for(const [mode,m] of Object.entries(total.modes)){const li=document.createElement('li');li.textContent=`${JOURNAL_MODES[mode]??JOURNAL_STEP_MODES[mode]} : ${m.count} trajet(s), ${m.segments} étape(s), ${km(m.meters)} renseignés${m.unknown?`, ${m.unknown} distance(s) d’étape manquante(s)`:''}. ${Object.entries(m.carbonGroups).map(([scope,g])=>`${CARBON_SCOPES[scope]} : ${carbonAmount(g.valueKg)} pour une personne`).join(' ; ')}${m.carbonUnknown?' · '+m.carbonUnknown+' étape(s) sans estimation':''}.`;$('journalModes').append(li)}
- $('journalEntries').innerHTML=journal.entries.filter(e=>e.date.slice(0,7)===month).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)||a.id.localeCompare(b.id)).map(e=>`<article class="saved-row"><h3>${escapeHtml(e.start)} → ${escapeHtml(e.end)}</h3><p>${escapeHtml(e.date.split('-').reverse().join('/'))} · ${JOURNAL_MODES[e.mode]} · ${e.distanceMeters===null?'Distance non renseignée':km(e.distanceMeters)}</p><p>${e.distanceSource==='route'?'Distance issue du trajet préparé, confirmée par la personne':e.distanceSource==='declared'?'Distance déclarée par la personne':'Distance à compléter'} · ${e.mode==='collective'?'Empreinte détaillée par étape':currentCarbon(e)?carbonAmount(e.emissions.valueKg)+' estimés pour une personne':'CO₂e non estimé'}.</p>${e.mode==='collective'?collectiveJournalDetails(e):''}${e.calculation?.version==='cycle-snapshot-v1'?`<p class="note">${escapeHtml(cycleJournalOrigin(e.calculation))}</p>`:''}${e.note?`<p>${escapeHtml(e.note)}</p>`:''}<details><summary>Provenance et révision</summary><p>Confirmé le ${escapeHtml(new Date(e.createdAt).toLocaleString('fr-FR'))}. Révision ${e.revision}, mise à jour ${escapeHtml(new Date(e.updatedAt).toLocaleString('fr-FR'))}.</p><p>${e.calculation?`Calcul d’origine ${escapeHtml(e.calculation.start)} → ${escapeHtml(e.calculation.end)} · ${escapeHtml(e.calculation.engine.toUpperCase())} · ${escapeHtml(e.calculation.calculatedAt)} · ${km(e.calculation.distanceMeters)} · données ${escapeHtml(e.calculation.resourceVersion??'version non fournie')}${e.calculation.stop?' · arrêt '+escapeHtml(e.calculation.stop):''}. Ce calcul ne prouve pas le déplacement effectué.`:e.mode==='collective'?'Origine collective et étapes détaillées ci-dessus.':'Saisie manuelle, sans calcul d’itinéraire associé.'}</p><p>Les corrections conservent le calcul d’itinéraire d’origine.</p></details>${journalCarbonMarkup(e)}<div class="dialog-actions"><button class="ghost" data-journal-edit="${e.id}" ${!journal.enabled?'disabled':''}>Modifier</button><button class="ghost" data-journal-delete="${e.id}">Supprimer</button></div></article>`).join('')||'<p class="note">Aucun trajet dans ce mois.</p>';
+ $('journalEntries').innerHTML=journal.entries.filter(e=>e.date.slice(0,7)===month).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)||a.id.localeCompare(b.id)).map(e=>`<article class="saved-row"><h3>${escapeHtml(e.start)} → ${escapeHtml(e.end)}</h3><p>${escapeHtml(e.date.split('-').reverse().join('/'))} · ${JOURNAL_MODES[e.mode]} · ${e.distanceMeters===null?'Distance non renseignée':km(e.distanceMeters)}</p><p>${e.distanceSource==='route'?'Distance issue du trajet préparé, confirmée par la personne':e.distanceSource==='declared'?'Distance déclarée par la personne':'Distance à compléter'} · ${journalIsStaged(e)?'Empreinte détaillée par étape':currentCarbon(e)?carbonAmount(e.emissions.valueKg)+' estimés pour une personne':'CO₂e non estimé'}.</p>${journalIsStaged(e)?collectiveJournalDetails(e):''}${e.calculation?.version==='cycle-snapshot-v1'?`<p class="note">${escapeHtml(cycleJournalOrigin(e.calculation))}</p>`:''}${e.note?`<p>${escapeHtml(e.note)}</p>`:''}<details><summary>Provenance et révision</summary><p>Confirmé le ${escapeHtml(new Date(e.createdAt).toLocaleString('fr-FR'))}. Révision ${e.revision}, mise à jour ${escapeHtml(new Date(e.updatedAt).toLocaleString('fr-FR'))}.</p><p>${e.calculation?`Calcul d’origine ${escapeHtml(e.calculation.start)} → ${escapeHtml(e.calculation.end)} · ${escapeHtml(e.calculation.engine.toUpperCase())} · ${escapeHtml(e.calculation.calculatedAt)} · ${km(e.calculation.distanceMeters)} · données ${escapeHtml(e.calculation.resourceVersion??'version non fournie')}${e.calculation.stop?' · arrêt '+escapeHtml(e.calculation.stop):''}. Ce calcul ne prouve pas le déplacement effectué.`:journalIsStaged(e)?'Origine et étapes détaillées ci-dessus.':'Saisie manuelle, sans calcul d’itinéraire associé.'}</p><p>Les corrections conservent le calcul d’itinéraire d’origine.</p></details>${journalCarbonMarkup(e)}<div class="dialog-actions"><button class="ghost" data-journal-edit="${e.id}" ${!journal.enabled?'disabled':''}>Modifier</button><button class="ghost" data-journal-delete="${e.id}">Supprimer</button></div></article>`).join('')||'<p class="note">Aucun trajet dans ce mois.</p>';
 }
 function carbonAmount(n){return n===0?'0 kg CO₂e':n<0.001?'< 0,001 kg CO₂e':fmt(n,3)+' kg CO₂e'}
 function carbonDetails(c){
@@ -480,7 +509,7 @@ function carbonDetails(c){
  return `<p><strong>Part individuelle estimée : ${carbonAmount(c.valueKg)}</strong></p><p>${escapeHtml(f.label)} · ${fmt(c.input.distanceMeters/1000,3)} km × ${fmt(rate,6)} ${vehicle?'kg CO₂e / véhicule-km':'kg CO₂e / personne-km'}${vehicle?' ÷ '+c.occupants+' occupant(s), conducteur compris':''}.</p>${vehicle?`<p>Véhicule entier : ${carbonAmount(c.vehicleKg)}. Partage à parts égales ; ce total n’est pas ajouté à la part individuelle.</p>`:'<p>Facteur déjà exprimé par personne : aucune nouvelle division par le nombre de voyageurs.</p>'}<p>${CARBON_SCOPES[f.scope]} : fabrication ${fmt(f.construction,6)}, énergie ${fmt(f.energy,6)} kg CO₂e/km. Valeurs moyennes ; aucune correction selon la consommation réelle, la météo ou le chargement.${f.mode==='bike'?' Alimentation humaine exclue pour le vélo.':''} Aucune empreinte totale du mode n’est revendiquée.</p><p><a href="${f.source}" target="_blank" rel="noopener noreferrer">Source : ADEME / Impact CO₂</a> · jeu figé ${CARBON_DATA.retrievedAt} · version ${escapeHtml(c.dataset)} · calcul ${escapeHtml(c.calculatedAt)}.</p>`;
 }
 function journalCarbonMarkup(e){
- if(e.mode==='collective')return '';
+ if(journalIsStaged(e))return '';
  const history=e.emissionsHistory??[];
  return `<details><summary>Empreinte et méthode${history.length?' · '+history.length+' estimation(s) conservée(s)':''}</summary>${carbonDetails(e.emissions)}${history.map(h=>`<details><summary>Estimation précédente — ${escapeHtml(h.archivedAt)}</summary><p>${escapeHtml(h.reason)} · ${escapeHtml(h.estimate.input.start)} → ${escapeHtml(h.estimate.input.end)} · ${escapeHtml(h.estimate.input.date)}. Exclue du bilan courant.</p>${carbonDetails(h.estimate)}</details>`).join('')}</details>`;
 }
@@ -494,7 +523,7 @@ function refreshCarbonChoices(){
  updateCarbonPreview();
 }
 function updateCarbonPreview(){
- if(journalDraft?.entry.mode==='collective')return;
+ if(journalIsStaged(journalDraft?.entry))return;
  const enabled=$('carbonCalculate').checked,factor=CARBON_DATA.factors.find(f=>f.id===$('carbonFactor').value),vehicle=factor?.unit==='kgCO2e/vehicle-km';
  $('carbonFields').hidden=!enabled;$('carbonFactor').disabled=!enabled;$('carbonFactor').required=enabled;
  $('carbonOccupantsWrap').hidden=!vehicle;$('carbonOccupants').disabled=!enabled||!vehicle;$('carbonOccupants').required=enabled&&vehicle;
@@ -523,7 +552,7 @@ function saveJournalEntry(event){
  try{
   const d=journalDraft,e=structuredClone(d.entry),date=journalDate($('journalDate').value);if(date>journalDay())throw new Error('Un trajet effectué ne peut pas être daté dans le futur.');
   if(!$('journalConfirm').checked)throw new Error('Confirmer que le trajet a été effectué, ou confirmer les corrections.');
-  if(d.entry.mode==='collective'){saveCollectiveJournalEntry(d,date);return}
+  if(journalIsStaged(d.entry)){saveCollectiveJournalEntry(d,date);return}
   const raw=$('journalDistance').value.trim(),distance=raw===''?null:journalNumber(Number(raw)*1000,40000000);
   Object.assign(e,{date,start:$('journalStart').value.trim(),end:$('journalEnd').value.trim(),mode:$('journalMode').value,note:$('journalNote').value.trim(),distanceMeters:distance,updatedAt:new Date().toISOString(),revision:d.editing?e.revision+1:1});
   e.distanceSource=distance===null?'unknown':e.calculation&&e.mode===e.calculation.mode&&e.start===e.calculation.start&&e.end===e.calculation.end&&distance===Number((e.calculation.distanceMeters/1000).toFixed(3))*1000?'route':'declared';
@@ -537,7 +566,7 @@ function saveJournalEntry(event){
 }
 let journalImportSequence=0,pendingJournalImport=null;
 function journalImportEntry(e){
- return `${e.mode==='collective'?collectiveJournalDetails(e):''}${e.calculation?.version==='cycle-snapshot-v1'?`<p class="note">${escapeHtml(cycleJournalOrigin(e.calculation))}</p>`:''}<p><strong>${escapeHtml(e.start)} → ${escapeHtml(e.end)}</strong></p><p>${escapeHtml(e.date)} · ${JOURNAL_MODES[e.mode]} · ${e.distanceMeters===null?'Distance inconnue':fmt(e.distanceMeters/1000,3)+' km'} · ${e.mode==='collective'?'Empreinte détaillée par étape':currentCarbon(e)?carbonAmount(e.emissions.valueKg)+' estimés':'CO₂e non estimé'}.</p>${e.note?`<p>${escapeHtml(e.note)}</p>`:''}<p class="note">${e.distanceSource==='route'?'Distance issue du trajet préparé':e.distanceSource==='declared'?'Distance déclarée':'Distance non renseignée'} · créé le ${escapeHtml(e.createdAt)} · révision ${e.revision} · mise à jour ${escapeHtml(e.updatedAt)} · ${(e.emissionsHistory??[]).length} estimation(s) historique(s).</p><details><summary>Calcul d’itinéraire conservé</summary><p>${e.calculation?`${escapeHtml(e.calculation.engine.toUpperCase())} · ${escapeHtml(e.calculation.start)} → ${escapeHtml(e.calculation.end)} · ${fmt(e.calculation.distanceMeters/1000,3)} km · ${escapeHtml(e.calculation.calculatedAt)} · données ${escapeHtml(e.calculation.resourceVersion??'version non fournie')}${e.calculation.stop?' · arrêt : '+escapeHtml(e.calculation.stop):''}`:'Aucun calcul d’itinéraire associé.'}</p></details>${journalCarbonMarkup(e)}`;
+ return `${journalIsStaged(e)?collectiveJournalDetails(e):''}${e.calculation?.version==='cycle-snapshot-v1'?`<p class="note">${escapeHtml(cycleJournalOrigin(e.calculation))}</p>`:''}<p><strong>${escapeHtml(e.start)} → ${escapeHtml(e.end)}</strong></p><p>${escapeHtml(e.date)} · ${JOURNAL_MODES[e.mode]} · ${e.distanceMeters===null?'Distance inconnue':fmt(e.distanceMeters/1000,3)+' km'} · ${journalIsStaged(e)?'Empreinte détaillée par étape':currentCarbon(e)?carbonAmount(e.emissions.valueKg)+' estimés':'CO₂e non estimé'}.</p>${e.note?`<p>${escapeHtml(e.note)}</p>`:''}<p class="note">${e.distanceSource==='route'?'Distance issue du trajet préparé':e.distanceSource==='declared'?'Distance déclarée':'Distance non renseignée'} · créé le ${escapeHtml(e.createdAt)} · révision ${e.revision} · mise à jour ${escapeHtml(e.updatedAt)} · ${(e.emissionsHistory??[]).length} estimation(s) historique(s).</p><details><summary>Calcul d’itinéraire conservé</summary><p>${e.calculation?`${escapeHtml(e.calculation.engine.toUpperCase())} · ${escapeHtml(e.calculation.start)} → ${escapeHtml(e.calculation.end)} · ${fmt(e.calculation.distanceMeters/1000,3)} km · ${escapeHtml(e.calculation.calculatedAt)} · données ${escapeHtml(e.calculation.resourceVersion??'version non fournie')}${e.calculation.stop?' · arrêt : '+escapeHtml(e.calculation.stop):''}`:journalIsStaged(e)?'Origine et étapes détaillées ci-dessus.':'Aucun calcul d’itinéraire associé.'}</p></details>${journalCarbonMarkup(e)}`;
 }
 function refreshJournalImport(){
  const p=pendingJournalImport;if(!p)return;
@@ -2893,9 +2922,9 @@ function collectiveJournalDraft(route,places,calculatedAt){
 }
 function offerCollectiveJournal(draft){
  pendingCycleJournal=null;
- if($('transitDialog').open)$('transitDialog').close();if($('preparedDialog').open)$('preparedDialog').close();
+ if($('transitDialog').open)$('transitDialog').close();if($('preparedDialog').open)$('preparedDialog').close();if($('bikesDialog').open)$('bikesDialog').close();
  pendingCollectiveJournal=draft;openJournal();
- if(journal.enabled&&!journalBlocked)usePendingCollectiveJournal();else if(!journalBlocked)$('journalMessage').textContent='Activer le journal pour examiner ce brouillon collectif. Aucun déplacement n’a été enregistré.';
+ if(journal.enabled&&!journalBlocked)usePendingCollectiveJournal();else if(!journalBlocked)$('journalMessage').textContent='Activer le journal pour examiner ce brouillon à étapes. Aucun déplacement n’a été enregistré.';
 }
 function usePendingCollectiveJournal(){if(!pendingCollectiveJournal||!journal.enabled||journalBlocked)return;const draft=pendingCollectiveJournal;pendingCollectiveJournal=null;renderJournal();journalForm(null,false,draft)}
 function journalFromTransit(index){
@@ -2903,39 +2932,40 @@ function journalFromTransit(index){
  offerCollectiveJournal(collectiveJournalDraft(transitRoutes[index],transitContext.places,new Date(transitCalculation.now).toISOString()));
 }
 function configureCollectiveJournal(e){
- const on=e.mode==='collective';$('journalCollectiveEditor').hidden=!on;$('journalMode').disabled=on;$('journalCollectiveMode').hidden=!on;
+ const on=journalIsStaged(e);$('journalCollectiveEditor').hidden=!on;$('journalMode').disabled=on;$('journalCollectiveMode').hidden=e.mode!=='collective';$('journalSharedMode').hidden=e.mode!=='shared';
  $('journalDistance').disabled=on;$('journalDistance').hidden=on;document.querySelector('label[for="journalDistance"]').hidden=on;$('journalDistanceNote').hidden=on;$('journalSingleCarbon').hidden=on;
  if(!on){collectiveJournalRows=[];return}
  $('carbonCalculate').checked=false;$('carbonFactor').required=false;$('carbonFactor').disabled=true;$('carbonOccupants').required=false;$('carbonOccupants').disabled=true;
- $('journalOrigin').textContent=`Brouillon issu d’une préparation Mobilités M calculée le ${new Date(e.collective.origin.calculatedAt).toLocaleString('fr-FR')}, pour un départ prévu le ${savedTransitClock(Date.parse(e.collective.origin.departure))} (Paris). Les distances proposées sont théoriques : ajuster les étapes réellement effectuées. Aucune présence ni distance mesurée n’est attestée.`;
- collectiveJournalRows=e.collective.steps.map(step=>({step:structuredClone(step),calculate:false,factor:step.emissions.status==='estimated'?step.emissions.factor.id:''}));renderCollectiveJournalRows();
+ $('journalOrigin').textContent=e.mode==='shared'?sharedJournalOriginText(e.shared.origin,true):`Brouillon issu d’une préparation Mobilités M calculée le ${new Date(e.collective.origin.calculatedAt).toLocaleString('fr-FR')}, pour un départ prévu le ${savedTransitClock(Date.parse(e.collective.origin.departure))} (Paris). Les distances proposées sont théoriques : ajuster les étapes réellement effectuées. Aucune présence ni distance mesurée n’est attestée.`;
+ collectiveJournalRows=journalChain(e).steps.map(step=>({step:structuredClone(step),calculate:false,factor:step.emissions.status==='estimated'?step.emissions.factor.id:''}));renderCollectiveJournalRows();
 }
 function renderCollectiveJournalRows(){
- $('journalCollectiveSteps').innerHTML=collectiveJournalRows.map((r,i)=>{const s=r.step,options=CARBON_DATA.factors.filter(f=>JOURNAL_STEP_FACTORS[s.mode].includes(f.id)),prefix='jc'+i;return `<fieldset class="transit-carbon-step" data-jc-row="${i}"><legend>Étape ${i+1}</legend><label class="journal-toggle"><input type="checkbox" data-jc="included" ${s.included?'checked':''}> Étape effectuée</label><label for="${prefix}mode">Mode de l’étape ${i+1}</label><select id="${prefix}mode" data-jc="mode">${Object.entries(JOURNAL_STEP_MODES).map(([k,v])=>`<option value="${k}" ${s.mode===k?'selected':''}>${v}</option>`).join('')}</select><label for="${prefix}start">Départ de l’étape ${i+1}</label><input id="${prefix}start" data-jc="start" maxlength="1000" value="${escapeHtml(s.start)}" required><label for="${prefix}end">Arrivée de l’étape ${i+1}</label><input id="${prefix}end" data-jc="end" maxlength="1000" value="${escapeHtml(s.end)}" required><label for="${prefix}line">Ligne (facultatif)</label><input id="${prefix}line" data-jc="line" maxlength="150" value="${escapeHtml(s.line)}"><label for="${prefix}distance">Distance de l’étape ${i+1} (km, facultatif)</label><input id="${prefix}distance" data-jc="distanceMeters" type="number" min="0" max="150" step="any" inputmode="decimal" value="${s.distanceMeters===null?'':Number((s.distanceMeters/1000).toFixed(6))}"><p class="note">Vide : distance inconnue. Distance proposée issue de la préparation, à confirmer ou corriger.</p><label class="journal-toggle"><input type="checkbox" data-jc="calculate" ${r.calculate?'checked':''} ${!options.length||!s.included?'disabled':''}> Calculer ou actualiser l’empreinte de cette étape</label><label for="${prefix}factor">Modèle moyen choisi pour l’étape ${i+1}</label><select id="${prefix}factor" data-jc="factor" ${!r.calculate||!s.included?'disabled':''}><option value="">Choisir — sinon non estimé</option>${options.map(f=>`<option value="${f.id}" ${r.factor===f.id?'selected':''}>${escapeHtml(f.label)}</option>`).join('')}</select><p class="note">${options.length?'Hypothèse explicite pour une personne ; aucune motorisation déduite du nom de ligne.':'Aucun facteur qualifié pour ce mode ; pas de zéro supposé.'} ${s.emissions.status==='estimated'?'L’estimation précédente sera conservée si les données restent identiques ; une correction l’archive.':''}</p><button type="button" class="ghost" data-jc-up="${i}" ${i===0?'disabled':''}>Monter l’étape ${i+1}</button></fieldset>`}).join('');
+ $('journalCollectiveSteps').innerHTML=collectiveJournalRows.map((r,i)=>{const s=r.step,options=CARBON_DATA.factors.filter(f=>JOURNAL_STEP_FACTORS[s.mode].includes(f.id)),prefix='jc'+i;return `<fieldset class="transit-carbon-step" data-jc-row="${i}"><legend>Étape ${i+1}</legend><label class="journal-toggle"><input type="checkbox" data-jc="included" ${s.included?'checked':''}> Étape effectuée</label><label for="${prefix}mode">Mode de l’étape ${i+1}</label><select id="${prefix}mode" data-jc="mode">${Object.entries(journalStageModes(journalDraft.entry)).map(([k,v])=>`<option value="${k}" ${s.mode===k?'selected':''}>${v}</option>`).join('')}</select><label for="${prefix}start">Départ de l’étape ${i+1}</label><input id="${prefix}start" data-jc="start" maxlength="1000" value="${escapeHtml(s.start)}" required><label for="${prefix}end">Arrivée de l’étape ${i+1}</label><input id="${prefix}end" data-jc="end" maxlength="1000" value="${escapeHtml(s.end)}" required><label for="${prefix}line">${journalDraft.entry.mode==='shared'?'Repère':'Ligne'} (facultatif)</label><input id="${prefix}line" data-jc="line" maxlength="150" value="${escapeHtml(s.line)}"><label for="${prefix}distance">Distance de l’étape ${i+1} (km, facultatif)</label><input id="${prefix}distance" data-jc="distanceMeters" type="number" min="0" max="${journalDraft.entry.mode==='shared'?300:150}" step="any" inputmode="decimal" value="${s.distanceMeters===null?'':Number((s.distanceMeters/1000).toFixed(6))}"><p class="note">Vide : distance inconnue. Distance proposée issue de la préparation, à confirmer ou corriger.</p><label class="journal-toggle"><input type="checkbox" data-jc="calculate" ${r.calculate?'checked':''} ${!options.length||!s.included?'disabled':''}> Calculer ou actualiser l’empreinte de cette étape</label><label for="${prefix}factor">Modèle moyen choisi pour l’étape ${i+1}</label><select id="${prefix}factor" data-jc="factor" ${!r.calculate||!s.included?'disabled':''}><option value="">Choisir — sinon non estimé</option>${options.map(f=>`<option value="${f.id}" ${r.factor===f.id?'selected':''}>${escapeHtml(f.label)}</option>`).join('')}</select><p class="note">${options.length?(journalDraft.entry.mode==='shared'?'Modèle générique choisi pour une personne ; aucun modèle propre au service de location. Le choix électrique ne qualifie ni routage VAE ni batterie.':'Hypothèse explicite pour une personne ; aucune motorisation déduite du nom de ligne.'):'Aucun facteur qualifié pour ce mode ; pas de zéro supposé.'} ${s.emissions.status==='estimated'?'L’estimation précédente sera conservée si les données restent identiques ; une correction l’archive.':''}</p><button type="button" class="ghost" data-jc-up="${i}" ${i===0?'disabled':''}>Monter l’étape ${i+1}</button></fieldset>`}).join('');
  $('journalCollectiveAdd').disabled=collectiveJournalRows.length>=30;refreshCollectiveJournalPreview();
 }
 function readCollectiveJournalEntry(date,at){
  const e=structuredClone(journalDraft.entry);Object.assign(e,{date,start:$('journalStart').value.trim(),end:$('journalEnd').value.trim(),note:$('journalNote').value.trim(),updatedAt:at,revision:journalDraft.editing?e.revision+1:1});
  if(!journalDraft.editing)e.createdAt=at;
- e.collective.steps=collectiveJournalRows.map(r=>{const s=structuredClone(r.step),old=journalDraft.entry.collective.steps.find(x=>x.id===s.id)??{...s,emissions:unavailableCarbon(),emissionsHistory:[]};
+ journalChain(e).steps=collectiveJournalRows.map(r=>{const s=structuredClone(r.step),old=journalChain(journalDraft.entry).steps.find(x=>x.id===s.id)??{...s,emissions:unavailableCarbon(),emissionsHistory:[]};
   const input={...s,date};reviseCarbon(input,old,r.calculate&&s.included?{factorId:r.factor,occupants:1}:null,at);
   if(!s.included&&input.emissions.status==='estimated'){if(input.emissionsHistory.length>=50)throw new Error('Limite de 50 estimations historiques atteinte.');input.emissionsHistory.push({archivedAt:at,reason:'Correction des données du trajet',estimate:input.emissions});input.emissions=unavailableCarbon()}
   return {...s,emissions:input.emissions,emissionsHistory:input.emissionsHistory};
  });
- e.distanceMeters=journalTotalDistance(e.collective.steps.filter(s=>s.included));e.distanceSource=e.distanceMeters===null?'unknown':'declared';return validateJournal({version:3,enabled:true,entries:[e]}).entries[0];
+ e.distanceMeters=journalTotalDistance(journalChain(e).steps.filter(s=>s.included));e.distanceSource=e.distanceMeters===null?'unknown':'declared';return validateJournal({version:3,enabled:true,entries:[e]}).entries[0];
 }
 function refreshCollectiveJournalPreview(){
- if(journalDraft?.entry.mode!=='collective')return;
- try{const e=readCollectiveJournalEntry(journalDate($('journalDate').value),new Date().toISOString()),steps=journalSegments(e),estimated=steps.filter(currentCarbon),kg=estimated.reduce((n,s)=>n+s.emissions.valueKg,0);$('journalCollectivePreview').textContent=`Un trajet · ${steps.length} étape(s) effectuée(s) · ${fmt(journalKnownMeters(e)/1000,3)} km renseignés${e.distanceMeters===null?' · distance totale inconnue':''}. ${estimated.length?`${estimated.length<steps.length?'Sous-total partiel':'Estimation des étapes'} : ${carbonAmount(kg)} pour une personne, ${estimated.length}/${steps.length} étapes estimées.`:'CO₂e non estimé.'} Construction/énergie modélisées, sans empreinte exhaustive. Les estimations précédentes restent dans l’historique.`}
+ if(!journalIsStaged(journalDraft?.entry))return;
+ try{const e=readCollectiveJournalEntry(journalDate($('journalDate').value),new Date().toISOString()),steps=journalSegments(e),estimated=steps.filter(currentCarbon),kg=estimated.reduce((n,s)=>n+s.emissions.valueKg,0);$('journalCollectivePreview').textContent=`Un trajet · ${steps.length} étape(s) effectuée(s) · ${fmt(journalKnownMeters(e)/1000,3)} km renseignés${e.distanceMeters===null?' · distance totale inconnue':''}. ${estimated.length?`${estimated.length<steps.length?'Sous-total partiel':'Estimation des étapes'} : ${e.mode==='shared'?Object.entries(steps.filter(currentCarbon).reduce((g,s)=>{const k=s.emissions.factor.scope;g[k]=(g[k]??0)+s.emissions.valueKg;return g},{})).map(([k,v])=>CARBON_SCOPES[k]+' : '+carbonAmount(v)).join(' ; '):carbonAmount(kg)} pour une personne, ${estimated.length}/${steps.length} étapes estimées.`:'CO₂e non estimé.'} Construction/énergie modélisées, sans empreinte exhaustive. Les estimations précédentes restent dans l’historique.`}
  catch(e){$('journalCollectivePreview').textContent=e.message}
 }
 function saveCollectiveJournalEntry(d,date){
  const e=readCollectiveJournalEntry(date,new Date().toISOString()),duplicates=journal.entries.filter(x=>x.id!==e.id&&journalIdentity(x)===journalIdentity(e));
  if(duplicates.length&&!$('journalRepeat').checked){$('journalDuplicate').hidden=false;$('journalDuplicateText').textContent=`${duplicates.length} trajet(s) similaire(s) à cette date. Vérifier le journal avant de confirmer un autre déplacement.`;$('journalRepeat').focus();return}
  const next={...journal,entries:d.editing?journal.entries.map(x=>x.id===e.id?e:x):[...journal.entries,e]};
- if(writeJournal(next)){journalDraft=null;collectiveJournalRows=[];$('journalEditor').hidden=true;$('journalMonth').value=e.date.slice(0,7);renderJournal();$('journalMessage').textContent=d.editing?'Trajet collectif corrigé. Bilan recalculé.':'Trajet collectif effectué enregistré.';$('journalNew').focus()}
+ if(writeJournal(next)){journalDraft=null;collectiveJournalRows=[];$('journalEditor').hidden=true;$('journalMonth').value=e.date.slice(0,7);renderJournal();$('journalMessage').textContent=d.editing?'Trajet à étapes corrigé. Bilan recalculé.':'Trajet à étapes effectué enregistré.';$('journalNew').focus()}
 }
 function collectiveJournalDetails(e){
+ if(e.mode==='shared')return sharedJournalDetails(e);
  const c=e.collective,o=c.origin,steps=journalSegments(e),estimated=steps.filter(currentCarbon),kg=estimated.reduce((n,s)=>n+s.emissions.valueKg,0);
  return `<p>${fmt(journalKnownMeters(e)/1000,3)} km renseignés · ${steps.length} étape(s) effectuée(s). ${e.distanceMeters===null?'Distance totale inconnue.':''} ${estimated.length?`${estimated.length<steps.length?'Sous-total carbone partiel':'Estimation des étapes'} : ${carbonAmount(kg)} (${estimated.length}/${steps.length} étapes, une personne).`:'Empreinte non estimée.'}</p><details><summary>Étapes déclarées et origine théorique</summary><p>Préparation Mobilités M calculée le ${escapeHtml(o.calculatedAt)}, départ prévu ${escapeHtml(o.departure)}, arrivée prévue ${escapeHtml(o.arrival)}. Ces heures ne certifient pas le déplacement effectué.</p><ol>${o.steps.map(s=>`<li>Prévu : ${JOURNAL_STEP_MODES[s.mode]} ${escapeHtml(s.line)} · ${escapeHtml(s.start)} → ${escapeHtml(s.end)} · ${s.distanceMeters===null?'distance inconnue':fmt(s.distanceMeters/1000,3)+' km'}.</li>`).join('')}</ol><ol>${c.steps.map(s=>`<li>${s.included?'Effectuée':'Non effectuée — exclue des totaux'} : ${JOURNAL_STEP_MODES[s.mode]} ${escapeHtml(s.line)} · ${escapeHtml(s.start)} → ${escapeHtml(s.end)} · ${s.distanceMeters===null?'distance inconnue':fmt(s.distanceMeters/1000,3)+' km'}${journalCarbonMarkup(s)}</li>`).join('')}</ol><p>Source de la préparation : <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · ODbL</a>. Distances ensuite déclarées ; aucun suivi GPS. Les étapes non effectuées et leurs historiques restent conservés hors bilan.</p></details>`;
 }
@@ -2950,7 +2980,7 @@ function bindCollectiveJournal(){
  });
  $('journalCollectiveSteps').addEventListener('click',ev=>{const b=ev.target.closest('[data-jc-up]');if(!b)return;const i=Number(b.dataset.jcUp);if(i>0){[collectiveJournalRows[i-1],collectiveJournalRows[i]]=[collectiveJournalRows[i],collectiveJournalRows[i-1]];renderCollectiveJournalRows();$('journalConfirm').checked=false;document.querySelector(`[data-jc-row="${i-1}"] [data-jc="mode"]`)?.focus()}});
  $('journalCollectiveAdd').addEventListener('click',()=>{if(collectiveJournalRows.length>=30)return;collectiveJournalRows.push({step:{id:crypto.randomUUID(),included:true,mode:'walk',start:collectiveJournalRows.at(-1)?.step.end??'',end:$('journalEnd').value,line:'',distanceMeters:null,emissions:unavailableCarbon(),emissionsHistory:[]},calculate:false,factor:''});renderCollectiveJournalRows();$('journalConfirm').checked=false;document.querySelector(`[data-jc-row="${collectiveJournalRows.length-1}"] [data-jc="start"]`)?.focus()});
- $('journalForm').addEventListener('input',ev=>{if(journalDraft?.entry.mode==='collective'){if(['journalDate','journalStart','journalEnd','journalNote'].includes(ev.target.id)){$('journalConfirm').checked=false;refreshCollectiveJournalPreview()}}});
+ $('journalForm').addEventListener('input',ev=>{if(journalIsStaged(journalDraft?.entry)){if(['journalDate','journalStart','journalEnd','journalNote'].includes(ev.target.id)){$('journalConfirm').checked=false;refreshCollectiveJournalPreview()}}});
 }
 
 const SAVED_TRANSIT_KEY='dragonroute.transit-prepared.v1.'+PROFILE_SCOPE;
@@ -3878,14 +3908,16 @@ function renderSavedShared(){
  $('savedSharedList').innerHTML=savedShared.entries.length?savedShared.entries.map(e=>'<article class="saved-row"><strong>'+escapeHtml(e.name)+'</strong><p>'+escapeHtml(e.places.start.label)+' → '+escapeHtml(e.places.end.label)+'</p><p>Marche et vélo partagé · '+fmt(bikeTripTotals(e.snapshot.parts,null,null).distance/1000,2)+' km · capture du '+savedTransitClock(Date.parse(e.snapshot.capturedAt))+'</p><div class="row-actions"><button type="button" class="ghost" data-saved-shared-show="'+e.id+'">Consulter</button><button type="button" class="ghost" data-saved-shared-rename="'+e.id+'">Renommer</button><button type="button" class="ghost" data-saved-shared-delete="'+e.id+'">Supprimer</button></div></article>').join(''):'<p class="note">Aucune préparation partagée chargée. Après le calcul des trois étapes, choisir « Enregistrer ce parcours partagé ».</p>';
  const e=savedShared.entries.find(x=>x.id===savedSharedSelected);$('savedSharedView').hidden=!e;$('savedSharedDetails').innerHTML=e?savedSharedDescription(e,true):'';
 }
-function offerSavedShared(){
- if(busy||bikeTripJob||!bikeTripResult||!bikesSnapshot)return;
- try{
+function sharedPreparationFromResult(){
+ if(!bikeTripResult||!bikesSnapshot)return null;
   const r=bikeTripResult,now=new Date().toISOString(),s=bikesSnapshot,availability={source:'velov-gbfs',observed:new Date(s.observed).toISOString(),infoUpdated:s.infoUpdated,statusUpdated:s.statusUpdated};
   for(const role of ['pickup','dropoff']){const row=r[role];availability[role]={reported:row.reported,mechanical:row.mechanical,docks:row.docks,installed:row.installed,renting:row.renting,returning:row.returning}}
   const e=validateSavedSharedEntry({id:crypto.randomUUID(),name:(r.places.start.label+' → '+r.places.end.label).slice(0,80),savedAt:now,places:r.places,stations:{pickup:r.pickup,dropoff:r.dropoff},criteria:{rentMinutes:bikeTripMinutes($('bikeTripRent').value,'Prise'),returnMinutes:bikeTripMinutes($('bikeTripReturn').value,'Restitution'),strictAvailability:$('bikeTripStrict').checked},snapshot:{source:'lyon-shared-bike',capturedAt:now,availability,parts:r.parts.map(p=>({...p,source:p.sourceKey,at:new Date(p.at).toISOString(),cached:Boolean(p.cached)}))}});
-  $('bikesDialog').close();clearBikes();openPreparedTrips();setPreparedTab('shared');editSavedShared(e,'new');
- }catch(e){$('bikeTripStatus').textContent='Sauvegarde impossible. '+e.message}
+  return e;
+}
+function offerSavedShared(){
+ if(busy||bikeTripJob)return;
+ try{const e=sharedPreparationFromResult();if(!e)return;$('bikesDialog').close();clearBikes();openPreparedTrips();setPreparedTab('shared');editSavedShared(e,'new')}catch(e){$('bikeTripStatus').textContent='Sauvegarde impossible. '+e.message}
 }
 function resumeSavedShared(e){
  if(busy)return;clearBikes();bikeTripResume=structuredClone(e);bikeTripFixed=structuredClone(e.places);bikeTripForceFresh=true;
@@ -3904,7 +3936,25 @@ function acceptSharedStations(){
 
 
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindProspective();applyVehicle();updateRange();initPwa();
+function sharedJournalOriginText(o,draft=false){
+ const minutes=v=>v===null?'inconnu':fmt(v,1)+' min';
+ return `Préparation marche → vélo partagé → marche capturée le ${savedTransitClock(Date.parse(o.capturedAt))} (Paris). Stations de référence : ${o.stations.pickup.name} [${o.stations.pickup.id}] puis ${o.stations.dropoff.name} [${o.stations.dropoff.id}]. Temps personnels prévus : prise ${minutes(o.rentMinutes)}, restitution ${minutes(o.returnMinutes)}. ${draft?'Choisir la date réellement effectuée et ajuster les étapes.':'Les étapes déclarées restent distinctes de cette préparation.'} Aucun déplacement mesuré, location ou disponibilité actuelle attestés.`;
+}
+function sharedJournalDetails(e){
+ const c=e.shared,o=c.origin,steps=journalSegments(e),estimated=steps.filter(currentCarbon),groups={};for(const s of estimated){const k=s.emissions.factor.scope;groups[k]=(groups[k]??0)+s.emissions.valueKg}
+ const carbon=Object.entries(groups).map(([k,v])=>CARBON_SCOPES[k]+' : '+carbonAmount(v)).join(' ; ');
+ return `<p>${fmt(journalKnownMeters(e)/1000,3)} km renseignés · ${steps.length} étape(s) effectuée(s). ${e.distanceMeters===null?'Distance totale inconnue.':''} ${estimated.length?`Empreinte partielle : ${carbon} pour une personne ; ${estimated.length}/${steps.length} étapes estimées.`:'Empreinte non estimée.'}</p><details><summary>Étapes déclarées et origine théorique</summary><p>${escapeHtml(sharedJournalOriginText(o))}</p><ol>${o.steps.map(s=>`<li>Prévu : ${JOURNAL_SHARED_MODES[s.mode]} · ${escapeHtml(s.start)} → ${escapeHtml(s.end)} · ${fmt(s.distanceMeters/1000,3)} km, ${Math.ceil(s.durationSeconds/60)} min estimées${s.pushingMeters?' ; '+Math.ceil(s.pushingMeters)+' m annoncés vélo à la main':''}.<p class="note">${s.source==='fossgis-bike'?'FOSSGIS vélo classique':s.source==='same-point'?'Même point demandé, marche nulle':'IGN piéton'} · ${escapeHtml(s.calculatedAt)} · données ${escapeHtml(s.resourceVersion??'version inconnue')}.</p></li>`).join('')}</ol><ol>${c.steps.map(s=>`<li>${s.included?'Effectuée':'Non effectuée — exclue des totaux'} : ${JOURNAL_SHARED_MODES[s.mode]} ${escapeHtml(s.line)} · ${escapeHtml(s.start)} → ${escapeHtml(s.end)} · ${s.distanceMeters===null?'distance inconnue':fmt(s.distanceMeters/1000,3)+' km'}${journalCarbonMarkup(s)}</li>`).join('')}</ol><p class="note">Sources déclarées de la préparation : Vélo’v / Métropole de Lyon, IGN BD TOPO et FOSSGIS / OpenStreetMap. Aucune annonce de disponibilité ni géométrie recopiée dans le journal. Modèles carbone génériques choisis pour les étapes déclarées, sans estimation propre au service de location. Temps prévus et données déclarées restent distincts ; aucun suivi GPS.</p></details>`;
+}
+function journalFromShared(saved=false){
+ if(busy||bikeTripJob)return;
+ try{const p=saved?savedShared.entries.find(e=>e.id===savedSharedSelected):sharedPreparationFromResult();if(!p)return;offerCollectiveJournal(sharedJournalDraft(p,new Date().toISOString(),crypto.randomUUID()))}
+ catch(e){$(saved?'savedSharedMessage':'bikeTripStatus').textContent='Brouillon impossible. '+e.message}
+}
+function bindSharedJournal(){
+ $('bikeTripJournal').addEventListener('click',()=>journalFromShared());$('savedSharedJournal').addEventListener('click',()=>journalFromShared(true));
+}
+
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
