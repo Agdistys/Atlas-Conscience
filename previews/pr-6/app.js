@@ -1,6 +1,90 @@
 (()=>{"use strict";
 const C=window.DRAGONROUTE_CONFIG;
 const $=id=>document.getElementById(id);
+// BEGIN SOURCES DATA MODEL
+const SOURCE_REFS={
+ osm:['OpenStreetMap · licence','https://www.openstreetmap.org/copyright'],
+ tiles:['Service de cartes OSM','https://operations.osmfoundation.org/policies/tiles/'],
+ geo:['Géocodage IGN','https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/'],
+ ign:['Itinéraires IGN','https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/calcul-itineraire/'],
+ osrm:['Projet OSRM','https://project-osrm.org/'],
+ cycle:['FOSSGIS · usage et vie privée','https://routing.openstreetmap.de/about.html'],
+ fuel:['Données DGCCRF','https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/information/'],
+ transit:['Mobilités M · données','https://data.mobilites-m.fr/donnees'],
+ bikes:['Vélo’v · fiche nationale','https://transport.data.gouv.fr/datasets/stations-velov-de-la-metropole-de-lyon-disponibilites-temps-reel'],
+ bikeLicense:['Licence liée par le flux Vélo’v','https://developer.jcdecaux.com/files/Open-Licence-fr.pdf'],
+ github:['GitHub Pages · données de visite','https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages'],
+ leaflet:['Leaflet','https://leafletjs.com/'],
+ cdn:['jsDelivr · vie privée','https://www.jsdelivr.com/terms/privacy-policy'],
+ tariffs:['Tarifs APRR / AREA','https://voyage.aprr.fr/tarifs-de-peage'],
+ gates:['Inventaire des gares','https://www.data.gouv.fr/datasets/gares-de-peage-du-reseau-routier-national-concede'],
+ carbon:['Modèles Impact CO₂','https://impactco2.fr/'],
+};
+function sourcesInventory(config={},context={}){
+ const c=config&&typeof config==='object'?config:{},known=(actual,expected)=>actual===expected?'configured':'unreviewed';
+ const rows=[],add=(id,title,group,status,when,send,purpose,license,limit,refs=[],account='Aucun compte visiteur demandé dans l’application.')=>rows.push({id,title,group,status,when,send,purpose,license,limit,refs:refs.map(k=>SOURCE_REFS[k]),account});
+ add('hosting','Chargement du site','startup',context.github?'configured':'unreviewed','Ouverture, rechargement et récupération des fichiers de l’application.','Adresse IP et informations de connexion ; fichiers et adresse de page demandés.','Fournir l’interface.','Hébergement : conditions GitHub, distinctes des licences des données.',context.github?'GitHub Pages indique conserver l’adresse IP pour la sécurité. Les fiches personnelles ne sont pas envoyées par les commandes de sauvegarde.':'Hébergement local ou autre domaine : destinataire et règles de conservation non qualifiés par cette fiche.',['github']);
+ const leaf=known(c.leafletJs,'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js')==='configured'&&known(c.leafletCss,'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css')==='configured'?'configured':'unreviewed';
+ add('library','Bibliothèque de carte · Leaflet / jsDelivr','startup',leaf,'Chargement automatique au démarrage.','Fichiers de la bibliothèque demandés, IP et informations de connexion ; référent selon le navigateur.','Dessiner et manipuler les cartes.','Logiciel Leaflet ; conditions du distributeur jsDelivr distinctes.','Aucun lieu saisi n’est ajouté à ces demandes de fichiers par l’application. Une configuration différente exige sa propre vérification.',['leaflet','cdn']);
+ add('tiles','Fonds de carte · OpenStreetMap','startup',known(c.tileUrl,'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),'Carte initiale puis déplacement, zoom ou affichage d’un résultat. Carte Vélo’v : fournisseur OSM fixe.','Numéros des tuiles, correspondant à la zone et au zoom affichés ; IP et référent.','Afficher le fond cartographique.','Données OpenStreetMap : ODbL. Conditions du service de tuiles distinctes.','Une zone affichée peut révéler une localisation. La carte ne certifie pas l’accès au terrain. Le panneau Vélo’v utilise aussi OSM, même si le fond principal est personnalisé.',['osm','tiles']);
+ add('geocode','Recherche de lieux · IGN','request',known(c.geocodingApi,'https://data.geopf.fr/geocodage/search'),'Validation d’un trajet, recherche explicite d’une adresse ou d’une rencontre ; pas à chaque frappe.','Texte du lieu recherché ; index adresses/lieux, limite de résultats. Un lieu déjà résolu peut être réutilisé en mémoire.','Trouver les coordonnées à partir des lieux saisis.','BAN et lieux BD TOPO ; licences des jeux et conditions IGN.','France ; une réponse ou un libellé ne garantit pas une adresse exacte. Le carnet d’adresses entier n’est pas transmis.',['geo']);
+ add('osrm','Route standard et accès aux stations · OSRM','request',known(c.osrm,'https://router.project-osrm.org'),'Calcul routier standard, alternatives, rencontres, comparaison choisie et accès routiers aux stations.','Coordonnées de départ, arrivée, arrêts, rencontres et candidates comparées ; options de géométrie et distances/durées.','Calculer des routes et des matrices de distances.','Données OpenStreetMap : ODbL ; moteur OSRM sous BSD.','Profil automobile sans exclusions dans ce raccordement. L’heure prévue et les prix carburant ne sont pas ajoutés à ces requêtes.',['osrm','osm']);
+ add('ign','Route contrainte et marche · IGN','request',c.ignRouting===true?'configured':'disabled','Calcul au plus court, voiture sans autoroute, marche ou comparaison explicitement demandée.','Coordonnées des extrémités et étapes, profil voiture/piéton, durée ou distance, exclusion d’autoroute si choisie.','Calculer une géométrie à partir du réseau BD TOPO.','BD TOPO : Licence Ouverte 2.0 ; conditions du service IGN.','Pas de trafic direct ni de qualification caravane/poids lourd. Un cache daté en mémoire peut éviter de répéter un appel.',['ign']);
+ add('routing-relay','Routage avancé · relais OpenRouteService','request',context.routing?'unreviewed':c.routingApi?'unreviewed':'disabled','Si configuré : calcul et détours avec les options acceptées.','Coordonnées, exclusions, type et gabarit du véhicule, demande d’alternatives ; relais puis fournisseur prévu OpenRouteService.','Prévoir le calcul avancé via un service intermédiaire.','Conditions du relais et du fournisseur à qualifier.','Désactivé dans l’aperçu courant. Une adresse de service configurée ne prouve ni sa disponibilité, ni ses conditions, ni l’adéquation au terrain.',[],'Aucune clé demandée aux visiteurs ; accès et compte côté opérateur à qualifier.');
+ add('fuel','Prix et fiches des stations · DGCCRF','request',known(c.fuelApi,'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records'),'Recherche volontaire des stations ou consultation d’une fiche à actualiser.','Points échantillonnés sur le trajet ou sa portion, rayon, carburant, champs demandés et plafond de résultats.','Recevoir prix datés, adresses, horaires déclarés et services.','Licence Ouverte 2.0 (métadonnées DGCCRF).','La zone de recherche peut révéler une partie du trajet. Les litres à acheter et le journal ne sont pas transmis. Couverture et actualité restent partielles.',['fuel']);
+ add('tolls-relay','Péages en ligne · relais TollGuru','request',context.tolls?'unreviewed':c.tollsApi?'unreviewed':'disabled','Si activé volontairement et configuré : devis puis actualisation lors d’un changement pertinent du trajet ou des paramètres.','Géométrie complète, distance, gabarit, paiement choisi, date de départ et identifiant de demande ; relais puis fournisseur prévu TollGuru.','Prévoir une estimation tarifaire en ligne.','Licence, couverture et conditions du relais/fournisseur à qualifier.','Désactivé dans l’aperçu courant ; aucun tarif national n’est déduit de cette fiche.',[],'Aucune clé demandée aux visiteurs ; accès et compte côté opérateur à qualifier.');
+ add('transit','Transports collectifs · Mobilités M','request','configured','Recherche collective ; consultation séparée des passages et perturbations sur demande.','Départ/arrivée, date et heure, sens départ/arrivée, plafond de marche. Pour le suivi : identifiants de lignes et d’arrêts.','Préparer des horaires théoriques et consulter des annonces datées.','Données annoncées sous ODbL par Mobilités M.','Pilote Grenoble ; pas de billet, réservation, accessibilité ou couverture nationale garantis. Les limites locales de correspondances ne sont pas envoyées au moteur.',['transit']);
+ add('cycle','Trajets à vélo · FOSSGIS','request',c.cyclingApi?known(c.cyclingApi,'https://routing.openstreetmap.de/routed-bike/route/v1/driving/'):'disabled','Calcul vélo explicite, comparaison demandée ou portion vélo d’une chaîne partagée.','Deux coordonnées, demande de géométrie et d’étapes. Référent limité à l’origine ; pas de cookies par cet appel.','Calculer un parcours pour vélo classique.','Données OpenStreetMap : ODbL. Conditions FOSSGIS.','Le fournisseur annonce un journal des demandes. Essai gratuit à charge modérée ; commercialisation non qualifiée. Noms, profil, prix et limites personnelles non envoyés.',['cycle','osm']);
+ add('bikes','Vélos partagés · Métropole de Lyon / JCDecaux','request','configured','Action Charger / actualiser dans Vélo’v ; trois fichiers du réseau, avec cache mémoire daté.','Noms fixes des fichiers catalogue, disponibilités et types ; aucune recherche personnelle ajoutée.','Consulter les stations et annonces du réseau lyonnais.','Fiche nationale : Licence Ouverte 2.0 ; flux : renvoi Licence Ouverte 1.0. Écart conservé.','Le tri par nom reste local. Calculer l’accès et le départ d’une station transmet ensuite les points concernés à IGN et FOSSGIS. Pas de location ni réservation.',['bikes','bikeLicense']);
+ add('local-models','Péages de grilles et empreinte · calculs locaux','local','local','Consultation des grilles, confirmation des tronçons, budget, partage ou estimation d’empreinte.','Aucune requête métier : catalogues et facteurs sont inclus avec l’application. Les fichiers sont reçus au chargement.','Calculer à partir de données datées et des hypothèses saisies.','Licences propres aux catalogues : APRR/AREA, BPNL, inventaire des gares et modèles Impact CO₂. Sources détaillées dans les fonctions concernées.','Classe, passage et couverture restent déclaratifs. Le prix ou le facteur inconnu ne vaut pas zéro. Aucune donnée de profil envoyée par ces calculs locaux.',['tariffs','gates','carbon']);
+ add('gps','Ma position · navigateur et appareil','request',context.geolocation?'conditional':'disabled','Appui sur la commande de position, puis autorisation du navigateur si nécessaire.','Position reçue du système. Services de localisation et leurs échanges dépendent du navigateur/appareil.','Proposer un point de départ daté avant adoption.','Règles du navigateur et de l’appareil ; non qualifiées ici.','Aucun suivi permanent demandé par l’application. Après adoption, le calcul et la carte peuvent transmettre ce point ou sa zone aux services correspondants.',[],'Permission de localisation ; aucun compte applicatif.');
+ add('external','Navigation, sources et fichiers partagés','request','conditional','Ouverture explicite d’un lien Google Maps/Waze ou d’une source ; export puis partage volontaire d’un fichier.','Google Maps : extrémités, étapes, mode et évitements proposés. Waze : point visé et options proposées. Le navigateur peut transmettre son référent.','Passer vers un service externe ou emporter un fichier local.','Conditions du destinataire ; un export conserve ses attributions.','Les services externes recalculent selon leurs règles. Un export peut contenir adresses, coordonnées et historique : vérifier son contenu avant partage.',[],'Compte, cookies et autorisations éventuels gérés par le destinataire.');
+ for(const r of rows)if(r.status==='unreviewed'){r.account='Compte, licence et conservation non qualifiés pour la destination configurée.';r.license='Non qualifiée pour cette configuration.';r.limit='Configuration différente ou relais à vérifier. Les références décrivent le raccordement prévu, pas une qualification de ce destinataire. '+(r.id==='tiles'?'Le fond Vélo’v reste OpenStreetMap. ':'')+r.limit.replace(/Désactivé dans l’aperçu courant\s*[.;] /,'')}
+ return rows;
+}
+function sourcesFilter(rows,filter){if(!['all','startup','request','local','review'].includes(filter))return [];return rows.filter(r=>filter==='all'||(filter==='review'?['disabled','unreviewed'].includes(r.status):r.group===filter))}
+function sourceLocalInventory(read,scope){
+ return [['profile','Profil : véhicules, adresses et favoris','profile',[3,2,1]],['road','Préparations route et marche','prepared',[11,10,9,8,7,6,5,4,3,2,1]],['transit','Préparations collectives','transit-prepared',[2,1]],['cycle','Préparations vélo','cycling-prepared',[2,1]],['shared','Préparations vélo partagé','shared-bike-prepared',[2,1]],['journal','Journal des déplacements déclarés','journal',[3,2,1]]].map(([id,label,prefix,versions])=>{
+  try{const copies=versions.filter(v=>read('dragonroute.'+prefix+'.v'+v+'.'+scope)!==null).length;return {id,label,copies,state:copies?'present':'absent'}}catch{return {id,label,copies:null,state:'unavailable'}}
+ });
+}
+// END SOURCES DATA MODEL
+
+
+function renderSources(){
+ const rows=sourcesInventory(C,{github:location.hostname.endsWith('.github.io'),routing:Boolean(routingEndpoint()),tolls:Boolean(tollEndpoint()),geolocation:Boolean(navigator.geolocation)}),shown=sourcesFilter(rows,$('sourcesFilter').value);
+ const states={configured:'Configuré · selon l’action',disabled:'Désactivé',unreviewed:'Configuration à vérifier',local:'Calcul local',conditional:'Action volontaire'},h=escapeHtml;
+ $('sourcesList').innerHTML=shown.map(r=>'<article class="source-card" data-source="'+r.id+'" data-state="'+r.status+'"><h3>'+h(r.title)+'</h3><p class="source-state">'+states[r.status]+'</p><p>'+h(r.purpose)+'</p><details><summary>Échanges, déclenchement et références</summary><dl>'+[['Quand ?',r.when],['Informations concernées',r.send],['Compte / accès',r.account],['Licence / conditions',r.license],['Périmètre et limites',r.limit]].map(([label,value])=>'<div><dt>'+label+'</dt><dd>'+h(value)+'</dd></div>').join('')+'</dl>'+(r.refs.length?'<p class="source-links">'+r.refs.map(([label,url])=>'<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+h(label)+'</a>').join(' · ')+'</p>':'')+'</details></article>').join('');
+ $('sourcesCount').textContent=shown.length+' fiche(s). Configuration lue dans cette page ; disponibilité des services non testée.';
+ renderLocalSources();
+}
+function renderLocalSources(){
+ const rows=sourceLocalInventory(k=>localStorage.getItem(k),PROFILE_SCOPE);
+ $('sourcesEnvironment').textContent=document.body.dataset.preview==='true'?'Version d’essai actuelle : données séparées du site public et des autres aperçus.':'Version publique : données de ce navigateur, séparées des aperçus.';
+ $('sourcesLocalList').innerHTML=rows.map(r=>'<div><dt>'+r.label+'</dt><dd>'+({present:r.copies+' copie(s) de format enregistrées',absent:'Aucune copie enregistrée',unavailable:'Stockage inaccessible · présence inconnue'}[r.state])+'</dd></div>').join('');
+ $('sourcesOffline').textContent=$('pwaStatus').textContent;
+ $('sourcesProfile').disabled=busy;$('sourcesPrepared').disabled=busy;$('sourcesJournal').disabled=busy;
+}
+function sourcesTab(kind,focus=false){
+ for(const [id,key,panel] of [['sourcesServicesTab','services','sourcesServices'],['sourcesLocalTab','local','sourcesLocal']]){
+  const on=key===kind;$(id).setAttribute('aria-selected',String(on));$(id).tabIndex=on?0:-1;$(panel).hidden=!on;if(on&&focus)$(id).focus();
+ }
+}
+function bindSources(){
+ $('sourcesBtn').addEventListener('click',()=>{renderSources();$('sourcesMessage').textContent='';sourcesTab('services');$('sourcesDialog').showModal();$('sourcesTitle').focus()});
+ $('sourcesClose').addEventListener('click',()=>$('sourcesDialog').close());
+ $('sourcesDialog').addEventListener('close',()=>{if(!document.querySelector('dialog[open]'))$('sourcesBtn').focus()});
+ $('sourcesFilter').addEventListener('change',renderSources);
+ $('sourcesRefresh').addEventListener('click',()=>{renderSources();$('sourcesMessage').textContent='Inventaire relu localement. Aucun service interrogé.'});
+ for(const [id,key] of [['sourcesServicesTab','services'],['sourcesLocalTab','local']]){
+  $(id).addEventListener('click',()=>{renderLocalSources();sourcesTab(key)});
+  $(id).addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();sourcesTab(e.key==='Home'?'services':e.key==='End'?'local':key==='services'?'local':'services',true)});
+ }
+ for(const [id,open] of [['sourcesProfile',openProfile],['sourcesPrepared',openPreparedTrips],['sourcesJournal',openJournal]])$(id).addEventListener('click',()=>{if(busy){$('sourcesMessage').textContent='Attendre la fin du calcul avant d’ouvrir les données locales.';renderLocalSources();return}$('sourcesDialog').close();open()});
+ window.addEventListener('storage',e=>{if($('sourcesDialog').open&&(e.key===null||e.key.startsWith('dragonroute.')&&e.key.endsWith('.'+PROFILE_SCOPE))){renderLocalSources();$('sourcesMessage').textContent='Présence des copies relue après une modification du stockage. Le contenu reste à vérifier dans sa rubrique.'}});
+}
+
+
 const fuelField={E10:"e10",Gazole:"gazole",SP98:"sp98",SP95:"sp95",E85:"e85",GPLc:"gplc"};
 const log=[];
 let map=null, routeLayer=null, markerLayer=null, currentPos=null, activeAbort=null, deferredInstall=null;
@@ -4487,7 +4571,7 @@ function bindSharedJournal(){
  $('bikeTripJournal').addEventListener('click',()=>journalFromShared());$('savedSharedJournal').addEventListener('click',()=>journalFromShared(true));
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
