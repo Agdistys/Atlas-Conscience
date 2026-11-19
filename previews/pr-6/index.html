@@ -46,6 +46,7 @@
           <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint endPlaceNote" value="Valence" autocomplete="off" placeholder="Ville ou adresse"><p id="endPlaceNote" class="note" hidden></p></div>
         </div>
         <button id="transitBtn" class="ghost navigation-button" type="button" aria-haspopup="dialog">Transports collectifs · pilote Grenoble</button>
+        <button id="cycleBtn" class="ghost navigation-button" type="button" aria-haspopup="dialog">À vélo · essai</button>
         <button id="bikesBtn" class="ghost navigation-button" type="button" aria-haspopup="dialog">Vélos partagés · pilote Lyon</button>
         <label for="routeOptimization">Privilégier pour ce trajet</label><select id="routeOptimization" aria-describedby="optimizationNote"><option value="" disabled>Choisir un critère</option><option value="fastest" selected>Plus rapide — durée estimée</option><option value="shortest">Plus court — distance</option></select><p id="optimizationNote" class="note" role="status"></p>
         <p id="addressHint" class="note">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>
@@ -293,7 +294,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 63a3c00 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · cdb7465 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -455,6 +456,27 @@
   <p id="profileImportMessage" class="note" role="status"></p>
   <div class="dialog-actions"><button id="exportBeforeImport" class="ghost" type="button">Exporter le profil actuel</button><button id="confirmProfileImport" class="primary" type="button">Remplacer mon profil</button></div>
 </dialog>
+<dialog id="cycleDialog" aria-labelledby="cycleTitle">
+ <div class="dialog-heading"><h2 id="cycleTitle" tabindex="-1">Mon trajet à vélo</h2><button id="cycleClose" type="button" class="icon-btn" aria-label="Fermer le trajet à vélo">×</button></div>
+ <p id="cyclePlaces"></p>
+ <p>Vélo classique · itinéraire direct. Le profil VAE et son autonomie ne sont pas encore disponibles.</p>
+ <label for="cycleMax">Distance souhaitée au maximum (km)</label><input id="cycleMax" type="number" min="0.1" max="300" step="any" placeholder="Sans limite renseignée" aria-describedby="cycleMaxHelp">
+ <p id="cycleMaxHelp" class="note">Repère personnel : son dépassement sera signalé, sans modifier le parcours. Laisser vide si la limite est inconnue.</p>
+ <p class="note">Au calcul : les adresses sont vérifiées auprès de l’IGN puis leurs coordonnées sont envoyées à FOSSGIS pour le vélo. Ce service conserve les demandes dans ses journaux. Aucun profil ni favori n’est envoyé. <a href="https://routing.openstreetmap.de/about.html" target="_blank" rel="noopener noreferrer">Service et confidentialité</a>.</p>
+ <p class="note">Essai en France métropolitaine, jusqu’à 150 km entre les points à vol d’oiseau et 300 km de parcours. Pente, état des voies, fermetures et accessibilité non vérifiés. Aucun réglage automobile, arrêt carburant ou rendez-vous de covoiturage n’est repris.</p>
+ <div class="dialog-actions"><button id="cycleSearch" class="primary" type="button">Calculer le trajet à vélo</button><button id="cycleCancel" type="button" class="ghost" hidden>Annuler le calcul vélo</button></div>
+ <p id="cycleStatus" role="status"></p>
+ <section id="cycleResult" hidden aria-labelledby="cycleResultTitle">
+  <h3 id="cycleResultTitle" tabindex="-1">Parcours cyclable</h3><p id="cycleMetrics"></p><p id="cyclePreference" role="status" class="app-notice"></p>
+  <div id="cycleMap" role="region" aria-label="Carte du trajet à vélo"></div><svg id="cycleSketch" viewBox="0 0 600 320" role="img" aria-label="Schéma du tracé vélo, sans fond de carte" hidden></svg><p id="cycleMapNote" class="note"></p>
+  <details><summary>Voies et passages vélo à la main annoncés</summary><p class="note">Détail du moteur, à consulter à l’arrêt. Ce n’est pas un guidage en déplacement ; la signalisation et les conditions réelles restent à vérifier.</p><ol id="cycleSteps"></ol></details>
+  <button id="cycleExport" class="ghost" type="button">Télécharger le tracé vélo (GPX)</button><p id="cycleExportNote" class="note" role="status"></p>
+  <p class="note">Le fichier contient les lieux et le tracé préparé ; aucune altitude ou position en temps réel. Cette consultation ne modifie pas le trajet principal, les préparations ou le journal. Sauvegarde vélo dans « Mes trajets » à venir. Prix et empreinte non estimés.</p>
+ </section>
+ <p class="note">Vélos partagés : stations consultables séparément. L’accès à pied, la location et la restitution ne sont pas encore inclus dans ce calcul.</p>
+ <p class="note">Routage <a href="https://routing.openstreetmap.de/about.html" target="_blank" rel="noopener noreferrer">OSRM / FOSSGIS</a> · données © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap (ODbL)</a> · <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">Signaler une erreur cartographique</a>. Service communautaire sans disponibilité garantie, essai gratuit à usage modéré. <a href="mailto:agdistys@mailo.com">Contact de l’éditrice</a>.</p>
+</dialog>
+
 <dialog id="bikesDialog" aria-labelledby="bikesTitle">
  <div class="dialog-heading"><h2 id="bikesTitle" tabindex="-1">Vélos partagés · Lyon</h2><button id="bikesClose" type="button" class="icon-btn" aria-label="Fermer les vélos partagés">×</button></div>
  <p>Stations Vélo’v de la Métropole de Lyon. Les autres réseaux ne sont pas encore couverts.</p>
