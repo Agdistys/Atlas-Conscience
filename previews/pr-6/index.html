@@ -77,13 +77,14 @@
             <button id="stationDepartureNow" type="button" class="ghost">Partir maintenant</button><p id="stationDepartureStatus" class="note" role="status"></p>
           <label for="routeArriveBy">Arriver au plus tard — heure de Paris (facultatif)</label><input id="routeArriveBy" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59" aria-describedby="routeTimingStatus">
           <label class="check-label"><input id="routeOnlyBefore" type="checkbox"> Filtrer la comparaison par cette heure limite</label><p id="routeTimingStatus" class="note" role="status"></p>
-          <p class="note">Départ commun au trajet et aux horaires des stations. Estimations hors pauses et trafic en direct, sans garantie d’arrivée.</p>
+          <p class="note">Départ commun au trajet et aux horaires des stations. La pause carburant déclarée est ajoutée après le choix d’une station. Autres pauses et trafic en direct exclus ; aucune garantie d’arrivée.</p>
         </details>
         <button id="goBtn" class="primary">Trouver mon trajet</button>
         <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
-        <div id="summary" class="summary" hidden><div class="metric"><b id="tripKm">—</b><small>trajet affiché</small></div><div class="metric"><b id="tripTime">—</b><small>durée estimée</small></div></div>
+        <div id="summary" class="summary" hidden><div class="metric"><b id="tripKm">—</b><small>trajet affiché</small></div><div class="metric"><b id="tripTime">—</b><small>durée de déplacement</small></div></div>
         <section id="meetingSummary" class="selection" hidden aria-label="Rencontres sur le trajet"><h3>Rencontres sur le trajet</h3><p id="meetingOrder"></p><p id="meetingMetrics"></p><button id="meetingEdit" class="ghost" type="button">Modifier les rencontres</button><button id="meetingRemove" class="ghost" type="button">Retirer les rencontres</button></section>
         <p id="meetingPending" class="selection" hidden>Des rencontres sont en préparation, mais ne sont pas incluses dans le trajet affiché. <button id="meetingReview" class="ghost" type="button">Vérifier les rencontres</button></p>
+        <p id="tripDurationBreakdown" class="note" role="status" hidden></p>
         <p id="tripTiming" class="selection" role="status" hidden></p>
         <p id="walkingStatus" class="selection" role="status" hidden></p>
         <p id="routeAlternativesNote" class="note" hidden></p>
@@ -230,6 +231,9 @@
             <p class="note">De 1 à 30 km autour des points du tracé, avec un espacement de 5 à 100 km et 2 à 24 points au maximum. La collecte géographique repère des candidates ; leur accès et leur détour exigent un calcul routier distinct. Modifier ces choix demande une nouvelle recherche.</p>
           </details>
           <p id="samplingNote" class="note" role="status">Calculer un trajet pour connaître le nombre de points à consulter.</p>
+          <label for="stopMinutes">Temps prévu à la station (min, facultatif)</label><input id="stopMinutes" type="number" min="0" max="1440" step="any" inputmode="decimal" placeholder="Non renseigné" aria-describedby="stopMinutesHelp stopMinutesStatus">
+          <p id="stopMinutesHelp" class="note">De 0 à 1 440 minutes. Prévoir le plein et l’attente sur place. Laisser vide si la durée est inconnue ; zéro signifie une pause explicitement nulle. Les autres pauses ne sont pas incluses.</p>
+          <p id="stopMinutesStatus" class="note" role="status">Cette durée sera ajoutée uniquement après le choix d’une station.</p>
           <label for="liters">Litres à acheter</label><input id="liters" type="number" min="1" max="2000" step="1" value="40">
           <details id="rangeOptions"><summary>Autonomie et réserve</summary>
             <label for="rangeMode">Autonomie au point de départ</label><select id="rangeMode"><option value="none">Non renseignée</option><option value="km">Distance restante estimée (km)</option><option value="liters">Carburant restant estimé (L)</option></select>
@@ -314,7 +318,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 3eaf6d0 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 7e8fc31 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -331,7 +335,7 @@
       <label class="check-label"><input id="preparedConfirm" type="checkbox"> Enregistrer ces informations dans ce navigateur</label><button id="preparedSave" class="primary" type="submit" disabled>Enregistrer</button>
     </form>
   </section>
-  <div class="dialog-actions"><button id="preparedV8Export" class="ghost" type="button" hidden>Exporter l’original format 8</button><button id="preparedV7Export" class="ghost" type="button" hidden>Exporter l’original format 7</button><button id="preparedV6Export" class="ghost" type="button" hidden>Exporter l’original format 6</button><button id="preparedV5Export" class="ghost" type="button" hidden>Exporter l’original format 5</button><button id="preparedRawExport" class="ghost" type="button" hidden>Exporter la copie originale non chargée</button><button id="preparedV4Export" class="ghost" type="button" hidden>Exporter l’original format 4</button><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
+  <div class="dialog-actions"><button id="preparedV9Export" class="ghost" type="button" hidden>Exporter l’original format 9</button><button id="preparedV8Export" class="ghost" type="button" hidden>Exporter l’original format 8</button><button id="preparedV7Export" class="ghost" type="button" hidden>Exporter l’original format 7</button><button id="preparedV6Export" class="ghost" type="button" hidden>Exporter l’original format 6</button><button id="preparedV5Export" class="ghost" type="button" hidden>Exporter l’original format 5</button><button id="preparedRawExport" class="ghost" type="button" hidden>Exporter la copie originale non chargée</button><button id="preparedV4Export" class="ghost" type="button" hidden>Exporter l’original format 4</button><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
   <div id="preparedList"></div>
   <section id="preparedView" class="detail-section" hidden aria-label="Préparation enregistrée"><div id="preparedDetails"></div><button id="preparedResumeBtn" class="primary" type="button">Préparer à nouveau ce trajet</button></section>
   </div>
