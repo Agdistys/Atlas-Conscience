@@ -35,8 +35,8 @@
         <h1>Mon trajet</h1>
         <label for="travelMode">Mode de déplacement</label><select id="travelMode"><option value="car">En véhicule</option><option value="walk">À pied</option></select>
         <div id="walkingOptions" hidden>
-          <label for="maxWalkKm">Distance de marche souhaitée au maximum (km)</label><input id="maxWalkKm" type="number" min="0.1" max="500" step="any" placeholder="Sans limite renseignée" aria-describedby="walkingPreference">
-          <p id="walkingPreference" class="note">Repère personnel : le dépassement sera signalé, sans modifier le tracé. Laisser vide si la limite est inconnue. Coordonnées envoyées à l’IGN lors du calcul.</p>
+          <label for="maxWalkKm">Distance de marche souhaitée au maximum (km)</label><input id="maxWalkKm" type="number" min="0" max="500" step="any" placeholder="Sans limite renseignée" aria-describedby="walkingPreference"><label for="walkRule">Règle pour la distance à pied</label><select id="walkRule"><option value="soft">Préférence</option><option value="strict">Limite impérative</option></select>
+          <p id="walkingPreference" class="note">Préférence : dépassement signalé. Limite impérative : trajet non admissible si dépassée. Vide : aucune distance demandée ; zéro : zéro kilomètre. Réévaluation locale sans nouveau calcul. Pente, effort et accessibilité non vérifiés.</p>
           <p class="note">Pente, escaliers, revêtement, fermetures et accessibilité ne sont pas vérifiés. La durée du moteur reste une estimation, hors pauses.</p>
         </div>
         <div id="vehiclePicker"><label for="savedVehicleSelect">Véhicule mémorisé pour ce trajet</label><select id="savedVehicleSelect" aria-describedby="activeVehicle"><option value="">Réglages ponctuels</option></select></div>
@@ -104,7 +104,7 @@
           <div><label for="comparisonArriveBy">Arriver au plus tard (heure de Paris, facultatif)</label><input id="comparisonArriveBy" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59"></div>
           <div><label for="comparisonCons">Consommation du véhicule (L/100 km)</label><input id="comparisonCons" type="number" min="1" max="100" step="any" value="6.2"></div>
           <div><label for="comparisonPrice">Prix du carburant saisi (€/L, facultatif)</label><input id="comparisonPrice" type="number" min="0.001" max="10" step="any" placeholder="Inconnu"></div>
-          <div><label for="comparisonWalkLimit">Limite de marche souhaitée (km, facultatif)</label><input id="comparisonWalkLimit" type="number" min="0.1" max="500" step="any" placeholder="Non renseignée"></div>
+          <div><label for="comparisonWalkLimit">Limite de marche souhaitée (km, facultatif)</label><input id="comparisonWalkLimit" type="number" min="0" max="500" step="any" placeholder="Non renseignée"><label for="comparisonWalkRule">Règle pour la distance à pied</label><select id="comparisonWalkRule"><option value="soft">Préférence</option><option value="strict">Limite impérative</option></select></div>
         </div>
         <fieldset class="prospective-options"><legend>Vélo facultatif</legend>
           <label class="check-label"><input id="comparisonCycle" type="checkbox"> Inclure le vélo classique dans la comparaison</label>
@@ -299,7 +299,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 626ece1 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 3287718 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -316,7 +316,7 @@
       <label class="check-label"><input id="preparedConfirm" type="checkbox"> Enregistrer ces informations dans ce navigateur</label><button id="preparedSave" class="primary" type="submit" disabled>Enregistrer</button>
     </form>
   </section>
-  <div class="dialog-actions"><button id="preparedV4Export" class="ghost" type="button" hidden>Exporter l’original format 4</button><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
+  <div class="dialog-actions"><button id="preparedV5Export" class="ghost" type="button" hidden>Exporter l’original format 5</button><button id="preparedRawExport" class="ghost" type="button" hidden>Exporter la copie originale non chargée</button><button id="preparedV4Export" class="ghost" type="button" hidden>Exporter l’original format 4</button><button id="preparedV3Export" class="ghost" type="button" hidden>Exporter l’original format 3</button><button id="preparedV2Export" class="ghost" type="button" hidden>Exporter l’original au format 2</button><button id="preparedLegacyExport" class="ghost" type="button" hidden>Exporter l’ancienne sauvegarde originale</button><button id="preparedExport" class="ghost" type="button">Exporter mes préparations</button><label class="file-button" for="preparedImportFile">Importer une sauvegarde<input id="preparedImportFile" type="file" accept="application/json,.json"></label><button id="preparedErase" class="ghost" type="button">Tout effacer ici</button></div>
   <div id="preparedList"></div>
   <section id="preparedView" class="detail-section" hidden aria-label="Préparation enregistrée"><div id="preparedDetails"></div><button id="preparedResumeBtn" class="primary" type="button">Préparer à nouveau ce trajet</button></section>
   </div>
