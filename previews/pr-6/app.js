@@ -4,7 +4,7 @@ const $=id=>document.getElementById(id);
 const fuelField={E10:"e10",Gazole:"gazole",SP98:"sp98",SP95:"sp95",E85:"e85",GPLc:"gplc"};
 const log=[];
 let map=null, routeLayer=null, markerLayer=null, currentPos=null, activeAbort=null, deferredInstall=null;
-let trip=null, compared=[], busy=false,stationSearch=null;
+let trip=null, compared=[], busy=false,stationSearch=null,stationJob=null;
 let comparison=null,transitComparedCycle=null,transitComparisonData=null;
 let mapView=null,currentStation=null,detailSequence=0;
 let orsLastRequest=-Infinity;
@@ -1541,13 +1541,15 @@ async function stationsAround(p,fuel,radius=C.corridorRadiusKm){
   const rows=Array.isArray(d.results)?d.results:[];
   return {stations:rows.map(r=>stationFrom(r,fuel)).filter(Boolean),limited:rows.length>=100||Number(d.total_count)>rows.length};
 }
-async function collectStations(coords,fuel){
+async function collectStations(coords,fuel,isCurrent=()=>true){
   health("hFuel","busy","carburants…");
   const pts=sampleRoute(coords),all=[];let failed=0,limited=0;
   dbg("Échantillons du corridor",pts.length);
   for(let i=0;i<pts.length;i+=4){
+    if(!isCurrent())throw new Error("Recherche interrompue.");
     const batch=pts.slice(i,i+4);
     const rs=await Promise.all(batch.map(p=>stationsAround(p,fuel).catch(e=>{failed++;dbg("Carburants partiel",e.message);return {stations:[],limited:false}})));
+    if(!isCurrent())throw new Error("Recherche interrompue.");
     for(const result of rs){all.push(...result.stations);if(result.limited)limited++}
   }
   const uniq=new Map();all.forEach(s=>uniq.set(s.id,s));
@@ -1581,6 +1583,26 @@ function chooseCandidates(stations,coords){
     .filter(s=>s.progress>=Math.max(0,w.min-20)&&s.progress<=w.max+20)
     .sort((a,b)=>w.mode==="around"?Math.abs(a.progress-w.target)-Math.abs(b.progress-w.target):a.progress-b.progress);
 }
+// BEGIN STATION PAGINATION MODEL
+function stationPageSize(limit){return Number.isInteger(limit)&&limit>0?Math.min(limit,20):20}
+function stationPage(queue,cursor,limit=20){
+ if(!Array.isArray(queue)||!Number.isInteger(cursor)||cursor<0||cursor>queue.length)throw new Error('Progression des stations invalide.');
+ return queue.slice(cursor,cursor+stationPageSize(limit));
+}
+function commitStationPage(state,examined,scored){
+ const expected=stationPage(state.queue,state.cursor,examined.length);
+ if(!examined.length||examined.length>20||expected.length!==examined.length||expected.some((s,i)=>s.id!==examined[i].id))throw new Error('Lot de stations sans correspondance avec la recherche.');
+ const ids=new Set(expected.map(s=>s.id)),known=new Set(state.results.map(s=>s.id)),byId=new Map();
+ if(ids.size!==examined.length||[...ids].some(id=>known.has(id)))throw new Error('Station déjà comparée ou identifiant répété.');
+ for(const row of scored){
+  if(!ids.has(row.id)||byId.has(row.id)||['distanceFromStart','accessSeconds','extraKm','extraMin','purchase','detourFuelCost','real'].some(k=>!Number.isFinite(row[k])||row[k]<0))throw new Error('Accès de station non vérifiable.');
+  byId.set(row.id,row);
+ }
+ const qualified=expected.map(s=>byId.get(s.id)).filter(Boolean),inside=qualified.filter(s=>s.distanceFromStart>=state.window.min&&s.distanceFromStart<=state.window.max);
+ return {...state,cursor:state.cursor+examined.length,rejected:state.rejected+examined.length-qualified.length,outside:state.outside+qualified.length-inside.length,results:[...state.results,...inside.map((s,i)=>({...s,number:state.results.length+i+1}))]};
+}
+// END STATION PAGINATION MODEL
+
 function scoreCandidates(cands,base,m,liters,cons){
   const endIndex=cands.length+1,out=[];
   for(let i=0;i<cands.length;i++){
@@ -1597,13 +1619,13 @@ function scoreCandidates(cands,base,m,liters,cons){
   }
   return out;
 }
-async function scoreConstrainedCandidates(cands,liters,cons){
+async function scoreConstrainedCandidates(cands,liters,cons,isCurrent=()=>true,progress=""){
   const scored=[];let unavailable=0,incomparable=0,overLimit=0;
   for(let i=0;i<cands.length;i++){
-    if(activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
-    $("fuelStatus").textContent=`Vérification avec exclusions : station ${i+1} sur ${cands.length}…`;
+    if(!isCurrent()||activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
+    $("fuelStatus").textContent=progress||`Vérification avec exclusions : station ${i+1} sur ${cands.length}…`;
     const station=cands[i];let via;
-    try{via=await route(routePlanNodes(station).map(n=>n.point),true,false,trip.routing);if(trip.meetings)meetingLegs(via,routePlanNodes(station))}
+    try{via=await route(routePlanNodes(station).map(n=>n.point),true,false,trip.routing,isCurrent);if(!isCurrent())throw new Error("Recherche interrompue.");if(trip.meetings)meetingLegs(via,routePlanNodes(station))}
     catch(e){if(e.noRoute){unavailable++;continue}throw e}
     const extraKm=(via.distance-trip.base.distance)/1000,extraMin=(via.duration-trip.base.duration)/60;
     // A shorter/faster recalculated route is not silently treated as a zero detour.
@@ -1613,7 +1635,7 @@ async function scoreConstrainedCandidates(cands,liters,cons){
     const purchase=liters*station.price,detourFuelCost=extraKm*cons/100*station.price;
     scored.push({...station,via,distanceFromStart:access.accessDistance/1000,accessSeconds:access.accessSeconds,extraKm,extraMin,purchase,detourFuelCost,real:purchase+detourFuelCost});
   }
-  return {scored,note:[overLimit?`${overLimit} station(s) au-delà de la limite totale des rencontres : exclues.`:"",unavailable?`${unavailable} station(s) sans accès calculable.`:"",incomparable?`${incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:""].filter(Boolean).join(" ")};
+  return {scored,counts:{overLimit,unavailable,incomparable},note:[overLimit?`${overLimit} station(s) au-delà de la limite totale des rencontres : exclues.`:"",unavailable?`${unavailable} station(s) sans accès calculable.`:"",incomparable?`${incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:""].filter(Boolean).join(" ")};
 }
 // BEGIN PRICE FRESHNESS MODEL
 function priceInstant(value){
@@ -3269,6 +3291,8 @@ function chooseRoute(index){
   setStatus("Trajet choisi. Les stations seront recherchées sur ce trajet.","ok");
 }
 function clearStations(){
+  if(stationJob){stationJob.controller.abort();stationJob.invalid=true}
+  $("stationContinuation").hidden=true;
   selectedStop=null;invalidateStationPrice();
   compared=[];stationSearch=null;updateResumePreparation();
   for(const id of ["stationCoverage","stationFilterStatus","filteredStopNote"])$(id).hidden=true;
@@ -3354,38 +3378,62 @@ async function run(){
     if(walking&&!current()){setStatus('Critères modifiés : calcul à pied annulé.');return}dbg(e.stack||e.message);setStatus(`⚠️ ${e.message}`,"err");$("diagWrap").open=true;
   }finally{if(walkRun===job)walkRun=null;lock(false);activeAbort=null}
 }
-async function searchStations(){
-  if(busy||!trip||trip.routing.vehicle.type==='walk')return;
-  activeAbort=new AbortController();
-  clearStations();lock(true);
-  $("cancelStationsBtn").hidden=false;$("cancelStationsBtn").disabled=false;
-  try{
-    const fuel=$("fuel").value,liters=valueNum("liters",1,2000),cons=valueNum("cons",1,100),w=stopWindow();
-    $("fuelStatus").textContent="Recherche des stations…";
-    const found=await collectStations(trip.coords,fuel);
-    if(activeAbort.signal.aborted)throw new Error("Recherche interrompue.");
-    $("stationCount").textContent=String(found.stations.length);$("stationSummary").hidden=false;
-    const candidates=chooseCandidates(found.stations,trip.coords),cands=candidates.slice(0,C.maxCandidates);
-    stationSearch={found,candidates:candidates.length,examined:cands.length};
-    $("stationCoverage").hidden=false;
-    $("stationCoverage").textContent=`Recherche par échantillons : ${found.samples} points, corridor de ${C.corridorRadiusKm} km. ${cands.length} candidates à examiner sur ${candidates.length} dans la zone approchée.${candidates.length>cands.length?" Limite atteinte : comparaison partielle. Choisir une distance plus précise puis relancer la recherche.":""}${found.limited?` ${found.limited} réponse(s) limitée(s) par le service : couverture partielle.`:""}${found.failed?` ${found.failed} point(s) en échec : couverture partielle.`:""} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
-    if(!cands.length)throw new Error(`Aucune station ${fuel} reçue dans la zone demandée.`);
-    $("fuelStatus").textContent=`Calcul des accès et détours de ${cands.length} stations…`;
-    let scored,note="";
-    if(trip.routing.provider!=="osrm"||trip.meetings)({scored,note}=await scoreConstrainedCandidates(cands,liters,cons));
-    else{const mat=await matrix([trip.a,...cands.map(s=>[s.lat,s.lon]),trip.b]);scored=scoreCandidates(cands,trip.base,mat,liters,cons);if(scored.length<cands.length)note=`${cands.length-scored.length} accès indisponible(s) ou trajet(s) recalculé(s) non comparable(s) : exclus du classement.`}
-    if(activeAbort.signal.aborted)throw new Error("Recherche interrompue.");
-    $("stationCoverage").textContent=$("stationCoverage").textContent.replace("candidates à examiner", "candidates examinées");
-    compared=scored.filter(s=>s.distanceFromStart>=w.min&&s.distanceFromStart<=w.max);
-    $("testedCount").textContent=String(compared.length);
-    updateServiceChoices();
-    if(!compared.length)throw new Error(`${note} Aucune station comparable dans cette plage de distance. Modifie la distance choisie.`.trim());
-    compared.forEach((s,i)=>s.number=i+1);
-    renderStations(compared,w.mode,true);
-    $("fuelStatus").textContent=`${compared.length} stations comparées parmi ${found.stations.length} reçues. ${note?note+" ":""}${found.partial?"Réponse partielle du service. ":""}Distances depuis le départ choisi ; pas de suivi GPS continu.`;
-  }catch(e){dbg(e.stack||e.message);$("fuelStatus").textContent=activeAbort.signal.aborted?"Recherche interrompue. Le trajet reste disponible.":e.message;health("hFuel","err","carburants ✕")}
-  finally{activeAbort=null;lock(false);$("cancelStationsBtn").hidden=true}
+function stationSearchSignature(){
+ return JSON.stringify({inputs:['start','end','travelMode','routeOptimization','routeVehicle','stopKm','fuel','liters','cons',...Object.values(dimensionFields)].map(id=>$(id).value),mode:stopWindow().mode,avoid:[...document.querySelectorAll('.avoid-options input:checked')].map(e=>e.value),routing:trip?.routing});
 }
+function stationSearchNote(s){return [s.counts.overLimit?`${s.counts.overLimit} station(s) au-delà de la limite totale des rencontres : exclues.`:'',s.counts.unavailable?`${s.counts.unavailable} station(s) sans accès calculable.`:'',s.counts.incomparable?`${s.counts.incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:'',s.counts.matrix?`${s.counts.matrix} accès indisponible(s) ou trajet(s) recalculé(s) non comparable(s) : exclus du classement.`:''].filter(Boolean).join(' ')}
+function updateStationCoverage(){
+ const s=stationSearch;if(!s){$('stationContinuation').hidden=true;return}
+ const remaining=s.queue.length-s.cursor,n=stationPage(s.queue,s.cursor,C.maxCandidates).length,f=s.found;
+ $('stationCoverage').hidden=false;
+ $('stationCoverage').textContent=`Recherche par échantillons : ${f.samples} points, corridor de ${C.corridorRadiusKm} km. ${s.cursor} candidates examinées sur ${s.queue.length} dans la zone approchée. ${s.results.length} comparables dans la plage routière, ${s.outside} hors plage et ${s.rejected} non comparables.${remaining?' Limite atteinte : comparaison partielle. Continuer explicitement ci-dessous ou choisir une distance plus précise.':' Toutes les candidates reçues de cette sélection ont été examinées.'}${f.limited?` ${f.limited} réponse(s) limitée(s) par le service : couverture partielle.`:''}${f.failed?` ${f.failed} point(s) en échec : couverture partielle.`:''} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
+ $('stationContinuation').hidden=false;$('continueStationsBtn').hidden=!remaining;$('continueStationsBtn').disabled=busy;
+ $('continueStationsBtn').textContent=`Comparer ${n} autre${n>1?"s":""} station${n>1?"s":""}`;
+ $('stationContinuationNote').textContent=`Stations reçues le ${new Date(s.at).toLocaleString('fr-FR')}. ${remaining} candidate(s) restent à examiner. Chaque continuation calcule au plus ${stationPageSize(C.maxCandidates)} accès parmi les stations déjà reçues ; les prix gardent leur date. Pour obtenir de nouvelles données ou changer de zone, relancer la recherche.`;
+}
+async function searchStations(more=false){
+ more=more===true;if(busy||!trip||trip.routing.vehicle.type==='walk')return;
+ let session=more?stationSearch:null;
+ if(more&&(!session||session.cursor>=session.queue.length))return;
+ if(more&&(session.trip!==trip||session.base!==trip.base||session.signature!==stationSearchSignature())){clearStations();$('fuelStatus').textContent='Critères modifiés : relancer la recherche des stations.';return}
+ if(!more)clearStations();
+ const job={controller:new AbortController(),trip,base:trip.base,signature:stationSearchSignature(),invalid:false};stationJob=job;activeAbort=job.controller;lock(true);
+ const context=()=>stationJob===job&&!job.invalid&&trip===job.trip&&trip?.base===job.base&&job.signature===stationSearchSignature(),current=()=>context()&&!job.controller.signal.aborted;
+ $('cancelStationsBtn').hidden=false;$('cancelStationsBtn').disabled=false;updateStationCoverage();let problem='';
+ try{
+  if(!session){
+   const fuel=$('fuel').value,liters=valueNum('liters',1,2000),cons=valueNum('cons',1,100),window=stopWindow();$('fuelStatus').textContent='Recherche des stations…';
+   const found=await collectStations(trip.coords,fuel,current);if(!current())throw new Error('Recherche interrompue.');
+   session={found,queue:chooseCandidates(found.stations,trip.coords),cursor:0,rejected:0,outside:0,results:[],counts:{overLimit:0,unavailable:0,incomparable:0,matrix:0},liters,cons,fuel,window,trip,base:trip.base,signature:job.signature,at:new Date().toISOString()};stationSearch=session;
+   $('stationCount').textContent=String(found.stations.length);$('stationSummary').hidden=false;updateStationCoverage();
+   if(!session.queue.length)throw new Error(`Aucune station ${fuel} reçue dans la zone demandée.`);
+  }
+  const cands=stationPage(session.queue,session.cursor,C.maxCandidates),start=session.cursor;
+  const accept=(examined,scored,counts)=>{if(!current())throw new Error('Recherche interrompue.');Object.assign(session,commitStationPage(session,examined,scored));for(const [k,v] of Object.entries(counts))session.counts[k]+=v;compared=session.results;updateStationCoverage()};
+  if(trip.routing.provider!=='osrm'||trip.meetings){
+   for(const [i,station] of cands.entries()){
+    if(!current())throw new Error('Recherche interrompue.');
+    const result=await scoreConstrainedCandidates([station],session.liters,session.cons,current,`Vérification avec exclusions : candidate ${start+i+1} sur ${session.queue.length}…`);
+    accept([station],result.scored,result.counts);
+   }
+  }else{
+   $('fuelStatus').textContent=`Calcul des accès et détours de ${cands.length} stations…`;
+   const mat=await matrix([trip.a,...cands.map(s=>[s.lat,s.lon]),trip.b]);if(!current())throw new Error('Recherche interrompue.');
+   const scored=scoreCandidates(cands,trip.base,mat,session.liters,session.cons);accept(cands,scored,{matrix:cands.length-scored.length});
+  }
+ }catch(e){problem=job.controller.signal.aborted?'Recherche interrompue.':e.message;dbg(e.stack||e.message);health('hFuel','err','carburants ✕')}
+ finally{
+  const valid=context();if(stationJob===job)stationJob=null;if(activeAbort===job.controller)activeAbort=null;
+  if(!valid){clearStations();$('fuelStatus').textContent='Critères modifiés : relancer la recherche des stations.'}
+  else if(session&&stationSearch===session){
+   compared=session.results;$('testedCount').textContent=String(compared.length);updateServiceChoices();renderStations(compared,session.window.mode,!more);
+   const note=stationSearchNote(session);
+   $('fuelStatus').textContent=(problem?problem+' Résultats valides déjà obtenus conservés. ':'')+`${compared.length} stations comparées parmi ${session.found.stations.length} reçues. ${note?note+' ':''}${session.found.partial?'Réponse partielle du service. ':''}`+(!compared.length?'Aucune station comparable dans cette plage de distance. Modifier la distance ou poursuivre les candidates restantes. ':'')+'Distances depuis le départ choisi ; pas de suivi GPS continu.';
+  }else $('fuelStatus').textContent=(problem||'Recherche sans résultat.')+' Le trajet reste disponible.';
+  lock(false);$('cancelStationsBtn').hidden=true;updateStationCoverage();if(more&&stationSearch)$('stationCoverage').focus({preventScroll:true});
+ }
+}
+
 async function selectStation(id){
   if(busy||!trip||trip.routing.vehicle.type==='walk')return;
   const station=compared.find(s=>s.id===id);if(!station)return;
@@ -3668,7 +3716,7 @@ function bind(){
   ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{clearRememberedInput(id);if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
   $("stationDeparture").addEventListener("input",()=>{if(!busy)refreshArrival()});
   $("stationDepartureNow").addEventListener("click",()=>{if(!busy){$("stationDeparture").value=parisLocal(Date.now());refreshArrival()}});
-  $("stationsBtn").addEventListener("click",searchStations);
+  $("stationsBtn").addEventListener("click",searchStations);$("continueStationsBtn").addEventListener("click",()=>searchStations(true));
   $("stationCards").addEventListener("click",e=>{const button=e.target.closest('[data-select]');if(button)selectStation(button.dataset.select)});
   document.querySelectorAll('input[name="stopMode"],#stopKm,#fuel,#liters,#cons').forEach(el=>el.addEventListener("input",()=>{if(!busy){
     if(el.id==="fuel"){$("budgetPrice").value="";budgetReference=null}
