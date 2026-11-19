@@ -106,3 +106,5 @@ pre{font:10px/1.5 ui-monospace,monospace;max-height:180px;overflow:auto;white-sp
 
 #cycleDialog{width:min(800px,calc(100% - 24px))}#cycleDialog .dialog-heading{z-index:1100}#cycleDialog button{min-height:44px}#cycleMap{height:340px}#cycleSketch{display:block;width:100%;height:280px;background:#18202b}#cycleDialog p,#cycleSteps{overflow-wrap:anywhere}#cycleDialog a{text-decoration:underline}#cycleMap .leaflet-control-attribution{background:#fff;color:#333}#cycleMap .leaflet-control-attribution a{color:#164f83}#cycleSteps{padding-left:24px}
 @media(max-width:600px){#cycleMap{height:280px}}
+
+#savedCyclePanel .dialog-actions,#savedCyclePanel .row-actions{flex-wrap:wrap}#savedCyclePanel button,#savedCyclePanel input,#cycleSave{max-width:100%;white-space:normal}#savedCycleDetails,#savedCycleImportDetails{overflow-wrap:anywhere}#savedCycleEditor{margin:16px 0}#savedCycleImportDialog{width:min(680px,94vw)}

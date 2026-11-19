@@ -54,6 +54,34 @@ function cycleGpx(r,places,at){
 }
 // END CYCLING MODEL
 
+// BEGIN SAVED CYCLE MODEL
+function validateSavedCycleEntry(e){
+ if(!e?.places||!e.criteria||e.snapshot?.source!=='fossgis-bike'||e.snapshot.profile!=='bicycle')throw new Error('Préparation vélo incomplète ou profil non reconnu.');
+ const id=preparedText(e.id,80,true),name=preparedText(e.name,80,true),savedAt=preparedDate(e.savedAt),calculatedAt=preparedDate(e.snapshot.calculatedAt);
+ if(!/^[A-Za-z0-9-]+$/.test(id)||Date.parse(calculatedAt)>Date.parse(savedAt))throw new Error('Identité ou dates vélo incohérentes.');
+ const places={start:preparedPoint(e.places.start),end:preparedPoint(e.places.end)},q=cycleRequest([places.start.lon,places.start.lat],[places.end.lon,places.end.lat]);
+ const limit=e.criteria.maxKm;if(limit!==null&&(typeof limit!=='number'||!Number.isFinite(limit)))throw new Error('Limite vélo invalide.');const criteria={maxKm:cycleLimit(limit)};
+ const r=e.snapshot.route;if(!r||!Array.isArray(r.steps)||r.steps.length>1500)throw new Error('Détail de la préparation vélo manquant.');
+ const points=cycleGeometry({type:'LineString',coordinates:r.points}),steps=r.steps.map(s=>({mode:s.mode,distance:s.distance,duration:s.duration,name:preparedText(s.name,240)}));
+ if(r.dataVersion!==null&&typeof r.dataVersion!=='string')throw new Error('Version des données vélo invalide.');
+ // Adapter l’instantané au validateur commun ne lui attribue pas une origine authentifiée.
+ const route=cycleResponse({code:'Ok',data_version:r.dataVersion===null?undefined:preparedText(r.dataVersion,100),waypoints:[{location:points[0],distance:cycleGap(q.a,points[0])},{location:points.at(-1),distance:cycleGap(q.b,points.at(-1))}],routes:[{distance:r.distance,duration:r.duration,geometry:{type:'LineString',coordinates:points},legs:[{distance:r.distance,duration:r.duration,steps}]}]},q);
+ return {id,name,savedAt,places,criteria,snapshot:{source:'fossgis-bike',profile:'bicycle',calculatedAt,route}};
+}
+function validateSavedCycle(data){
+ if(data?.kind!=='dragonroute-cycling-preparations'||data.version!==1||!Array.isArray(data.entries)||data.entries.length>20)throw new Error('Format vélo inconnu ou limite de 20 préparations dépassée.');
+ const clean={kind:'dragonroute-cycling-preparations',version:1,entries:data.entries.map(validateSavedCycleEntry)};
+ if(new Set(clean.entries.map(e=>e.id)).size!==clean.entries.length)throw new Error('Identifiants vélo dupliqués.');
+ if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>2000000)throw new Error('La sauvegarde vélo dépasse 2 Mo.');return clean;
+}
+function parseSavedCycleText(text){if(typeof text!=='string'||new TextEncoder().encode(text).length>2000000)throw new Error('Fichier vélo supérieur à 2 Mo.');return validateSavedCycle(JSON.parse(text))}
+function savedCycleDuplicates(entry,entries){
+ const name=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr-FR'),key=e=>JSON.stringify([e.places.start.lat,e.places.start.lon,e.places.end.lat,e.places.end.lon,e.criteria.maxKm]);
+ return entries.filter(e=>e.id!==entry.id&&(name(e.name)===name(entry.name)||key(e)===key(entry)));
+}
+// END SAVED CYCLE MODEL
+
+
 // BEGIN SHARED BIKES MODEL
 const BIKE_BASE='https://download.data.grandlyon.com/files/rdata/jcd_jcdecaux.jcdvelov/';
 const BIKE_MAX_AGE=300000;
@@ -788,7 +816,7 @@ function renderPreparedTrips(){
  if(selected)$('preparedDetails').innerHTML=preparedDescription(selected,true);
 }
 function openPreparedTrips(){
- if(busy)return;resetSavedTransit();preparedDraft=null;preparedSelected=null;preparedImport=null;preparedSequence++;
+ if(busy)return;resetSavedTransit();resetSavedCycle();preparedDraft=null;preparedSelected=null;preparedImport=null;preparedSequence++;
  $('preparedEditor').hidden=true;$('preparedMessage').textContent=preparedNotice;renderPreparedTrips();if(!$('preparedDialog').open)$('preparedDialog').showModal();
 }
 function showPreparedEditor(entry,mode){
@@ -2810,9 +2838,10 @@ function loadSavedTransit(){
 function writeSavedTransit(next){
  try{if(savedTransitBlocked)throw new Error('Stockage collectif protégé.');if(localStorage.getItem(SAVED_TRANSIT_KEY)!==savedTransitRaw)throw new Error('Préparations collectives modifiées dans un autre onglet. Fermer puis rouvrir Mes trajets avant de réessayer.');const clean=validateSavedTransit(next),raw=JSON.stringify(clean);localStorage.setItem(SAVED_TRANSIT_KEY,raw);savedTransit=clean;savedTransitRaw=raw;return true}catch(e){$('savedTransitMessage').textContent='Enregistrement impossible. '+e.message;return false}
 }
+const PREPARED_TABS=[['preparedRoadTab','road','preparedRoadPanel'],['preparedTransitTab','transit','savedTransitPanel'],['preparedCycleTab','cycle','savedCyclePanel']];
 function setPreparedTab(kind,focus=false){
- if(kind==='road'){savedTransitSequence++;savedTransitImport=null}else{preparedSequence++;preparedImport=null}
- for(const key of ['road','transit']){const on=key===kind,b=$(key==='road'?'preparedRoadTab':'preparedTransitTab');b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;$(key==='road'?'preparedRoadPanel':'savedTransitPanel').hidden=!on;if(on&&focus)b.focus()}
+ if(kind!=='road'){preparedSequence++;preparedImport=null}if(kind!=='transit'){savedTransitSequence++;savedTransitImport=null}if(kind!=='cycle'){savedCycleSequence++;savedCycleImport=null}
+ for(const [id,key,panel] of PREPARED_TABS){const on=key===kind,b=$(id);b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;$(panel).hidden=!on;if(on&&focus)b.focus()}
 }
 function resetSavedTransit(){savedTransitSequence++;savedTransitDraft=null;savedTransitImport=null;savedTransitSelected=null;$('savedTransitEditor').hidden=true;loadSavedTransit();renderSavedTransit();setPreparedTab('road')}
 function savedTransitDiagram(route){
@@ -2843,7 +2872,7 @@ function resumeSavedTransit(e){
  $('preparedDialog').close();$('transitDialog').showModal();$('transitStatus').textContent=`Préparation « ${e.name} » reprise : lieux mémorisés, aucun nouveau calcul. ${valid?'Vérifier les critères puis lancer la recherche.':'La date conservée est passée ou hors de la fenêtre de recherche : choisir une nouvelle date.'}`;$(valid?'transitTitle':'transitWhen').focus();
 }
 function bindSavedTransit(){
- for(const [id,kind] of [['preparedRoadTab','road'],['preparedTransitTab','transit']]){const b=$(id);b.addEventListener('click',()=>setPreparedTab(kind));b.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();setPreparedTab(e.key==='Home'?'road':e.key==='End'?'transit':kind==='road'?'transit':'road',true)}})}
+ for(const [index,[id,kind]] of PREPARED_TABS.entries()){const b=$(id);b.addEventListener('click',()=>setPreparedTab(kind));b.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?PREPARED_TABS.length-1:(index+(e.key==='ArrowRight'?1:PREPARED_TABS.length-1))%PREPARED_TABS.length;setPreparedTab(PREPARED_TABS[next][1],true)}})}
  $('savedTransitName').addEventListener('input',()=>{$('savedTransitConfirm').checked=false;$('savedTransitDuplicate').checked=false;updateSavedTransitDraft()});for(const id of ['savedTransitConfirm','savedTransitDuplicate'])$(id).addEventListener('change',updateSavedTransitDraft);
  $('savedTransitForm').addEventListener('submit',e=>{e.preventDefault();if(!savedTransitDraft)return;try{const entry=validateSavedTransitEntry({...savedTransitDraft.entry,name:$('savedTransitName').value});if(!$('savedTransitConfirm').checked||(savedTransitDuplicates(entry,savedTransit.entries).length&&!$('savedTransitDuplicate').checked))throw new Error('Confirmer la sauvegarde et le doublon éventuel.');const entries=savedTransitDraft.mode==='rename'?savedTransit.entries.map(x=>x.id===entry.id?entry:x):[...savedTransit.entries,entry];if(writeSavedTransit({...savedTransit,entries})){savedTransitDraft=null;savedTransitSelected=entry.id;$('savedTransitEditor').hidden=true;renderSavedTransit();$('savedTransitMessage').textContent='Préparation collective enregistrée dans ce navigateur.';$('savedTransitView').scrollIntoView({block:'start'})}}catch(err){$('savedTransitMessage').textContent=err.message}});
  $('savedTransitList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.savedTransitShow||b.dataset.savedTransitRename||b.dataset.savedTransitDelete,e=savedTransit.entries.find(x=>x.id===id);if(!e)return;if(b.dataset.savedTransitRename)editSavedTransit(structuredClone(e),'rename');else if(b.dataset.savedTransitShow){savedTransitDraft=null;$('savedTransitEditor').hidden=true;savedTransitSelected=id;renderSavedTransit();$('savedTransitView').scrollIntoView({block:'start'})}else if(confirm(`Supprimer la préparation collective « ${e.name} » ?`)&&writeSavedTransit({...savedTransit,entries:savedTransit.entries.filter(x=>x.id!==id)})){savedTransitSelected=null;savedTransitDraft=null;$('savedTransitEditor').hidden=true;renderSavedTransit();$('savedTransitMessage').textContent='Préparation collective supprimée.'}});
@@ -3471,8 +3500,8 @@ function drawCycle(r){
  }catch{$('cycleMap').hidden=true;$('cycleSketch').removeAttribute('hidden')}}
  const xs=r.points.map(p=>p[0]),ys=r.points.map(p=>p[1]),minX=Math.min(...xs),minY=Math.min(...ys),dx=Math.max(.001,Math.max(...xs)-minX),dy=Math.max(.001,Math.max(...ys)-minY),scale=Math.min(560/dx,280/dy),line=document.createElementNS('http://www.w3.org/2000/svg','polyline');line.setAttribute('points',r.points.map(([x,y])=>`${20+(x-minX)*scale},${300-(y-minY)*scale}`).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke','#80bdff');line.setAttribute('stroke-width','5');$('cycleSketch').append(line);$('cycleMapNote').textContent='Fond de carte indisponible : schéma du vrai tracé reçu, sans échelle. Distance et détail restent consultables.';
 }
-function renderCycle(r,places,at,cached){
- cycleResult={route:r,places,at};$('cycleResult').hidden=false;$('cyclePlaces').textContent=places.start+' → '+places.end;
+function renderCycle(r,places,at,cached,q){
+ cycleResult={route:r,places,at,q};$('cycleResult').hidden=false;$('cyclePlaces').textContent=places.start+' → '+places.end;
  $('cycleStatus').textContent=`Parcours vélo disponible. ${cached?'Résultat conservé en mémoire, consulté':'Calcul consulté'} le ${bikesDate(at)}. ${r.dataVersion?'Version des données : '+r.dataVersion+'.':'Date des données routières non fournie.'}`;
  $('cycleMetrics').textContent=`${fmt(r.distance/1000,2)} km · ${Math.ceil(r.duration/60)} min estimées, hors pauses. ${r.pushingMeters>0?`${Math.ceil(r.pushingMeters)} m annoncés vélo à la main.`:'Passages vélo à la main : aucun annoncé.'}`;
  $('cycleSteps').innerHTML=r.steps.filter(s=>s.distance>0).map(s=>`<li><strong>${s.mode==='pushing bike'?'Vélo à la main':'Vélo'}</strong> · ${escapeHtml(s.name)||'Voie sans nom'} · ${Math.ceil(s.distance)} m</li>`).join('');showCyclePreference();drawCycle(r);
@@ -3488,15 +3517,15 @@ async function cycleFetch(q,job){
 async function searchCycle(){
  if(busy||cycleJob||!cycleContext)return;const context=cycleContext;
  try{if(context.signature!==transitInputSignature())throw new Error('Lieux modifiés : rouvrir le calcul vélo.');if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée dans Mon trajet.');cycleLimit($('cycleMax').value);if(C.cyclingApi!==CYCLE_ENDPOINT)throw new Error('Le service vélo est désactivé.');if(Date.now()<cycleNext)throw new Error('Patienter avant un nouveau calcul vélo : '+bikesDate(cycleNext)+'.')}catch(e){$('cycleStatus').textContent=e.message;return}
- clearCycle('Vérification des lieux auprès de l’IGN…');const job={controller:new AbortController()};cycleJob=job;activeAbort=job.controller;lock(true);$('cycleSearch').disabled=true;$('cycleCancel').hidden=false;const current=()=>cycleJob===job&&context.signature===transitInputSignature();let timer;
+ clearCycle(context.fixedPlaces?'Préparation du nouveau calcul vélo…':'Vérification des lieux auprès de l’IGN…');const job={controller:new AbortController()};cycleJob=job;activeAbort=job.controller;lock(true);$('cycleSearch').disabled=true;$('cycleCancel').hidden=false;const current=()=>cycleJob===job&&context.signature===transitInputSignature();let timer;
  try{
   const work=async()=>{
-   const a=transitStoredPlace(context.inputs[0],'start')||await resolveTripPlace(context.inputs[0],'start',current);if(!current())return;
-   const b=transitStoredPlace(context.inputs[1],'end')||await resolveTripPlace(context.inputs[1],'end',current);if(!current())return;
+   const a=context.fixedPlaces?.start||transitStoredPlace(context.inputs[0],'start')||await resolveTripPlace(context.inputs[0],'start',current);if(!current())return;
+   const b=context.fixedPlaces?.end||transitStoredPlace(context.inputs[1],'end')||await resolveTripPlace(context.inputs[1],'end',current);if(!current())return;
    const q=cycleRequest([a.lon,a.lat],[b.lon,b.lat],C.cyclingApi),places={start:a.label,end:b.label},now=Date.now(),cached=cycleCache.get(q.url);
-   if(cached&&now>=cached.at&&now-cached.at<300000){renderCycle(cached.route,places,cached.at,true);return}
+   if(!context.forceFresh&&cached&&now>=cached.at&&now-cached.at<300000){renderCycle(cached.route,places,cached.at,true,q);return}
    cycleNext=now+5000;$('cyclePlaces').textContent=places.start+' → '+places.end;$('cycleStatus').textContent='Calcul auprès du moteur vélo FOSSGIS…';
-   const route=await cycleFetch(q,job);if(!current())return;const at=Date.now();if(cycleCache.size>=8)cycleCache.delete(cycleCache.keys().next().value);cycleCache.set(q.url,{route,at});renderCycle(route,places,at,false);
+   const route=await cycleFetch(q,job);if(!current())return;const at=Date.now();if(cycleCache.size>=8)cycleCache.delete(cycleCache.keys().next().value);cycleCache.set(q.url,{route,at});renderCycle(route,places,at,false,q);
   };
   await Promise.race([work(),new Promise((_,reject)=>{timer=setTimeout(()=>{job.controller.abort();reject(new Error('Délai du calcul vélo dépassé. Relancer plus tard.'))},30000)})]);
  }catch(e){if(current())clearCycle(e.name==='AbortError'?'Calcul vélo interrompu.':e.message)}
@@ -3504,13 +3533,65 @@ async function searchCycle(){
 }
 function bindCycle(){
  $('cycleBtn').addEventListener('click',openCycle);$('cycleSearch').addEventListener('click',searchCycle);$('cycleCancel').addEventListener('click',()=>clearCycle('Calcul vélo annulé.'));
- $('cycleClose').addEventListener('click',()=>$('cycleDialog').close());$('cycleDialog').addEventListener('close',()=>{clearCycle();$('cycleBtn').focus()});$('cycleDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('cycleDialog').close()}});
+ $('cycleClose').addEventListener('click',()=>$('cycleDialog').close());$('cycleDialog').addEventListener('close',()=>{if($('cycleDialog').open)return;clearCycle();cycleContext=null;if(!document.querySelector('dialog[open]'))$('cycleBtn').focus()});$('cycleDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('cycleDialog').close()}});
  $('cycleMax').addEventListener('input',showCyclePreference);
  for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearCycle();cycleContext=null;if($('cycleDialog').open)$('cycleDialog').close()});
  $('cycleExport').addEventListener('click',()=>{if(!cycleResult||cycleJob)return;try{const r=cycleResult,url=URL.createObjectURL(new Blob([cycleGpx(r.route,r.places,new Date(r.at).toISOString())],{type:'application/gpx+xml;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='OuQuandQui_trajet_velo.gpx';document.body.append(a);try{a.click()}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}$('cycleExportNote').textContent='Téléchargement demandé. Tracé préparé, sans guidage en direct ni carte hors ligne.'}catch(e){$('cycleExportNote').textContent=e.message}});
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindCycle();bindProspective();applyVehicle();updateRange();initPwa();
+const SAVED_CYCLE_KEY='dragonroute.cycling-prepared.v1.'+PROFILE_SCOPE;
+let savedCycle={kind:'dragonroute-cycling-preparations',version:1,entries:[]},savedCycleRaw=null,savedCycleBlocked=false,savedCycleDraft=null,savedCycleSelected=null,savedCycleImport=null,savedCycleSequence=0;
+function loadSavedCycle(){
+ savedCycle={kind:'dragonroute-cycling-preparations',version:1,entries:[]};savedCycleRaw=null;savedCycleBlocked=false;$('savedCycleMessage').textContent='';
+ try{savedCycleRaw=localStorage.getItem(SAVED_CYCLE_KEY);if(savedCycleRaw!==null)savedCycle=parseSavedCycleText(savedCycleRaw)}catch{savedCycleBlocked=true;$('savedCycleMessage').textContent='Préparations vélo non chargées : données invalides, version inconnue ou stockage inaccessible. Le fichier d’origine reste protégé.'}
+}
+function writeSavedCycle(next){
+ try{if(savedCycleBlocked)throw new Error('Stockage vélo protégé.');if(localStorage.getItem(SAVED_CYCLE_KEY)!==savedCycleRaw)throw new Error('Préparations vélo modifiées dans un autre onglet. Fermer puis rouvrir Mes trajets avant de réessayer.');const clean=validateSavedCycle(next),raw=JSON.stringify(clean);localStorage.setItem(SAVED_CYCLE_KEY,raw);savedCycle=clean;savedCycleRaw=raw;return true}catch(e){$('savedCycleMessage').textContent='Enregistrement impossible. '+e.message;return false}
+}
+function resetSavedCycle(){savedCycleSequence++;savedCycleDraft=null;savedCycleImport=null;savedCycleSelected=null;$('savedCycleEditor').hidden=true;loadSavedCycle();renderSavedCycle()}
+function savedCycleDescription(e,diagram=false){
+ const r=e.snapshot.route,limit=e.criteria.maxKm;
+ return `<h3>${escapeHtml(e.name)}</h3><p>${escapeHtml(e.places.start.label)} → ${escapeHtml(e.places.end.label)}</p><p class="note">Enregistré le ${savedTransitClock(Date.parse(e.savedAt))}. Calcul consulté le ${savedTransitClock(Date.parse(e.snapshot.calculatedAt))}. Heure de Paris.</p><p><strong>Instantané vélo classique : ${fmt(r.distance/1000,2)} km · ${Math.ceil(r.duration/60)} min estimées, hors pauses.</strong> Les conditions actuelles ne sont pas vérifiées.</p><p>Limite souhaitée : ${limit===null?'non renseignée':fmt(limit,2)+' km'}. ${cyclePreference(r.distance,limit)} ${r.pushingMeters>0?Math.ceil(r.pushingMeters)+' m annoncés vélo à la main.':'Aucun passage vélo à la main annoncé.'}</p>${diagram?preparedSchemaSvg({snapshot:{geometry:r.points,stop:null}})+'<p class="note">Schéma local du tracé conservé, sans échelle ni fond de carte.</p><details><summary>Voies et passages conservés</summary><ol>'+r.steps.filter(s=>s.distance>0).map(s=>`<li>${s.mode==='pushing bike'?'Vélo à la main':'Vélo'} · ${escapeHtml(s.name)||'Voie sans nom'} · ${Math.ceil(s.distance)} m</li>`).join('')+'</ol></details>':''}<p class="note">Source déclarée : <a href="https://routing.openstreetmap.de/about.html" target="_blank" rel="noopener noreferrer">OSRM / FOSSGIS</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap · ODbL</a>. ${r.dataVersion?'Version annoncée : '+escapeHtml(r.dataVersion)+'.':'Date des données routières inconnue.'} Un import reste déclaratif ; sa conformité n’authentifie pas son origine. VAE, terrain, prix et empreinte non qualifiés.</p>`;
+}
+function renderSavedCycle(){
+ for(const id of ['savedCycleExport','savedCycleImportFile','savedCycleBackup'])$(id).disabled=savedCycleBlocked;
+ $('savedCycleRawExport').hidden=!savedCycleBlocked||savedCycleRaw===null;
+ $('savedCycleList').innerHTML=savedCycle.entries.length?savedCycle.entries.map(e=>`<article class="saved-row"><strong>${escapeHtml(e.name)}</strong><p>${escapeHtml(e.places.start.label)} → ${escapeHtml(e.places.end.label)}</p><p>Vélo classique · ${fmt(e.snapshot.route.distance/1000,2)} km · calcul conservé du ${savedTransitClock(Date.parse(e.snapshot.calculatedAt))}</p><div class="row-actions"><button type="button" class="ghost" data-saved-cycle-show="${e.id}">Consulter</button><button type="button" class="ghost" data-saved-cycle-rename="${e.id}">Renommer</button><button type="button" class="ghost" data-saved-cycle-delete="${e.id}">Supprimer</button></div></article>`).join(''):'<p class="note">Aucune préparation vélo chargée. Après un calcul vélo, choisir « Enregistrer ce parcours vélo ».</p>';
+ const e=savedCycle.entries.find(x=>x.id===savedCycleSelected);$('savedCycleView').hidden=!e;$('savedCycleDetails').innerHTML=e?savedCycleDescription(e,true):'';
+}
+function updateSavedCycleDraft(){
+ if(!savedCycleDraft)return;const e={...savedCycleDraft.entry,name:$('savedCycleName').value},dups=savedCycleDuplicates(e,savedCycle.entries);$('savedCycleDuplicateRow').hidden=!dups.length;$('savedCycleDuplicateNote').textContent=dups.length?'Ce nom ou ces lieux et critères figurent déjà dans les préparations vélo. Vérifier avant de conserver une autre préparation.':'';$('savedCycleSave').disabled=savedCycleBlocked||!e.name.trim()||!$('savedCycleConfirm').checked||(dups.length&&!$('savedCycleDuplicate').checked);
+}
+function editSavedCycle(e,mode){savedCycleDraft={entry:e,mode};$('savedCycleEditor').hidden=false;$('savedCycleEditorTitle').textContent=mode==='rename'?'Renommer la préparation vélo':'Enregistrer la préparation vélo';$('savedCycleName').value=e.name;$('savedCycleConfirm').checked=false;$('savedCycleDuplicate').checked=false;updateSavedCycleDraft();$('savedCycleName').focus()}
+function offerSavedCycle(){
+ if(busy||cycleJob||!cycleResult?.q)return;
+ try{const r=cycleResult,e=validateSavedCycleEntry({id:crypto.randomUUID(),name:(r.places.start+' → '+r.places.end).slice(0,80),savedAt:new Date().toISOString(),places:{start:{label:r.places.start,lat:r.q.a[1],lon:r.q.a[0]},end:{label:r.places.end,lat:r.q.b[1],lon:r.q.b[0]}},criteria:{maxKm:cycleLimit($('cycleMax').value)},snapshot:{source:'fossgis-bike',profile:'bicycle',calculatedAt:new Date(r.at).toISOString(),route:structuredClone(r.route)}});clearCycle();$('cycleDialog').close();openPreparedTrips();setPreparedTab('cycle');editSavedCycle(e,'new')}catch(e){$('cycleStatus').textContent='Sauvegarde impossible. '+e.message}
+}
+function resumeSavedCycle(e){
+ if(busy)return;clearCycle();cycleContext={inputs:[e.places.start.label,e.places.end.label],signature:transitInputSignature(),fixedPlaces:structuredClone(e.places),forceFresh:true};$('cycleMax').value=e.criteria.maxKm===null?'':String(e.criteria.maxKm);$('cyclePlaces').textContent=e.places.start.label+' → '+e.places.end.label;
+ $('preparedDialog').close();$('cycleDialog').showModal();$('cycleStatus').textContent=`Préparation « ${e.name} » reprise avec ses lieux mémorisés. Aucun nouveau calcul. ${C.cyclingApi===CYCLE_ENDPOINT?'Lancer le calcul pour consulter un nouveau parcours.':'Service vélo actuellement désactivé.'}`;$('cycleTitle').focus();
+}
+function downloadCycleText(text,name,type='application/json;charset=utf-8'){
+ const url=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);try{a.click()}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}
+}
+function bindSavedCycle(){
+ $('cycleSave').addEventListener('click',offerSavedCycle);
+ $('savedCycleName').addEventListener('input',()=>{$('savedCycleConfirm').checked=false;$('savedCycleDuplicate').checked=false;updateSavedCycleDraft()});for(const id of ['savedCycleConfirm','savedCycleDuplicate'])$(id).addEventListener('change',updateSavedCycleDraft);
+ $('savedCycleForm').addEventListener('submit',ev=>{ev.preventDefault();if(!savedCycleDraft)return;try{const e=validateSavedCycleEntry({...savedCycleDraft.entry,name:$('savedCycleName').value,savedAt:savedCycleDraft.mode==='new'?new Date().toISOString():savedCycleDraft.entry.savedAt});if(!$('savedCycleConfirm').checked||(savedCycleDuplicates(e,savedCycle.entries).length&&!$('savedCycleDuplicate').checked))throw new Error('Confirmer la sauvegarde et le doublon éventuel.');const entries=savedCycleDraft.mode==='rename'?savedCycle.entries.map(x=>x.id===e.id?e:x):[...savedCycle.entries,e];if(writeSavedCycle({...savedCycle,entries})){savedCycleDraft=null;savedCycleSelected=e.id;$('savedCycleEditor').hidden=true;renderSavedCycle();$('savedCycleMessage').textContent='Préparation vélo enregistrée dans ce navigateur.';$('savedCycleView').scrollIntoView({block:'start'})}}catch(e){$('savedCycleMessage').textContent=e.message}});
+ $('savedCycleList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.savedCycleShow||b.dataset.savedCycleRename||b.dataset.savedCycleDelete,e=savedCycle.entries.find(x=>x.id===id);if(!e)return;if(b.dataset.savedCycleRename)editSavedCycle(structuredClone(e),'rename');else if(b.dataset.savedCycleShow){savedCycleDraft=null;$('savedCycleEditor').hidden=true;savedCycleSelected=id;renderSavedCycle();$('savedCycleView').scrollIntoView({block:'start'})}else if(confirm(`Supprimer la préparation vélo « ${e.name} » ?`)&&writeSavedCycle({...savedCycle,entries:savedCycle.entries.filter(x=>x.id!==id)})){savedCycleDraft=null;savedCycleSelected=null;$('savedCycleEditor').hidden=true;renderSavedCycle();$('savedCycleMessage').textContent='Préparation vélo supprimée.'}});
+ $('savedCycleResume').addEventListener('click',()=>{const e=savedCycle.entries.find(x=>x.id===savedCycleSelected);if(e)resumeSavedCycle(e)});
+ $('savedCycleGpx').addEventListener('click',()=>{const e=savedCycle.entries.find(x=>x.id===savedCycleSelected);if(!e)return;try{downloadCycleText(cycleGpx(e.snapshot.route,{start:e.places.start.label,end:e.places.end.label},e.snapshot.calculatedAt),'OuQuandQui-velo-instantane.gpx','application/gpx+xml;charset=utf-8');$('savedCycleMessage').textContent='Téléchargement du tracé historique demandé, sans actualisation.'}catch(err){$('savedCycleMessage').textContent=err.message}});
+ for(const id of ['savedCycleExport','savedCycleBackup'])$(id).addEventListener('click',()=>{if(!savedCycleBlocked)downloadProfile(savedCycle,'OuQuandQui-preparations-velo.json')});
+ $('savedCycleRawExport').addEventListener('click',()=>{if(savedCycleRaw!==null)downloadCycleText(savedCycleRaw,'OuQuandQui-velo-original-non-valide.json')});
+ $('savedCycleErase').addEventListener('click',()=>{if(!confirm('Effacer les préparations vélo de cet environnement ? Exporter une copie avant de confirmer. Les autres préparations restent conservées.'))return;try{if(localStorage.getItem(SAVED_CYCLE_KEY)!==savedCycleRaw)throw new Error('Données modifiées dans un autre onglet : fermer puis rouvrir Mes trajets.');localStorage.removeItem(SAVED_CYCLE_KEY);resetSavedCycle();$('savedCycleMessage').textContent='Préparations vélo effacées.'}catch(e){$('savedCycleMessage').textContent='Effacement impossible. '+e.message}});
+ $('savedCycleImportFile').addEventListener('change',async ev=>{const seq=++savedCycleSequence,file=ev.target.files?.[0];ev.target.value='';savedCycleImport=null;if(!file)return;try{if(savedCycleBlocked)throw new Error('Stockage vélo protégé.');if(file.size>2000000)throw new Error('Fichier supérieur à 2 Mo.');const data=parseSavedCycleText(await file.text());if(seq!==savedCycleSequence||!$('preparedDialog').open||$('savedCyclePanel').hidden)return;savedCycleImport=data;$('savedCycleImportSummary').textContent=`${file.name} : ${data.entries.length} préparation(s) vélo, en remplacement des ${savedCycle.entries.length} chargées.${data.entries.length?'':' Le fichier vide effacera la liste vélo après confirmation.'}`;$('savedCycleImportDetails').innerHTML=data.entries.map(e=>`<details><summary>${escapeHtml(e.name)}</summary>${savedCycleDescription(e)}</details>`).join('');$('savedCycleImportConfirm').checked=false;$('savedCycleImportApply').disabled=true;$('savedCycleImportMessage').textContent='';$('savedCycleImportDialog').showModal()}catch(e){if(seq===savedCycleSequence)$('savedCycleMessage').textContent='Import vélo refusé. '+e.message}});
+ $('savedCycleImportConfirm').addEventListener('change',()=>{$('savedCycleImportApply').disabled=!savedCycleImport||!$('savedCycleImportConfirm').checked});
+ $('savedCycleImportApply').addEventListener('click',()=>{if(!savedCycleImport||!$('savedCycleImportConfirm').checked)return;if(writeSavedCycle(savedCycleImport)){savedCycleImport=null;savedCycleDraft=null;savedCycleSelected=null;$('savedCycleEditor').hidden=true;renderSavedCycle();$('savedCycleImportDialog').close();$('savedCycleMessage').textContent='Préparations vélo restaurées. Aucun calcul ni appel réseau.'}else $('savedCycleImportMessage').textContent=$('savedCycleMessage').textContent});
+ const cancel=()=>{savedCycleSequence++;savedCycleImport=null};$('savedCycleImportDialog').addEventListener('cancel',cancel);$('savedCycleImportDialog').querySelector('.close-dialog').addEventListener('click',cancel);$('savedCycleImportDialog').addEventListener('close',()=>{if($('savedCycleImportDialog').open)return;cancel();if($('preparedDialog').open&&!$('savedCyclePanel').hidden)$('savedCycleImportFile').focus()});$('preparedDialog').addEventListener('close',()=>{if($('preparedDialog').open)return;cancel();savedCycleDraft=null});
+}
+
+
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindCycle();bindSavedCycle();bindProspective();applyVehicle();updateRange();initPwa();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
