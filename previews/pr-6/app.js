@@ -2583,12 +2583,24 @@ function transitNumber(n,min,max){if(typeof n!=='number'||!Number.isFinite(n)||n
 function transitPoint(p){if(!Array.isArray(p)||p.length!==2)throw new Error('Coordonnées de transport invalides.');return [transitNumber(p[0],44.8,45.6),transitNumber(p[1],5.3,6.2)]}
 function transitNear(a,b,meters=180){const dx=(a[1]-b[1])*78500,dy=(a[0]-b[0])*111200;return Math.hypot(dx,dy)<=meters}
 function transitPilot(p){return Array.isArray(p)&&p.length===2&&Number.isFinite(p[0])&&Number.isFinite(p[1])&&p[0]>=45.10&&p[0]<=45.24&&p[1]>=5.66&&p[1]<=5.81}
+function transitTransferCriteria(maxTransfers=null,transferStrict=false){
+ if(maxTransfers!==null&&(typeof maxTransfers!=='number'||!Number.isInteger(maxTransfers)||maxTransfers<0||maxTransfers>29))throw new Error('Choisir un nombre entier de correspondances entre 0 et 29, ou laisser vide.');
+ if(typeof transferStrict!=='boolean'||(transferStrict&&maxTransfers===null))throw new Error('Une limite impérative exige un nombre de correspondances.');
+ return {maxTransfers,transferStrict};
+}
+function transitTransferReview(route,q){
+ if(q.transferError)return {status:'excluded',reason:'Critères de correspondances invalides : '+q.transferError};
+ const c=transitTransferCriteria(q.maxTransfers,q.transferStrict),known=Number.isInteger(route.transfers)&&route.transfers>=0&&route.transfers<=29;
+ if(c.maxTransfers===null)return {status:'ready',reason:'Aucun plafond de correspondances demandé.'};
+ const fits=known&&route.transfers<=c.maxTransfers,limit=c.maxTransfers+' correspondance(s) au maximum';
+ return {status:c.transferStrict&&!fits?'excluded':'ready',reason:(c.transferStrict?'Limite impérative':'Préférence')+' : '+limit+'. '+(!known?'Nombre non vérifiable.':fits?'Critère respecté.':'Critère dépassé.')+(c.transferStrict&&!fits?' Option non admissible, consultable comme référence.':'')};
+}
 function transitCriteria(raw,now=Date.now()){
  const when=departureInstant(raw.when);if(when.error)throw new Error(when.error);
  if(when.instant<now||when.instant>now+30*864e5)throw new Error('Choisir une heure future, dans les 30 prochains jours. La disponibilité dépend du calendrier du réseau.');
  if(!['depart','arrive'].includes(raw.direction))throw new Error('Choisir un départ ou une arrivée.');
  if(typeof raw.walk!=='string'||!raw.walk.trim())throw new Error('Renseigner la limite totale de marche.');
- return {instant:when.instant,now,walk:transitNumber(Number(raw.walk),100,5000),arrive:raw.direction==='arrive',when:raw.when};
+ return {instant:when.instant,now,walk:transitNumber(Number(raw.walk),100,5000),arrive:raw.direction==='arrive',when:raw.when,...transitTransferCriteria(raw.maxTransfers,raw.transferStrict)};
 }
 function transitRequest(a,b,raw,now=Date.now()){
  if(!transitPilot(a)||!transitPilot(b))throw new Error('Départ et arrivée doivent se situer dans le secteur pilote autour de Grenoble. La France entière n’est pas encore couverte.');
@@ -2604,7 +2616,7 @@ function transitRoadTiming(mode,route,q){
  return {mode,start,end,duration,elapsed:duration,distance,price:null,carbon:null,status:'ready'};
 }
 function transitTimeRows(routes,roads,q){
- const rows=routes.map((r,i)=>({mode:'transit',label:`Collectif · option ${i+1}`,start:r.start,end:r.end,duration:r.duration,elapsed:q.arrive?(q.instant-r.start)/1000:(r.end-q.instant)/1000,status:'ready',price:null,carbon:null}));
+ const rows=routes.map((r,i)=>({mode:'transit',label:`Collectif · option ${i+1}`,start:r.start,end:r.end,duration:r.duration,elapsed:q.arrive?(q.instant-r.start)/1000:(r.end-q.instant)/1000,price:null,carbon:null,...transitTransferReview(r,q)}));
  if(!rows.length)rows.push({mode:'transit',label:'Transports collectifs',status:'unavailable',reason:'Aucune option collective disponible pour ces critères.'});
  for(const mode of ['car','walk',...(Object.hasOwn(roads,'cycle')?['cycle']:[])]){const item=roads[mode];rows.push({...item,mode,label:mode==='car'?'Véhicule léger':mode==='cycle'?'Vélo classique':'Marche directe',status:item?.status||'unavailable',reason:item?.reason||'Mode indisponible.'})}
  return rows.map((r,i)=>({...r,index:i})).sort((a,b)=>(a.status==='ready')!==(b.status==='ready')?a.status==='ready'?-1:1:a.status==='ready'?Math.ceil(a.elapsed/60)-Math.ceil(b.elapsed/60)||a.index-b.index:a.index-b.index);
@@ -2729,11 +2741,13 @@ function networkAlerts(data,route,now){
 // END TRANSIT NETWORK MODEL
 
 // BEGIN SAVED TRANSIT MODEL
-function validateSavedTransitEntry(e){
+function validateSavedTransitEntry(e,version=2){
  if(!e?.places||!e.criteria||!e.snapshot||e.snapshot.source!=='mobilites-m'||e.snapshot.route?.realtime!==false)throw new Error('Préparation collective incomplète ou source inconnue.');
  const id=preparedText(e.id,80,true),name=preparedText(e.name,80,true),savedAt=preparedDate(e.savedAt),calculatedAt=preparedDate(e.snapshot.calculatedAt);
  if(!/^[A-Za-z0-9-]+$/.test(id)||calculatedAt>savedAt)throw new Error('Identité ou dates de sauvegarde incohérentes.');
  const places={start:preparedPoint(e.places.start),end:preparedPoint(e.places.end)},criteria={when:preparedText(e.criteria.when,16,true),direction:preparedEnum(e.criteria.direction,['depart','arrive']),walk:preparedNumber(e.criteria.walk,100,5000)};
+ if(version===1){if(Object.hasOwn(e.criteria,'maxTransfers')||Object.hasOwn(e.criteria,'transferStrict'))throw new Error('Critères de correspondances ambigus dans un ancien format.');Object.assign(criteria,transitTransferCriteria())}
+ else {if(version!==2||!Object.hasOwn(e.criteria,'maxTransfers')||!Object.hasOwn(e.criteria,'transferStrict'))throw new Error('Critères de correspondances manquants.');Object.assign(criteria,transitTransferCriteria(e.criteria.maxTransfers,e.criteria.transferStrict))}
  const q=transitRequest([places.start.lat,places.start.lon],[places.end.lat,places.end.lon],{...criteria,walk:String(criteria.walk)},Date.parse(calculatedAt)),r=e.snapshot.route;
  if(!Array.isArray(r.legs)||r.legs.length<1||r.legs.length>30)throw new Error('Étapes collectives invalides.');
  const raw={startTime:r.start,endTime:r.end,duration:r.duration,legs:r.legs.map(l=>{
@@ -2746,8 +2760,8 @@ function validateSavedTransitEntry(e){
  return {id,name,savedAt,places,criteria,snapshot:{source:'mobilites-m',calculatedAt,route}};
 }
 function validateSavedTransit(data){
- if(data?.kind!=='dragonroute-transit-preparations'||data.version!==1||!Array.isArray(data.entries)||data.entries.length>20)throw new Error('Format collectif inconnu ou limite de 20 préparations dépassée.');
- const clean={kind:'dragonroute-transit-preparations',version:1,entries:data.entries.map(validateSavedTransitEntry)};
+ if(data?.kind!=='dragonroute-transit-preparations'||![1,2].includes(data.version)||!Array.isArray(data.entries)||data.entries.length>20)throw new Error('Format collectif inconnu ou limite de 20 préparations dépassée.');
+ const clean={kind:'dragonroute-transit-preparations',version:2,entries:data.entries.map(e=>validateSavedTransitEntry(e,data.version))};
  if(new Set(clean.entries.map(e=>e.id)).size!==clean.entries.length)throw new Error('Identifiants collectifs dupliqués.');
  if(new TextEncoder().encode(JSON.stringify(clean,null,2)).length>2000000)throw new Error('La sauvegarde collective dépasse 2 Mo.');return clean;
 }
@@ -2755,8 +2769,12 @@ function savedTransitDuplicates(entry,entries){
  const name=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr-FR'),key=e=>JSON.stringify([e.places.start.lat,e.places.start.lon,e.places.end.lat,e.places.end.lon,e.criteria]);
  return entries.filter(e=>e.id!==entry.id&&(name(e.name)===name(entry.name)||key(e)===key(entry)));
 }
+function parseSavedTransitText(text,version){
+ if(typeof text!=='string'||new TextEncoder().encode(text).length>2000000)throw new Error('Sauvegarde collective supérieure à 2 Mo ou illisible.');
+ const data=JSON.parse(text);if(version!==undefined&&data?.version!==version)throw new Error('Format incohérent avec la copie enregistrée.');return validateSavedTransit(data);
+}
 // END SAVED TRANSIT MODEL
-let transitContext=null,transitJob=null,transitRoutes=[],transitMap=null,transitLayers=null,transitNextRequest=0;
+let transitContext=null,transitJob=null,transitRoutes=[],transitMap=null,transitLayers=null,transitNextRequest=0,transitResult=null,transitResultSignature=null;
 const transitClock=ms=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(ms);
 const transitMinutes=s=>`${Math.ceil(s/60)} min`;
 function transitInputSignature(){return JSON.stringify(['start','end'].map(id=>$(id).value.trim()))}
@@ -2765,7 +2783,7 @@ function transitStoredPlace(value,field){
  return saved?structuredClone(saved.place):null;
 }
 function clearTransit(message=''){
- transitComparedCycle=null;transitComparisonData=null;
+ transitComparedCycle=null;transitComparisonData=null;transitResult=null;transitResultSignature=null;
  clearTransitNetwork();clearTransitCarbon();transitCalculation=null;
  const job=transitJob;
  if(job){job.cancelled=true;job.controller.abort();if(job.resolving&&activeAbort===job.controller&&placePending){placePending.reject(new Error('Recherche de transports annulée.'));placePending=null;$('placeDialog').close()}}
@@ -2801,7 +2819,7 @@ async function compareTransitTimes(job,q,result){
   try{
    if(mode==='car'&&job.vehicle!=='car')throw new Error('Ce profil de véhicule n’est pas qualifié pour cette comparaison ; aucun trajet voiture substitué.');
    if(ignQuota&&job.settings[mode].provider==='ign')throw new Error('Quota IGN atteint : ce second calcul n’a pas été demandé. Relancer plus tard.');
-   const routeResult=await route([q.a,q.b],true,false,job.settings[mode]);if(!current())return;
+   const routeResult=await route([q.a,q.b],true,false,job.settings[mode],current);if(!current())return;
    roads[mode]={...transitRoadTiming(mode,routeResult,q),provider:job.settings[mode].provider};
   }catch(e){if(!current())return;roads[mode]={status:'unavailable',reason:e.message};if(e.message.includes('Limite du service IGN'))ignQuota=true}
  }
@@ -2813,7 +2831,7 @@ async function compareTransitTimes(job,q,result){
 function drawTransit(index){
  const route=transitRoutes[index];if(!route)return;if(transitCarbonView&&transitCarbonView.index!==index)clearTransitCarbon();
  document.querySelectorAll('[data-transit-map]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.transitMap)===index)));
- $('transitMapWrap').hidden=false;$('transitMapTitle').textContent=`Option ${index+1} · ${transitClock(route.start)} → ${transitClock(route.end)}`;
+ $('transitMapWrap').hidden=false;$('transitMapTitle').textContent=`${transitTransferReview(route,transitCalculation).status==='excluded'?'Référence non admissible · ':''}Option ${index+1} · ${transitClock(route.start)} → ${transitClock(route.end)}`;
  if(transitLayers){transitLayers.remove();transitLayers=null}$('transitSketch').replaceChildren();
  const complete=route.legs.every(l=>l.points)&&route.legs.reduce((n,l)=>n+l.points.length,0)<=16000;$('transitMapNote').textContent=complete?'Bleu : transport collectif. Pointillés : marche. Ce parcours est consulté séparément du trajet routier.':'Tracé incomplet : consulter les étapes. Aucune ligne droite ne remplace une géométrie absente.';
  $('transitMap').hidden=!complete||!window.L;$('transitSketch').hidden=!complete||Boolean(window.L);
@@ -2834,17 +2852,40 @@ function drawTransit(index){
  }
 }
 function renderTransit(result,q){
- clearTransitCarbon();transitRoutes=result.routes;transitCalculation=q;
+ clearTransitCarbon();transitRoutes=result.routes;transitCalculation=q;transitResult=result;transitResultSignature=transitLimitContextSignature();
  $('transitStatus').textContent=`${result.routes.length} itinéraire(s) collectif(s) compatible(s). ${result.excluded?`${result.excluded} proposition(s) écartée(s) : marche seule, doublon, limite ou données non qualifiées. `:''}Consulté le ${transitClock(Date.now())}.`;
  if(!result.routes.length){$('transitStatus').textContent+=' Aucun résultat ne satisfait ces critères. Les modifier puis relancer la recherche.';return}
- $('transitResults').innerHTML=result.routes.map((r,i)=>`<article class="comparison-card" data-transit-option="${i}"><h3>Option ${i+1} · ${transitMinutes(r.duration)}</h3><p><strong>${transitClock(r.start)} → ${transitClock(r.end)}</strong> · heure de Paris</p><p>${r.transfers} correspondance(s) · ${Math.ceil(r.walk)} m de marche (${transitMinutes(r.walking)}) · ${transitMinutes(r.riding)} à bord · ${transitMinutes(r.waiting)} d’attente en chemin</p><p class="note">${q.arrive?`Arrivée ${transitMinutes((q.instant-r.end)/1000)} avant l’heure limite.`:`Départ ${transitMinutes((r.start-q.instant)/1000)} après l’heure demandée ; ${transitMinutes((r.end-q.instant)/1000)} de cette heure à l’arrivée.`}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${escapeHtml(l.line)}`}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)}<br>${escapeHtml(l.agency)}`}</li>`).join('')}</ol><p class="note">Horaires théoriques. Perturbations et retards non vérifiés. Prix total inconnu ; aucune réservation. Accessibilité, bagages et vélo à bord non vérifiés.</p><button type="button" class="ghost" data-transit-map="${i}" aria-pressed="false">Voir le parcours ${i+1}</button><p class="note">La consultation réseau transmet les lignes et arrêts consultés à Mobilités M, uniquement à la demande.</p><button type="button" class="ghost" data-transit-network="${i}" disabled>Consulter les infos réseau · option ${i+1}</button><button type="button" class="ghost" data-transit-save="${i}" disabled>Enregistrer cette option collective ${i+1}</button><button type="button" class="ghost" data-transit-journal="${i}" disabled>Déclarer ce trajet effectué · option ${i+1}</button><button type="button" class="ghost" data-transit-carbon="${i}" disabled>Estimer l’empreinte · option ${i+1}</button></article>`).join('');
- drawTransit(0);
+ $('transitResults').innerHTML=result.routes.map((r,i)=>`<article class="comparison-card" data-transit-option="${i}"><h3>Option ${i+1} · ${transitMinutes(r.duration)}</h3><p data-transit-transfers="${i}" class="note"></p><p><strong>${transitClock(r.start)} → ${transitClock(r.end)}</strong> · heure de Paris</p><p>${r.transfers} correspondance(s) · ${Math.ceil(r.walk)} m de marche (${transitMinutes(r.walking)}) · ${transitMinutes(r.riding)} à bord · ${transitMinutes(r.waiting)} d’attente en chemin</p><p class="note">${q.arrive?`Arrivée ${transitMinutes((q.instant-r.end)/1000)} avant l’heure limite.`:`Départ ${transitMinutes((r.start-q.instant)/1000)} après l’heure demandée ; ${transitMinutes((r.end-q.instant)/1000)} de cette heure à l’arrivée.`}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${escapeHtml(l.line)}`}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)}<br>${escapeHtml(l.agency)}`}</li>`).join('')}</ol><p class="note">Horaires théoriques. Perturbations et retards non vérifiés. Prix total inconnu ; aucune réservation. Accessibilité, bagages et vélo à bord non vérifiés.</p><button type="button" class="ghost" data-transit-map="${i}" aria-pressed="false">Voir le parcours ${i+1}</button><p class="note">La consultation réseau transmet les lignes et arrêts consultés à Mobilités M, uniquement à la demande.</p><button type="button" class="ghost" data-transit-network="${i}" disabled>Consulter les infos réseau · option ${i+1}</button><button type="button" class="ghost" data-transit-save="${i}" disabled>Enregistrer cette option collective ${i+1}</button><button type="button" class="ghost" data-transit-journal="${i}" disabled>Déclarer ce trajet effectué · option ${i+1}</button><button type="button" class="ghost" data-transit-carbon="${i}" disabled>Estimer l’empreinte · option ${i+1}</button></article>`).join('');
+ refreshTransitTransfers();const first=result.routes.findIndex(r=>transitTransferReview(r,q).status==='ready');if(first>=0)drawTransit(first);
+}
+function readTransitTransfers(){
+ const text=$('transitMaxTransfers').value.trim(),rule=$('transitTransferRule').value;
+ if($('transitMaxTransfers').validity.badInput||!['soft','strict'].includes(rule))throw new Error('Critères de correspondances invalides.');
+ return transitTransferCriteria(text===''?null:Number(text),rule==='strict');
+}
+function refreshTransitTransfers(){
+ const q=transitCalculation;if(!q||!transitResult)return;let admissible=0;
+ for(const [i,r] of transitRoutes.entries()){
+  const review=transitTransferReview(r,q),article=document.querySelector(`[data-transit-option="${i}"]`);if(!article)continue;
+  article.dataset.transitState=review.status;if(review.status==='ready')admissible++;
+  const notice=article.querySelector('[data-transit-transfers]');notice.textContent=review.reason;notice.className=review.status==='excluded'?'app-notice':'note';
+  const map=article.querySelector('[data-transit-map]');map.textContent=review.status==='excluded'?`Consulter la référence ${i+1} · non admissible`:`Voir le parcours ${i+1}`;
+  for(const b of article.querySelectorAll('[data-transit-save],[data-transit-journal]'))b.disabled=Boolean(q.transferError)||Boolean(transitJob);
+  if(map.getAttribute('aria-pressed')==='true')$('transitMapTitle').textContent=`${review.status==='excluded'?'Référence non admissible · ':''}Option ${i+1} · ${transitClock(r.start)} → ${transitClock(r.end)}`;
+ }
+ $('transitStatus').textContent=`${admissible} itinéraire(s) collectif(s) compatible(s), sur ${transitRoutes.length} option(s) reçue(s) et validée(s). ${transitResult.excluded?transitResult.excluded+' proposition(s) écartée(s) pour données, horaires, marche ou doublons. ':''}Consulté le ${transitClock(q.now)}. ${q.transferError?'Critères invalides : '+q.transferError:!transitRoutes.length?'Aucun résultat ne satisfait les critères de recherche. Les modifier puis relancer.':admissible?'':'Aucune option reçue ne respecte la limite. Les références restent consultables ; aucun trajet direct supplémentaire n’est garanti.'}`;
+}
+function updateTransitTransfers(){
+ if(transitJob){clearTransit('Critères modifiés : calcul annulé.');return}
+ if(!transitCalculation)return;if(transitResultSignature!==transitLimitContextSignature()){clearTransit('Contexte modifié : relancer la recherche.');return}
+ try{Object.assign(transitCalculation,readTransitTransfers(),{transferError:null})}catch(e){transitCalculation.transferError=e.message}
+ refreshTransitTransfers();const d=transitComparisonData;if(d)renderTransitTimes(d.routes,d.roads,transitCalculation);
 }
 async function searchTransit(){
  if(transitJob||busy||!transitContext)return;
  const raw={when:$('transitWhen').value,direction:$('transitDirection').value,walk:$('transitWalk').value},context=transitContext;let cycleChoice;
  if(context.signature!==transitInputSignature()){updateTransitContext();return}
- try{if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée avant la recherche.');transitCriteria(raw);cycleChoice=$('transitCompare').checked&&$('transitCycle').checked?{enabled:true,...readCycleCriteria('transitCycle')}:cycleComparisonChoice(false);if(Date.now()<transitNextRequest)throw new Error('Patienter quelques secondes avant une nouvelle recherche.')}catch(e){clearTransit(e.message);return}
+ try{if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée avant la recherche.');Object.assign(raw,readTransitTransfers());transitCriteria(raw);cycleChoice=$('transitCompare').checked&&$('transitCycle').checked?{enabled:true,...readCycleCriteria('transitCycle')}:cycleComparisonChoice(false);if(Date.now()<transitNextRequest)throw new Error('Patienter quelques secondes avant une nouvelle recherche.')}catch(e){clearTransit(e.message);return}
  clearTransit();const job={controller:new AbortController(),cancelled:false,resolving:true,cycleChoice,compare:$('transitCompare').checked,vehicle:$('routeVehicle').value,settings:{car:comparisonCarSettings(),walk:routingSettings('walk',[])}};
  transitJob=job;activeAbort=job.controller;lock(true);transitNextRequest=Date.now()+3000;
  $('transitSearch').disabled=true;$('transitCancel').hidden=false;
@@ -2868,7 +2909,7 @@ async function searchTransit(){
   finally{clearTimeout(timer)}
   if(job.compare&&current()&&!job.controller.signal.aborted){$('transitCompareResults').textContent='Comparaison des temps avec les modes demandés…';await compareTransitTimes(job,q,result)}
  }catch(e){if(current())$('transitStatus').textContent=e.message}
- finally{if(transitJob===job){if(context.signature!==transitInputSignature())updateTransitContext();transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network],[data-transit-save],[data-transit-carbon],[data-transit-journal]'))b.disabled=false;if(!$('transitDialog').open&&!document.querySelector('dialog[open]'))$('transitBtn').focus()}}
+ finally{if(transitJob===job){if(context.signature!==transitInputSignature())updateTransitContext();transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network],[data-transit-save],[data-transit-carbon],[data-transit-journal]'))b.disabled=false;refreshTransitTransfers();if(!$('transitDialog').open&&!document.querySelector('dialog[open]'))$('transitBtn').focus()}}
 }
 function bindTransit(){
  $('transitNetworkCancel').addEventListener('click',()=>clearTransitNetwork('Consultation annulée.'));
@@ -2878,6 +2919,7 @@ function bindTransit(){
  $('transitClose').addEventListener('click',()=>{$('transitDialog').close()});
  $('transitDialog').addEventListener('close',()=>{if($('transitDialog').open)return;clearTransit();if(!document.querySelector('dialog[open]'))$('transitBtn').focus()});
  for(const id of ['transitWhen','transitDirection','transitWalk','transitCompare','transitCycle'])$(id).addEventListener('input',()=>clearTransit(transitContext?.a&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b))?'Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.':'Critères modifiés : relancer la recherche.'));
+ $('transitMaxTransfers').addEventListener('input',updateTransitTransfers);$('transitTransferRule').addEventListener('change',updateTransitTransfers);
  $('transitCycleLimit').addEventListener('input',updateTransitCycleLimits);$('transitCycleRule').addEventListener('change',updateTransitCycleLimits);
  $('transitCompare').addEventListener('change',()=>{$('transitCycleOptions').hidden=!$('transitCompare').checked;if(!$('transitCompare').checked){$('transitCycle').checked=false;$('transitCycleFields').hidden=true}});$('transitCycle').addEventListener('change',()=>{$('transitCycleFields').hidden=!$('transitCycle').checked});
  $('transitCompareResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-cycle]'),c=transitComparedCycle;if(b&&c&&!c.criteriaError&&!busy&&c.signature===transitInputSignature())openComparedCycle(c.view,c.places,c.maxKm,b,c.strict)});
@@ -3014,15 +3056,16 @@ function bindCollectiveJournal(){
  $('journalForm').addEventListener('input',ev=>{if(journalIsStaged(journalDraft?.entry)){if(['journalDate','journalStart','journalEnd','journalNote'].includes(ev.target.id)){$('journalConfirm').checked=false;refreshCollectiveJournalPreview()}}});
 }
 
-const SAVED_TRANSIT_KEY='dragonroute.transit-prepared.v1.'+PROFILE_SCOPE;
-let savedTransit={kind:'dragonroute-transit-preparations',version:1,entries:[]},savedTransitRaw=null,savedTransitBlocked=false,savedTransitDraft=null,savedTransitSelected=null,savedTransitImport=null,savedTransitSequence=0,transitCalculation=null;
+const SAVED_TRANSIT_KEY='dragonroute.transit-prepared.v2.'+PROFILE_SCOPE,SAVED_TRANSIT_LEGACY_KEY='dragonroute.transit-prepared.v1.'+PROFILE_SCOPE;
+function transitStorageUnchanged(){return localStorage.getItem(SAVED_TRANSIT_KEY)===savedTransitRaw&&localStorage.getItem(SAVED_TRANSIT_LEGACY_KEY)===savedTransitLegacyRaw}
+let savedTransit={kind:'dragonroute-transit-preparations',version:2,entries:[]},savedTransitRaw=null,savedTransitLegacyRaw=null,savedTransitBlocked=false,savedTransitDraft=null,savedTransitSelected=null,savedTransitImport=null,savedTransitSequence=0,transitCalculation=null;
 const savedTransitClock=ms=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(ms);
 function loadSavedTransit(){
- savedTransit={kind:'dragonroute-transit-preparations',version:1,entries:[]};savedTransitBlocked=false;savedTransitRaw=null;
- try{savedTransitRaw=localStorage.getItem(SAVED_TRANSIT_KEY);if(savedTransitRaw!==null)savedTransit=validateSavedTransit(JSON.parse(savedTransitRaw));$('savedTransitMessage').textContent=''}catch{savedTransitBlocked=true;$('savedTransitMessage').textContent='Préparations collectives non chargées : données invalides, version inconnue ou stockage inaccessible. Aucun remplacement automatique.'}
+ savedTransit={kind:'dragonroute-transit-preparations',version:2,entries:[]};savedTransitBlocked=false;savedTransitRaw=null;savedTransitLegacyRaw=null;
+ try{savedTransitRaw=localStorage.getItem(SAVED_TRANSIT_KEY);savedTransitLegacyRaw=localStorage.getItem(SAVED_TRANSIT_LEGACY_KEY);const raw=savedTransitRaw??savedTransitLegacyRaw;if(raw!==null)savedTransit=parseSavedTransitText(raw,savedTransitRaw!==null?2:1);$('savedTransitMessage').textContent=savedTransitRaw===null&&savedTransitLegacyRaw!==null?'Ancien format chargé sans plafond de correspondances. La prochaine sauvegarde utilise le format 2 ; l’original reste conservé et exportable.':''}catch{savedTransitBlocked=true;$('savedTransitMessage').textContent='Préparations collectives non chargées : données invalides, version inconnue ou stockage inaccessible. Aucun remplacement automatique.'}
 }
 function writeSavedTransit(next){
- try{if(savedTransitBlocked)throw new Error('Stockage collectif protégé.');if(localStorage.getItem(SAVED_TRANSIT_KEY)!==savedTransitRaw)throw new Error('Préparations collectives modifiées dans un autre onglet. Fermer puis rouvrir Mes trajets avant de réessayer.');const clean=validateSavedTransit(next),raw=JSON.stringify(clean);localStorage.setItem(SAVED_TRANSIT_KEY,raw);savedTransit=clean;savedTransitRaw=raw;return true}catch(e){$('savedTransitMessage').textContent='Enregistrement impossible. '+e.message;return false}
+ try{if(savedTransitBlocked)throw new Error('Stockage collectif protégé.');if(!transitStorageUnchanged())throw new Error('Préparations collectives modifiées dans un autre onglet. Fermer puis rouvrir Mes trajets avant de réessayer.');const clean=validateSavedTransit(next),raw=JSON.stringify(clean);localStorage.setItem(SAVED_TRANSIT_KEY,raw);savedTransit=clean;savedTransitRaw=raw;return true}catch(e){$('savedTransitMessage').textContent='Enregistrement impossible. '+e.message;return false}
 }
 const PREPARED_TABS=[['preparedRoadTab','road','preparedRoadPanel'],['preparedTransitTab','transit','savedTransitPanel'],['preparedCycleTab','cycle','savedCyclePanel'],['preparedSharedTab','shared','savedSharedPanel']];
 function setPreparedTab(kind,focus=false){
@@ -3036,10 +3079,11 @@ function savedTransitDiagram(route){
  return `<svg class="prepared-schema" viewBox="0 0 600 260" role="img" aria-label="Schéma historique des étapes collectives, sans fond de carte">${paths.map(l=>`<polyline points="${l.points.map(p=>project(p).map(n=>n.toFixed(2)).join(',')).join(' ')}" fill="none" stroke="${l.mode==='WALK'?'#d2b8ff':'#80bdff'}" stroke-width="5" ${l.mode==='WALK'?'stroke-dasharray="5 7"':''}/>`).join('')}</svg><p class="note">Schéma sans échelle : marche en pointillés violets, transport en bleu.${paths.length!==route.legs.length?' Certaines étapes n’ont pas de tracé conservé.':''}</p>`;
 }
 function savedTransitDescription(e,diagram=false){
- const r=e.snapshot.route;return `<h3>${escapeHtml(e.name)}</h3><p>${escapeHtml(e.places.start.label)} → ${escapeHtml(e.places.end.label)}</p><p class="note">Enregistré le ${savedTransitClock(Date.parse(e.savedAt))}. Calcul consulté le ${savedTransitClock(Date.parse(e.snapshot.calculatedAt))}. Heure de Paris.</p><p><strong>Instantané théorique du ${savedTransitClock(r.start)} au ${savedTransitClock(r.end)} · ${transitMinutes(r.duration)}.</strong> Cette sauvegarde ne confirme pas les horaires actuels.</p><p>Demande : ${e.criteria.direction==='arrive'?'arrivée au plus tard':'départ à partir du'} ${escapeHtml(e.criteria.when.replace('T',' '))} (Paris), marche totale maximale ${e.criteria.walk} m. ${r.transfers} correspondance(s), ${Math.ceil(r.walk)} m à pied.</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attente : ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${savedTransitClock(l.start)} → ${savedTransitClock(l.end)} · ${TRANSIT_MODES[l.mode]} ${l.mode==='WALK'?'':escapeHtml(l.line)}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)} · ${escapeHtml(l.agency)}`}</li>`).join('')}</ol>${diagram?savedTransitDiagram(r):''}<p class="note">Source déclarée : <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · ODbL</a>. Pilote Grenoble. Prix et accessibilité inconnus ; aucune réservation. Retards et perturbations non conservés. Un import reste déclaratif : format contrôlé, circulation réelle non attestée.</p>`;
+ const r=e.snapshot.route;return `<h3>${escapeHtml(e.name)}</h3><p>${escapeHtml(e.places.start.label)} → ${escapeHtml(e.places.end.label)}</p><p class="note">Enregistré le ${savedTransitClock(Date.parse(e.savedAt))}. Calcul consulté le ${savedTransitClock(Date.parse(e.snapshot.calculatedAt))}. Heure de Paris.</p><p><strong>Instantané théorique du ${savedTransitClock(r.start)} au ${savedTransitClock(r.end)} · ${transitMinutes(r.duration)}.</strong> Cette sauvegarde ne confirme pas les horaires actuels.</p><p>Demande : ${e.criteria.direction==='arrive'?'arrivée au plus tard':'départ à partir du'} ${escapeHtml(e.criteria.when.replace('T',' '))} (Paris), marche totale maximale ${e.criteria.walk} m. ${r.transfers} correspondance(s), ${Math.ceil(r.walk)} m à pied.</p><p class="app-notice">${escapeHtml(transitTransferReview(r,e.criteria).reason)}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attente : ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${savedTransitClock(l.start)} → ${savedTransitClock(l.end)} · ${TRANSIT_MODES[l.mode]} ${l.mode==='WALK'?'':escapeHtml(l.line)}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)} · ${escapeHtml(l.agency)}`}</li>`).join('')}</ol>${diagram?savedTransitDiagram(r):''}<p class="note">Source déclarée : <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · ODbL</a>. Pilote Grenoble. Prix et accessibilité inconnus ; aucune réservation. Retards et perturbations non conservés. Un import reste déclaratif : format contrôlé, circulation réelle non attestée.</p>`;
 }
 function renderSavedTransit(){
- $('savedTransitExport').disabled=savedTransitBlocked;$('savedTransitImportFile').disabled=savedTransitBlocked;
+ for(const id of ['savedTransitExport','savedTransitImportFile','savedTransitBackup'])$(id).disabled=savedTransitBlocked;
+ $('savedTransitRawExport').hidden=!savedTransitBlocked||(savedTransitRaw??savedTransitLegacyRaw)===null;$('savedTransitLegacyExport').hidden=savedTransitLegacyRaw===null;
  $('savedTransitList').innerHTML=savedTransit.entries.length?savedTransit.entries.map(e=>`<article class="saved-row"><strong>${escapeHtml(e.name)}</strong><p>${escapeHtml(e.places.start.label)} → ${escapeHtml(e.places.end.label)}</p><p>Collectif · départ historique ${savedTransitClock(e.snapshot.route.start)} · ${transitMinutes(e.snapshot.route.duration)}</p><div class="row-actions"><button type="button" class="ghost" data-saved-transit-show="${e.id}">Consulter</button><button type="button" class="ghost" data-saved-transit-rename="${e.id}">Renommer</button><button type="button" class="ghost" data-saved-transit-delete="${e.id}">Supprimer</button></div></article>`).join(''):'<p class="note">Aucune préparation collective chargée. Après une recherche collective, choisir « Enregistrer cette option ».</p>';
  const selected=savedTransit.entries.find(e=>e.id===savedTransitSelected);$('savedTransitView').hidden=!selected;$('savedTransitDetails').innerHTML=selected?savedTransitDescription(selected,true):'';
 }
@@ -3048,12 +3092,12 @@ function updateSavedTransitDraft(){
  if(!savedTransitDraft)return;const entry={...savedTransitDraft.entry,name:$('savedTransitName').value},duplicates=savedTransitDuplicates(entry,savedTransit.entries);$('savedTransitDuplicateRow').hidden=!duplicates.length;$('savedTransitDuplicateNote').textContent=duplicates.length?'Ce nom ou ces paramètres figurent déjà dans les préparations collectives. Aucun remplacement automatique.':'';$('savedTransitSave').disabled=savedTransitBlocked||!entry.name.trim()||!$('savedTransitConfirm').checked||(duplicates.length&&!$('savedTransitDuplicate').checked);
 }
 function saveTransitOption(index){
- if(busy||transitJob||!transitRoutes[index]||!transitCalculation||!transitContext?.places)return;
- try{const q=transitCalculation,c=transitContext,entry=validateSavedTransitEntry({id:crypto.randomUUID(),name:(c.places.start+' → '+c.places.end).slice(0,80),savedAt:new Date().toISOString(),places:{start:{label:c.places.start,lat:c.a[0],lon:c.a[1]},end:{label:c.places.end,lat:c.b[0],lon:c.b[1]}},criteria:{when:q.when,direction:q.arrive?'arrive':'depart',walk:q.walk},snapshot:{source:'mobilites-m',calculatedAt:new Date(q.now).toISOString(),route:structuredClone(transitRoutes[index])}});clearTransit();$('transitDialog').close();openPreparedTrips();setPreparedTab('transit');editSavedTransit(entry,'new')}catch(e){$('transitStatus').textContent='Sauvegarde impossible. '+e.message}
+ if(busy||transitJob||!transitRoutes[index]||!transitCalculation||transitCalculation.transferError||!transitContext?.places)return;
+ try{const q=transitCalculation,c=transitContext,entry=validateSavedTransitEntry({id:crypto.randomUUID(),name:(c.places.start+' → '+c.places.end).slice(0,80),savedAt:new Date().toISOString(),places:{start:{label:c.places.start,lat:c.a[0],lon:c.a[1]},end:{label:c.places.end,lat:c.b[0],lon:c.b[1]}},criteria:{when:q.when,direction:q.arrive?'arrive':'depart',walk:q.walk,...readTransitTransfers()},snapshot:{source:'mobilites-m',calculatedAt:new Date(q.now).toISOString(),route:structuredClone(transitRoutes[index])}});clearTransit();$('transitDialog').close();openPreparedTrips();setPreparedTab('transit');editSavedTransit(entry,'new')}catch(e){$('transitStatus').textContent='Sauvegarde impossible. '+e.message}
 }
 function resumeSavedTransit(e){
  if(busy)return;
- clearTransit();transitContext={inputs:[e.places.start.label,e.places.end.label],signature:transitInputSignature(),a:[e.places.start.lat,e.places.start.lon],b:[e.places.end.lat,e.places.end.lon],places:{start:e.places.start.label,end:e.places.end.label}};showTransitPlaces();$('transitDirection').value=e.criteria.direction;$('transitWalk').value=String(e.criteria.walk);$('transitCompare').checked=false;
+ clearTransit();transitContext={inputs:[e.places.start.label,e.places.end.label],signature:transitInputSignature(),a:[e.places.start.lat,e.places.start.lon],b:[e.places.end.lat,e.places.end.lon],places:{start:e.places.start.label,end:e.places.end.label}};showTransitPlaces();$('transitDirection').value=e.criteria.direction;$('transitWalk').value=String(e.criteria.walk);$('transitMaxTransfers').value=e.criteria.maxTransfers===null?'':String(e.criteria.maxTransfers);$('transitTransferRule').value=e.criteria.transferStrict?'strict':'soft';$('transitCompare').checked=false;
  const t=departureInstant(e.criteria.when),valid=!t.error&&t.instant>Date.now()&&t.instant<=Date.now()+30*864e5;$('transitWhen').value=valid?e.criteria.when:'';
  $('preparedDialog').close();$('transitDialog').showModal();$('transitStatus').textContent=`Préparation « ${e.name} » reprise : lieux mémorisés, aucun nouveau calcul. ${valid?'Vérifier les critères puis lancer la recherche.':'La date conservée est passée ou hors de la fenêtre de recherche : choisir une nouvelle date.'}`;$(valid?'transitTitle':'transitWhen').focus();
 }
@@ -3064,8 +3108,10 @@ function bindSavedTransit(){
  $('savedTransitList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.savedTransitShow||b.dataset.savedTransitRename||b.dataset.savedTransitDelete,e=savedTransit.entries.find(x=>x.id===id);if(!e)return;if(b.dataset.savedTransitRename)editSavedTransit(structuredClone(e),'rename');else if(b.dataset.savedTransitShow){savedTransitDraft=null;$('savedTransitEditor').hidden=true;savedTransitSelected=id;renderSavedTransit();$('savedTransitView').scrollIntoView({block:'start'})}else if(confirm(`Supprimer la préparation collective « ${e.name} » ?`)&&writeSavedTransit({...savedTransit,entries:savedTransit.entries.filter(x=>x.id!==id)})){savedTransitSelected=null;savedTransitDraft=null;$('savedTransitEditor').hidden=true;renderSavedTransit();$('savedTransitMessage').textContent='Préparation collective supprimée.'}});
  $('savedTransitResume').addEventListener('click',()=>{const e=savedTransit.entries.find(x=>x.id===savedTransitSelected);if(e)resumeSavedTransit(e)});
  for(const id of ['savedTransitExport','savedTransitBackup'])$(id).addEventListener('click',()=>{if(!savedTransitBlocked)downloadProfile(savedTransit,'OuQuandQui-preparations-collectives.json')});
- $('savedTransitErase').addEventListener('click',()=>{if(!confirm('Effacer les préparations collectives de cet environnement ? Les préparations routières, le profil et le journal restent conservés.'))return;try{if(localStorage.getItem(SAVED_TRANSIT_KEY)!==savedTransitRaw)throw new Error('Données modifiées dans un autre onglet : fermer puis rouvrir Mes trajets.');localStorage.removeItem(SAVED_TRANSIT_KEY);resetSavedTransit();setPreparedTab('transit');$('savedTransitMessage').textContent='Préparations collectives effacées.'}catch(e){$('savedTransitMessage').textContent='Effacement impossible. '+e.message}});
- $('savedTransitImportFile').addEventListener('change',async e=>{const seq=++savedTransitSequence,file=e.target.files?.[0];e.target.value='';savedTransitImport=null;if(!file)return;try{if(savedTransitBlocked)throw new Error('Stockage collectif protégé.');if(file.size>2000000)throw new Error('Fichier supérieur à 2 Mo.');const data=validateSavedTransit(JSON.parse(await file.text()));if(seq!==savedTransitSequence||!$('preparedDialog').open)return;savedTransitImport=data;$('savedTransitImportSummary').textContent=`${file.name} : ${data.entries.length} préparation(s) collective(s), en remplacement des ${savedTransit.entries.length} chargées.${data.entries.length?'':' Le fichier est vide ; la liste collective deviendra vide.'} Les préparations routières restent conservées.`;$('savedTransitImportDetails').innerHTML=data.entries.map(x=>`<details><summary>${escapeHtml(x.name)}</summary>${savedTransitDescription(x)}</details>`).join('');$('savedTransitImportConfirm').checked=false;$('savedTransitImportApply').disabled=true;$('savedTransitImportMessage').textContent='';$('savedTransitImportDialog').showModal()}catch(err){if(seq===savedTransitSequence)$('savedTransitMessage').textContent='Import collectif refusé. '+err.message}});
+ $('savedTransitRawExport').addEventListener('click',()=>{const raw=savedTransitRaw??savedTransitLegacyRaw;if(raw!==null)downloadCycleText(raw,'OuQuandQui-collectif-original-non-valide.json')});
+ $('savedTransitLegacyExport').addEventListener('click',()=>{if(savedTransitLegacyRaw!==null)downloadCycleText(savedTransitLegacyRaw,'OuQuandQui-collectif-original-v1.json')});
+ $('savedTransitErase').addEventListener('click',()=>{if(!confirm('Effacer les préparations collectives et leurs copies anciennes de cet environnement ? Exporter une copie avant de confirmer. Les autres rubriques restent conservées.'))return;try{if(!transitStorageUnchanged())throw new Error('Données modifiées dans un autre onglet : fermer puis rouvrir Mes trajets.');localStorage.removeItem(SAVED_TRANSIT_KEY);localStorage.removeItem(SAVED_TRANSIT_LEGACY_KEY);resetSavedTransit();setPreparedTab('transit');$('savedTransitMessage').textContent='Préparations collectives effacées.'}catch(e){$('savedTransitMessage').textContent='Effacement impossible. '+e.message}});
+ $('savedTransitImportFile').addEventListener('change',async e=>{const seq=++savedTransitSequence,file=e.target.files?.[0];e.target.value='';savedTransitImport=null;if(!file)return;try{if(savedTransitBlocked)throw new Error('Stockage collectif protégé.');if(file.size>2000000)throw new Error('Fichier supérieur à 2 Mo.');const data=parseSavedTransitText(await file.text());if(seq!==savedTransitSequence||!$('preparedDialog').open)return;savedTransitImport=data;$('savedTransitImportSummary').textContent=`${file.name} : ${data.entries.length} préparation(s) collective(s), en remplacement des ${savedTransit.entries.length} chargées.${data.entries.length?'':' Le fichier est vide ; la liste collective deviendra vide.'} Les préparations routières restent conservées.`;$('savedTransitImportDetails').innerHTML=data.entries.map(x=>`<details><summary>${escapeHtml(x.name)}</summary>${savedTransitDescription(x)}</details>`).join('');$('savedTransitImportConfirm').checked=false;$('savedTransitImportApply').disabled=true;$('savedTransitImportMessage').textContent='';$('savedTransitImportDialog').showModal()}catch(err){if(seq===savedTransitSequence)$('savedTransitMessage').textContent='Import collectif refusé. '+err.message}});
  $('savedTransitImportConfirm').addEventListener('change',()=>{$('savedTransitImportApply').disabled=!savedTransitImport||!$('savedTransitImportConfirm').checked});
  $('savedTransitImportApply').addEventListener('click',()=>{if(!savedTransitImport||!$('savedTransitImportConfirm').checked)return;if(writeSavedTransit(savedTransitImport)){savedTransitImport=null;savedTransitDraft=null;savedTransitSelected=null;$('savedTransitEditor').hidden=true;renderSavedTransit();$('savedTransitImportDialog').close();$('savedTransitMessage').textContent='Préparations collectives restaurées, aucun calcul ni appel réseau.'}else $('savedTransitImportMessage').textContent=$('savedTransitMessage').textContent});
  const cancel=()=>{savedTransitSequence++;savedTransitImport=null};$('savedTransitImportDialog').addEventListener('cancel',cancel);$('savedTransitImportDialog').querySelector('.close-dialog').addEventListener('click',cancel);$('savedTransitImportDialog').addEventListener('close',()=>{if($('savedTransitImportDialog').open)return;cancel();if($('preparedDialog').open)$('savedTransitImportFile').focus()});$('preparedDialog').addEventListener('close',()=>{cancel();savedTransitDraft=null;if(!document.querySelector('dialog[open]'))$('preparedBtn').focus()});
