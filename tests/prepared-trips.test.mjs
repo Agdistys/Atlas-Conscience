@@ -26,7 +26,7 @@ test('préparations : duplicate warning by name or complete parameters, rename e
 test('préparations : critère explicite en format 4, migration historique sans invention',()=>{
  for(const version of [1,2,3]){
   const e=preparedFixture({optimization:'shortest',timing:{departure:'2026-09-18T10:00',arriveBy:null,onlyBefore:false}}),old={kind:'dragonroute-preparations',version,entries:[e]},before=JSON.stringify(old);
-  const clean=ctx.validatePreparedTrips(old);assert.equal(clean.version,10);assert.equal(clean.entries[0].optimization,null);assert.equal(JSON.stringify(old),before);assert.equal(JSON.stringify(ctx.validatePreparedTrips(JSON.parse(JSON.stringify(clean)))),JSON.stringify(clean));
+  const clean=ctx.validatePreparedTrips(old);assert.equal(clean.version,11);assert.equal(clean.entries[0].optimization,null);assert.equal(JSON.stringify(old),before);assert.equal(JSON.stringify(ctx.validatePreparedTrips(JSON.parse(JSON.stringify(clean)))),JSON.stringify(clean));
  }
  const data=ctx.validatePreparedTrips(dataset());
  for(const criterion of ['fastest','shortest',null]){data.entries[0].optimization=criterion;assert.equal(ctx.validatePreparedTrips(data).entries[0].optimization,criterion)}
