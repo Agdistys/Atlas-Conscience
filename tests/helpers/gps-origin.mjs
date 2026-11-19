@@ -1,0 +1,14 @@
+import {expect} from '@playwright/test';import {mockDragonRoute} from './dragonroute.mjs';
+export const now='2026-09-17T10:00:00Z';
+export async function setup(page,{unavailable=false,throws=false}={}){
+ await mockDragonRoute(page);const requests=[];page.on('request',r=>{if(/geocodage|\/route\/v1|\/table\/v1|data.economie.gouv.fr/.test(r.url()))requests.push(r.url())});
+ await page.addInitScript(({unavailable,throws})=>{window.gpsCalls=[];Object.defineProperty(navigator,'geolocation',{configurable:true,value:unavailable?undefined:{getCurrentPosition(ok,error,options){if(throws)throw Error('Test');window.gpsCalls.push({ok,error,options})}}})},{unavailable,throws});
+ await page.route('https://router.project-osrm.org/route/v1/driving/**',async r=>{const points=new URL(r.request().url()).pathname.split('/').at(-1).split(';').map(s=>s.split(',').map(Number)),changed=Math.abs(points[0][1]-45.52)<.001,via=points.length===3;await r.fulfill({json:{code:'Ok',routes:[{distance:(changed?60000:104000)+(via?2000:0),duration:changed?60000/26:3900,geometry:{type:'LineString',coordinates:points.length===2?[points[0],[4.875,45.25],points[1]]:points}}]}})});
+ await page.route('https://router.project-osrm.org/table/v1/driving/**',async r=>{const points=new URL(r.request().url()).pathname.split('/').at(-1).split(';').map(s=>s.split(',').map(Number)),changed=Math.abs(points[0][1]-45.52)<.001,km=points.map((p,i)=>i===0?0:i===points.length-1?(changed?60:104):p[1]>45.3?(changed?15:50):(changed?32:62)),d=km.map((a,i)=>km.map((b,j)=>i===j?0:(Math.abs(a-b)+(i>0&&i<km.length-1||j>0&&j<km.length-1?1:0))*1000));await r.fulfill({json:{code:'Ok',distances:d,durations:d.map(row=>row.map(v=>v/26))}})});
+ await page.goto('/DragonRoute/');return requests;
+}
+export async function go(page){await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt')}
+export async function reply(page,override={},index=-1){await page.evaluate(({override,index})=>{const position={coords:{latitude:45.52,longitude:4.87,accuracy:25,...override.coords},timestamp:Date.now(),...override};if(override.coords)position.coords={latitude:45.52,longitude:4.87,accuracy:25,...override.coords};window.gpsCalls.at(index).ok(position)},{override,index})}
+export async function reject(page,code=1,index=-1){await page.evaluate(({code,index})=>window.gpsCalls.at(index).error({code,message:'Message navigateur non affiché'}),{code,index})}
+export async function propose(page,override={}){await page.locator('#gpsBtn').click();await reply(page,override);await expect(page.locator('#gpsFixInfo')).toBeVisible()}
+export async function search(page){await page.locator('#stationsBtn').click();await expect(page.locator('#testedCount')).not.toHaveText('—');await expect(page.locator('#stationsBtn')).toBeEnabled()}
