@@ -660,7 +660,7 @@ function bindJournal(){
 }
 
 function placeDescription(place){return `${place.label} · IGN · choix du ${new Date(place.resolvedAt).toLocaleDateString('fr-FR')}`}
-function clearRememberedInput(field){preparationInputs[field]=null;resumePreparation=null;updateResumePreparation();rememberedInputs[field]=null;favoriteInputs[field]=null;$(field+'PlaceNote').hidden=true}
+function clearRememberedInput(field){if(field==='start'){currentPos=null;currentFix=null;updateGpsOrigin()}preparationInputs[field]=null;resumePreparation=null;updateResumePreparation();rememberedInputs[field]=null;favoriteInputs[field]=null;$(field+'PlaceNote').hidden=true}
 function resetRememberedInputs(){clearRememberedInput('start');clearRememberedInput('end')}
 async function resolveTripPlace(value,field,isCurrent=()=>true){
  if(!isCurrent())throw new Error("Recherche du lieu annulée.");
@@ -3302,6 +3302,7 @@ function renderRouteChoices(){
   $("routeChoices").innerHTML=choices.length<2?"":`<legend>Choisir le trajet</legend>${choices.map((r,i)=>`<label><input type="radio" name="routeChoice" value="${i}" ${i===trip.choice?"checked":""}> Trajet ${i+1} · ${fmt(r.distance/1000,1)} km · ${Math.round(r.duration/60)} min</label>`).join("")}`;
 }
 function chooseRoute(index){
+  cancelGps();
   if(busy||!trip||!trip.choices[index]||index===trip.choice)return;
   if(compared.length&&!confirm("Changer de trajet effacera les stations comparées et l’arrêt choisi. Continuer ?")){renderRouteChoices();document.querySelector('input[name=routeChoice]:checked')?.focus();return}
   clearComparison();
@@ -3329,6 +3330,7 @@ function clearStations(){
   updateTripMetrics();updateBudget();
 }
 function clearResults(){
+  cancelGps();
   clearTransit();transitContext=null;if($("transitDialog").open)$("transitDialog").close();
   clearComparison();
   clearNavigation();
@@ -3348,6 +3350,7 @@ function clearResults(){
   $("diagWrap").open=false;
 }
 function lock(value){
+  if(value)cancelGps();
   busy=value;
   $("profileBtn").disabled=value;$("preparedBtn").disabled=value;
   document.querySelectorAll('#sheet input,#sheet select,#sheet button').forEach(el=>el.disabled=value);
@@ -3502,18 +3505,63 @@ function selectTab(name){
     $(tab+"Tab").tabIndex=tab===name?0:-1;$(tab+"Panel").hidden=tab!==name;
   }
 }
+// BEGIN GPS ORIGIN MODEL
+function gpsPosition(position,now){
+ const c=position?.coords,t=position?.timestamp,n=(v,min,max)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
+ if(!n(c?.latitude,-90,90)||!n(c?.longitude,-180,180)||!n(c?.accuracy,0,Infinity)||!n(t,1,8640000000000000)||!n(now,1,8640000000000000))return {valid:false,fix:null,error:'Position incomplète ou invalide. Demander une nouvelle position.'};
+ const fix={lat:c.latitude,lon:c.longitude,accuracy:c.accuracy,at:t},age=now-t,imprecise=c.accuracy>200;
+ if(age < -5000)return {valid:false,fix,imprecise,error:'Date de position incohérente. Demander une nouvelle position.'};
+ const stale=age>60000;return {valid:!stale,fix,imprecise,stale,error:stale?'Position de plus d’une minute. Demander une nouvelle position avant de la confirmer.':''};
+}
+function gpsFailure(code){return ({1:'Accès à la position refusé. La saisie manuelle reste disponible.',2:'Position indisponible. Réessayer ou saisir le départ.',3:'Délai de recherche dépassé. Réessayer ou saisir le départ.'})[code]||'La position n’a pas pu être obtenue. Réessayer ou saisir le départ.'}
+// END GPS ORIGIN MODEL
+let gpsJob=null,currentFix=null;
+function gpsContext(){return JSON.stringify([...document.querySelectorAll('#sheet input,#sheet select')].map(e=>[e.id,e.value,e.checked]));}
+function gpsDate(at){return new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',dateStyle:'short',timeStyle:'medium'}).format(at)}
+function updateGpsOrigin(){
+ const note=$('gpsOriginNote');note.hidden=!currentFix||!temporaryAddress($('start').value);
+ note.textContent=currentFix?`Point GPS observé le ${gpsDate(currentFix.at)} (heure de Paris), précision annoncée ±${fmt(currentFix.accuracy,0)} m. Ce départ reste fixe ; la position n’est pas suivie. Une nouvelle position demande une nouvelle confirmation.`:'';
+}
+function cancelGps(close=true){
+ if(gpsJob){clearTimeout(gpsJob.timeout);clearInterval(gpsJob.timer);gpsJob=null}
+ if(close&&$('gpsDialog').open)$('gpsDialog').close();
+}
+function gpsIsCurrent(job){
+ if(gpsJob!==job)return false;
+ if(busy||job.trip!==trip||job.context!==gpsContext()){cancelGps();return false}
+ return true;
+}
+function showGpsProposal(job){
+ if(!gpsIsCurrent(job)||!job.position)return;
+ const state=gpsPosition(job.position,Date.now());job.state=state;
+ $('gpsFixInfo').hidden=!state.fix;$('gpsImprecise').hidden=!state.imprecise;
+ if(state.fix){$('gpsCoordinates').textContent=`Latitude ${fmt(state.fix.lat,5)} · longitude ${fmt(state.fix.lon,5)}`;$('gpsAccuracy').textContent=`Précision annoncée : ±${fmt(state.fix.accuracy,0)} m.`;$('gpsObservedAt').textContent=`Observation : ${gpsDate(state.fix.at)} (heure de Paris).`}
+ const message=state.error||(state.imprecise?'Position peu précise : une confirmation supplémentaire est nécessaire.':'Position reçue. Confirmer ce point pour remplacer le départ.');
+ if($('gpsStatus').textContent!==message)$('gpsStatus').textContent=message;
+ $('gpsConfirm').disabled=!state.valid||(state.imprecise&&!$('gpsAcceptImprecise').checked);
+}
+function gpsError(job,code){
+ if(!gpsIsCurrent(job)||!job.waiting)return;
+ clearTimeout(job.timeout);job.waiting=false;$('gpsRetry').disabled=false;$('gpsStatus').textContent=gpsFailure(code);$('gpsConfirm').disabled=true;
+}
 function gps(){
-  if(busy)return;
-  if(!navigator.geolocation){setStatus("⚠️ GPS non pris en charge.","err");return}
-  setStatus("Demande de position GPS…","busy");
-  navigator.geolocation.getCurrentPosition(p=>{
-    if(busy)return;
-    if(p.coords.accuracy>200&&!confirm(`Position imprécise (±${Math.round(p.coords.accuracy)} m). Utiliser ce point comme départ ?`)){setStatus("Position non retenue. Saisie manuelle disponible.");return}
-    clearResults();
-    resetRange();
-    clearRememberedInput("start");currentPos=[p.coords.latitude,p.coords.longitude];$("start").value="Ma position";
-    setStatus(`Position reçue (±${Math.round(p.coords.accuracy)} m).`,"ok");
-  },e=>setStatus(`⚠️ GPS : ${e.message}`,"err"),{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+ if(busy)return;cancelGps(false);
+ const job={context:gpsContext(),trip,waiting:true,position:null};gpsJob=job;
+ $('gpsPrevious').textContent=`Départ actuel : ${$('start').value.trim()||'non renseigné'}. Arrivée conservée : ${$('end').value.trim()||'non renseignée'}.`;
+ $('gpsStatus').textContent='Recherche ponctuelle de la position…';$('gpsFixInfo').hidden=true;$('gpsImprecise').hidden=true;$('gpsAcceptImprecise').checked=false;$('gpsConfirm').disabled=true;$('gpsRetry').disabled=true;
+ if(!$('gpsDialog').open)$('gpsDialog').showModal();$('gpsCancel').focus();
+ if(!navigator.geolocation){job.waiting=false;$('gpsStatus').textContent='Géolocalisation non disponible dans ce navigateur. La saisie manuelle reste disponible.';$('gpsRetry').disabled=false;return}
+ job.timeout=setTimeout(()=>gpsError(job,3),16000);job.timer=setInterval(()=>{if(gpsIsCurrent(job)&&job.position)showGpsProposal(job)},1000);
+ try{navigator.geolocation.getCurrentPosition(position=>{
+  if(!gpsIsCurrent(job)||!job.waiting)return;clearTimeout(job.timeout);job.waiting=false;job.position=position;$('gpsRetry').disabled=false;showGpsProposal(job);
+ },error=>gpsError(job,error?.code),{enableHighAccuracy:true,timeout:15000,maximumAge:0})}catch{gpsError(job,0)}
+}
+function adoptGps(){
+ const job=gpsJob;if(!job||!gpsIsCurrent(job)||!job.position)return;showGpsProposal(job);
+ if(!job.state.valid||job.state.imprecise&&!$('gpsAcceptImprecise').checked)return;
+ const fix=job.state.fix;cancelGps();clearResults();resetRange();clearRememberedInput('start');
+ currentFix={...fix};currentPos=[fix.lat,fix.lon];$('start').value='Ma position';updateGpsOrigin();
+ setStatus('Nouveau départ confirmé. Recalculer le trajet ; l’autonomie est à renseigner à nouveau.','ok');$('goBtn').focus();
 }
 function initPwa(){
   const preview=document.body.dataset.preview==="true";
@@ -3748,6 +3796,10 @@ function bind(){
   $("routeChoices").addEventListener("change",e=>{if(e.target.name==="routeChoice")chooseRoute(Number(e.target.value))});
   $("removeStopBtn").addEventListener("click",()=>{if(!busy&&trip){selectedStop=null;invalidateStationPrice();updateTripMetrics();renderStations(compared,stopWindow().mode);$("selectedStop").hidden=true;$("removeStopBtn").hidden=true;document.querySelectorAll('[data-station]').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed','false'));$("fuelStatus").textContent="Arrêt retiré. Trajet choisi restauré."}});
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
+  $('gpsCancel').addEventListener('click',()=>cancelGps());$('gpsClose').addEventListener('click',()=>cancelGps());$('gpsRetry').addEventListener('click',gps);$('gpsConfirm').addEventListener('click',adoptGps);
+  $('gpsAcceptImprecise').addEventListener('change',()=>{if(gpsJob)showGpsProposal(gpsJob)});
+  $('gpsDialog').addEventListener('cancel',e=>{e.preventDefault();cancelGps()});$('gpsDialog').addEventListener('close',()=>{if(!$('gpsDialog').open)cancelGps(false)});
+  for(const event of ['input','change'])$('sheet').addEventListener(event,()=>{if(gpsJob)cancelGps()},true);
   ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
   ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{clearRememberedInput(id);if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
   $("stationDeparture").addEventListener("input",()=>{if(!busy)refreshArrival()});

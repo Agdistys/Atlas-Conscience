@@ -42,7 +42,7 @@
         <div id="vehiclePicker"><label for="savedVehicleSelect">Véhicule mémorisé pour ce trajet</label><select id="savedVehicleSelect" aria-describedby="activeVehicle"><option value="">Réglages ponctuels</option></select></div>
         <p id="activeVehicle" class="note" hidden></p>
         <div class="route-fields">
-          <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p></div>
+          <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote gpsOriginNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p><p id="gpsOriginNote" class="note" hidden></p></div>
           <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint endPlaceNote" value="Valence" autocomplete="off" placeholder="Ville ou adresse"><p id="endPlaceNote" class="note" hidden></p></div>
         </div>
         <button id="transitBtn" class="ghost navigation-button" type="button" aria-haspopup="dialog">Transports collectifs · pilote Grenoble</button>
@@ -306,7 +306,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 2736fb4 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 3dc75b7 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -394,6 +394,15 @@
     <button id="exportGpxBtn" class="ghost navigation-button" type="button">Télécharger le tracé (.gpx)</button>
     <p id="navigationMessage" class="note" role="status"></p>
   </section>
+</dialog>
+<dialog id="gpsDialog" aria-labelledby="gpsTitle" aria-describedby="gpsPrevious gpsEffect">
+  <div class="dialog-heading"><h2 id="gpsTitle">Choisir un départ depuis ma position</h2><button id="gpsClose" class="icon-btn" type="button" aria-label="Annuler la position proposée" title="Annuler">×</button></div>
+  <p id="gpsPrevious"></p><p id="gpsStatus" class="note" role="status"></p>
+  <div id="gpsFixInfo" hidden><p id="gpsCoordinates"></p><p id="gpsAccuracy"></p><p id="gpsObservedAt" class="note"></p></div>
+  <label id="gpsImprecise" class="check-label" hidden><input id="gpsAcceptImprecise" type="checkbox"> Utiliser ce point malgré sa faible précision</label>
+  <p id="gpsEffect" class="note">Confirmer remplace le départ et retire le trajet calculé, ses arrêts et son budget. L’arrivée et les préférences restent conservées. L’autonomie devra être renseignée à nouveau.</p>
+  <p class="note">Demande ponctuelle au navigateur, sans suivi permanent. Aucun calcul de trajet n’est lancé ici ; les coordonnées seront transmises au service de routage lors de la prochaine recherche volontaire. Annuler conserve le départ et le trajet actuels.</p>
+  <div class="dialog-actions"><button id="gpsCancel" class="ghost" type="button">Annuler</button><button id="gpsRetry" class="ghost" type="button">Demander une nouvelle position</button><button id="gpsConfirm" class="primary" type="button" disabled>Utiliser ce point comme départ</button></div>
 </dialog>
 <dialog id="placeDialog" aria-labelledby="placeTitle">
   <div class="dialog-heading"><h2 id="placeTitle">Choisir le lieu</h2><button id="cancelPlace" class="icon-btn" type="button" aria-label="Annuler le choix du lieu" title="Annuler">×</button></div>
