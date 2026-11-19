@@ -89,7 +89,7 @@
         <fieldset id="routeChoices" class="stop-modes" hidden></fieldset>
         <p id="appliedRouting" class="note" hidden></p>
         <p id="resolvedPlaces" class="note" hidden></p>
-        <button id="compareBtn" class="ghost navigation-button" type="button" aria-expanded="false" aria-controls="comparisonPanel" hidden>Comparer voiture et marche</button>
+        <button id="compareBtn" class="ghost navigation-button" type="button" aria-expanded="false" aria-controls="comparisonPanel" hidden>Comparer les modes</button>
         <button id="navigationBtn" class="ghost navigation-button" type="button" hidden>Navigation et tracé GPS</button>
         <button id="savePreparationBtn" class="ghost navigation-button" type="button" hidden>Enregistrer cette préparation</button>
         <button id="journalRecordBtn" class="ghost navigation-button" type="button" hidden>J’ai effectué ce trajet</button>
@@ -105,11 +105,16 @@
           <div><label for="comparisonPrice">Prix du carburant saisi (€/L, facultatif)</label><input id="comparisonPrice" type="number" min="0.001" max="10" step="any" placeholder="Inconnu"></div>
           <div><label for="comparisonWalkLimit">Limite de marche souhaitée (km, facultatif)</label><input id="comparisonWalkLimit" type="number" min="0.1" max="500" step="any" placeholder="Non renseignée"></div>
         </div>
+        <fieldset class="prospective-options"><legend>Vélo facultatif</legend>
+          <label class="check-label"><input id="comparisonCycle" type="checkbox"> Inclure le vélo classique dans la comparaison</label>
+          <div id="comparisonCycleFields" hidden><label for="comparisonCycleLimit">Distance souhaitée à vélo au maximum (km, facultatif)</label><input id="comparisonCycleLimit" type="number" min="0.1" max="300" step="any" aria-describedby="comparisonCycleHelp" placeholder="Non renseignée"></div>
+          <p id="comparisonCycleHelp" class="note">FOSSGIS reçoit les deux coordonnées uniquement au calcul demandé. Repère de distance souple ; vélo classique personnel supposé disponible pour chaque personne, allure et matériel du groupe non vérifiés. Hors pauses, terrain, VAE et location non qualifiés. Essai gratuit à usage modéré.</p>
+        </fieldset>
         <fieldset class="prospective-options"><legend>Empreinte carbone facultative</legend>
           <label class="check-label"><input id="comparisonCarbonEnabled" type="checkbox"> Estimer le véhicule et la part du groupe</label>
           <p id="comparisonCarbonAvailability" class="note"></p>
           <div id="comparisonCarbonFields" hidden><label for="comparisonCarbonFactor">Modèle du véhicule</label><select id="comparisonCarbonFactor"></select><label for="comparisonCarbonOccupants">Total des occupants, conducteur compris</label><input id="comparisonCarbonOccupants" type="number" min="1" max="9" step="1" placeholder="À renseigner"></div>
-          <p class="note">Marche non estimée. Aucun classement carbone complet entre les deux modes ; une donnée absente n’est pas zéro.</p>
+          <p class="note">Marche et vélo non estimés. Aucun classement carbone complet entre les modes ; une donnée absente n’est pas zéro.</p>
         </fieldset>
         <label class="check-label"><input id="comparisonOnlyBefore" type="checkbox"> Uniquement les arrivées estimées au plus tard à l’heure limite</label>
         <p id="comparisonTimingStatus" class="note" role="status"></p>
@@ -516,6 +521,7 @@
   <div class="transit-fields"><div><label for="transitDirection">Horaire demandé</label><select id="transitDirection"><option value="depart">Partir à partir de</option><option value="arrive">Arriver au plus tard à</option></select></div><div><label for="transitWhen">Date et heure de Paris</label><input id="transitWhen" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59"></div><div><label for="transitWalk">Marche totale maximale (m)</label><input id="transitWalk" type="number" min="100" max="5000" step="100" value="1500"></div></div>
   <p class="note">Recherche dans les 30 prochains jours, selon le calendrier disponible. Le calcul inclut accès à pied, lignes, correspondances et arrivée à pied. Aucune garantie d’accessibilité ; les besoins fauteuil roulant, bagages ou vélo restent à vérifier auprès du réseau.</p>
   <label class="check-label"><input id="transitCompare" type="checkbox"> Comparer aussi les temps avec la voiture et la marche</label><p class="note">Option facultative : IGN, OSRM ou le service de routage configuré reçoivent les mêmes coordonnées au lancement. Comparaison pour une personne, sans arrêt intermédiaire ; la limite de marche s’applique aussi à la marche directe.</p>
+  <div id="transitCycleOptions" hidden><label class="check-label"><input id="transitCycle" type="checkbox"> Inclure aussi le vélo classique personnel</label><div id="transitCycleFields" hidden><label for="transitCycleLimit">Distance souhaitée à vélo au maximum (km, facultatif)</label><input id="transitCycleLimit" type="number" min="0.1" max="300" step="any" aria-describedby="transitCycleHelp" placeholder="Non renseignée"></div><p id="transitCycleHelp" class="note">FOSSGIS recevra les mêmes coordonnées au lancement. Un vélo personnel est supposé disponible ; aucune location ni combinaison train + vélo. Repère de distance souple. Durée hors pauses et trafic ; terrain, VAE et batterie non qualifiés. Essai gratuit modéré.</p></div>
   <div class="dialog-actions"><button id="transitSearch" class="primary" type="button">Chercher les transports collectifs</button><button id="transitCancel" class="ghost" type="button" hidden>Annuler la recherche</button></div>
   <p id="transitStatus" role="status" aria-live="polite"></p>
   <section id="transitMapWrap" hidden aria-labelledby="transitMapTitle"><h3 id="transitMapTitle"></h3><div id="transitMap" aria-label="Carte du parcours collectif"></div><svg id="transitSketch" role="img" aria-label="Schéma du parcours collectif, sans fond de carte" hidden></svg><p id="transitMapNote" class="note"></p></section>

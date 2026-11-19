@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-19T03:56:24.796361+01:00",
+  "url": "https://routing.openstreetmap.de/routed-bike/route/v1/driving/5.714527,45.191112;5.731,45.1572?overview=full&geometries=geojson&steps=true&alternatives=false",
+  "http_status": 200,
+  "headers": {
+    "Server": "nginx",
+    "Date": "Thu, 19 Nov 2026 02:56:24 GMT",
+    "Content-Type": "application/json; charset=UTF-8",
+    "Content-Length": "38114",
+    "Connection": "close",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Headers": "X-Requested-With, Content-Type",
+    "Content-Disposition": "inline; filename=\"response.json\""
+  },
+  "sha256": "908630506ce3b87cf1049b9de7ed975613eecae4a4b0d656e7d05dff900aafb4",
+  "source": "FOSSGIS OSRM vélo, OpenStreetMap/ODbL",
+  "places": "Lieux publics de Grenoble : gare et avenue Innsbruck, coordonnées du pilote collectif existant. Aucune donnée personnelle.",
+  "scope": "Réponse réelle distincte des variantes et horaires simulés des tests."
+}

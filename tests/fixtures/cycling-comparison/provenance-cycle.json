@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-19T03:57:50.034700+01:00",
+  "url": "https://routing.openstreetmap.de/routed-bike/route/v1/driving/5.7152,45.1913;5.731,45.1572?overview=full&geometries=geojson&steps=true&alternatives=false",
+  "http_status": 200,
+  "headers": {
+    "Server": "nginx",
+    "Date": "Thu, 19 Nov 2026 02:57:50 GMT",
+    "Content-Type": "application/json; charset=UTF-8",
+    "Content-Length": "36888",
+    "Connection": "close",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Headers": "X-Requested-With, Content-Type",
+    "Content-Disposition": "inline; filename=\"response.json\""
+  },
+  "sha256": "65f917b54b573e933e349baa58ff71dd3212be7868b7ae8bf57db46d3366b18d",
+  "source": "FOSSGIS OSRM vélo, OpenStreetMap/ODbL",
+  "places": "Point public devant la gare de Grenoble, distinct du quai tram du premier essai, vers avenue Innsbruck. Aucun déplacement personnel.",
+  "scope": "Nouveau point explicite, pas un déplacement automatique du point initial refusé. Le premier brut grenoble.json reste conservé."
+}
