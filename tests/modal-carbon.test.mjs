@@ -1,7 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
 const c={TextEncoder,structuredClone,Date,Intl,URLSearchParams};vm.createContext(c);const source=fs.readFileSync('DragonRoute/app.js','utf8');
 for(const name of ['JOURNAL MODEL','PROSPECTIVE CARBON MODEL','TRANSIT MODEL','TRANSIT CARBON MODEL','MODAL CARBON MODEL'])vm.runInContext(source.split('// BEGIN '+name+'\n')[1].split('// END '+name)[0],c);
-const q={instant:1000000,maxTransfers:null,transferStrict:false},leg=(mode,distance)=>({mode,distance});
+const q={now:0,instant:1000000,maxTransfers:null,transferStrict:false},leg=(mode,distance)=>({mode,distance});
 const route=(legs=[leg('TRAM',10000)],extra={})=>({start:1010000,end:1100000,duration:90,walk:0,transfers:0,legs,...extra});
 const road=(distance=100000,extra={})=>({status:'ready',distance,start:1000000,end:1100000,duration:100,elapsed:100,...extra});
 const choices=(p={})=>({persons:1,vehicle:'car',fuel:'Gazole',car:{factorId:'voiture-compact-diesel',occupants:'4'},cycle:true,transit:[['tramway']],...p});
