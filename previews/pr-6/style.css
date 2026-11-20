@@ -184,3 +184,5 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 
 #modalCarbon{border-top:1px solid var(--line);margin-top:1rem;padding-top:1rem}#modalCarbon code{overflow-wrap:anywhere}#modalCarbonTitle{scroll-margin-top:var(--dialog-heading-space,100px)}.modal-carbon-table caption{text-align:left;font-weight:700;margin-bottom:.5rem}.modal-carbon-table td details{margin-top:.5rem}.modal-carbon-table table{min-width:520px}.modal-carbon-table th:nth-child(1){width:24%}.modal-carbon-table th:nth-child(2){width:22%}.modal-carbon-table th:nth-child(3){width:54%}
 .modal-carbon-table th,.modal-carbon-table td{vertical-align:top}
+
+#transitNetworkChoices .check-label span{min-width:0;overflow-wrap:anywhere}#transitNetworkChoices small{display:block}
