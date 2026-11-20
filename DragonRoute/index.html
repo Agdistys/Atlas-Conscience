@@ -50,6 +50,8 @@
           <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote gpsOriginNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p><p id="gpsOriginNote" class="note" hidden></p></div>
           <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint endPlaceNote" value="Valence" autocomplete="off" placeholder="Ville ou adresse"><p id="endPlaceNote" class="note" hidden></p></div>
         </div>
+        <button id="swapTripBtn" class="ghost navigation-button" type="button" aria-describedby="swapTripHint">Inverser départ et arrivée</button>
+        <p id="swapTripHint" class="note">Préparer le retour : les lieux sont inversés. Le trajet, ses arrêts, les horaires et l’autonomie seront à renseigner ou calculer à nouveau. Les sauvegardes sont conservées.</p>
         <button id="transitBtn" class="ghost navigation-button" type="button" aria-haspopup="dialog">Transports collectifs · pilote Grenoble</button>
         <button id="cycleBtn" class="ghost navigation-button" type="button" aria-haspopup="dialog">À vélo · essai</button>
         <button id="bikesBtn" class="ghost navigation-button" type="button" aria-haspopup="dialog">Vélos partagés · pilote Lyon</button>
