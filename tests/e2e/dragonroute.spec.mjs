@@ -139,7 +139,7 @@ test('poids lourd valide memorise et transmis aux arrets sans assimilation carav
   const bodies=[];
   await page.route(orsPattern,r=>{const body=r.request().postDataJSON();bodies.push(body);return r.fulfill({json:orsResponse(body)})});
   await configureOrs(page);await page.locator('#routeVehicle').selectOption('truck');
-  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('cinq dimensions');
+  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Hauteur');await expect(page.locator('#tripValidationList button')).toHaveCount(5);await expect(page.locator('#truckHeight')).toBeFocused();
   expect(bodies).toHaveLength(0);
   for(const [id,value]of Object.entries({truckHeight:'3.8',truckWidth:'2.5',truckLength:'16',truckWeight:'32',truckAxleload:'10'}))await page.locator('#'+id).fill(value);
   await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
