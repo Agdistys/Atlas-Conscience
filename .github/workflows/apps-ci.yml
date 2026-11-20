@@ -40,6 +40,9 @@ jobs:
           node-version: 22
       - run: npm install --no-audit --no-fund
       - name: Qualify essential flows
+        # Firefox requires the real home directory of the container's root user.
+        env:
+          HOME: /root
         run: npm run test:compat
       - name: Archive compatibility evidence
         if: always()

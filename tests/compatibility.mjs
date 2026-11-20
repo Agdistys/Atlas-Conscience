@@ -35,5 +35,6 @@ const proof = { schemaVersion: 1, generatedAt: new Date().toISOString(),
     cases: tests.filter(test => test.project === row.name) })), limits: compatibilityLimits, state: 'passed' };
 if (!validCompatibility(proof, proof.commit)) proof.state = 'blocked';
 fs.writeFileSync('quality/compatibility-status.json', JSON.stringify(proof, null, 2));
+if (proof.errors.length) console.error(JSON.stringify(proof.errors, null, 2));
 console.log(`Compatibilité : ${proof.state}, ${tests.filter(t => t.passed).length}/${tests.length}`);
 process.exitCode = proof.state === 'passed' ? 0 : 1;
