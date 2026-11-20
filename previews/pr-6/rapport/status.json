@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-11-20T04:25:21.053Z",
-  "commit": "04bdabe8e00a6589dd1155ae94fbc9383034a01f",
+  "generatedAt": "2026-11-20T05:39:56.655Z",
+  "commit": "6a162404beae50a262edbf7c00343f6755a27d2a",
   "state": "inspection",
-  "passed": 2668,
-  "total": 2668,
+  "passed": 2728,
+  "total": 2728,
   "stages": {
     "contract": {
       "exitCode": 0,
@@ -2740,7 +2740,251 @@
       "project": "mobile-360",
       "state": "accessibilite-budget-historique",
       "violations": [],
-      "incomplete": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Préparations et tracés conservés sur ce navigateur, dans cet environnement. Aucun déplacement n’est ajouté au journal. Les lieux peuvent être personnels ; les exports sont des fichiers en clair. Conserver une copie avant d’effacer les données du navigateur.</p>",
+              "target": [
+                "#preparedDialog > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"preparedRoadTab\" type=\"button\" role=\"tab\" aria-selected=\"true\" aria-controls=\"preparedRoadPanel\" tabindex=\"0\">Route et marche</button>",
+              "target": [
+                "#preparedRoadTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"preparedTransitTab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"savedTransitPanel\" tabindex=\"-1\">Transports collectifs</button>",
+              "target": [
+                "#preparedTransitTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"preparedCycleTab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"savedCyclePanel\" tabindex=\"-1\">À vélo</button>",
+              "target": [
+                "#preparedCycleTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"preparedSharedTab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"savedSharedPanel\" tabindex=\"-1\">Vélo partagé</button>",
+              "target": [
+                "#preparedSharedTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Export, import et effacement limités aux préparations route/marche de cette rubrique.</p>",
+              "target": [
+                "#preparedRoadPanel > .note:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"preparedMessage\" class=\"note\" role=\"status\">Préparation enregistrée dans ce navigateur.</p>",
+              "target": [
+                "#preparedMessage"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
       "rulesPassed": 26
     },
     {
@@ -63836,31 +64080,6 @@
                 {
                   "id": "color-contrast",
                   "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "17.3pt (23px)",
-                    "fontWeight": "bold",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "3:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h1>Mon trajet</h1>",
-              "target": [
-                "h1"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
                     "messageKey": "nonBmp"
                   },
                   "relatedNodes": [],
@@ -66549,7 +66768,251 @@
       "project": "mobile-360",
       "state": "accessibilite-preparation-instantane",
       "violations": [],
-      "incomplete": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Préparations et tracés conservés sur ce navigateur, dans cet environnement. Aucun déplacement n’est ajouté au journal. Les lieux peuvent être personnels ; les exports sont des fichiers en clair. Conserver une copie avant d’effacer les données du navigateur.</p>",
+              "target": [
+                "#preparedDialog > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"preparedRoadTab\" type=\"button\" role=\"tab\" aria-selected=\"true\" aria-controls=\"preparedRoadPanel\" tabindex=\"0\">Route et marche</button>",
+              "target": [
+                "#preparedRoadTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"preparedTransitTab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"savedTransitPanel\" tabindex=\"-1\">Transports collectifs</button>",
+              "target": [
+                "#preparedTransitTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"preparedCycleTab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"savedCyclePanel\" tabindex=\"-1\">À vélo</button>",
+              "target": [
+                "#preparedCycleTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"preparedSharedTab\" type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"savedSharedPanel\" tabindex=\"-1\">Vélo partagé</button>",
+              "target": [
+                "#preparedSharedTab"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Export, import et effacement limités aux préparations route/marche de cette rubrique.</p>",
+              "target": [
+                "#preparedRoadPanel > .note:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"preparedDialog\" aria-labelledby=\"preparedTitle\" open=\"\">",
+                      "target": [
+                        "#preparedDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"preparedMessage\" class=\"note\" role=\"status\">Préparation enregistrée dans ce navigateur.</p>",
+              "target": [
+                "#preparedMessage"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
       "rulesPassed": 23
     },
     {
@@ -80805,6 +81268,458 @@
         }
       ],
       "rulesPassed": 22
+    },
+    {
+      "project": "desktop-1440",
+      "state": "accessibilite-trajet-annulable",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "imgNode",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">En attente du nouveau trajet.</div>",
+                      "target": [
+                        "#fallbackLabel"
+                      ]
+                    },
+                    {
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "target": [
+                        "#routeViz"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because element contains an image node"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">En attente du nouveau trajet.</div>",
+              "target": [
+                "#fallbackLabel"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "17.3pt (23px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1>Mon trajet</h1>",
+              "target": [
+                "h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"activeVehicle\" class=\"note\">Réglages pour ce trajet uniquement. Les véhicules mémorisés restent inchangés.</p>",
+              "target": [
+                "#activeVehicle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"optimizationNote\" class=\"note\" role=\"status\">La durée reste une estimation sans trafic en direct. Plus court peut être plus lent et ne signifie pas moins cher. Le moteur utilisé est indiqué avec le résultat.</p>",
+              "target": [
+                "#optimizationNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"addressHint\" class=\"note\">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>",
+              "target": [
+                "#addressHint"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<summary id=\"routingOptionsToggle\">Options du trajet</summary>",
+              "target": [
+                "#routingOptionsToggle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<section class=\"sheet\" id=\"sheet\" aria-label=\"Préparation du trajet\">",
+                      "target": [
+                        "#sheet"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<legend>Éviter <span id=\"avoidAvailability\" class=\"availability\"></span></legend>",
+              "target": [
+                ".avoid-options > legend"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 25
+    },
+    {
+      "project": "tablet-768",
+      "state": "accessibilite-trajet-annulable",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "imgNode",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">En attente du nouveau trajet.</div>",
+                      "target": [
+                        "#fallbackLabel"
+                      ]
+                    },
+                    {
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "target": [
+                        "#routeViz"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because element contains an image node"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">En attente du nouveau trajet.</div>",
+              "target": [
+                "#fallbackLabel"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 24
+    },
+    {
+      "project": "mobile-390",
+      "state": "accessibilite-trajet-annulable",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "imgNode",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">En attente du nouveau trajet.</div>",
+                      "target": [
+                        "#fallbackLabel"
+                      ]
+                    },
+                    {
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "target": [
+                        "#routeViz"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because element contains an image node"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">En attente du nouveau trajet.</div>",
+              "target": [
+                "#fallbackLabel"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 24
+    },
+    {
+      "project": "mobile-360",
+      "state": "accessibilite-trajet-annulable",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "imgNode",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div id=\"fallbackLabel\" class=\"map-label\">En attente du nouveau trajet.</div>",
+                      "target": [
+                        "#fallbackLabel"
+                      ]
+                    },
+                    {
+                      "html": "<svg id=\"routeViz\" viewBox=\"0 0 1000 700\" preserveAspectRatio=\"xMidYMid meet\" role=\"group\" aria-label=\"Schéma du trajet, sans fond cartographique\">",
+                      "target": [
+                        "#routeViz"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because element contains an image node"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div id=\"fallbackLabel\" class=\"map-label\">En attente du nouveau trajet.</div>",
+              "target": [
+                "#fallbackLabel"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+            }
+          ]
+        }
+      ],
+      "rulesPassed": 24
     },
     {
       "project": "desktop-1440",
@@ -151783,7 +152698,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"324\" viewBox=\"-31 -27 377 324\" style=\"transform: translate3d(-31px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"324\" viewBox=\"-31 -27 377 324\" style=\"transform: translate3d(-31.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"377\"]"
                       ]
@@ -151821,7 +152736,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"324\" viewBox=\"-31 -27 377 324\" style=\"transform: translate3d(-31px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"324\" viewBox=\"-31 -27 377 324\" style=\"transform: translate3d(-31.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"377\"]"
                       ]
@@ -151859,7 +152774,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"324\" viewBox=\"-31 -27 377 324\" style=\"transform: translate3d(-31px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"377\" height=\"324\" viewBox=\"-31 -27 377 324\" style=\"transform: translate3d(-31.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"377\"]"
                       ]
@@ -152122,7 +153037,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"324\" viewBox=\"-28 -27 341 324\" style=\"transform: translate3d(-28px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"324\" viewBox=\"-28 -27 341 324\" style=\"transform: translate3d(-28.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"341\"]"
                       ]
@@ -152160,7 +153075,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"324\" viewBox=\"-28 -27 341 324\" style=\"transform: translate3d(-28px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"324\" viewBox=\"-28 -27 341 324\" style=\"transform: translate3d(-28.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"341\"]"
                       ]
@@ -152198,7 +153113,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"324\" viewBox=\"-28 -27 341 324\" style=\"transform: translate3d(-28px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"341\" height=\"324\" viewBox=\"-28 -27 341 324\" style=\"transform: translate3d(-28.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"341\"]"
                       ]
