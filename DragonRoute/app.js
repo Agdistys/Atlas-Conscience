@@ -3309,20 +3309,26 @@ function estimateTransitCarbon(route,choices){
 // END TRANSIT CARBON MODEL
 
 // BEGIN MODAL CARBON MODEL
+function modalCarbonPersons(raw){
+ const n=typeof raw==='number'?raw:typeof raw==='string'&&raw.trim()?Number(raw):NaN;
+ return Number.isInteger(n)&&n>=1&&n<=9?n:null;
+}
 function modalCarbonRows(routes,roads,q,raw){
+ const persons=modalCarbonPersons(raw.persons);
  const absent=reason=>({status:'unavailable',scope:null,totalKg:null,subtotalKg:null,reason,details:[]});
  const distance=route=>Array.isArray(route?.legs)&&route.legs.length&&route.legs.every(l=>typeof l?.distance==='number'&&Number.isFinite(l.distance)&&l.distance>=0&&l.distance<=150000)?route.legs.reduce((n,l)=>n+l.distance,0):null;
  const rows=transitTimeRows(routes,roads,q).map(row=>{
   const route=row.mode==='transit'?routes[row.index]:null;
   const meters=row.mode==='transit'?distance(route):typeof row.distance==='number'&&Number.isFinite(row.distance)&&row.distance>=0&&row.distance<=150000?row.distance:null;
   let emission=absent('Aucun modèle qualifié pour ce mode ; aucun zéro attribué.');
-  if(row.mode==='transit'&&route){
+  if(persons===null){emission=absent('Indiquer de 1 à 9 voyageurs pour comparer le même groupe.');
+  }else if(row.mode==='transit'&&route){
    try{
     const c=estimateTransitCarbon(route,raw.transit?.[row.index]??route.legs.map(()=>''));
     emission={...c,reason:c.status==='complete'?'Toutes les étapes sont estimées dans le périmètre du modèle.':c.status==='partial'?'Étapes manquantes : empreinte totale indisponible.':'Choisir les modèles disponibles ; les étapes sans facteur restent inconnues.',details:c.rows};
    }catch{emission=absent('Étapes ou hypothèses incompatibles ; estimation indisponible.')}
   }else if(row.mode==='car'){
-   const c=prospectiveCarbon(raw.vehicle==='car'?'car':'unqualified',meters,raw.fuel,{enabled:true,...raw.car},1);
+   const c=prospectiveCarbon(raw.vehicle==='car'?'car':'unqualified',meters,raw.fuel,{enabled:true,...raw.car},persons);
    if(c.status==='estimated')emission={status:'complete',scope:c.factor.scope,totalKg:c.individualKg,subtotalKg:c.individualKg,vehicleKg:c.vehicleKg,occupants:c.occupants,dataset:c.dataset,reason:'Part individuelle, selon les occupants saisis.',details:[{index:0,status:'estimated',distanceMeters:meters,factor:c.factor,valueKg:c.individualKg}]};
    else emission=absent(c.reason);
   }else if(row.mode==='cycle'){
@@ -3330,24 +3336,28 @@ function modalCarbonRows(routes,roads,q,raw){
    if(raw.cycle===true&&f&&meters!==null){const valueKg=meters/1000*f.construction;emission={status:'complete',scope:f.scope,totalKg:valueKg,subtotalKg:valueKg,dataset:CARBON_DATA.version,reason:'Construction seule ; hors du groupe construction et énergie.',details:[{index:0,status:'estimated',distanceMeters:meters,factor:{...f},valueKg}]}}
    else emission=absent('Modèle vélo mécanique non choisi ou distance inconnue.');
   }
+  emission={...emission,persons,groupTotalKg:persons!==null&&emission.totalKg!==null?emission.totalKg*persons:null,groupSubtotalKg:persons!==null&&emission.subtotalKg!==null?emission.subtotalKg*persons:null};
   return {...row,key:row.mode==='transit'?'transit-'+row.index:row.mode,distanceMeters:meters,emission,comparable:row.status==='ready'&&emission.status==='complete'&&emission.scope==='construction-energy'&&typeof emission.totalKg==='number'&&Number.isFinite(emission.totalKg)&&emission.totalKg>=0};
  });
  return rows;
 }
 function modalCarbonOrder(rows,sort){
  if(!['mode','time','distance','carbon'].includes(sort))throw new Error('Choisir un tri proposé.');
- const compared=rows.filter(r=>r.comparable),eligible=compared.length;
+ const people=new Set(rows.map(r=>r.emission.persons)),peopleValid=people.size===1&&modalCarbonPersons([...people][0])!==null;
+ if(!peopleValid)return {group:rows.filter(r=>r.status==='ready').map(r=>({...r,tied:false})).sort((a,b)=>a.index-b.index),other:rows.filter(r=>r.status!=='ready').map(r=>({...r,tied:false})).sort((a,b)=>a.index-b.index),eligible:0,active:false,canSortCarbon:false,peopleValid:false};
+ const candidates=rows.filter(r=>r.comparable&&Number.isFinite(r.emission.groupTotalKg)),groups=new Set(candidates.map(r=>r.emission.persons));
+ const compared=groups.size===1&&modalCarbonPersons([...groups][0])!==null?candidates:[],eligible=compared.length;
  // Keep a strictly positive value displayed "< 0.001" distinct from an explicit zero.
  const displayed=n=>Number(n.toLocaleString('en-US',{useGrouping:false,minimumFractionDigits:3,maximumFractionDigits:3}));
  const carbonKey=n=>n>0&&n<.001?.0005:displayed(n);
- const value=r=>sort==='time'?Math.ceil(r.elapsed/60):sort==='distance'&&r.distanceMeters!==null?displayed(r.distanceMeters/1000):sort==='carbon'&&r.comparable?carbonKey(r.emission.totalKg):null;
+ const value=r=>sort==='time'?Math.ceil(r.elapsed/60):sort==='distance'&&r.distanceMeters!==null?displayed(r.distanceMeters/1000):sort==='carbon'&&r.comparable?carbonKey(r.emission.groupTotalKg):null;
  const canSortCarbon=eligible>=2,active=sort==='carbon'&&canSortCarbon;
  const group=active?compared:rows.filter(r=>r.status==='ready'),other=active?rows.filter(r=>!r.comparable):rows.filter(r=>r.status!=='ready');
  const counts=new Map();if(sort!=='mode'&&(sort!=='carbon'||active))for(const r of group){const v=value(r);if(v!==null&&Number.isFinite(v))counts.set(v,(counts.get(v)||0)+1)}
  const sorted=group.map(r=>({...r,tied:counts.get(value(r))>1}));
  if(sort!=='mode'&&(sort!=='carbon'||active))sorted.sort((a,b)=>{const x=value(a),y=value(b),valid=n=>n!==null&&Number.isFinite(n);return valid(x)!==valid(y)?valid(x)?-1:1:valid(x)?x-y||Math.ceil(a.elapsed/60)-Math.ceil(b.elapsed/60)||a.index-b.index:a.index-b.index});
  else sorted.sort((a,b)=>a.index-b.index);
- return {group:sorted,other:other.map(r=>({...r,tied:false})).sort((a,b)=>a.index-b.index),eligible,active,canSortCarbon};
+ return {group:sorted,other:other.map(r=>({...r,tied:false})).sort((a,b)=>a.index-b.index),eligible,active,canSortCarbon,peopleValid:true};
 }
 // END MODAL CARBON MODEL
 
@@ -3665,36 +3675,43 @@ function modalShownRoads(d){
 function modalCarOptions(fuel){return '<option value="">Choisir un modèle</option>'+prospectiveFactors(fuel).map(f=>`<option value="${f.id}">${escapeHtml(f.label)}</option>`).join('')}
 function modalCarControls(fuel){
  const available=prospectiveFactors(fuel).length>0;
- return `<fieldset class="transit-carbon-step"><legend>Véhicule léger · hypothèses</legend><label for="modalCarbonFuel">Carburant retenu pour cette estimation</label><select id="modalCarbonFuel" data-modal-fuel>${['E10','Gazole','SP98','SP95','E85','GPLc'].map(f=>`<option${f===fuel?' selected':''}>${f}</option>`).join('')}</select><p class="note">Choix propre à cette comparaison ; le carburant du profil et du budget reste inchangé.</p><label for="modalCarbonCar">Modèle moyen de voiture</label><select id="modalCarbonCar" data-modal-car ${available?'':'disabled'}>${modalCarOptions(fuel)}</select><p id="modalCarbonFuelNote" class="note">${available?'Modèle moyen à choisir ; aucune taille supposée.':'Aucun modèle compatible avec ce véhicule ou carburant.'}</p><label for="modalCarbonOccupants">Total des occupants, conducteur compris</label><input id="modalCarbonOccupants" data-modal-occupants type="number" min="1" max="9" step="1" inputmode="numeric" value=""><p class="note">Part d’une personne, à parts égales. Capacité et occupation réelles non vérifiées ; le total véhicule reste distinct.</p></fieldset>`;
+ return `<fieldset class="transit-carbon-step"><legend>Véhicule léger · hypothèses</legend><label for="modalCarbonFuel">Carburant retenu pour cette estimation</label><select id="modalCarbonFuel" data-modal-fuel>${['E10','Gazole','SP98','SP95','E85','GPLc'].map(f=>`<option${f===fuel?' selected':''}>${f}</option>`).join('')}</select><p class="note">Choix propre à cette comparaison ; le carburant du profil et du budget reste inchangé.</p><label for="modalCarbonCar">Modèle moyen de voiture</label><select id="modalCarbonCar" data-modal-car ${available?'':'disabled'}>${modalCarOptions(fuel)}</select><p id="modalCarbonFuelNote" class="note">${available?'Modèle moyen à choisir ; aucune taille supposée.':'Aucun modèle compatible avec ce véhicule ou carburant.'}</p><label for="modalCarbonOccupants">Total des occupants, conducteur compris</label><input id="modalCarbonOccupants" data-modal-occupants type="number" min="1" max="9" step="1" inputmode="numeric" value=""><p class="note">Le groupe comparé peut n’occuper qu’une partie du véhicule. Parts égales ; capacité et occupation réelles non vérifiées. Le total véhicule reste distinct.</p></fieldset>`;
 }
 function openModalCarbon(){
  if(busy||transitJob)return;const d=modalCarbonContext();if(!d)return;clearModalCarbon();
  const fuel=$('fuel').value,vehicle=$('routeVehicle').value;
- modalCarbonView={routes:d.routes,signature:modalCarbonSignature(),fuel,vehicle,car:{factorId:'',occupants:''},cycle:false,transit:d.routes.map(r=>r.legs.map(()=>'')),sort:'mode'};
- $('modalCarbonModels').innerHTML=`${d.roads.car?.status==='ready'?modalCarControls(fuel):''}
- ${d.roads.cycle?.distance!==undefined?'<fieldset class="transit-carbon-step"><legend>Vélo classique · hypothèse</legend><label class="check"><input data-modal-cycle type="checkbox"> Utiliser le modèle vélo mécanique — construction seule</label><p class="note">Périmètre différent des modèles construction et énergie ; aucune absence d’impact supposée.</p></fieldset>':''}
- ${d.routes.map((r,i)=>`<details class="transit-carbon-step"><summary>Modèles de l’option collective ${i+1}</summary><p>${transitClock(r.start)} → ${transitClock(r.end)} · une personne. Hypothèses indépendantes des autres options.</p>${r.legs.map((l,j)=>{const factors=transitCarbonFactors(l.mode);return `<fieldset class="transit-carbon-step"><legend>Étape ${j+1} · ${TRANSIT_MODES[l.mode]} ${l.mode==='WALK'?'':escapeHtml(l.line)}</legend><p>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)} · ${fmt(l.distance/1000,3)} km</p>${factors.length?`<label for="modalCarbonChoice${i}-${j}">Modèle moyen · option ${i+1}, étape ${j+1}</label><select id="modalCarbonChoice${i}-${j}" data-modal-option="${i}" data-modal-leg="${j}"><option value="">Choisir un modèle — sinon non estimé</option>${factors.map(f=>`<option value="${f.id}">${escapeHtml(f.label)}</option>`).join('')}</select>`:'<p>Aucun facteur qualifié pour cette étape ; aucun zéro attribué.</p>'}</fieldset>`}).join('')}</details>`).join('')}`;
+ modalCarbonView={routes:d.routes,signature:modalCarbonSignature(),fuel,vehicle,persons:'1',car:{factorId:'',occupants:''},cycle:false,transit:d.routes.map(r=>r.legs.map(()=>'')),sort:'mode'};
+ $('modalCarbonModels').innerHTML=`<fieldset class="transit-carbon-step"><legend>Voyageurs comparés</legend><label for="modalCarbonPeople">Nombre de personnes dans le groupe</label><input id="modalCarbonPeople" data-modal-people type="number" min="1" max="9" step="1" inputmode="numeric" value="1" aria-describedby="modalCarbonPeopleNote modalCarbonPeopleError"><p id="modalCarbonPeopleNote" class="note">Le même groupe pour chaque mode. Les horaires et distances restent ceux des parcours reçus ; places, capacité, matériel et allure du groupe non vérifiés. Hypothèse propre à ce panneau, sans enregistrement.</p><p id="modalCarbonPeopleError" role="status"></p></fieldset>
+ ${d.roads.car?.status==='ready'?modalCarControls(fuel):''}
+ ${d.roads.cycle?.distance!==undefined?'<fieldset class="transit-carbon-step"><legend>Vélo classique · hypothèse</legend><label class="check"><input data-modal-cycle type="checkbox"> Utiliser un vélo mécanique par personne du groupe — construction seule</label><p class="note">Hypothèse d’un vélo par personne ; matériel non vérifié. Périmètre différent des modèles construction et énergie ; aucune absence d’impact supposée.</p></fieldset>':''}
+ ${d.routes.map((r,i)=>`<details class="transit-carbon-step"><summary>Modèles de l’option collective ${i+1}</summary><p>${transitClock(r.start)} → ${transitClock(r.end)} · <span data-modal-persons-context>une personne</span>. Hypothèses indépendantes des autres options.</p>${r.legs.map((l,j)=>{const factors=transitCarbonFactors(l.mode);return `<fieldset class="transit-carbon-step"><legend>Étape ${j+1} · ${TRANSIT_MODES[l.mode]} ${l.mode==='WALK'?'':escapeHtml(l.line)}</legend><p>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)} · ${fmt(l.distance/1000,3)} km</p>${factors.length?`<label for="modalCarbonChoice${i}-${j}">Modèle moyen · option ${i+1}, étape ${j+1}</label><select id="modalCarbonChoice${i}-${j}" data-modal-option="${i}" data-modal-leg="${j}"><option value="">Choisir un modèle — sinon non estimé</option>${factors.map(f=>`<option value="${f.id}">${escapeHtml(f.label)}</option>`).join('')}</select>`:'<p>Aucun facteur qualifié pour cette étape ; aucun zéro attribué.</p>'}</fieldset>`}).join('')}</details>`).join('')}`;
  $('modalCarbonSort').value='mode';$('modalCarbon').hidden=false;refreshModalCarbon();$('modalCarbonTitle').focus();$('modalCarbonTitle').scrollIntoView({block:'start'});
 }
 function modalCarbonDetails(row){
  const c=row.emission,num=n=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:12}).format(n);
- return c.details.map(l=>l.status==='estimated'?`<li>Étape ${l.index+1} · ${escapeHtml(l.factor.label)} : ${fmt(l.distanceMeters/1000,3)} km × ${num(l.factor.construction+l.factor.energy)} ${l.factor.unit==='kgCO2e/vehicle-km'?'kg CO₂e/véhicule-km':'kg CO₂e/personne-km'}${row.mode==='car'?' ÷ '+c.occupants+' occupant(s)':''} = ${carbonAmount(l.valueKg)}.<br>Construction ${num(l.factor.construction)} ; énergie ${num(l.factor.energy)} dans la même unité. <a href="${l.factor.source}" target="_blank" rel="noopener noreferrer">Source du modèle</a>.</li>`:`<li>Étape ${l.index+1} · ${escapeHtml(l.reason)}</li>`).join('');
+ return c.details.map(l=>l.status==='estimated'?`<li>Étape ${l.index+1} · ${escapeHtml(l.factor.label)} : ${fmt(l.distanceMeters/1000,3)} km × ${num(l.factor.construction+l.factor.energy)} ${l.factor.unit==='kgCO2e/vehicle-km'?'kg CO₂e/véhicule-km':'kg CO₂e/personne-km'}${row.mode==='car'?' ÷ '+c.occupants+' occupant(s)':''} = ${carbonAmount(l.valueKg)} par personne.${c.persons>1?` Groupe de ${c.persons} : ${carbonAmount(l.valueKg)} × ${c.persons} = ${carbonAmount(l.valueKg*c.persons)} (calcul sans arrondi intermédiaire).`:''}<br>Construction ${num(l.factor.construction)} ; énergie ${num(l.factor.energy)} dans la même unité. <a href="${l.factor.source}" target="_blank" rel="noopener noreferrer">Source du modèle</a>.</li>`:`<li>Étape ${l.index+1} · ${escapeHtml(l.reason)}</li>`).join('');
 }
 function modalCarbonTable(rows,label){
  if(!rows.length)return '<p>Aucune option dans ce groupe.</p>';
- return `<div class="transit-table-scroll modal-carbon-table" role="region" aria-label="${label}" tabindex="0"><table><caption>${label}</caption><thead><tr><th scope="col">Mode et trajet</th><th scope="col">Distance et temps</th><th scope="col">CO₂e pour une personne</th></tr></thead><tbody>${rows.map(r=>{
+ return `<div class="transit-table-scroll modal-carbon-table" role="region" aria-label="${label}" tabindex="0"><table><caption>${label}</caption><thead><tr><th scope="col">Mode et trajet</th><th scope="col">Distance et temps</th><th scope="col">CO₂e · personne et groupe</th></tr></thead><tbody>${rows.map(r=>{
  const c=r.emission,known=c.subtotalKg!==null,value=known?carbonAmount(c.subtotalKg):'Non estimée';
- return `<tr data-modal-row="${r.key}" data-modal-state="${c.status}" data-modal-admissible="${r.status}" data-modal-comparable="${r.comparable}"><th scope="row">${escapeHtml(r.label)}${r.status!=='ready'?`<p class="note">${r.status==='excluded'?'Référence non admissible':'Indisponible'} · ${escapeHtml(r.reason)}</p>`:''}${r.tied?'<p class="note">Ex æquo à la précision affichée</p>':''}</th><td>${r.distanceMeters===null?'Distance inconnue':fmt(r.distanceMeters/1000,3)+' km'}<br>${Number.isFinite(r.elapsed)?transitMinutes(r.elapsed)+' comparées':'Temps indisponible'}</td><td><strong>${c.status==='partial'?'Sous-total partiel : ':known?'Estimation : ':''}${value}</strong><p>${escapeHtml(c.reason)}</p>${c.scope?`<p>${escapeHtml(CARBON_SCOPES[c.scope])}.</p>`:''}${c.estimatedSteps!==undefined?`<p>${c.estimatedSteps}/${c.rows.length} étapes estimées · ${fmt(c.estimatedMeters/1000,3)} km concernés${c.missingSteps?` ; ${c.missingSteps} étape(s) non estimée(s)${c.missingMeters!==null?' · '+fmt(c.missingMeters/1000,3)+' km':''}`:''}.</p>`:''}${c.vehicleKg!==undefined?`<p>Véhicule entier : ${carbonAmount(c.vehicleKg)} ; part individuelle ci-dessus, sans ajout au total.</p>`:''}${c.details.length?`<details><summary>Facteurs et calcul · ${escapeHtml(r.label)}</summary><ol>${modalCarbonDetails(r)}</ol></details>`:''}</td></tr>`
+ return `<tr data-modal-row="${r.key}" data-modal-state="${c.status}" data-modal-admissible="${r.status}" data-modal-comparable="${r.comparable}"><th scope="row">${escapeHtml(r.label)}${r.status!=='ready'?`<p class="note">${r.status==='excluded'?'Référence non admissible':'Indisponible'} · ${escapeHtml(r.reason)}</p>`:''}${r.tied?'<p class="note">Ex æquo à la précision affichée</p>':''}</th><td>${r.distanceMeters===null?'Distance inconnue':fmt(r.distanceMeters/1000,3)+' km'}<br>${Number.isFinite(r.elapsed)?transitMinutes(r.elapsed)+' comparées':'Temps indisponible'}</td><td><strong>${c.status==='partial'?'Sous-total partiel : ':known?'Estimation : ':''}${value}</strong>${known?' par personne':''}${c.groupSubtotalKg!==null&&c.persons>1?`<p><strong>${c.status==='partial'?'Sous-total du groupe':'Part du groupe'} (${c.persons} personnes) : ${carbonAmount(c.groupSubtotalKg)}</strong></p>`:''}<p>${escapeHtml(c.reason)}</p>${c.scope?`<p>${escapeHtml(CARBON_SCOPES[c.scope])}.</p>`:''}${c.estimatedSteps!==undefined?`<p>${c.estimatedSteps}/${c.rows.length} étapes estimées · ${fmt(c.estimatedMeters/1000,3)} km concernés${c.missingSteps?` ; ${c.missingSteps} étape(s) non estimée(s)${c.missingMeters!==null?' · '+fmt(c.missingMeters/1000,3)+' km':''}`:''}.</p>`:''}${c.vehicleKg!==undefined?`<p>Véhicule entier : ${carbonAmount(c.vehicleKg)} ; parts individuelle et du groupe ci-dessus, sans ajout au total.</p>`:''}${c.details.length?`<details><summary>Facteurs et calcul · ${escapeHtml(r.label)}</summary><ol>${modalCarbonDetails(r)}</ol></details>`:''}</td></tr>`
  }).join('')}</tbody></table></div>`;
 }
 function refreshModalCarbon(){
  if(!modalCarbonView)return;const d=modalCarbonContext();if(!d||!modalCarbonView)return;
- const v=modalCarbonView,rows=modalCarbonRows(d.routes,modalShownRoads(d),d.q,v);
+ const v=modalCarbonView;v.persons=$('modalCarbonPeople').value;
+ const persons=modalCarbonPersons(v.persons),label=persons===null?'Groupe à préciser':persons===1?'une personne':`groupe de ${persons} personnes`;
+ $('modalCarbonPeople').setAttribute('aria-invalid',String(persons===null));
+ $('modalCarbonPeopleError').textContent=persons===null?'Indiquer de 1 à 9 voyageurs ; les estimations restent indisponibles.':'';
+ for(const e of document.querySelectorAll('[data-modal-persons-context]'))e.textContent=label;
+ const rows=modalCarbonRows(d.routes,modalShownRoads(d),d.q,v);
  let result;try{result=modalCarbonOrder(rows,v.sort)}catch(e){$('modalCarbonTables').replaceChildren();$('modalCarbonStatus').textContent=e.message;return}
- if(v.sort==='carbon'&&!result.canSortCarbon){v.sort='mode';$('modalCarbonSort').value='mode';result=modalCarbonOrder(rows,'mode')}
+ if((v.sort!=='mode'&&!result.peopleValid)||(v.sort==='carbon'&&!result.canSortCarbon)){v.sort='mode';$('modalCarbonSort').value='mode';result=modalCarbonOrder(rows,'mode')}
+ for(const value of ['time','distance'])$('modalCarbonSort').querySelector('[value="'+value+'"]').disabled=!result.peopleValid;
  $('modalCarbonSort').querySelector('[value="carbon"]').disabled=!result.canSortCarbon;
- $('modalCarbonContext').textContent=`${transitContext?.places?.start||'Départ'} → ${transitContext?.places?.end||'Arrivée'} · une personne · ${transitClock(d.q.instant)} (Paris). ${d.q.arrive?'Arrivée au plus tard à cette heure.':'Départ à partir de cette heure.'} Les temps comparés incluent l’attente ou la marge d’arrivée ; distances propres à chaque parcours.`;
- $('modalCarbonStatus').textContent=`${result.eligible} estimation(s) complète(s) admissible(s) dans le périmètre construction et énergie.${result.canSortCarbon?' Un tri de ce groupe est disponible.':' Tri carbone indisponible : au moins deux estimations complètes de même périmètre sont nécessaires.'} Les sous-totaux partiels, modes indisponibles, références hors critères et périmètres différents restent hors de ce groupe. Aucun score ni recommandation globale.`;
+ $('modalCarbonContext').textContent=`${transitContext?.places?.start||'Départ'} → ${transitContext?.places?.end||'Arrivée'} · ${label} · ${transitClock(d.q.instant)} (Paris). ${d.q.arrive?'Arrivée au plus tard à cette heure.':'Départ à partir de cette heure.'} Les temps comparés incluent l’attente ou la marge d’arrivée ; distances propres à chaque parcours.`;
+ $('modalCarbonStatus').textContent=`${result.eligible} estimation(s) complète(s) admissible(s) dans le périmètre construction et énergie, pour ${persons===null?'un groupe à préciser':persons===1?'une personne':`le même groupe de ${persons} personnes`}.${result.canSortCarbon?' Un tri sur la part du groupe est disponible.':' Tri carbone indisponible : au moins deux estimations complètes de même périmètre sont nécessaires.'} Les sous-totaux partiels, modes indisponibles, références hors critères et périmètres différents restent hors de ce groupe. Aucun score ni recommandation globale.`;
  $('modalCarbonTables').innerHTML=modalCarbonTable(result.group,result.active?'Groupe comparable · construction et énergie':'Valeurs des modes admissibles')+(result.other.length?`<h4>${result.active?'Hors du groupe comparable':'Références hors critères ou modes indisponibles'}</h4>`+modalCarbonTable(result.other,'Valeurs hors du groupe'):'');
 }
 function bindModalCarbon(){
@@ -3702,7 +3719,8 @@ function bindModalCarbon(){
  $('modalCarbonClose').addEventListener('click',()=>clearModalCarbon(true));
  const change=e=>{
   if(!modalCarbonView||!modalCarbonContext())return;const t=e.target,v=modalCarbonView;
-  if(t.matches('[data-modal-fuel]')){v.fuel=t.value;v.car.factorId='';$('modalCarbonCar').innerHTML=modalCarOptions(v.fuel);const available=prospectiveFactors(v.fuel).length>0;$('modalCarbonCar').disabled=!available;$('modalCarbonFuelNote').textContent=available?'Modèle moyen à choisir ; aucune taille supposée.':'Aucun modèle compatible avec ce véhicule ou carburant.'}
+  if(t.matches('[data-modal-people]'))v.persons=t.value;
+  else if(t.matches('[data-modal-fuel]')){v.fuel=t.value;v.car.factorId='';$('modalCarbonCar').innerHTML=modalCarOptions(v.fuel);const available=prospectiveFactors(v.fuel).length>0;$('modalCarbonCar').disabled=!available;$('modalCarbonFuelNote').textContent=available?'Modèle moyen à choisir ; aucune taille supposée.':'Aucun modèle compatible avec ce véhicule ou carburant.'}
   else if(t.matches('[data-modal-car]'))v.car.factorId=t.value;
   else if(t.matches('[data-modal-occupants]'))v.car.occupants=t.value;
   else if(t.matches('[data-modal-cycle]'))v.cycle=t.checked;
@@ -3710,7 +3728,7 @@ function bindModalCarbon(){
   else return;refreshModalCarbon();
  };
  $('modalCarbonModels').addEventListener('change',change);
- $('modalCarbonModels').addEventListener('input',e=>{if(e.target.matches('[data-modal-occupants]'))change(e)});
+ $('modalCarbonModels').addEventListener('input',e=>{if(e.target.matches('[data-modal-occupants],[data-modal-people]'))change(e)});
  $('modalCarbonSort').addEventListener('change',()=>{if(!modalCarbonView||!modalCarbonContext())return;modalCarbonView.sort=$('modalCarbonSort').value;refreshModalCarbon()});
  for(const id of ['fuel','routeVehicle'])$(id).addEventListener('change',()=>{if(modalCarbonView)clearModalCarbon()});
 }

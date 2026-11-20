@@ -15,7 +15,7 @@ async function setup(page,{complete=false,fuel='Gazole',mutate=()=>{}}={}){
  await page.route(ign,r=>r.fulfill({json:road(r.request().url())}));
  await page.route('https://router.project-osrm.org/route/v1/driving/**',r=>r.fulfill({json:{code:'Ok',routes:[{distance:6000,duration:900,geometry:{type:'LineString',coordinates:[a,b]}}]}}));
  await page.route(bike,r=>r.fulfill({json:JSON.parse(fs.readFileSync('tests/fixtures/cycling-comparison/grenoble-cycle.json'))}));
- await page.route(transitPlanPattern,r=>{const d=complete?completePlan():transferPlan();mutate(d);return r.fulfill({json:d})});
+ await page.route(transitPlanPattern,r=>{const d=complete?completePlan():transferPlan();mutate(d,r.request().url());return r.fulfill({json:d})});
  await page.addInitScript(fuel=>localStorage.setItem('dragonroute.profile.v2.public',JSON.stringify({version:2,vehicle:{name:'Véhicule de test',type:'car',fuel,cons:6.2,liters:40},addresses:[],stations:[]})),fuel);
  await page.goto('/DragonRoute/');await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Avenue Innsbruck Grenoble');return calls;
 }
@@ -81,4 +81,62 @@ test('empreinte modes : recherche annulée avant comparaison et réponse tardive
 });
 test('empreinte modes : carburant propre au comparateur, modèle retiré et profil préservé',async({page})=>{
  const calls=await setup(page);await ready(page);await open(page);await car(page);const before=[...calls],store=await page.evaluate(()=>({...localStorage}));await page.locator('#modalCarbonFuel').selectOption('E10');await expect(page.locator('#modalCarbonCar')).toHaveValue('');await expect(row(page,'car')).toHaveAttribute('data-modal-state','unavailable');await page.locator('#modalCarbonCar').selectOption('voiture-compact-essence');await expect(row(page,'car')).toHaveAttribute('data-modal-state','complete');await expect(page.locator('#fuel')).toHaveValue('Gazole');await page.locator('#modalCarbonFuel').selectOption('E85');await expect(page.locator('#modalCarbonCar')).toBeDisabled();await expect(row(page,'car')).toHaveAttribute('data-modal-state','unavailable');await page.locator('#modalCarbonFuel').selectOption('Gazole');await expect(page.locator('#modalCarbonCar')).toBeEnabled();await expect(page.locator('#modalCarbonCar')).toHaveValue('');expect(await page.evaluate(()=>({...localStorage}))).toEqual(store);expect(calls).toEqual(before);
+});
+
+test('groupe modes : parts individuelles et communes sans mutation ni appel supplémentaire',async({page},info)=>{
+ const calls=await setup(page);await ready(page);await open(page);await car(page);await transit(page);await page.locator('[data-modal-cycle]').check();
+ const before=[...calls],storage=await page.evaluate(()=>({...localStorage})),map=await page.locator('#transitMapTitle').textContent();
+ await expect(page.locator('#modalCarbonPeople')).toHaveValue('1');await page.locator('#modalCarbonPeople').fill('2');
+ await expect(row(page,'car')).toContainText('Estimation : 0,213 kg CO₂e');await expect(row(page,'car')).toContainText('Part du groupe (2 personnes) : 0,427 kg CO₂e');await expect(row(page,'car')).toContainText('Véhicule entier : 0,854 kg CO₂e');
+ await expect(row(page,'transit-0')).toHaveAttribute('data-modal-state','partial');await expect(row(page,'transit-0')).toContainText('Sous-total du groupe (2 personnes)');await expect(row(page,'cycle')).toContainText('Part du groupe (2 personnes)');await expect(row(page,'cycle')).toHaveAttribute('data-modal-comparable','false');
+ await expect(page.locator('#modalCarbonContext')).toContainText('groupe de 2 personnes');await expect(page.locator('#modalCarbonModels')).toContainText('un vélo mécanique par personne');
+ expect(calls).toEqual(before);expect(await page.evaluate(()=>({...localStorage}))).toEqual(storage);expect(await page.locator('#transitMapTitle').textContent()).toBe(map);
+ await row(page,'car').locator('summary').click();await expect(row(page,'car')).toContainText('÷ 4 occupant(s)');await expect(row(page,'car')).toContainText('Groupe de 2');await audit(page,info,'groupe-valeurs');
+});
+test('groupe modes : voyageurs supérieurs aux occupants puis correction explicite',async({page})=>{
+ const calls=await setup(page);await ready(page);await open(page);await car(page,'2');await transit(page);const before=[...calls];
+ await page.locator('#modalCarbonPeople').fill('3');await expect(row(page,'car')).toHaveAttribute('data-modal-state','unavailable');await expect(row(page,'car')).toContainText('nombre total d’occupants');await expect(row(page,'car')).not.toContainText('Part du groupe');await expect(row(page,'transit-0')).toContainText('Sous-total du groupe (3 personnes)');
+ await page.locator('#modalCarbonOccupants').fill('4');await expect(row(page,'car')).toContainText('Part du groupe (3 personnes) : 0,640 kg CO₂e');await expect(row(page,'car')).toContainText('Véhicule entier : 0,854 kg CO₂e');expect(calls).toEqual(before);
+});
+test('groupe modes : saisies invalides sans ancien total ni classement, borne neuf vérifiée',async({page},info)=>{
+ const calls=await setup(page,{complete:true});await ready(page);await open(page);await car(page,'9');await transit(page);const before=[...calls];
+ await page.locator('#modalCarbonSort').selectOption('carbon');
+ for(const value of ['', '0', '10', '1.5', '-1']){
+  await page.locator('#modalCarbonPeople').fill(value);await expect(page.locator('#modalCarbonPeople')).toHaveAttribute('aria-invalid','true');await expect(page.locator('#modalCarbonPeopleError')).toContainText('1 à 9 voyageurs');await expect(page.locator('#modalCarbonSort')).toHaveValue('mode');
+  for(const sort of ['carbon','time','distance'])await expect(page.locator('#modalCarbonSort option[value='+sort+']')).toBeDisabled();
+  await expect(page.locator('[data-modal-state=complete],[data-modal-state=partial]')).toHaveCount(0);await expect(page.locator('#modalCarbonTables')).not.toContainText('Part du groupe');
+ }
+ await checkAccessibility(page,info,'groupe-invalide');await page.locator('#modalCarbonPeople').fill('9');await expect(page.locator('#modalCarbonPeople')).toHaveAttribute('aria-invalid','false');await expect(page.locator('#modalCarbonPeopleError')).toBeEmpty();await expect(row(page,'car')).toContainText('Part du groupe (9 personnes) : 0,854 kg CO₂e');await expect(row(page,'car')).toContainText('Estimation : 0,095 kg CO₂e');await expect(page.locator('#modalCarbonSort option[value=carbon]')).toBeEnabled();expect(calls).toEqual(before);
+});
+test('groupe modes : périmètre comparable et contraintes préservés après changement des voyageurs',async({page})=>{
+ const calls=await setup(page,{complete:true});await ready(page);await open(page);await car(page);await transit(page);await page.locator('[data-modal-cycle]').check();await page.locator('#modalCarbonPeople').fill('3');const n=calls.length;
+ await page.locator('#modalCarbonSort').selectOption('carbon');await expect(page.locator('#modalCarbonTables table').first().locator('[data-modal-row]')).toHaveCount(3);await expect(page.locator('#modalCarbonStatus')).toContainText('même groupe de 3 personnes');
+ await page.locator('#transitMaxTransfers').fill('0');await page.locator('#transitTransferRule').selectOption('strict');await expect(row(page,'transit-0')).toHaveAttribute('data-modal-admissible','excluded');await page.locator('#modalCarbonOccupants').fill('2');await expect(page.locator('#modalCarbonSort')).toHaveValue('mode');await expect(page.locator('#modalCarbonSort option[value=carbon]')).toBeDisabled();
+ await page.locator('#modalCarbonPeople').fill('2');await expect(page.locator('#modalCarbonSort option[value=carbon]')).toBeEnabled();await expect(row(page,'car')).toContainText('Part du groupe (2 personnes) : 0,854 kg CO₂e');await expect(row(page,'transit-0')).toHaveAttribute('data-modal-comparable','false');expect(calls).toHaveLength(n);
+});
+test('groupe modes : changement silencieux contrôlé à l’action suivante',async({page})=>{
+ const calls=await setup(page,{complete:true});await ready(page);await open(page);await car(page);await transit(page);const n=calls.length;
+ await page.locator('#modalCarbonPeople').evaluate(e=>e.value='5');await page.locator('#modalCarbonSort').selectOption('distance');await expect(page.locator('#modalCarbonContext')).toContainText('groupe de 5 personnes');await expect(row(page,'car')).toHaveAttribute('data-modal-state','unavailable');
+ await page.locator('#modalCarbonPeople').evaluate(e=>e.value='0');await page.locator('#modalCarbonSort').selectOption('time');await expect(page.locator('#modalCarbonSort')).toHaveValue('mode');await expect(page.locator('#modalCarbonPeople')).toHaveAttribute('aria-invalid','true');await expect(page.locator('#modalCarbonTables')).not.toContainText('Part du groupe');expect(calls).toHaveLength(n);
+});
+test('groupe modes : hypothèses indépendantes, fermeture et nouvelle recherche reviennent à une personne',async({page})=>{
+ const calls=await setup(page,{mutate:(d,url)=>{
+  // Keep this simulated timetable consistent with the explicit second search.
+  if(new URL(url).searchParams.get('date')!=='2026-11-20')return;
+  d.plan.date+=864e5;for(const route of d.plan.itineraries){route.startTime+=864e5;route.endTime+=864e5;for(const leg of route.legs){leg.startTime+=864e5;leg.endTime+=864e5;leg.serviceDate='20261120'}}
+ }});await ready(page);await open(page);await car(page);await transit(page);await page.locator('#modalCarbonPeople').fill('3');const before=[...calls];
+ await page.locator('[data-transit-carbon="1"]').click();await expect(page.locator('#transitCarbon')).toContainText('pour une personne');await expect(page.locator('#modalCarbonPeople')).toHaveValue('3');await page.locator('[data-transit-map="1"]').click();await expect(page.locator('#modalCarbonPeople')).toHaveValue('3');expect(calls).toEqual(before);
+ await page.locator('#modalCarbonClose').click();await expect(page.locator('[data-modal-carbon-open]')).toBeFocused();await open(page);await expect(page.locator('#modalCarbonPeople')).toHaveValue('1');await expect(page.locator('#modalCarbonCar')).toHaveValue('');
+ await page.locator('#modalCarbonPeople').fill('2');await page.locator('#transitWhen').fill('2026-11-20T10:00');await expect(page.locator('#modalCarbon')).toBeHidden();await page.clock.setFixedTime(new Date('2026-11-18T12:00:05Z'));await page.locator('#transitSearch').click();await expect(page.locator('[data-modal-carbon-open]')).toBeEnabled();await open(page);await expect(page.locator('#modalCarbonPeople')).toHaveValue('1');
+});
+test('groupe modes : sauvegarde et carburant ne transfèrent pas les voyageurs à d’autres parcours',async({page})=>{
+ const calls=await setup(page);await ready(page);await open(page);await car(page);await transit(page);await page.locator('#modalCarbonPeople').fill('3');const n=calls.length;
+ await page.locator('#modalCarbonFuel').selectOption('E10');await expect(page.locator('#modalCarbonPeople')).toHaveValue('3');await expect(page.locator('#modalCarbonCar')).toHaveValue('');await expect(page.locator('#fuel')).toHaveValue('Gazole');
+ await page.locator('[data-transit-save="1"]').click();await expect(page.locator('#modalCarbon')).toBeHidden();await page.locator('#savedTransitConfirm').check();await page.locator('#savedTransitSave').click();
+ const store=await page.evaluate(()=>({...localStorage})),text=store['dragonroute.transit-prepared.v2.public'];expect(text).toBeTruthy();expect(text).not.toContain('"persons"');expect(text).not.toContain('impactco2');expect(Object.keys(store).filter(k=>k.includes('journal'))).toEqual([]);expect(calls).toHaveLength(n);
+});
+test('groupe modes : clavier, modèle par étape et consultation du groupe en paysage agrandi',async({page},info)=>{
+ const calls=await setup(page,{complete:true});await ready(page);await open(page);await car(page);await transit(page);await page.locator('#modalCarbonPeople').focus();await page.keyboard.press('ArrowUp');await expect(page.locator('#modalCarbonPeople')).toHaveValue('2');const n=calls.length;
+ await page.locator('#modalCarbonSort').selectOption('carbon');await row(page,'transit-1').locator('summary').click();await expect(row(page,'transit-1')).toContainText('kg CO₂e/personne-km');await expect(row(page,'transit-1')).toContainText('Groupe de 2');await expect(row(page,'transit-1')).not.toContainText('÷ 2');
+ await page.setViewportSize({width:844,height:390});await page.evaluate(()=>document.documentElement.style.fontSize='200%');await audit(page,info,'groupe-paysage-200');await page.locator('#modalCarbonClose').focus();await page.keyboard.press('Enter');await expect(page.locator('[data-modal-carbon-open]')).toBeFocused();expect(calls).toHaveLength(n);
 });
