@@ -172,3 +172,12 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
  dialog{max-height:calc(100dvh - 16px)}
 }
 .route-number{flex:none;white-space:nowrap}
+
+/* Station points retain a usable target at each zoom; overlapping points have a choice list. */
+#map .station-marker{width:max(44px,2.5rem)!important;height:max(44px,2.5rem)!important;margin-left:calc(max(44px,2.5rem) / -2)!important;margin-top:calc(max(44px,2.5rem) / -2)!important;display:flex;align-items:center;justify-content:center;line-height:1;white-space:nowrap}
+.svg-station{outline:none}.svg-station:focus-visible circle{stroke:var(--gold);stroke-width:4}.svg-station text{font-size:.8125rem;fill:#09090e}
+.map-station-tools{position:absolute;top:12px;right:12px;z-index:1000}.map-station-tools button{min-height:44px;min-width:72px;font-weight:700;border:2px solid var(--green);background:var(--bg)}
+.map:has(#stationMapTools:not([hidden])) .map-label{max-width:calc(100% - 120px)}
+#stationPickerDialog{width:min(680px,calc(100% - 24px))}.station-picker-row{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;width:100%;margin:12px 0;padding:14px;overflow-wrap:anywhere}.station-picker-row strong{font-size:1rem}.station-picker-row span:last-child{color:var(--green);text-decoration:underline}#stationPickerSearch{width:100%}
+
+#map .station-marker.station-overlap::after{content:'+';position:absolute;right:1px;bottom:-1px;font-size:14px;font-weight:800;background:#09090e;color:#fff;line-height:14px;border-radius:50%;width:14px;height:14px;text-align:center;pointer-events:none}.svg-station .overlap-hint{display:none;font-size:13px;font-weight:900;fill:#09090e;stroke:#fff;stroke-width:.6px}.svg-station.station-overlap .overlap-hint{display:block}

@@ -27,6 +27,7 @@
         </svg>
         <div id="fallbackLabel" class="map-label">Chargement de la carte…</div>
       </div>
+      <div id="stationMapTools" class="map-station-tools" hidden><button id="mapStationsBtn" class="ghost" type="button" aria-haspopup="dialog" aria-controls="stationPickerDialog">⛽ <span id="mapStationCount">0</span></button></div>
     </div>
     <section class="sheet" id="sheet" aria-label="Préparation du trajet">
       <section class="route-section">
@@ -326,7 +327,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 7a5bf32 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 98962aa · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -456,6 +457,12 @@
     <label id="stationPreviewOldPrice" class="check-label" hidden><input id="stationPreviewAcceptPrice" type="checkbox"> Conserver cet arrêt sans utiliser ce prix ancien ou non vérifiable dans le budget</label>
   </div>
   <div class="dialog-actions station-preview-actions"><button id="stationPreviewCancel" class="ghost" type="button">Conserver le trajet actuel</button><button id="stationPreviewConfirm" class="primary" type="button" disabled>Confirmer cet arrêt</button></div>
+</dialog>
+<dialog id="stationPickerDialog" aria-labelledby="stationPickerTitle" aria-describedby="stationPickerHelp">
+  <div class="dialog-heading"><h2 id="stationPickerTitle">Stations de cette carte</h2><button id="stationPickerClose" class="icon-btn" type="button" aria-label="Fermer le choix des stations">×</button></div>
+  <p id="stationPickerHelp" class="note"></p>
+  <label for="stationPickerSearch">Numéro, commune ou adresse</label><input id="stationPickerSearch" type="search" maxlength="160" autocomplete="off">
+  <p id="stationPickerCount" class="note" role="status"></p><div id="stationPickerList"></div>
 </dialog>
 <dialog id="stationDialog" aria-labelledby="stationTitle">
   <div class="dialog-heading"><h2 id="stationTitle">Station</h2><button class="icon-btn close-dialog" aria-label="Fermer la fiche station" title="Fermer">×</button></div>
