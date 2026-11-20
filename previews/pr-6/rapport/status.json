@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-11-20T11:38:25.695Z",
-  "commit": "98962aa4da0e53576a3a52c6b3c7e67d372b6ca2",
+  "generatedAt": "2026-11-20T13:25:16.022Z",
+  "commit": "ffd21b1ad756d49eda9b89b60090389e748b8de9",
   "state": "inspection",
   "passed": 2868,
   "total": 2868,
@@ -18936,38 +18936,6 @@
               "html": "<p id=\"navigationSummary\" class=\"note\">Lyon, France → Valence, France · 100,0 km · 160,0 min de conduite · sans arrêt carburant. Hors autres pauses.</p>",
               "target": [
                 "#navigationSummary"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "11.3pt (15px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"navigationDialog\" aria-labelledby=\"navigationTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#navigationDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3>Google Maps</h3>",
-              "target": [
-                ".detail-section:nth-child(1) > h3"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             }
@@ -47022,219 +46990,7 @@
       "project": "mobile-360",
       "state": "accessibilite-velo-resultat",
       "violations": [],
-      "incomplete": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "tags": [
-            "cat.color",
-            "wcag2aa",
-            "wcag143",
-            "TTv5",
-            "TT13.c",
-            "EN-301-549",
-            "EN-9.1.4.3",
-            "ACT"
-          ],
-          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
-          "nodes": [
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"cyclePlaces\">Place Bellecour, Lyon → Gare de Lyon Part-Dieu</p>",
-              "target": [
-                "#cyclePlaces"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p>Vélo classique · itinéraire direct. Le profil VAE et son autonomie ne sont pas encore disponibles.</p>",
-              "target": [
-                "#cycleDialog > p:nth-child(3)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"cycleMax\">Distance souhaitée au maximum (km)</label>",
-              "target": [
-                "label[for=\"cycleMax\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"cycleRule\">Règle pour la distance à vélo</label>",
-              "target": [
-                "label[for=\"cycleRule\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"cycleMaxHelp\" class=\"note\">Préférence : dépassement signalé. Limite impérative : parcours non admissible si dépassée. Vide : aucune distance demandée ; zéro : zéro kilomètre. Modifier ces choix réévalue les distances reçues, sans changer le tracé ni lancer de calcul.</p>",
-              "target": [
-                "#cycleMaxHelp"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"cycleDialog\" aria-labelledby=\"cycleTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#cycleDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">",
-              "target": [
-                "#cycleDialog > .note:nth-child(9)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            }
-          ]
-        }
-      ],
+      "incomplete": [],
       "rulesPassed": 23
     },
     {
@@ -52332,7 +52088,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<p class=\"note\">Comparaison achat + carburant du détour, hors péages et autres frais.</p>",
+              "html": "<p class=\"note\">La sélection suit la recherche ; les autres tris affichent toutes les stations retenues par les filtres, par distance depuis le départ, coût comparé, prix au litre ou durée du détour. Comparaison achat + carburant du détour, hors péages et autres frais.</p>",
               "target": [
                 "#stationRankingControls > .note"
               ],
@@ -57833,31 +57589,6 @@
           "help": "Elements must meet minimum color contrast ratio thresholds",
           "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
           "nodes": [
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "13.5pt (18px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscuring",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it partially overlaps other elements"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h2 id=\"gpsTitle\">Choisir un départ depuis ma position</h2>",
-              "target": [
-                "#gpsTitle"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
-            },
             {
               "any": [
                 {
@@ -159150,7 +158881,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"353\" height=\"324\" viewBox=\"-29 -27 353 324\" style=\"transform: translate3d(-29px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"353\" height=\"324\" viewBox=\"-29 -27 353 324\" style=\"transform: translate3d(-29.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"353\"]"
                       ]
@@ -159188,7 +158919,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"353\" height=\"324\" viewBox=\"-29 -27 353 324\" style=\"transform: translate3d(-29px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"353\" height=\"324\" viewBox=\"-29 -27 353 324\" style=\"transform: translate3d(-29.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"353\"]"
                       ]
@@ -159226,7 +158957,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"353\" height=\"324\" viewBox=\"-29 -27 353 324\" style=\"transform: translate3d(-29px, -27px, 0px);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"353\" height=\"324\" viewBox=\"-29 -27 353 324\" style=\"transform: translate3d(-29.6634px, -26.7511px, 0px) scale(1);\">",
                       "target": [
                         "svg[width=\"353\"]"
                       ]
@@ -296224,13 +295955,567 @@
     }
   ],
   "diagnostics": [],
+  "compatibility": {
+    "schemaVersion": 1,
+    "generatedAt": "2026-11-20T12:42:45.949Z",
+    "commit": "ffd21b1ad756d49eda9b89b60090389e748b8de9",
+    "playwright": "1.55.0",
+    "platform": "linux 7.0.0-1014-aws x64",
+    "runnerExitCode": 0,
+    "errors": [],
+    "matrix": [
+      {
+        "name": "firefox-desktop-1440",
+        "engine": "firefox",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "readingViewport": {
+          "width": 1024,
+          "height": 768
+        },
+        "version": "141.0",
+        "cases": [
+          {
+            "title": "trajet disponible avant toute recherche de station",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "panne carburants ne supprime pas le trajet et peut etre relancee",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "fiche station et favoris actualises apres rechargement",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "vehicule et adresses persistes modifiables et reutilisables",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points schéma : superposition, choix explicite et favori stable",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points Leaflet : superposition, choix explicite et favori stable",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points : aperçu refusé et changement de critères effacent les anciens points",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points : choix utilisable en paysage à texte doublé et tabulation bornée",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : trajet avec arrêt, préférences, reprise après rechargement et confirmation renouvelée",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : import vérifiable, export préalable, annulation et restauration complète",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : stockage plein et conflit d’onglet préservent formulaire et données",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : texte réellement doublé, champs non coupés et en-tête adapté",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : erreurs et variante au clavier, fermeture permanente et adoption",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : profil modifiable, clavier visible et rotation conserve les saisies",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : tabulation réelle du profil sans masquer le champ actif",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "saisies trajet : deux lieux vides, résumé clavier, correction locale et descriptions conservées",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "saisies trajet : panne ou réponse illisible ne désigne pas l’adresse comme erronée",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : schéma et liste cohérents, clavier et refus sans effet",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : adoption depuis le schéma synchronise budget, repères et GPX sans requête",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : Leaflet au clavier, au toucher et tracé cliquable",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          }
+        ]
+      },
+      {
+        "name": "firefox-small-390",
+        "engine": "firefox",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "readingViewport": {
+          "width": 390,
+          "height": 844
+        },
+        "version": "141.0",
+        "cases": [
+          {
+            "title": "trajet disponible avant toute recherche de station",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "panne carburants ne supprime pas le trajet et peut etre relancee",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "fiche station et favoris actualises apres rechargement",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "vehicule et adresses persistes modifiables et reutilisables",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points schéma : superposition, choix explicite et favori stable",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points Leaflet : superposition, choix explicite et favori stable",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points : aperçu refusé et changement de critères effacent les anciens points",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points : choix utilisable en paysage à texte doublé et tabulation bornée",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : trajet avec arrêt, préférences, reprise après rechargement et confirmation renouvelée",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : import vérifiable, export préalable, annulation et restauration complète",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : stockage plein et conflit d’onglet préservent formulaire et données",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : texte réellement doublé, champs non coupés et en-tête adapté",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : erreurs et variante au clavier, fermeture permanente et adoption",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : profil modifiable, clavier visible et rotation conserve les saisies",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : tabulation réelle du profil sans masquer le champ actif",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "saisies trajet : deux lieux vides, résumé clavier, correction locale et descriptions conservées",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "saisies trajet : panne ou réponse illisible ne désigne pas l’adresse comme erronée",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : schéma et liste cohérents, clavier et refus sans effet",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : adoption depuis le schéma synchronise budget, repères et GPX sans requête",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : Leaflet au clavier, au toucher et tracé cliquable",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          }
+        ]
+      },
+      {
+        "name": "webkit-desktop-1440",
+        "engine": "webkit",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "readingViewport": {
+          "width": 1024,
+          "height": 768
+        },
+        "version": "26.0",
+        "cases": [
+          {
+            "title": "trajet disponible avant toute recherche de station",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "panne carburants ne supprime pas le trajet et peut etre relancee",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "fiche station et favoris actualises apres rechargement",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "vehicule et adresses persistes modifiables et reutilisables",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points schéma : superposition, choix explicite et favori stable",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points Leaflet : superposition, choix explicite et favori stable",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points : aperçu refusé et changement de critères effacent les anciens points",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points : choix utilisable en paysage à texte doublé et tabulation bornée",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : trajet avec arrêt, préférences, reprise après rechargement et confirmation renouvelée",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : import vérifiable, export préalable, annulation et restauration complète",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : stockage plein et conflit d’onglet préservent formulaire et données",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : texte réellement doublé, champs non coupés et en-tête adapté",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : erreurs et variante au clavier, fermeture permanente et adoption",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : profil modifiable, clavier visible et rotation conserve les saisies",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : tabulation réelle du profil sans masquer le champ actif",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "saisies trajet : deux lieux vides, résumé clavier, correction locale et descriptions conservées",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "saisies trajet : panne ou réponse illisible ne désigne pas l’adresse comme erronée",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : schéma et liste cohérents, clavier et refus sans effet",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : adoption depuis le schéma synchronise budget, repères et GPX sans requête",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : Leaflet au clavier, au toucher et tracé cliquable",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          }
+        ]
+      },
+      {
+        "name": "webkit-small-390",
+        "engine": "webkit",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "readingViewport": {
+          "width": 390,
+          "height": 844
+        },
+        "version": "26.0",
+        "cases": [
+          {
+            "title": "trajet disponible avant toute recherche de station",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "panne carburants ne supprime pas le trajet et peut etre relancee",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "fiche station et favoris actualises apres rechargement",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "vehicule et adresses persistes modifiables et reutilisables",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points schéma : superposition, choix explicite et favori stable",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points Leaflet : superposition, choix explicite et favori stable",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points : aperçu refusé et changement de critères effacent les anciens points",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "points : choix utilisable en paysage à texte doublé et tabulation bornée",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : trajet avec arrêt, préférences, reprise après rechargement et confirmation renouvelée",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : import vérifiable, export préalable, annulation et restauration complète",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "préparations : stockage plein et conflit d’onglet préservent formulaire et données",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : texte réellement doublé, champs non coupés et en-tête adapté",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : erreurs et variante au clavier, fermeture permanente et adoption",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : profil modifiable, clavier visible et rotation conserve les saisies",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "lecture : tabulation réelle du profil sans masquer le champ actif",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "saisies trajet : deux lieux vides, résumé clavier, correction locale et descriptions conservées",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "saisies trajet : panne ou réponse illisible ne désigne pas l’adresse comme erronée",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : schéma et liste cohérents, clavier et refus sans effet",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : adoption depuis le schéma synchronise budget, repères et GPX sans requête",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "variantes : Leaflet au clavier, au toucher et tracé cliquable",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          }
+        ]
+      }
+    ],
+    "limits": "Moteurs épinglés de Playwright, services simulés, petit écran redimensionné ; ni Firefox stable actuel, ni Safari commercial, ni Safari iOS, ni appareil physique qualifiés.",
+    "state": "passed"
+  },
   "notTested": [
     "Disponibilite des API reelles",
     "Tuiles cartographiques reelles (Leaflet teste avec tuiles simulees)",
     "Installation PWA et hors connexion",
     "Lighthouse et performances",
     "Comparaison avec des captures approuvees",
-    "Autres applications"
+    "Autres applications",
+    "Moteurs épinglés de Playwright, services simulés, petit écran redimensionné ; ni Firefox stable actuel, ni Safari commercial, ni Safari iOS, ni appareil physique qualifiés."
   ],
   "humanDecision": "En attente de validation humaine"
 }
