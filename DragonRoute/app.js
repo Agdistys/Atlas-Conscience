@@ -1516,7 +1516,7 @@ async function initMap(){
       });
     };
     // Leaflet ignores a new zoom target during its current zoom transition.
-    map.on('zoomstart',()=>{zooming=true});
+    map.on('zoomstart',()=>{zooming=true});map.on('zoomend moveend',queueStationPoints);
     map.on('zoomend',()=>{zooming=false;if(resizePending)fitAfterResize()});
     new ResizeObserver(()=>{resizePending=true;fitAfterResize()}).observe($("map"));
     if(mapView)showOnMap(...mapView);
@@ -2150,6 +2150,62 @@ function renderStations(stations,mode,fit=false){
   refreshStationMap(visible,fit);
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+let stationPicker=null,stationDetailReturn=null,stationPointFrame=0;
+function queueStationPoints(){cancelAnimationFrame(stationPointFrame);stationPointFrame=requestAnimationFrame(()=>{
+ const points=[...document.querySelectorAll('#map [data-station-point]')].map(e=>({e,r:e.getBoundingClientRect()})).filter(p=>p.r.width&&p.r.height);
+ for(const p of points){const n=points.filter(q=>p.r.left<q.r.right&&p.r.right>q.r.left&&p.r.top<q.r.bottom&&p.r.bottom>q.r.top).length;p.e.classList.toggle('station-overlap',n>1);p.e.dataset.nearbyCount=String(n)}
+})}
+function mapStations(){return mapView?.[1]||[]}
+function stationPointSize(){return Math.max(44,parseFloat(getComputedStyle(document.documentElement).fontSize)*2.5)}
+function stationPointElement(id){return [...document.querySelectorAll('#map [data-station-point]')].find(e=>e.dataset.stationPoint===id&&e.getClientRects().length)}
+function returnStationFocus(target,id){
+ if(document.querySelector('dialog[open]'))return;
+ const next=target?.isConnected&&target.getClientRects().length?target:stationPointElement(id)||(!$('stationMapTools').hidden?$('mapStationsBtn'):$('stationsBtn'));
+ if(next&&!next.disabled)next.focus();
+}
+function closeStationPicker(restore=true){
+ const old=stationPicker;stationPicker=null;if($('stationPickerDialog').open)$('stationPickerDialog').close();
+ if(restore&&old)returnStationFocus(old.focus,old.stationId);
+}
+function renderStationPicker(){
+ if(!stationPicker)return;
+ const normalize=x=>String(x).normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase();
+ const query=normalize($('stationPickerSearch').value.trim());
+ const current=mapStations().filter(s=>!stationPicker.ids||stationPicker.ids.includes(s.id)).slice().sort((a,b)=>a.number-b.number);
+ const rows=current.filter(s=>!query||normalize(`${s.number} ${s.city} ${s.address}`).includes(query));
+ const focused=document.activeElement?.dataset?.pickerStation;
+ $('stationPickerCount').textContent=rows.length?`${rows.length} station(s) sur ${current.length}. Numéros conservés, ordre des points.`:current.length?'Aucune correspondance. Modifier ou effacer la recherche.':'Ces stations ne sont plus dans les résultats de la carte.';
+ $('stationPickerList').innerHTML=rows.map(s=>`<button class="ghost station-picker-row" type="button" data-picker-station="${escapeHtml(s.id)}"><strong>Point ${s.number}${selectedStop?.station.id===s.id?' · arrêt choisi':''}</strong><span>${escapeHtml(s.address)}</span><span>${fmt(s.price,3)} €/L · ${escapeHtml(stationPriceText(s))}</span><span>Ouvrir la fiche</span></button>`).join('');
+ if(focused&&$('stationPickerDialog').matches(':modal')){const next=[...$('stationPickerList').querySelectorAll('button')].find(b=>b.dataset.pickerStation===focused);(next||$('stationPickerSearch')).focus()}
+}
+function openStationPicker(ids=null,focus=document.activeElement,stationId=null){
+ if(busy||!mapStations().length)return;
+ stationPicker={ids,focus,stationId};$('stationPickerSearch').value='';
+ $('stationPickerTitle').textContent=ids?'Points superposés sur la carte':'Stations de cette carte';
+ $('stationPickerHelp').textContent=ids?'Ces points se chevauchent à ce niveau de zoom. Choisir une fiche ; leurs numéros et positions restent inchangés.':'Toutes les stations représentées sur la carte, sous les filtres actifs, ainsi que l’arrêt choisi s’il est hors filtre. La liste ne dépend pas du cadrage. Aucun nouveau calcul.';
+ renderStationPicker();$('stationPickerDialog').showModal();$('stationPickerSearch').focus();
+}
+function activateMapStation(id,element,pointer=true){
+ if(busy||!mapStations().some(s=>s.id===id))return;
+ if(pointer){const a=element.getBoundingClientRect(),ids=[...document.querySelectorAll('#map [data-station-point]')].filter(e=>{const b=e.getBoundingClientRect();return b.width&&b.height&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top}).map(e=>e.dataset.stationPoint);
+  if(ids.length>1){openStationPicker(ids,element,id);return}
+ }
+ stationDetailReturn={focus:element,id};openStation(id);
+}
+function updateStationMapTools(){
+ const n=mapStations().length;$('stationMapTools').hidden=!n;$('mapStationCount').textContent=String(n);$('mapStationsBtn').disabled=busy;
+ $('mapStationsBtn').setAttribute('aria-label',`Parcourir les ${n} stations de cette carte`);$('mapStationsBtn').title=`Parcourir les ${n} stations de cette carte`;
+ if(stationPicker)renderStationPicker();
+}
+$('mapStationsBtn').addEventListener('click',()=>openStationPicker());
+for(const type of ['pointerdown','mousedown','touchstart','dblclick','keydown','click'])$('stationMapTools').addEventListener(type,e=>e.stopPropagation());
+$('stationPickerClose').addEventListener('click',()=>closeStationPicker());
+$('stationPickerDialog').addEventListener('cancel',e=>{e.preventDefault();closeStationPicker()});
+$('stationPickerDialog').addEventListener('close',()=>{if(!$('stationPickerDialog').open&&stationPicker)closeStationPicker()});
+$('stationPickerSearch').addEventListener('input',renderStationPicker);
+$('stationPickerList').addEventListener('click',e=>{const button=e.target.closest('[data-picker-station]');if(!button||busy)return;const id=button.dataset.pickerStation;if(!mapStations().some(s=>s.id===id)){renderStationPicker();return}stationDetailReturn={pickerId:id};openStation(id)});
+new ResizeObserver(()=>{if(!mapView)return;if(map)queueStationPoints();else showOnMap(...mapView,false)}).observe($('map'));
+new ResizeObserver(()=>{if(!mapView)return;if(map)queueStationPoints();else showOnMap(...mapView,false)}).observe($('sheet'));
 function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   if(!coords?.length)return;
   const W=1000,H=700,pad=70;
@@ -2181,13 +2237,14 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   const a=P(coords[0]),b=P(coords.at(-1));
   $("startDot").setAttribute("cx",a[0]);$("startDot").setAttribute("cy",a[1]);
   $("endDot").setAttribute("cx",b[0]);$("endDot").setAttribute("cy",b[1]);
-  $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<g class="svg-station" role="button" tabindex="0" data-details="${escapeHtml(s.id)}" aria-label="Voir la station ${s.number} : ${escapeHtml(s.address)} · ${escapeHtml(stationPriceText(s))} · ${escapeHtml(openingText(s))}"><title>${escapeHtml(openingText(s))}</title><circle class="${cl}" cx="${x}" cy="${y}" r="16"/><text x="${x}" y="${y+5}" text-anchor="middle">${s.number}</text></g>`}).join("");
+  const screen=$('routeViz').getScreenCTM(),markerScale=1/Math.max(.001,screen?Math.hypot(screen.a,screen.b):1),size=stationPointSize(),radius=size/2;
+  $("stationDots").innerHTML=stations.map(s=>{const [x,y]=P([s.lat,s.lon]);const cl=s.id===best?.id?"station-best":"station-dot";return `<g class="svg-station" role="button" tabindex="0" data-details="${escapeHtml(s.id)}" data-station-point="${escapeHtml(s.id)}" aria-haspopup="dialog" aria-label="Voir la station ${s.number} : ${escapeHtml(s.address)} · ${escapeHtml(stationPriceText(s))} · ${escapeHtml(openingText(s))}" transform="translate(${x} ${y}) scale(${markerScale})"><title>${escapeHtml(openingText(s))}</title><rect x="${-radius}" y="${-radius}" width="${size}" height="${size}" fill="transparent"/><circle class="${cl}" r="${radius-2}"/><text y="0" dominant-baseline="central" text-anchor="middle">${s.number}</text><text class="overlap-hint" x="${radius-9}" y="${radius-5}" text-anchor="middle" aria-hidden="true">+</text></g>`}).join("");
   $('meetingDots').innerHTML=trip?.meetings?['pickup','dropoff'].map((key,i)=>{const place=trip.meetings[key],[x,y]=P([place.lat,place.lon]);return `<g><title>${escapeHtml((i?'Dépose : ':'Prise en charge : ')+place.label)}</title><circle cx="${x}" cy="${y}" r="18" fill="#5030a0" stroke="white" stroke-width="3"/><text x="${x}" y="${y+5}" text-anchor="middle" fill="white">${i?'D':'P'}</text></g>`}).join(''):'';
   tollGuide.projection=P;drawTollMarkers();
-  $("fallbackLabel").textContent=label||"Visualisation autonome";
+  $("fallbackLabel").textContent=label||"Visualisation autonome";queueStationPoints();
 }
 function showOnMap(coords,stations,best,start,end,label,fit=true){
-  mapView=[coords,stations,best,start,end,label];
+  mapView=[coords,stations,best,start,end,label];updateStationMapTools();
   const variants=best?[]:(trip?.choices||[]).map((r,i)=>({r,i,points:r.geometry.coordinates.map(([lon,lat])=>[lat,lon])}));
   const alternatives=variants.filter(v=>v.i!==trip.choice).map(v=>v.points);
   $("routeAlternativesNote").hidden=Boolean(best);
@@ -2217,11 +2274,13 @@ function showOnMap(coords,stations,best,start,end,label,fit=true){
   }
   stations.forEach(s=>{
     const isBest=s.id===best?.id;
-    const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({className:"station-marker"+(isBest?" chosen":""),html:String(s.number),iconSize:[32,32],iconAnchor:[16,16]}),title:`Voir la station ${s.number} : ${s.address} · ${stationPriceText(s)} · ${openingText(s)}`,keyboard:true}).addTo(markerLayer);
+    const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({className:"station-marker"+(isBest?" chosen":""),html:String(s.number),iconSize:[44,44],iconAnchor:[22,22]}),title:`Voir la station ${s.number} : ${s.address} · ${stationPriceText(s)} · ${openingText(s)}`,keyboard:true}).addTo(markerLayer);
     marker.getElement().setAttribute("aria-label",`Voir la station ${s.number} : ${s.address} · ${stationPriceText(s)} · ${openingText(s)}`);
-    marker.on("click",()=>openStation(s.id));
+    const point=marker.getElement();point.dataset.stationPoint=s.id;point.setAttribute('aria-haspopup','dialog');
+    marker.on('click',event=>activateMapStation(s.id,point,event.originalEvent?.detail!==0));
+    point.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();e.stopPropagation();activateMapStation(s.id,point,false)}});
   });
-  drawTollMarkers();
+  drawTollMarkers();queueStationPoints();
   map.invalidateSize();if(fit)map.fitBounds(L.featureGroup([routeLayer,markerLayer]).getBounds(),{padding:[35,35],animate:false});
 }
 
@@ -3848,6 +3907,7 @@ $('routeChoiceDialog').addEventListener('cancel',e=>{e.preventDefault();closeRou
 $('routeChoiceDialog').addEventListener('close',()=>{if(!$('routeChoiceDialog').open&&routeChoiceProposal)closeRouteChoice()});
 function clearStations(){
   closeStationPreview();
+  closeStationPicker(false);stationDetailReturn=null;if($('stationDialog').open)$('stationDialog').close();$('stationMapTools').hidden=true;
   if(stationJob){stationJob.controller.abort();stationJob.invalid=true}
   $("stationContinuation").hidden=true;$("stationEmpty").hidden=true;
   selectedStop=null;invalidateStationPrice();
@@ -3887,7 +3947,7 @@ function clearResults(){
 }
 function lock(value){
   if(value)cancelGps();
-  busy=value;
+  busy=value;$("mapStationsBtn").disabled=value;
   $("profileBtn").disabled=value;$("preparedBtn").disabled=value;
   document.querySelectorAll('#sheet input,#sheet select,#sheet button').forEach(el=>el.disabled=value);
   if(!value){updateVehicleRouting();updateRange();updateBudget();updateResumePreparation()}
@@ -4323,10 +4383,13 @@ function initPwa(){
 function bindProfile(){
   $("profileBtn").addEventListener("click",openProfile);
   document.querySelectorAll('.close-dialog').forEach(button=>button.addEventListener("click",()=>button.closest('dialog').close()));
-  $("stationDialog").addEventListener("close",()=>{detailSequence++});
+  $("stationDialog").addEventListener("close",()=>{detailSequence++;const back=stationDetailReturn;stationDetailReturn=null;
+   if(back?.pickerId&&$('stationPickerDialog').open){const row=[...$('stationPickerList').querySelectorAll('button')].find(e=>e.dataset.pickerStation===back.pickerId);(row||$('stationPickerSearch')).focus()}
+   else if(back?.focus)returnStationFocus(back.focus,back.id);
+  });
   for(const id of ["stationCards","stationDots"]){
-    $(id).addEventListener("click",e=>{const target=e.target.closest('[data-details]');if(target)openStation(target.dataset.details)});
-    $(id).addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches('.svg-station')){e.preventDefault();openStation(e.target.dataset.details)}});
+    $(id).addEventListener("click",e=>{const target=e.target.closest('[data-details]');if(target){if(id==='stationDots')activateMapStation(target.dataset.details,target,e.detail!==0);else{stationDetailReturn=null;openStation(target.dataset.details)}}});
+    $(id).addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches('.svg-station')){e.preventDefault();activateMapStation(e.target.dataset.details,e.target,false)}});
   }
   $("favoriteBtn").addEventListener("click",()=>{
     if(!currentStation)return;const next=structuredClone(profile),s=currentStation;
@@ -4334,7 +4397,7 @@ function bindProfile(){
     next.stations=found?next.stations.filter(station=>station.id!==s.id):[...next.stations,{id:s.id,address:s.address,city:s.city,lat:s.lat,lon:s.lon}];
     if(saveProfile(next))$("stationMessage").textContent=found?"Station retirée des favoris.":"Station enregistrée dans ce navigateur.";
   });
-  $("detailChooseBtn").addEventListener("click",()=>{const id=currentStation?.id;$("stationDialog").close();if(id)selectStation(id)});
+  $("detailChooseBtn").addEventListener("click",()=>{const id=currentStation?.id;stationDetailReturn=null;closeStationPicker(false);$("stationDialog").close();if(id)selectStation(id)});
   $("vehicleForm").addEventListener("submit",e=>{
     e.preventDefault();if(busy)return;
     try{

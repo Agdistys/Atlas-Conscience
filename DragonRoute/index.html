@@ -26,6 +26,7 @@
         </svg>
         <div id="fallbackLabel" class="map-label">Chargement de la carte…</div>
       </div>
+      <div id="stationMapTools" class="map-station-tools" hidden><button id="mapStationsBtn" class="ghost" type="button" aria-haspopup="dialog" aria-controls="stationPickerDialog">⛽ <span id="mapStationCount">0</span></button></div>
     </div>
     <section class="sheet" id="sheet" aria-label="Préparation du trajet">
       <section class="route-section">
@@ -455,6 +456,12 @@
     <label id="stationPreviewOldPrice" class="check-label" hidden><input id="stationPreviewAcceptPrice" type="checkbox"> Conserver cet arrêt sans utiliser ce prix ancien ou non vérifiable dans le budget</label>
   </div>
   <div class="dialog-actions station-preview-actions"><button id="stationPreviewCancel" class="ghost" type="button">Conserver le trajet actuel</button><button id="stationPreviewConfirm" class="primary" type="button" disabled>Confirmer cet arrêt</button></div>
+</dialog>
+<dialog id="stationPickerDialog" aria-labelledby="stationPickerTitle" aria-describedby="stationPickerHelp">
+  <div class="dialog-heading"><h2 id="stationPickerTitle">Stations de cette carte</h2><button id="stationPickerClose" class="icon-btn" type="button" aria-label="Fermer le choix des stations">×</button></div>
+  <p id="stationPickerHelp" class="note"></p>
+  <label for="stationPickerSearch">Numéro, commune ou adresse</label><input id="stationPickerSearch" type="search" maxlength="160" autocomplete="off">
+  <p id="stationPickerCount" class="note" role="status"></p><div id="stationPickerList"></div>
 </dialog>
 <dialog id="stationDialog" aria-labelledby="stationTitle">
   <div class="dialog-heading"><h2 id="stationTitle">Station</h2><button class="icon-btn close-dialog" aria-label="Fermer la fiche station" title="Fermer">×</button></div>
