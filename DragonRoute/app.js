@@ -1502,11 +1502,20 @@ async function initMap(){
     markerLayer=L.featureGroup().addTo(map);
     $("mapFallback").style.display="none";
     health("hMap","ok","carte ✓");
+    let zooming=false,resizePending=false,resizeFrame=0;
+    const fitAfterResize=()=>{
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame=requestAnimationFrame(()=>{
+        if(!map||zooming)return;
+        resizePending=false;map.invalidateSize({pan:false});
+        if(routeLayer&&map.getSize().x>0&&map.getSize().y>0){const bounds=L.featureGroup([routeLayer,markerLayer]).getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[35,35],animate:false})}
+      });
+    };
+    // Leaflet ignores a new zoom target during its current zoom transition.
+    map.on('zoomstart',()=>{zooming=true});
+    map.on('zoomend',()=>{zooming=false;if(resizePending)fitAfterResize()});
+    new ResizeObserver(()=>{resizePending=true;fitAfterResize()}).observe($("map"));
     if(mapView)showOnMap(...mapView);
-    new ResizeObserver(()=>{
-      if(!map)return;map.invalidateSize();
-      if(routeLayer&&map.getSize().x>0&&map.getSize().y>0){const bounds=L.featureGroup([routeLayer,markerLayer]).getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[35,35],animate:false})}
-    }).observe($("map"));
   }catch(e){
     map=null; health("hMap","err","carte fallback"); dbg("Map init",e.message);
   }
@@ -2192,7 +2201,7 @@ function showOnMap(coords,stations,best,start,end,label,fit=true){
     marker.on("click",()=>openStation(s.id));
   });
   drawTollMarkers();
-  map.invalidateSize();if(fit)map.fitBounds(L.featureGroup([routeLayer,markerLayer]).getBounds(),{padding:[35,35]});
+  map.invalidateSize();if(fit)map.fitBounds(L.featureGroup([routeLayer,markerLayer]).getBounds(),{padding:[35,35],animate:false});
 }
 
 function rangeEstimate(){

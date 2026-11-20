@@ -4,7 +4,7 @@ V056 · 20 novembre 2026 · TRA-ALTERNATIVES-CARTE-01. Complète TRA-02/03/05/06
 
 ## Parcours
 
-Après un calcul qui renvoie plusieurs trajets, les repères T1, T2 et T3 identifient les mêmes propositions sur la carte et dans la liste. Chaque choix indique distance et conduite estimée. Le trajet retenu reste bleu foncé avec contour blanc ; les autres tracés sont bleu clair et dessinés en premier. Les parties communes ne masquent pas le principal. Un repère n’est pas une étape ajoutée au trajet. Un changement de taille de la carte recadre les tracés et leurs extrémités sans recalcul routier.
+Après un calcul qui renvoie plusieurs trajets, les repères T1, T2 et T3 identifient les mêmes propositions sur la carte et dans la liste. Chaque choix indique distance et conduite estimée. Le trajet retenu reste bleu foncé avec contour blanc ; les autres tracés sont bleu clair et dessinés en premier. Les parties communes ne masquent pas le principal. Un repère n’est pas une étape ajoutée au trajet. Un changement de taille de la carte recadre les tracés et leurs extrémités sans recalcul routier, y compris après la fin d’un zoom en cours. Le cadrage automatique est immédiat ; le zoom manuel conserve son animation.
 
 Cliquer un tracé alternatif ou son repère ouvre la même comparaison que le bouton de la liste. Les repères et les tracés Leaflet sont accessibles par Entrée et Espace ; la liste reste une commande équivalente. Sans Leaflet, un schéma géographique explicitement nommé conserve les tracés et repères utilisables au clavier. Le tracé courant n’est pas remplacé à l’ouverture.
 
