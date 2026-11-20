@@ -33,6 +33,11 @@
         <p id="connectionNotice" class="app-notice" role="status" hidden></p>
         <p id="pwaUpdateNotice" class="app-notice" role="status" hidden></p>
         <h1>Mon trajet</h1>
+        <section id="tripValidation" class="trip-validation" aria-labelledby="tripValidationHeading" hidden>
+          <h2 id="tripValidationHeading">À corriger avant le calcul</h2>
+          <p>Choisir une erreur pour rejoindre le champ concerné, puis relancer la recherche.</p>
+          <ul id="tripValidationList"></ul>
+        </section>
         <label for="travelMode">Mode de déplacement</label><select id="travelMode"><option value="car">En véhicule</option><option value="walk">À pied</option></select>
         <div id="walkingOptions" hidden>
           <label for="maxWalkKm">Distance de marche souhaitée au maximum (km)</label><input id="maxWalkKm" type="number" min="0" max="500" step="any" placeholder="Sans limite renseignée" aria-describedby="walkingPreference"><label for="walkRule">Règle pour la distance à pied</label><select id="walkRule"><option value="soft">Préférence</option><option value="strict">Limite impérative</option></select>
@@ -321,7 +326,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 6a16240 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 39f3cad · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>

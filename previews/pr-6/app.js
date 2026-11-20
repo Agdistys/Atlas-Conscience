@@ -791,6 +791,7 @@ function applyVehicle(){
  for(const [key,id] of Object.entries(dimensionFields))$(id).value=v.dimensions?.[key]??'';
  tripVehicleId=profile.activeVehicleId;updateVehicleRouting();updateRange();updateBudget();renderVehiclePicker();
  if(hadTrip)setStatus('Véhicule modifié. Trajet à recalculer.');
+ else refreshTripValidation();
 }
 function useSavedVehicle(id){
  if(busy)return;
@@ -902,9 +903,10 @@ function arrivalLabel(ms){return new Intl.DateTimeFormat('fr-FR',{timeZone:'Euro
 function openingText(s){const o=stationOpening(s);return (o.arrival?`Arrivée estimée le ${arrivalLabel(o.arrival)} (Paris) · `:'')+o.reason}
 function refreshArrival(){
   updateResumePreparation();updateRides();updateTripTiming();
-  const d=departureInstant($("stationDeparture").value);
+  const field=$("stationDeparture"),d=field.validity.badInput?{error:"Compléter la date et l’heure, ou effacer le champ."}:field.value?departureInstant(field.value):{error:"",instant:null};
   $("stationDeparture").setAttribute('aria-invalid',String(Boolean(d.error)));
-  $("stationDepartureStatus").textContent=d.error||`Départ fixé au ${arrivalLabel(d.instant)} (Paris). Durée routière d’accès, sans pauses ni trafic en direct.${d.instant<Date.now()-60000?' Heure passée : actualiser le départ pour un trajet à venir.':''}`;
+  $("stationDepartureStatus").textContent=d.error||(d.instant===null?"Départ non renseigné : arrivée et ouverture à l’arrivée inconnues.":`Départ fixé au ${arrivalLabel(d.instant)} (Paris). Durée routière d’accès, sans pauses ni trafic en direct.${d.instant<Date.now()-60000?' Heure passée : actualiser le départ pour un trajet à venir.':''}`);
+  refreshTripValidation();
   if(stationSearch)renderStations(compared,stopWindow().mode);
   if($("stationDialog").open&&currentStation)renderStationDetails(currentStation);
 }
@@ -979,7 +981,7 @@ function updateTripTiming(){
  const road=timingEstimate(r.duration,h),missing=selectedStop&&plan.totalSeconds===null;
  $('tripTiming').textContent=missing?(pause.error?'Pause à corriger. ':'Pause non renseignée. ')+(road.arrival===null?'':`Repère hors temps du plein : ${arrivalLabel(road.arrival)} (Paris). `)+'Arrivée avec pause non estimée. Compatibilité avec l’heure limite inconnue.':timingText(result)+(selectedStop?` Pause déclarée de ${fmt(pause.minutes,1)} min incluse.`:'');
  $('tripTiming').textContent+=' Hors autres pauses et trafic en direct. Aucune garantie d’arrivée.';$('tripTiming').dataset.timingState=pause.error&&selectedStop?'invalid':result.state;}}
- catch(e){$('routeArriveBy').setAttribute('aria-invalid','true');$('routeTimingStatus').textContent=e.message;if(trip){$('tripTiming').textContent='Horaire à vérifier : '+e.message;$('tripTiming').dataset.timingState='invalid'}}
+ catch(e){const departureError=$('stationDeparture').value&&departureInstant($('stationDeparture').value).error;$('routeArriveBy').setAttribute('aria-invalid',String(!departureError));$('routeTimingStatus').textContent=e.message;if(trip){$('tripTiming').textContent='Horaire à vérifier : '+e.message;$('tripTiming').dataset.timingState='invalid'}}
 }
 function preparedTimingText(e){const t=e.timing;return `<p>Départ prévu : ${escapeHtml(t.departure?.replace('T',' ')||'non renseigné')}. Heure limite : ${escapeHtml(t.arriveBy?.replace('T',' ')||'non renseignée')} (Paris). ${t.onlyBefore?'Filtre d’heure limite demandé.':''}</p>`}
 
@@ -1437,6 +1439,7 @@ function setStatus(text,state=""){
   $("status").textContent=text;
   $("statusDot").className="status-dot"+(state?" "+state:"");
   dbg(text);
+  refreshTripValidation();
 }
 function health(id,state,label){
   const el=$(id); el.className="pill"+(state?" "+state:""); if(label) el.textContent=label;
@@ -1582,7 +1585,7 @@ async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal){
     }
     if(!isCurrent())throw new Error("Recherche du lieu annulée.");
     if(d?.type!=="FeatureCollection"||!Array.isArray(d.features))throw new Error("Réponse de géocodage invalide.");
-    if(!d.features.length)throw new Error(`Lieu introuvable en France : ${query}. Préciser la commune ou le code postal.`);
+    if(!d.features.length)throw Object.assign(new Error(`Lieu introuvable en France : ${query}. Préciser la commune ou le code postal.`),{code:"NO_PLACE",field});
     places=[...new Map(d.features.map(geocodedPlace).filter(Boolean).map(p=>[`${p.lat},${p.lon},${p.label}`,p])).values()].slice(0,5);
     if(!places.length)throw new Error("Réponse de géocodage invalide : aucun lieu exploitable.");
     geoCache.delete(key);
@@ -3929,6 +3932,86 @@ function displayTrip(base,routing,a,b,ga,gb){
     updateWindow();$("rideTrip").textContent=label;
     setStatus(routing.vehicle.type==="walk"?"Trajet prêt · à pied. Vérifier la distance et les conditions du parcours.":"Trajet prêt. Choisis maintenant tes arrêts.","ok");
 }
+// Validation of the main journey only; storage and provider models keep their contracts.
+let tripValidationActive=false,tripValidationErrors=[],tripPlaceError=null,tripValidationStatus='';
+function collectTripErrors(){
+ const errors=[],add=(id,message)=>{if(!errors.some(e=>e.id===id))errors.push({id,message})};
+ for(const [id,label] of [['start','de départ'],['end','d’arrivée']])if(!$(id).value.trim())add(id,`Renseigner le lieu ${label}.`);
+ const mode=$('travelMode').value,vehicle=$('routeVehicle').value;
+ if(!['car','walk'].includes(mode))add('travelMode','Choisir un mode de déplacement.');
+ if(!['fastest','shortest'].includes($('routeOptimization').value))add('routeOptimization','Choisir le trajet plus rapide ou plus court.');
+ if(mode==='walk'){
+  try{walkingRule('walkRule')}catch(e){add('walkRule',e.message)}
+  if(!errors.some(e=>e.id==='walkRule'))try{readWalkingCriteria()}catch(e){add('maxWalkKm',e.message)}
+ }else if(mode==='car'&&vehicle==='truck'&&routingEndpoint()){
+  const fields=[['truckHeight','Hauteur',6,'m'],['truckWidth','Largeur',6,'m'],['truckLength','Longueur totale',40,'m'],['truckWeight','Poids en charge',100,'t'],['truckAxleload','Charge maximale par essieu',30,'t']];
+  for(const [id,label,max,unit] of fields){const el=$(id),n=Number(el.value);if(el.validity.badInput||!el.value.trim()||!Number.isFinite(n)||n<=0||n>max)add(id,`${label} : renseigner une valeur supérieure à 0 et au plus égale à ${max} ${unit}.`)}
+  if(!errors.some(e=>['truckWeight','truckAxleload'].includes(e.id))&&Number($('truckAxleload').value)>Number($('truckWeight').value))add('truckAxleload','La charge par essieu ne peut pas dépasser le poids en charge.');
+ }
+ // Availability is not inferred from an enabled checkbox or a restored profile.
+ if(['car','walk'].includes(mode)&&!errors.some(e=>['routeOptimization','maxWalkKm','walkRule',...Object.values(dimensionFields)].includes(e.id))){
+  try{
+   if(mode==='car'&&vehicle==='truck'&&!routingEndpoint())throw new Error('Service public de routage poids lourd non activé. Choisir explicitement un véhicule disponible.');
+   ensureRouting(routingPreferences());
+  }catch(e){
+   const unavailable=[...document.querySelectorAll('.avoid-options input:checked')].some(el=>el.dataset.routingAvailable==='false');
+   add(mode==='walk'?'travelMode':unavailable?'clearUnavailableOptions':$('routeOptimization').value==='shortest'?'routeOptimization':'routeVehicle',e.message);
+  }
+ }
+ const dates={};
+ for(const [id,label] of [['stationDeparture','Départ prévu'],['routeArriveBy','Heure limite']]){
+  const el=$(id);if(el.validity.badInput){add(id,`${label} : compléter la date et l’heure, ou effacer le champ.`);continue}
+  if(!el.value){dates[id]=null;continue}
+  const d=departureInstant(el.value);if(d.error)add(id,label+' : '+d.error);else dates[id]=d.instant;
+ }
+ if($('routeOnlyBefore').checked&&dates.routeArriveBy===null)add('routeArriveBy','Renseigner une heure limite pour filtrer la comparaison, ou désactiver le filtre.');
+ if(Number.isFinite(dates.stationDeparture)&&Number.isFinite(dates.routeArriveBy)&&dates.routeArriveBy<dates.stationDeparture)add('routeArriveBy','L’heure limite doit suivre le départ ou lui être égale.');
+ if(tripPlaceError){
+  const {id,value,message}=tripPlaceError;
+  const fixed=[preparationInputs[id],favoriteInputs[id]].some(p=>p?.value===value&&p.place);
+  if($(id).value===value&&!fixed)add(id,message);else tripPlaceError=null;
+ }
+ return errors;
+}
+function focusTripField(id){
+ const el=$(id);for(let parent=el.parentElement;parent;parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;
+ el.focus({preventScroll:true});el.scrollIntoView({block:'center',behavior:'instant'});
+}
+function renderTripErrors(errors){
+ const previous=tripValidationErrors;
+ for(const {id} of previous)if(!errors.some(e=>e.id===id)){
+  const el=$(id),errorId=id+'TripError';$(errorId)?.remove();el.setAttribute('aria-invalid','false');
+  const descriptions=(el.getAttribute('aria-describedby')||'').split(/\s+/).filter(x=>x&&x!==errorId);
+  if(descriptions.length)el.setAttribute('aria-describedby',descriptions.join(' '));else el.removeAttribute('aria-describedby');
+ }
+ for(const {id,message} of errors){
+  const el=$(id),errorId=id+'TripError';let note=$(errorId);
+  if(!note){note=document.createElement('p');note.id=errorId;note.className='trip-field-error';(el.closest('.field-row')||el).insertAdjacentElement('afterend',note)}
+  note.textContent=message;el.setAttribute('aria-invalid','true');
+  el.setAttribute('aria-describedby',[...new Set([...(el.getAttribute('aria-describedby')||'').split(/\s+/).filter(Boolean),errorId])].join(' '));
+ }
+ $('tripValidation').hidden=!errors.length;
+ if(JSON.stringify(errors)!==JSON.stringify(previous)){
+  const list=$('tripValidationList'),focused=document.activeElement?.dataset.tripError;list.replaceChildren();
+  for(const {id,message} of errors){const item=document.createElement('li'),button=document.createElement('button');button.type='button';button.className='ghost';button.dataset.tripError=id;button.textContent=message;item.append(button);list.append(item)}
+  // Rebuilding the summary must not lose keyboard focus while another field changes.
+  if(focused){const button=[...list.querySelectorAll('button')].find(b=>b.dataset.tripError===focused);if(button)button.focus();else focusTripField(focused)}
+ }
+ tripValidationErrors=errors;
+}
+function refreshTripValidation(){
+ if(!tripValidationActive||busy)return;
+ const errors=collectTripErrors();renderTripErrors(errors);
+ if(tripValidationStatus&&$('status').textContent===tripValidationStatus){
+  tripValidationStatus=errors.length?`À corriger : ${errors[0].message}`:'Saisies corrigées. Relancer la recherche du trajet.';
+  $('status').textContent=tripValidationStatus;$('statusDot').className='status-dot'+(errors.length?' err':'');
+ }
+}
+function showTripErrors(errors){
+ tripValidationActive=true;renderTripErrors(errors);tripValidationStatus=`À corriger : ${errors[0].message}`;
+ setStatus(tripValidationStatus,'err');$('diagWrap').open=false;focusTripField(errors[0].id);
+}
+function clearTripErrors(){tripValidationActive=false;tripPlaceError=null;tripValidationStatus='';renderTripErrors([])}
 let tripRun=null,tripRequestId=0;
 function tripSearchSignature(){return JSON.stringify([...['start','end','travelMode','routeOptimization','routeVehicle','maxWalkKm','walkRule',...Object.values(dimensionFields)].map(id=>[id,$(id).value]),...[...document.querySelectorAll('.avoid-options input')].map(el=>[el.id,el.checked]),currentPos])}
 function finishTripSearch(job){
@@ -3943,6 +4026,7 @@ function cancelTripSearch(message='Recherche du trajet annulée. Saisies et opti
 async function run(){
  if(busy)return;
  if(activeAbort)activeAbort.abort();clearResults();
+ tripPlaceError=null;const errors=collectTripErrors();if(errors.length){showTripErrors(errors);return}clearTripErrors();
  const job={id:++tripRequestId,revision:tripSearchSignature(),controller:new AbortController(),cancelled:false,phase:'hGeo'};
  tripRun=job;activeAbort=job.controller;if(isWalking())walkRun=job;
  const current=()=>tripRun===job&&!job.cancelled&&!job.controller.signal.aborted&&job.revision===tripSearchSignature();
@@ -3950,7 +4034,7 @@ async function run(){
  health('hGeo','','géocodage');health('hRoute','','routage');
  try{
   const routing=routingPreferences();ensureRouting(routing);
-  const sv=$('start').value.trim(),ev=$('end').value.trim();if(!sv||!ev)throw new Error('Départ et arrivée requis.');
+  const sv=$('start').value.trim(),ev=$('end').value.trim();
   setStatus('Recherche du départ…','busy');health('hGeo','busy','géocodage…');
   const ga=await resolveTripPlace(sv,'start',current,job.controller.signal);checkRouteRequest(current,job.controller.signal);
   setStatus('Recherche de l’arrivée…','busy');const gb=await resolveTripPlace(ev,'end',current,job.controller.signal);checkRouteRequest(current,job.controller.signal);
@@ -3961,6 +4045,9 @@ async function run(){
   if(tripRun!==job)return;
   if(!current()){cancelTripSearch('Paramètres modifiés : calcul annulé. Relancer la recherche.');return}
   if(e.name==='AbortError'){cancelTripSearch(e.message+' Saisies et options conservées.');return}
+  if(e.code==='NO_PLACE'&&['start','end'].includes(e.field)){
+   finishTripSearch(job);tripPlaceError={id:e.field,value:$(e.field).value,message:e.message};health('hGeo','','lieu non trouvé');showTripErrors(collectTripErrors());return;
+  }
   health(job.phase,'err',job.phase==='hGeo'?'géocodage ✕':'routage ✕');dbg(e.stack||e.message);setStatus(`⚠️ ${e.message}`,'err');$('diagWrap').open=true;
  }finally{finishTripSearch(job)}
 }
@@ -4435,6 +4522,8 @@ function bind(){
   for(const event of ['input','change'])$('sheet').addEventListener(event,()=>{if(gpsJob)cancelGps()},true);
   ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
   ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{clearRememberedInput(id);if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
+  $('tripValidationList').addEventListener('click',e=>{const button=e.target.closest('[data-trip-error]');if(button)focusTripField(button.dataset.tripError)});
+  for(const event of ['input','change'])document.querySelector('.route-section').addEventListener(event,refreshTripValidation);
   $("stationDeparture").addEventListener("input",()=>{if(!busy)refreshArrival()});
   $("stationDepartureNow").addEventListener("click",()=>{if(!busy){$("stationDeparture").value=parisLocal(Date.now());if(budgetRecall)updateBudget();refreshArrival()}});
   $("stationsBtn").addEventListener("click",searchStations);$("continueStationsBtn").addEventListener("click",()=>searchStations(true));
