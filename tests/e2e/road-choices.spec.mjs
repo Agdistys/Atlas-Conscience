@@ -69,8 +69,9 @@ test('choix routiers : panne partielle sans repli et moteur désactivé explicit
 });
 
 test('choix routiers : quota du premier calcul IGN ne déclenche pas le second',async({page})=>{
- await page.addInitScript(()=>{const now=performance.now.bind(performance);window.routeClockOffset=0;performance.now=()=>now()+window.routeClockOffset});
- const calls=await setup(page);await page.locator('#avoidHighways').check();await go(page);await page.evaluate(()=>window.routeClockOffset=300001);
+ const calls=await setup(page);await page.locator('#avoidHighways').check();await go(page);
+ // Expire the existing cache after the browser clock has been installed.
+ await page.evaluate(()=>{const now=performance.now.bind(performance);Object.defineProperty(performance,'now',{configurable:true,value:()=>now()+300001})});
  await page.route(pattern,r=>r.fulfill({status:429,json:{error:'quota'}}));await open(page);await calculate(page,0);expect(calls.ign).toHaveLength(2);await expect(option(page,'shortest')).toContainText('second calcul non demandé');await expect(page.locator('[data-road-adopt]')).toHaveCount(0);await expect(page.locator('#tripKm')).toHaveText('120,0 km');
 });
 
