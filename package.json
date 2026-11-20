@@ -15,7 +15,7 @@
     "test:compat": "node tests/compatibility.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "1.65.1",
+    "@playwright/test": "1.64.1",
     "axe-core": "4.14.1",
     "leaflet": "1.9.4"
   }

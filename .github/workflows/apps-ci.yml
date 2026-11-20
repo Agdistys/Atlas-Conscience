@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-24.04
     # Match the npm pin; browsers and OS libraries are already in this image.
     container:
-      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --init --shm-size=1g
     timeout-minutes: 20
     env:
