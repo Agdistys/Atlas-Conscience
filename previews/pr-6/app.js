@@ -746,11 +746,41 @@ function bindJournal(){
 function placeDescription(place){return `${place.label} · IGN · choix du ${new Date(place.resolvedAt).toLocaleDateString('fr-FR')}`}
 function clearRememberedInput(field){if(field==='start'){currentPos=null;currentFix=null;updateGpsOrigin()}preparationInputs[field]=null;resumePreparation=null;updateResumePreparation();rememberedInputs[field]=null;favoriteInputs[field]=null;$(field+'PlaceNote').hidden=true}
 function resetRememberedInputs(){clearRememberedInput('start');clearRememberedInput('end')}
+function returnTripPlace(field){
+ const value=$(field).value,trimmed=value.trim();
+ if(field==='start'&&temporaryAddress(trimmed)&&currentFix&&currentPos){
+  const fix=currentFix,label=`Point GPS du ${gpsDate(fix.at)} (${fix.lat.toFixed(5)}, ${fix.lon.toFixed(5)})`;
+  return {value:label,place:{lat:fix.lat,lon:fix.lon,label},note:`Point GPS observé le ${gpsDate(fix.at)} (heure de Paris), précision annoncée ±${fmt(fix.accuracy,0)} m. Point historique fixe, pas une position actuelle ; aucune nouvelle localisation.`};
+ }
+ const saved=[preparationInputs[field],favoriteInputs[field],rememberedInputs[field]].find(p=>p?.value===trimmed&&p.place);
+ if(!saved)return {value};
+ return {value,place:structuredClone(saved.place),note:saved.note||`Lieu déjà confirmé : ${saved.place.label}. Coordonnées conservées pour le nouveau calcul.`};
+}
+function swapTripEnds(){
+ if(busy)return;
+ // Snapshot both confirmed points before input events invalidate their old contexts.
+ const start=returnTripPlace('end'),end=returnTripPlace('start');
+ $('start').value=start.value;$('end').value=end.value;
+ for(const id of ['start','end'])$(id).dispatchEvent(new Event('input',{bubbles:true}));
+ clearMeetingDraft();resetProspective();clearBikes();resetRange();
+ $('stationDeparture').value='';$('routeArriveBy').value='';$('routeOnlyBefore').checked=false;
+ for(const [field,point] of [['start',start],['end',end]])if(point.place){
+  // Reuse the session's fixed-point slot; no saved preparation or profile is changed.
+  preparationInputs[field]={value:point.value.trim(),place:point.place,note:point.note};
+  // Only actual IGN provenance can be copied into a favorite as a resolved address.
+  if(point.place.source==='ign')try{rememberedInputs[field]={value:point.value.trim(),place:validateSavedPlace(point.place)}}catch{}
+  $(field+'PlaceNote').textContent=point.note;$(field+'PlaceNote').hidden=false;
+ }
+ tripPlaceError=null;refreshArrival();refreshTripValidation();
+ setStatus('Lieux inversés. Renseigner les horaires et l’autonomie du retour, puis calculer un nouveau trajet.');
+ $('swapTripBtn').focus();
+}
 async function resolveTripPlace(value,field,isCurrent=()=>true,signal=activeAbort?.signal){
  if(!isCurrent())throw new Error("Recherche du lieu annulée.");
  const prepared=preparationInputs[field];if(prepared?.value===value)return structuredClone(prepared.place);
  const favorite=favoriteInputs[field];
  if(favorite?.value===value&&!temporaryAddress(value)){rememberedInputs[field]=structuredClone(favorite);return favorite.place}
+ rememberedInputs[field]=null;
  const place=await geocode(temporaryAddress(value)&&field==='start'?'__CURRENT__':value,field,isCurrent,signal);
  if(!isCurrent())throw new Error("Recherche du lieu annulée.");
  rememberedInputs[field]=temporaryAddress(value)?null:{value,place:{...place,source:'ign',resolvedAt:new Date().toISOString()}};
@@ -1559,6 +1589,7 @@ function geocodedPlace(feature){
 }
 async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal){
   if(!isCurrent())throw new Error("Recherche du lieu annulée.");
+  if(temporaryAddress(q)&&field!=='start')throw new Error('Ce libellé GPS ne désigne pas une arrivée confirmée. Renseigner une adresse fixe.');
   if(q==="__CURRENT__"){
     if(!currentPos) throw new Error("Position GPS non disponible");
     return {lat:currentPos[0],lon:currentPos[1],label:"Ma position"};
@@ -4135,6 +4166,7 @@ let tripValidationActive=false,tripValidationErrors=[],tripPlaceError=null,tripV
 function collectTripErrors(){
  const errors=[],add=(id,message)=>{if(!errors.some(e=>e.id===id))errors.push({id,message})};
  for(const [id,label] of [['start','de départ'],['end','d’arrivée']])if(!$(id).value.trim())add(id,`Renseigner le lieu ${label}.`);
+ if(temporaryAddress($('end').value)&&!transitStoredPlace($('end').value.trim(),'end'))add('end','Ce libellé GPS ne désigne pas une arrivée confirmée. Renseigner une adresse fixe.');
  const mode=$('travelMode').value,vehicle=$('routeVehicle').value;
  if(!['car','walk'].includes(mode))add('travelMode','Choisir un mode de déplacement.');
  if(!['fastest','shortest'].includes($('routeOptimization').value))add('routeOptimization','Choisir le trajet plus rapide ou plus court.');
@@ -4722,6 +4754,7 @@ function bind(){
   $('gpsAcceptImprecise').addEventListener('change',()=>{if(gpsJob)showGpsProposal(gpsJob)});
   $('gpsDialog').addEventListener('cancel',e=>{e.preventDefault();cancelGps()});$('gpsDialog').addEventListener('close',()=>{if(!$('gpsDialog').open)cancelGps(false)});
   for(const event of ['input','change'])$('sheet').addEventListener(event,()=>{if(gpsJob)cancelGps()},true);
+  $('swapTripBtn').addEventListener('click',swapTripEnds);
   ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
   ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{clearRememberedInput(id);if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
   $('tripValidationList').addEventListener('click',e=>{const button=e.target.closest('[data-trip-error]');if(button)focusTripField(button.dataset.tripError)});
