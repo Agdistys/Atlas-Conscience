@@ -12,7 +12,7 @@ QUA-DEPENDANCES-01 · 20 novembre 2026. Complète QUA-08, QUA-12 et QUA-01 du [c
 
 Les versions sont exactes dans `package.json`. Le nouveau `package-lock.json` conserve aussi les versions et empreintes des dépendances indirectes. Les installations du banc utilisent `npm ci --ignore-scripts --no-audit --no-fund` : un décalage entre manifeste et verrou bloque l’installation et les scripts de cycle de vie des paquets ne sont pas exécutés.
 
-L’image de la recette complémentaire est `mcr.microsoft.com/playwright:v1.65.1-noble`, de même version que le paquet. Ubuntu 24.04 reste fixé. Le contrat vérifie la concordance du manifeste, du verrou, des versions installées et de l’image, ainsi que la présence des sources npm HTTPS et de leurs empreintes. Les anciennes versions restent consultables dans Git.
+L’image de la recette complémentaire est `mcr.microsoft.com/playwright:v1.65.1-noble`, de même version que le paquet. Ubuntu 24.04 reste fixé. Le conteneur réserve un plafond de 1 Gio de mémoire partagée ; les journaux de lancement des moteurs sont conservés pour diagnostiquer les arrêts. Le contrat vérifie la concordance du manifeste, du verrou, des versions installées et de l’image, ainsi que la présence des sources npm HTTPS et de leurs empreintes. Les anciennes versions restent consultables dans Git.
 
 ## Versions réellement exécutées
 
@@ -45,6 +45,8 @@ Le petit composant de capture vidéo FFmpeg est installé pour conserver les tra
 La documentation officielle annonce macOS 14 ou ultérieur, Ubuntu 24.04 et les branches Node maintenues parmi les systèmes pris en charge. Cela ne remplace pas un essai sur chaque appareil. Le blocage de lancement de l’ancien WebKit local reste consigné dans V061 ; cette édition ne le transforme pas en succès et ne certifie pas Safari iOS.
 
 Aucun calcul, tarif, fournisseur de données de mobilité, format de profil ou hébergement n’est modifié par l’actualisation des outils. Les éventuelles corrections applicatives révélées par la recette sont consignées avec la livraison et leurs tests.
+
+La première recette GitHub obtient 78/80 succès : Firefox interrompt deux pages pendant l’audit axe d’une préparation reprise, après les assertions fonctionnelles. La publication est bloquée. Le banc est ensuite ajusté pour tester l’hypothèse de mémoire partagée insuffisante ; les journaux des moteurs sont activés. Aucun audit, règle ou assertion n’est retiré et l’échec initial reste conservé.
 
 ## Sources de version et de fonctionnement
 

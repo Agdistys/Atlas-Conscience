@@ -29,7 +29,7 @@ jobs:
     # Match the npm pin; browsers and OS libraries are already in this image.
     container:
       image: mcr.microsoft.com/playwright:v1.65.1-noble
-      options: --init
+      options: --init --shm-size=1g
     timeout-minutes: 20
     env:
       INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -47,6 +47,7 @@ jobs:
         # Firefox requires the real home directory of the container's root user.
         env:
           HOME: /root
+          DEBUG: pw:browser
         run: npm run test:compat
       - name: Archive compatibility evidence
         if: always()
