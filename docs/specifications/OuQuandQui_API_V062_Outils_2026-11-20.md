@@ -32,6 +32,8 @@ Le filtre axe conserve les règles WCAG 2.0 et 2.1 A/AA et ajoute `wcag22aa`, no
 
 La nouvelle analyse détecte une discordance entre les repères visibles `T1`, `T2` et leur nom accessible. Les repères Leaflet et ceux du schéma incluent désormais ce texte dans leur intitulé, puis le nom et les caractéristiques du trajet. Les assertions de clavier, d’adoption et d’absence de requête restent conservées ; le nom accessible est contrôlé dans les deux rendus.
 
+La première suite Chromium complète sous 1.64.1 obtient 2824/2868 succès. Les 44 échecs restants désignent la même règle dans les tableaux collectifs : le nom « Consulter l’option collective 1 » ne contient pas le texte visible « Option 1 » comme une suite continue. Les boutons incluent désormais « Option 1 », « Option 2 » au début de leur nom accessible ; l’action et la réserve de référence non admissible restent présentes. Les scénarios concernés sont revérifiés avant une nouvelle recette complète.
+
 ## Audit des dépendances
 
 Un audit npm distinct est exécuté et archivé dans `quality/npm-audit.json`. Une vulnérabilité élevée ou critique signalée interrompt la chaîne ; une réponse absente ou une panne n’est pas présentée comme un résultat sans anomalie. Les autres niveaux demeurent visibles dans le fichier daté.
@@ -48,7 +50,7 @@ L’installation de FFmpeg nécessaire aux traces vidéo a conduit le gestionnai
 
 La documentation officielle annonce macOS 14 ou ultérieur, Ubuntu 24.04 et les branches Node maintenues parmi les systèmes pris en charge. Cela ne remplace pas un essai sur chaque appareil. Le blocage de lancement de l’ancien WebKit local reste consigné dans V061 ; cette édition ne le transforme pas en succès.
 
-Aucun calcul, tarif, fournisseur de données de mobilité, format de profil ou hébergement n’est modifié par l’actualisation des outils. La correction applicative porte sur les noms accessibles des repères de trajets, avec cache PWA régénéré.
+Aucun calcul, tarif, fournisseur de données de mobilité, format de profil ou hébergement n’est modifié par l’actualisation des outils. La correction applicative porte sur les noms accessibles des repères de trajets et des options collectives, avec cache PWA régénéré.
 
 ## Sources de version et de fonctionnement
 
