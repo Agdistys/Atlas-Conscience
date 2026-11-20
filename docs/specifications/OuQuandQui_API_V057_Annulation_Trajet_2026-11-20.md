@@ -4,7 +4,7 @@ V057 · 20 novembre 2026 · TRA-ANNULATION-01. Complète TRA-08, GEO-07 et ERR-0
 
 ## Parcours et commandes
 
-« Trouver mon trajet » démarre une seule recherche. Pendant la résolution du départ, celle de l’arrivée et le calcul routier, « Annuler la recherche du trajet » reste accessible à côté du lancement. Les saisies et commandes concurrentes restent verrouillées. L’annulation les rend immédiatement disponibles, sans attendre une réponse du fournisseur ; le focus revient au lancement ou au départ si le lancement n’est pas disponible.
+« Trouver mon trajet » démarre une seule recherche. Pendant la résolution du départ, celle de l’arrivée et le calcul routier, « Annuler la recherche du trajet » reste accessible sous le lancement, avec une cible tactile d’au moins 44 pixels de hauteur. Les saisies et commandes concurrentes restent verrouillées. L’annulation les rend immédiatement disponibles, sans attendre une réponse du fournisseur ; le focus revient au lancement ou au départ si le lancement n’est pas disponible.
 
 Fermer le choix d’un lieu, par sa croix ou par Échap, annule également cette recherche entière. Une annulation volontaire est annoncée sans icône d’erreur ni ouverture du diagnostic. Départ, arrivée, critère, véhicule, évitements et limites de marche sont conservés. Le profil, les favoris, les préparations et le journal ne sont pas enregistrés ou modifiés automatiquement.
 
