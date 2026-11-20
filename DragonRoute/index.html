@@ -646,6 +646,19 @@
   <section id="transitMapWrap" hidden aria-labelledby="transitMapTitle"><h3 id="transitMapTitle"></h3><div id="transitMap" aria-label="Carte du parcours collectif"></div><svg id="transitSketch" role="img" aria-label="Schéma du parcours collectif, sans fond de carte" hidden></svg><p id="transitMapNote" class="note"></p></section>
   <section id="transitCompareResults" aria-label="Comparaison des modes" aria-live="polite"></section>
   <div id="transitResults"></div>
+  <section id="modalCarbon" hidden aria-labelledby="modalCarbonTitle">
+   <h3 id="modalCarbonTitle" tabindex="-1">Comparer les empreintes</h3>
+   <p id="modalCarbonContext"></p>
+   <p>Choisir les modèles pour les options à comparer. Les choix décrivent des hypothèses moyennes ; ils ne confirment pas les véhicules réellement utilisés.</p>
+   <p class="note">Calcul local sans nouvel appel réseau. Hypothèses propres à cette comparaison, retirées à sa fermeture ou au changement de recherche. Aucun enregistrement dans le profil, les préparations ou le journal.</p>
+   <button type="button" id="modalCarbonClose" class="ghost">Retirer la comparaison d’empreintes</button>
+   <div id="modalCarbonModels"></div>
+   <label for="modalCarbonSort">Trier les valeurs</label><select id="modalCarbonSort"><option value="mode">Ordre des modes et options</option><option value="time">Temps comparé croissant</option><option value="distance">Distance croissante</option><option value="carbon" disabled>CO₂e croissant · groupe comparable seulement</option></select>
+   <p id="modalCarbonStatus" role="status" aria-live="polite"></p>
+   <p class="note">Si les colonnes dépassent l’écran, faire défiler chaque tableau horizontalement. Au clavier, placer le focus sur le tableau puis utiliser les flèches gauche et droite.</p>
+   <div id="modalCarbonTables"></div>
+   <details id="modalCarbonSource"><summary>Source, version et limites communes</summary><p>Facteurs ADEME / Impact CO₂, jeu <code>impactco2-2026-11-18-bece7af</code>, extrait le 18 novembre 2026. <a href="https://github.com/incubateur-ademe/impactco2/blob/bece7af7e3daa41c7f2233e03d169c33e82530c2/src/data/categories/deplacement.ts" target="_blank" rel="noopener noreferrer">Données de référence</a> · licence MIT Datagir. Les facteurs et unités propres aux étapes sont détaillés dans chaque ligne.</p><p>Construction et énergie modélisées, ou construction seule pour le vélo mécanique : périmètres séparés. Fréquentation moyenne déjà incluse dans les facteurs collectifs par personne ; aucune seconde division. La marche reste non estimée. Infrastructures et alimentation humaine ne sont pas modélisées. Pas de mesure des émissions réelles, d’empreinte exhaustive ou de comparaison du coût total. Les égalités sont conservées à la précision affichée.</p></details>
+  </section>
   <section id="transitCarbon" hidden aria-labelledby="transitCarbonTitle">
    <h3 id="transitCarbonTitle" tabindex="-1">Empreinte des étapes collectives</h3>
    <p>Estimation facultative pour une personne. Choisir un modèle par étape à bord ; aucun choix automatique. Les étapes sans facteur restent non estimées.</p>
