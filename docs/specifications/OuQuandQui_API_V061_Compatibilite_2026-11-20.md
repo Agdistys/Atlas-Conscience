@@ -26,6 +26,8 @@ Le rapport JSON détaillé, les captures et les traces d’échec restent dans l
 
 ## Condition de publication
 
+Le banc utilise l’image officielle `mcr.microsoft.com/playwright:v1.55.0-noble`, de même version que le paquet de test. Les moteurs et leurs bibliothèques système y sont préinstallés ; cette préparation évite de retélécharger les bibliothèques Ubuntu à chaque recette. Le serveur local de fichiers utilise Node, sans dépendance Python supplémentaire. Voir la [configuration officielle des images Playwright](https://playwright.dev/docs/docker).
+
 Le travail GitHub « Essential flows - Firefox and WebKit » précède l’inspection Chromium existante et ne la remplace pas. L’inspection télécharge la preuve du même lancement ; elle exige une matrice complète liée au même commit avant de produire un état prêt pour inspection. La construction et l’assemblage à blanc de la branche répètent ce contrôle. Le programme de publication conservé sur la branche principale reçoit uniquement l’artefact produit après ces étapes réussies. Les anciens aperçus mis en cache conservent leurs preuves historiques, sans leur attribuer rétroactivement cette qualification.
 
 La recette Chromium complète, les contrôles de calcul et de structure, puis les essais de l’aperçu continuent de s’exécuter. Après la publication, les métadonnées et fichiers servis sont comparés au commit inspecté ; un trajet entre lieux publics est contrôlé avec les services réels. Une publication réussie reste distincte de la fusion sur le site principal et de la validation humaine.
