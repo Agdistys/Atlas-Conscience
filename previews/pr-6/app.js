@@ -1601,8 +1601,7 @@ function walkReview(distance,criteria){const c=walkCriteria(criteria.maxWalkKm,c
 function walkingPreference(distance,criteria){const r=walkReview(distance,criteria),f=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3});if(r.status==='not-requested')return 'Marche · aucune limite personnelle renseignée.';return (r.distance===null?'Distance inconnue':f(r.distance/1000)+' km calculés')+' / '+f(r.maxWalkKm)+' km demandés. '+(r.status==='unknown'?'Distance non vérifiable.':r.status==='over'?(r.walkStrict?'Limite impérative dépassée.':'Limite souhaitée dépassée. Préférence souple.')+' Dépassement : '+(r.excess<1?'moins de 1 m':r.excess.toLocaleString('fr-FR',{maximumFractionDigits:1})+' m')+'.':r.walkStrict?'Limite impérative respectée.':'Distance dans la limite souhaitée.')+' '+(!r.admissible?'Parcours non admissible pour cette limite. ':'')+'Le tracé reste consultable. Comparaison avant arrondi ; pente, effort et accessibilité non vérifiés.'}
 // END WALKING MODEL
 function optimizationLabel(value){return {fastest:'Plus rapide · durée estimée',shortest:'Plus court · distance'}[value]||'Critère non renseigné'}
-function routingSettings(type,avoid,dimensions){
- const optimization=$('routeOptimization').value;
+function routingSettings(type,avoid,dimensions,optimization=$('routeOptimization').value){
  const provider=type==='walk'||optimization==='shortest'?'ign':routingEndpoint()?'ors':C.ignRouting===true&&avoid.includes('highways')?'ign':'osrm';
  return {provider,optimization,avoid,vehicle:{type,...(dimensions?{dimensions}:{})}};
 }
@@ -2953,6 +2952,115 @@ function bindComparison(){
  for(const event of ['input','change'])$('sheet').addEventListener(event,e=>{if(fields.includes(e.target.id)||e.target.matches('.avoid-options input,#truckDimensions input'))comparisonChanged()});
 }
 
+// BEGIN ROAD CHOICES MODEL
+function roadChoiceHypotheses(raw){return {...timingHypotheses(raw),cons:comparisonNumber(raw.cons,1,100),price:comparisonNumber(raw.price,.001,10,true)}}
+function roadChoiceValue(entry,sort){
+ if(entry.status!=='ready')return Infinity;
+ return sort==='duration'?Math.ceil(entry.route.duration/60):Math.round(entry.route.distance/100);
+}
+function roadChoiceGroups(entries,sort='duration'){
+ if(!['duration','distance'].includes(sort))throw new Error('Tri routier invalide.');
+ const ready=entries.filter(e=>e.status==='ready'),ordered=[...entries].sort((a,b)=>roadChoiceValue(a,sort)-roadChoiceValue(b,sort)||a.criterion.localeCompare(b.criterion)),groups=[];
+ for(const e of ordered){
+  const key=e.status==='ready'?JSON.stringify(e.route.geometry.coordinates):'unavailable:'+e.criterion;
+  let group=groups.find(g=>g.key===key);if(!group){group={key,entries:[]};groups.push(group)}
+  group.entries.push({...e,tied:e.status==='ready'&&ready.filter(x=>roadChoiceValue(x,sort)===roadChoiceValue(e,sort)).length>1});
+ }
+ return groups;
+}
+function roadChoiceDifference(entries,h){
+ const a=entries.find(e=>e.criterion==='fastest'&&e.status==='ready'),b=entries.find(e=>e.criterion==='shortest'&&e.status==='ready');if(!a||!b)return null;
+ const fuel=e=>h.price===null?null:e.route.distance/1000*h.cons/100*h.price;
+ return {km:(Math.round(b.route.distance/100)-Math.round(a.route.distance/100))/10,minutes:Math.ceil(b.route.duration/60)-Math.ceil(a.route.duration/60),fuel:h.price===null?null:(Math.round(fuel(b)*100)-Math.round(fuel(a)*100))/100};
+}
+function validateRoadChoice(r,points){
+ if(!hasRouteGeometry(r)||!hasRouteMetrics(r)||r.duration>31536000||r.distance>20000000)throw new Error('Tracé routier incomplet ou métriques invalides.');
+ if([r.geometry.coordinates[0],r.geometry.coordinates.at(-1)].some((p,i)=>hav([p[1],p[0]],points[i])>.5))throw new Error('Les extrémités du tracé ne correspondent pas aux lieux confirmés.');
+ return r;
+}
+// END ROAD CHOICES MODEL
+
+let roadComparison=null;
+const roadFields=['roadDeparture','roadArriveBy','roadCons','roadPrice'];
+function roadContextSignature(){return JSON.stringify([trip?.a,trip?.b,trip?.routing,trip?.calculatedAt,trip?.choice,trip?.meetings,selectedStop?.station.id,selectedStop?.confirmedAt,compared.length,...['start','end','travelMode','routeOptimization','routeVehicle','fuel','cons','budgetPrice','stationDeparture','routeArriveBy','meetingPickup','meetingDropoff'].map(id=>$(id).value),$('routeOnlyBefore').checked,...document.querySelectorAll('.avoid-options input:checked')].map(x=>x instanceof Element?[x.id,x.value]:x))}
+function roadSignature(){return JSON.stringify([roadContextSignature(),...roadFields.map(id=>$(id).value)])}
+function clearRoadChoices(message=''){
+ if(roadComparison?.running){roadComparison.cancelled=true;roadComparison.controller.abort()}
+ roadComparison=null;$('roadCards').replaceChildren();$('roadDifference').textContent='';$('roadStatus').textContent=message;$('roadSortWrap').hidden=true;
+}
+function roadControls(running){
+ for(const id of [...roadFields,'roadOnlyBefore','roadSort','roadCalculate'])$(id).disabled=running;
+ $('roadCancel').hidden=!running;$('roadCancel').disabled=false;
+}
+function openRoadChoices(){
+ if(busy||!trip||trip.routing.vehicle.type==='walk')return;
+ clearRoadChoices();$('roadDeparture').value=$('stationDeparture').value;$('roadArriveBy').value=$('routeArriveBy').value;$('roadOnlyBefore').checked=$('routeOnlyBefore').checked;$('roadCons').value=$('cons').value;$('roadPrice').value='';$('roadSort').value='duration';roadControls(false);
+ $('roadContext').textContent=trip.places.start+' → '+trip.places.end+'. Même véhicule et exclusions : '+routingLabel(trip.routing)+'. Les deux critères seront demandés séparément, sans arrêt carburant ni rencontre.';
+ $('roadStatus').textContent='Vérifier les hypothèses puis calculer. Le trajet affiché reste en place.';$('roadCompareDialog').showModal();$('roadTitle').focus();
+}
+function roadMetrics(entry,op){
+ const r=entry.route,h=op.hypotheses,c=comparisonCost('car',r.distance,h),t=timingEstimate(r.duration,h),f=escapeHtml;
+ return '<dl><div><dt>Distance</dt><dd>'+fmt(r.distance/1000,1)+' km</dd></div><div><dt>Conduite estimée</dt><dd>'+Math.ceil(r.duration/60)+' min</dd></div><div><dt>Carburant consommé estimé · véhicule entier</dt><dd>'+fmt(c.liters,2)+' L'+(c.fuel===null?' · prix non renseigné':' · '+fmt(c.fuel)+' €')+'</dd></div><div><dt>Péages et autres frais</dt><dd>Inconnus · budget total incomplet</dd></div></dl><p class="note">'+f(timingText(t))+' Hors pauses et trafic en direct.</p>';
+}
+function renderRoadChoices(){
+ const op=roadComparison;if(!op)return;
+ const ready=op.entries.filter(e=>e.status==='ready'),filter=op.hypotheses.onlyBefore,groups=roadChoiceGroups(op.entries,$('roadSort').value);
+ $('roadStatus').textContent=op.running?'Calcul des choix routiers…':op.cancelled?'Comparaison annulée. Le trajet affiché est conservé.':ready.length+'/2 critères calculés. '+(ready.length===2?'Valeurs à comparer ; aucun meilleur trajet universel.':'Résultat partiel ; aucune variante de remplacement inventée.');
+ $('roadSortWrap').hidden=!ready.length;
+ $('roadCards').innerHTML=groups.map((g,i)=>{
+  const es=g.entries,same=es.length===2,common=same&&es.every(e=>e.route.distance===es[0].route.distance&&e.route.duration===es[0].route.duration);
+  return '<article class="road-card" data-road-group="'+i+'"><h3>'+(same?'Même tracé · deux critères':escapeHtml(optimizationLabel(es[0].criterion)))+'</h3>'+(common?roadMetrics(es[0],op):'')+es.map(e=>{
+   const label=optimizationLabel(e.criterion),t=e.status==='ready'?timingEstimate(e.route.duration,op.hypotheses):null,excluded=filter&&t&&!t.admissible;
+   return '<section class="road-option" data-road-criterion="'+e.criterion+'" data-state="'+(excluded?'excluded':e.status)+'">'+(same?'<h4>'+escapeHtml(label)+'</h4>':'')+'<p class="note">'+escapeHtml(routingLabel(e.settings))+'</p>'+(e.status!=='ready'?'<p>'+escapeHtml(e.status==='pending'?'En attente de calcul.':e.error||'Indisponible.')+'</p>':(!common?roadMetrics(e,op):'')+'<p class="note">Calcul obtenu le '+escapeHtml(new Date(e.at).toLocaleString('fr-FR'))+' ; cache du moteur possible.'+(e.tied?' Ex æquo à la précision affichée pour le tri choisi.':'')+'</p>'+(excluded?'<p class="road-excluded">Écarté par l’heure limite · référence consultable.</p>':'')+'<button type="button" class="ghost" data-road-adopt="'+e.criterion+'" '+(op.running||op.cancelled||excluded?'disabled':'')+'>Choisir · '+escapeHtml(label)+'</button>')+'</section>';
+  }).join('')+'</article>';
+ }).join('');
+ const d=roadChoiceDifference(op.entries,op.hypotheses),signed=(v,n=1)=>(v>0?'+':'')+fmt(v,n);
+ $('roadDifference').textContent=d?'Écarts « plus court » moins « plus rapide », à la précision affichée : '+signed(d.km)+' km · '+signed(d.minutes,0)+' min'+(d.fuel===null?' · coût carburant non comparé.':' · '+signed(d.fuel,2)+' € de carburant estimé.')+' Aucun écart de budget total calculable avec les péages et autres frais inconnus.':'';
+}
+async function calculateRoadChoices(){
+ if(busy||!trip||trip.routing.vehicle.type==='walk')return;
+ let h;try{if(roadFields.some(id=>!$(id).validity.valid))throw new Error('Vérifier les dates et valeurs saisies.');h=roadChoiceHypotheses({departure:$('roadDeparture').value,arriveBy:$('roadArriveBy').value,onlyBefore:$('roadOnlyBefore').checked,cons:$('roadCons').value,price:$('roadPrice').value})}catch(e){clearRoadChoices('Vérifier les hypothèses : '+e.message);return}
+ const source={a:[...trip.a],b:[...trip.b],places:{...trip.places},routing:structuredClone(trip.routing),fuel:$('fuel').value},op={source,hypotheses:h,signature:roadSignature(),running:true,cancelled:false,controller:new AbortController(),entries:['fastest','shortest'].map(criterion=>({criterion,settings:routingSettings(source.routing.vehicle.type,[...source.routing.avoid],source.routing.vehicle.dimensions,criterion),status:'pending'}))};
+ roadComparison=op;activeAbort=op.controller;lock(true);roadControls(true);renderRoadChoices();
+ const current=()=>roadComparison===op&&!op.cancelled&&!op.controller.signal.aborted&&op.signature===roadSignature();let quota=false;
+ try{
+  for(const e of op.entries){
+   if(!current())break;
+   try{ensureRouting(e.settings);if(quota&&e.settings.provider==='ign')throw new Error('Quota IGN atteint : second calcul non demandé. Réessayer plus tard.');
+    const r=await route([source.a,source.b],true,false,e.settings,current);if(!current())break;e.route=validateRoadChoice(r,[source.a,source.b]);e.status='ready';e.at=new Date().toISOString();
+   }catch(error){if(!current())break;e.status='unavailable';e.error=error.message;if(error.message.includes('Limite du service IGN'))quota=true}
+   renderRoadChoices();
+  }
+ }finally{
+  op.running=false;if(activeAbort===op.controller)activeAbort=null;lock(false);roadControls(false);
+  if(roadComparison===op){if(op.signature!==roadSignature())clearRoadChoices('Paramètres modifiés : relancer la comparaison.');else if(op.cancelled)clearRoadChoices('Comparaison annulée. Le trajet affiché est conservé.');else renderRoadChoices()}
+  if(!$('roadCompareDialog').open&&!$('roadCompareBtn').hidden)$('roadCompareBtn').focus();
+ }
+}
+function adoptRoadChoice(criterion){
+ const op=roadComparison;if(busy||!op||op.running||op.cancelled)return;
+ if(op.signature!==roadSignature()){clearRoadChoices('Paramètres modifiés : relancer la comparaison.');return}
+ const e=op.entries.find(e=>e.criterion===criterion&&e.status==='ready');if(!e||op.hypotheses.onlyBefore&&!timingEstimate(e.route.duration,op.hypotheses).admissible)return;
+ if((trip?.meetings||selectedStop||compared.length||tableTolls.segments.length||tollState.quote||$('meetingPickup').value.trim()||$('meetingDropoff').value.trim())&&!confirm('Choisir ce trajet direct retire les rencontres, les stations comparées, l’arrêt et les péages précédents. Continuer ?'))return;
+ clearComparison();clearMeetingDraft();clearNavigation();budgetRecall=null;tollState.enabled=false;tollState.key='';resetTollQuote();clearTableTolls('Nouveau choix routier : péages à vérifier.');clearStations();
+ $('routeOptimization').value=e.criterion;$('cons').value=op.hypotheses.cons;$('budgetPrice').value=op.hypotheses.price??'';budgetReference=op.hypotheses.price===null?null:{label:'Hypothèse du comparateur routier',at:new Date(e.at).toLocaleString('fr-FR')};
+ detachTripVehicle();resumePreparation=null;preparedRangePending=false;
+ $('stationDeparture').value=op.hypotheses.departure===null?'':parisLocal(op.hypotheses.departure);$('routeArriveBy').value=op.hypotheses.arriveBy===null?'':parisLocal(op.hypotheses.arriveBy);$('routeOnlyBefore').checked=op.hypotheses.onlyBefore;
+ displayTrip({...structuredClone(e.route),alternatives:[]},structuredClone(e.settings),op.source.a,op.source.b,{label:op.source.places.start},{label:op.source.places.end});trip.calculatedAt=e.at;updateVehicleRouting();refreshArrival();updateBudget();
+ $('roadCompareDialog').close();clearRoadChoices();$('roadCompareBtn').focus();setStatus('Choix routier adopté : '+optimizationLabel(e.criterion)+'. Rechercher maintenant les arrêts sur ce trajet.','ok');
+}
+function bindRoadChoices(){
+ $('roadCompareBtn').addEventListener('click',openRoadChoices);$('roadCalculate').addEventListener('click',calculateRoadChoices);
+ $('roadClose').addEventListener('click',()=>$('roadCompareDialog').close());
+ $('roadCompareDialog').addEventListener('close',()=>{clearRoadChoices();if(!$('roadCompareBtn').hidden)$('roadCompareBtn').focus()});
+ $('roadCancel').addEventListener('click',()=>{if(roadComparison?.running){roadComparison.cancelled=true;roadComparison.controller.abort();$('roadStatus').textContent='Annulation en cours…';$('roadCancel').disabled=true}});
+ for(const id of roadFields)$(id).addEventListener('input',()=>clearRoadChoices('Hypothèses modifiées : relancer la comparaison.'));
+ $('roadOnlyBefore').addEventListener('change',()=>{const op=roadComparison;if(!op)return;if(op.running){clearRoadChoices('Hypothèses modifiées : relancer la comparaison.');return}if($('roadOnlyBefore').checked&&op.hypotheses.arriveBy===null){$('roadOnlyBefore').checked=false;$('roadStatus').textContent='Renseigner une heure limite puis relancer la comparaison.';return}op.hypotheses.onlyBefore=$('roadOnlyBefore').checked;renderRoadChoices()});
+ $('roadSort').addEventListener('change',()=>{if(roadComparison&&!roadComparison.running)renderRoadChoices()});
+ $('roadCards').addEventListener('click',e=>{const b=e.target.closest('[data-road-adopt]');if(b)adoptRoadChoice(b.dataset.roadAdopt)});
+ for(const event of ['input','change'])$('sheet').addEventListener(event,()=>{if(roadComparison&&roadComparison.signature!==roadSignature())clearRoadChoices('Contexte du trajet modifié : relancer la comparaison.')});
+}
+
 // BEGIN TRANSIT MODEL
 function networkId(v){return typeof v==='string'&&/^[A-Za-z0-9_.:-]{1,120}$/.test(v)?v:null}
 const TRANSIT_ENDPOINT='https://data.mobilites-m.fr/api/routers/default/plan';
@@ -3536,6 +3644,7 @@ function updateBudget(){
   expireStationBudget();
   updateTripTiming();updateRouteCarbon();updateMeetings();
   $("compareBtn").hidden=!trip;
+  $("roadCompareBtn").hidden=!trip||trip.routing.vehicle.type==='walk';
   $("navigationBtn").hidden=!trip;
   $("journalRecordBtn").hidden=!trip;$("savePreparationBtn").hidden=!trip;
   $("tripBudget").hidden=!trip||trip.routing.vehicle.type==="walk";
@@ -3664,6 +3773,7 @@ function clearStations(){
   updateTripMetrics();updateBudget();
 }
 function clearResults(){
+ clearRoadChoices();if($('roadCompareDialog').open)$('roadCompareDialog').close();
  budgetRecall=null;$("budgetMemoryMessage").textContent='';
   cancelGps();
   clearTransit();transitContext=null;if($("transitDialog").open)$("transitDialog").close();
@@ -4571,7 +4681,7 @@ function bindSharedJournal(){
  $('bikeTripJournal').addEventListener('click',()=>journalFromShared());$('savedSharedJournal').addEventListener('click',()=>journalFromShared(true));
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");

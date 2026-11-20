@@ -92,6 +92,7 @@
         <p id="appliedRouting" class="note" hidden></p>
         <p id="resolvedPlaces" class="note" hidden></p>
         <button id="compareBtn" class="ghost navigation-button" type="button" aria-expanded="false" aria-controls="comparisonPanel" hidden>Comparer les modes</button>
+        <button id="roadCompareBtn" type="button" class="ghost navigation-button" hidden>Comparer plus rapide / plus court</button>
         <button id="navigationBtn" class="ghost navigation-button" type="button" hidden>Navigation et tracé GPS</button>
         <button id="savePreparationBtn" class="ghost navigation-button" type="button" hidden>Enregistrer cette préparation</button>
         <button id="journalRecordBtn" class="ghost navigation-button" type="button" hidden>J’ai effectué ce trajet</button>
@@ -319,7 +320,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 8702374 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · c05dc7e · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -622,6 +623,19 @@
   <section id="transitNetwork" hidden aria-labelledby="transitNetworkTitle"><h3 id="transitNetworkTitle" tabindex="-1">Informations du réseau</h3><p class="note">Cette consultation transmet les lignes et arrêts consultés à Mobilités M. Les heures annoncées restent séparées du calcul théorique ; aucun appel automatique.</p><button id="transitNetworkCancel" type="button" class="ghost" hidden>Annuler la consultation réseau</button><p id="transitNetworkStatus" role="status" aria-live="polite"></p><div id="transitNetworkBody"></div></section>
   <p class="note">Source : <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG</a> · OpenTripPlanner · <a href="https://www.mobilites-m.fr/pdf/ODbL_fr_VF_1.pdf" target="_blank" rel="noopener noreferrer">données sous licence ODbL</a>. Date de mise à jour du calendrier non fournie par la réponse ; consultation datée ci-dessus. <a href="https://www.mobilites-m.fr/" target="_blank" rel="noopener noreferrer">Vérifier tarifs, accessibilité et perturbations auprès du réseau</a>.</p>
 </dialog>
+<dialog id="roadCompareDialog" aria-labelledby="roadTitle">
+  <div class="dialog-heading"><h2 id="roadTitle" tabindex="-1">Plus rapide ou plus court ?</h2><button id="roadClose" type="button" class="ghost" aria-label="Fermer les choix routiers">×</button></div>
+  <p id="roadContext"></p>
+  <p class="note">Comparer deux trajets directs : sans rencontre, arrêt carburant, pause ni trafic en direct. Chaque critère utilise son moteur disponible ; leurs réseaux et estimations peuvent différer. Aucune garantie de route plus sûre, plus large ou moins chère.</p>
+  <div class="road-fields"><label for="roadDeparture">Départ prévu · heure de Paris<input id="roadDeparture" type="datetime-local"></label><label for="roadArriveBy">Arrivée limite · facultative<input id="roadArriveBy" type="datetime-local"></label><label for="roadCons">Consommation estimée · L/100 km<input id="roadCons" type="number" min="1" max="100" step="0.1" inputmode="decimal"></label><label for="roadPrice">Prix carburant · €/L · facultatif<input id="roadPrice" type="number" min="0.001" max="10" step="0.001" inputmode="decimal" placeholder="Non renseigné"></label></div>
+  <p class="note">Même consommation et même prix personnel pour les deux calculs, véhicule entier. Le prix n’est repris ni d’une station ni du budget précédent. Péages, stationnement et autres frais restent inconnus.</p>
+  <label class="check"><input id="roadOnlyBefore" type="checkbox">Limiter le choix aux arrivées estimées avant l’heure limite</label>
+  <div class="dialog-actions"><button id="roadCalculate" type="button">Calculer les deux choix</button><button id="roadCancel" type="button" class="ghost" hidden>Annuler la comparaison</button></div>
+  <p id="roadStatus" role="status" aria-live="polite"></p>
+  <div id="roadSortWrap" hidden><label for="roadSort">Présenter d’abord</label><select id="roadSort"><option value="duration">La durée la plus courte affichée</option><option value="distance">La distance la plus courte affichée</option></select><p class="note">Tri des valeurs disponibles, sans score. Les égalités restent visibles ; un résultat hors limite est consultable mais ne peut être choisi tant que le filtre est actif.</p></div>
+  <p id="roadDifference"></p><div id="roadCards"></div>
+</dialog>
+
 <dialog id="sourcesDialog" aria-labelledby="sourcesTitle">
   <div class="dialog-heading"><h2 id="sourcesTitle" tabindex="-1">Sources et données</h2><button id="sourcesClose" class="ghost" type="button" aria-label="Fermer les sources et données">×</button></div>
   <p>Sans compte ne signifie pas sans échanges. Les services consultés reçoivent l’adresse IP et des informations de connexion, en plus des éléments décrits ci-dessous. Leur conservation dépend de leurs règles.</p>
