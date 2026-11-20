@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { buildPreview, assembleSite, previewFiles } from './preview.mjs';
+import { passingCompatibility } from '../helpers/compatibility-proof.mjs';
 
 const { planPages } = createRequire(import.meta.url)('./plan.cjs');
 const sha = 'a'.repeat(40);
@@ -16,7 +17,7 @@ function fixture(t) {
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, file === 'index.html' ? '<head></head><body><footer></footer></body>' : 'fixture');
   }
-  fs.writeFileSync(path.join(root, 'quality/status.json'), JSON.stringify({ state: 'inspection', commit: sha }));
+  fs.writeFileSync(path.join(root, 'quality/status.json'), JSON.stringify({ state: 'inspection', commit: sha, compatibility: passingCompatibility(sha) }));
   return root;
 }
 
@@ -64,6 +65,21 @@ test('assembly rejects stale evidence and symlinks', t => {
   fs.unlinkSync(path.join(incoming, 'app.js'));
   fs.symlinkSync(path.join(root, 'DragonRoute/app.js'), path.join(incoming, 'app.js'));
   assert.throws(() => assembleSite(site, root, incoming, { pr: 3, commit: sha, openPRs: [] }), /ordinaire/);
+});
+
+test('compatibility absence, partial matrix and stale commit block preview construction and assembly', t => {
+  const root = fixture(t), proof = passingCompatibility(sha), statusFile = path.join(root, 'quality/status.json');
+  const incoming = path.join(root, 'incoming'), site = path.join(root, 'site');
+  buildPreview(root, incoming, { commit: sha, pr: 3 });
+  fs.mkdirSync(site);
+  const partial = structuredClone(proof); partial.matrix[0].cases.pop();
+  for (const compatibility of [null, partial, { ...proof, commit: 'b'.repeat(40) }]) {
+    const status = JSON.stringify({ state: 'inspection', commit: sha, compatibility });
+    fs.writeFileSync(statusFile, status);
+    fs.writeFileSync(path.join(incoming, 'rapport/status.json'), status);
+    assert.throws(() => buildPreview(root, path.join(root, 'out'), { commit: sha, pr: 3 }), /Compatibilite/);
+    assert.throws(() => assembleSite(site, root, incoming, { pr: 3, commit: sha, openPRs: [] }), /Compatibilite/);
+  }
 });
 
 function api({ green = true, source = 'Agdistys/Atlas-Conscience', state = 'open', commit = sha } = {}) {

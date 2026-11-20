@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import {mockDragonRoute,confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility} from '../helpers/inspection.mjs';
 import {readingSizes,enlargeText,readingOverflow,reachable,target44} from '../helpers/reading-layout.mjs';
-async function setup(page,info,zoom=true){await page.setViewportSize(readingSizes[info.project.name]);await mockDragonRoute(page);await page.goto('/DragonRoute/');if(zoom)await enlargeText(page)}
+async function setup(page,info,zoom=true){await page.setViewportSize(info.project.metadata.readingViewport||readingSizes[info.project.name]);await mockDragonRoute(page);await page.goto('/DragonRoute/');if(zoom)await enlargeText(page)}
 async function route(page){await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt')}
 async function stations(page){await route(page);await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('stations comparées')}
 const stored=page=>page.evaluate(()=>JSON.stringify({...localStorage}));

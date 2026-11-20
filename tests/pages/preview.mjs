@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { validCompatibility } from '../compatibility-contract.mjs';
 
 const appFiles = ['index.html', 'app.js', 'config.js', 'style.css', 'icons/icon-192.png', 'icons/icon-512.png'];
 export const previewFiles = [...appFiles, 'preview.json', 'rapport/inspection.html', 'rapport/status.json',
@@ -17,6 +18,7 @@ export function buildPreview(root, target, { commit, pr }) {
   if (fs.existsSync(target)) throw new Error('Le dossier de sortie existe deja');
   const status = JSON.parse(fs.readFileSync(path.join(root, 'quality/status.json'), 'utf8'));
   if (status.state !== 'inspection' || status.commit !== commit) throw new Error('Inspection reussie du meme commit requise');
+  if (!validCompatibility(status.compatibility, commit)) throw new Error('Compatibilite complete du meme commit requise');
   for (const file of appFiles) copyFile(path.join(root, 'DragonRoute', file), path.join(target, file));
   for (const file of previewFiles.filter(p => p.startsWith('rapport/'))) {
     copyFile(path.join(root, 'quality', file.slice(8)), path.join(target, file));
@@ -50,6 +52,7 @@ export function assembleSite(site, cache, incoming, plan) {
     if (metadata.pr !== plan.pr || metadata.commit !== plan.commit || status.commit !== plan.commit || status.state !== 'inspection') {
       throw new Error('La preview ne correspond pas au commit inspecte');
     }
+    if (!validCompatibility(status.compatibility, plan.commit)) throw new Error('Compatibilite complete du meme commit requise');
     copyPreview(incoming, path.join(previews, `pr-${plan.pr}`));
   }
   fs.writeFileSync(path.join(site, '.nojekyll'), '');

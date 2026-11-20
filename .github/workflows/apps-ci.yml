@@ -23,7 +23,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  compatibility:
+    name: Essential flows - Firefox and WebKit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps firefox webkit
+      - name: Qualify essential flows
+        run: npm run test:compat
+      - name: Archive compatibility evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inspectrice-compatibility
+          path: |
+            quality/compatibility-status.json
+            quality/compatibility-results.json
+            quality/compatibility-results/
+            quality/compatibility-report/
+          if-no-files-found: error
+          retention-days: 14
+
   inspect:
+    needs: compatibility
     runs-on: ubuntu-24.04
     # Reserve setup and evidence-upload time around the bounded browser suite.
     timeout-minutes: 70
@@ -38,6 +67,11 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Read compatibility proof from this workflow run
+        uses: actions/download-artifact@v4
+        with:
+          name: inspectrice-compatibility
+          path: quality/
       - name: Preview assembly tests
         run: npm run test:preview
       - name: Inspectrice v2

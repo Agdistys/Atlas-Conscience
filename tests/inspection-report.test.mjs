@@ -4,6 +4,7 @@ import { projects, requiredScenarios, summarize, writeReport } from './inspectio
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { passingCompatibility } from './helpers/compatibility-proof.mjs';
 
 const stages = Object.fromEntries(['contract', 'syntax', 'report-tests', 'browser'].map(name => [name, { exitCode: 0 }]));
 function passing() {
@@ -76,9 +77,16 @@ test('complete evidence is required and audit violations block publication readi
     }
     fs.mkdirSync(path.join(root, 'quality'));
     fs.writeFileSync(path.join(root, 'quality/stages.json'), JSON.stringify(stages));
+    fs.writeFileSync(path.join(root, 'quality/compatibility-status.json'), JSON.stringify(passingCompatibility()));
     const save = () => fs.writeFileSync(path.join(root, 'quality/browser-results.json'), JSON.stringify(report));
     save();
     assert.equal(writeReport(root, { publishSummary: false }).state, 'inspection');
+    const compatFile = path.join(root, 'quality/compatibility-status.json');
+    fs.rmSync(compatFile);
+    assert.equal(writeReport(root, { publishSummary: false }).state, 'blocked');
+    fs.writeFileSync(compatFile, JSON.stringify(passingCompatibility('other-commit')));
+    assert.equal(writeReport(root, { publishSummary: false }).state, 'blocked');
+    fs.writeFileSync(compatFile, JSON.stringify(passingCompatibility()));
     report.suites[0].specs[0].tests[0].results[0].attachments[1].body =
       Buffer.from(JSON.stringify({ violations: [{ id: 'label' }], incomplete: [], passes: [] })).toString('base64');
     save();

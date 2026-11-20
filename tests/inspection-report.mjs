@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { compatibilityLimits, validCompatibility } from './compatibility-contract.mjs';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
@@ -99,6 +100,10 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
     catch (error) { diagnostics.push(`${file}: ${error.message}`); return fallback; }
   }
   const summary = summarize(readJSON('browser-results.json', null), readJSON('stages.json', {}));
+  const commit = process.env.INSPECTION_COMMIT || process.env.GITHUB_SHA || null;
+  const compatibility = readJSON('compatibility-status.json', null);
+  const compatibilityOK = validCompatibility(compatibility, commit);
+  if (!compatibilityOK) diagnostics.push('Compatibilité Firefox/WebKit incomplète, en échec ou liée à un autre commit.');
   const screenshots = [];
   const accessibility = [];
   function attachmentBytes(attachment) {
@@ -130,17 +135,19 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
     accessibility.some(a => a.project === project && a.state === `accessibilite-${state}`)));
   const ready = summary.ready && evidenceComplete && diagnostics.length === 0 && accessibility.every(a => a.violations.length === 0);
   const status = { schemaVersion: 1, application: 'DragonRoute / OuQuandQui',
-    generatedAt: new Date().toISOString(), commit: process.env.INSPECTION_COMMIT || process.env.GITHUB_SHA || null,
+    generatedAt: new Date().toISOString(), commit,
     state: ready ? 'inspection' : 'blocked', passed: summary.passed, total: summary.total,
-    stages: summary.stages, screenshots, accessibility, diagnostics,
+    stages: summary.stages, screenshots, accessibility, diagnostics, compatibility,
     notTested: ['Disponibilite des API reelles', 'Tuiles cartographiques reelles (Leaflet teste avec tuiles simulees)', 'Installation PWA et hors connexion',
-      'Lighthouse et performances', 'Comparaison avec des captures approuvees', 'Autres applications'],
+      'Lighthouse et performances', 'Comparaison avec des captures approuvees', 'Autres applications', compatibilityLimits],
     humanDecision: 'En attente de validation humaine' };
   fs.writeFileSync(path.join(output, 'status.json'), JSON.stringify(status, null, 2));
   const verdict = ready ? 'PRET POUR INSPECTION' : 'CONTROLES INCOMPLETS OU EN ECHEC';
   const lines = ['# Inspectrice v2 : ' + verdict, '', 'DragonRoute / OuQuandQui', '',
     `Commit : ${status.commit || 'execution locale'}`, `Tests navigateur : ${summary.passed}/${summary.total}`, '',
     ...stageNames.map(name => `- ${name} : ${summary.stages[name]?.exitCode === 0 ? 'OK' : 'ECHEC OU NON EXECUTE'}`), '',
+    `Compatibilité Firefox/WebKit : ${compatibilityOK ? 'OK' : 'ECHEC OU NON EXECUTE'}.`,
+    ...(compatibility?.matrix || []).map(row => `- ${row.name} : ${row.cases.filter(t => t.passed).length}/${row.cases.length}, ${row.engine} ${row.version}, ${compatibility.platform}, Playwright ${compatibility.playwright}`), '',
     `Captures : ${screenshots.length}/8. Audits d'accessibilite : ${accessibility.length} (8 de base requis).`,
     `Points d'accessibilite a examiner manuellement : ${accessibility.reduce((n, a) => n + a.incomplete.length, 0)}.`, '',
     'Scenario reproductible avec API simulees et carte de secours. Les captures sont a inspecter, sans comparaison automatique a une reference approuvee.', '',
@@ -156,6 +163,7 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
 <p>Tests navigateur : ${summary.passed}/${summary.total}. Captures : ${screenshots.length}/8. Audits : ${accessibility.length} (8 de base requis).</p>
 <ul>${summary.tests.map(t => `<li>${esc(t.project)} : ${esc(t.title)} : ${t.passed ? 'OK' : esc(t.status)}${t.errors.length ? `<pre>${esc(t.errors.join('\n'))}</pre>` : ''}</li>`).join('')}</ul>
 ${diagnostics.length || summary.errors.length ? `<pre>${esc(JSON.stringify({ diagnostics, errors: summary.errors }, null, 2))}</pre>` : ''}</section>
+<section><h2>Compatibilité des parcours essentiels</h2><p>${compatibilityOK ? 'RECETTE RÉUSSIE' : 'RECETTE INCOMPLÈTE OU EN ÉCHEC'}</p><p>${esc(compatibility?.platform)} · Playwright ${esc(compatibility?.playwright)}</p><ul>${(compatibility?.matrix || []).map(row => `<li>${esc(row.name)} : ${row.cases.filter(t => t.passed).length}/${row.cases.length} · ${esc(row.engine)} ${esc(row.version)}<details><summary>Scénarios</summary><ul>${row.cases.map(t => `<li>${esc(t.title)} : ${t.passed ? 'OK' : 'ÉCHEC'}</li>`).join('')}</ul></details></li>`).join('')}</ul><p>${esc(compatibilityLimits)}</p></section>
 <section><h2>Accessibilite</h2><p>Regles WCAG 2.1 A/AA detectables par axe-core. L'examen humain reste necessaire.</p>
 ${accessibility.map(a => `<details><summary>${esc(a.project)} / ${esc(a.state)} : ${a.violations.length} anomalie(s), ${a.incomplete.length} point(s) a examiner</summary><pre>${esc(JSON.stringify({ violations: a.violations, incomplete: a.incomplete }, null, 2))}</pre></details>`).join('')}</section>
 <section><h2>Captures a inspecter</h2><p>Aucune reference visuelle n'a encore ete approuvee.</p>${screenshots.map(s => `<figure><figcaption>${esc(s.project)} / ${esc(s.state)}</figcaption><a href="${s.file}"><img src="${s.file}" alt="${esc(s.project)} : ${esc(s.state)}" loading="lazy"></a></figure>`).join('')}</section>
