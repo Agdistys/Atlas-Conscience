@@ -15,6 +15,7 @@ function run(name, command, args, timeout = 600_000) {
 run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
 run('report-tests', 'npm', ['run', 'test:inspection']);
+run('toolchain', process.execPath, ['tests/toolchain.mjs']);
 // The 2,796-scenario suite took 54.7 minutes on the hosted runner.
 // Allow 65 minutes, with five minutes left for setup/report/upload in the job.
 // Individual test timeouts and the requirement for a complete report are unchanged.

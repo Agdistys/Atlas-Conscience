@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { compatibilityLimits, validCompatibility } from './compatibility-contract.mjs';
+import { validToolchain } from './dependency-contract.mjs';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
@@ -64,7 +65,7 @@ export const requiredScenarios = [
   'import export et suppression du profil sans toucher les autres donnees'
 ];
 const states = ['demarrage', 'resultats'];
-const stageNames = ['contract', 'syntax', 'report-tests', 'browser'];
+const stageNames = ['contract', 'syntax', 'report-tests', 'toolchain', 'browser'];
 
 export function summarize(report, stages = {}) {
   const tests = [];
@@ -104,6 +105,8 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
   const compatibility = readJSON('compatibility-status.json', null);
   const compatibilityOK = validCompatibility(compatibility, commit);
   if (!compatibilityOK) diagnostics.push('Compatibilité Firefox/WebKit incomplète, en échec ou liée à un autre commit.');
+  const toolchain=readJSON('toolchain-status.json',null);
+  if(!validToolchain(toolchain,commit)||toolchain?.dependencies?.['@playwright/test']!==compatibility?.playwright) diagnostics.push('Versions des outils et du moteur Chromium absentes, incohérentes ou liées à un autre commit.');
   const screenshots = [];
   const accessibility = [];
   function attachmentBytes(attachment) {
@@ -137,7 +140,7 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
   const status = { schemaVersion: 1, application: 'DragonRoute / OuQuandQui',
     generatedAt: new Date().toISOString(), commit,
     state: ready ? 'inspection' : 'blocked', passed: summary.passed, total: summary.total,
-    stages: summary.stages, screenshots, accessibility, diagnostics, compatibility,
+    stages: summary.stages, screenshots, accessibility, diagnostics, compatibility, toolchain,
     notTested: ['Disponibilite des API reelles', 'Tuiles cartographiques reelles (Leaflet teste avec tuiles simulees)', 'Installation PWA et hors connexion',
       'Lighthouse et performances', 'Comparaison avec des captures approuvees', 'Autres applications', compatibilityLimits],
     humanDecision: 'En attente de validation humaine' };
@@ -146,6 +149,7 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
   const lines = ['# Inspectrice v2 : ' + verdict, '', 'DragonRoute / OuQuandQui', '',
     `Commit : ${status.commit || 'execution locale'}`, `Tests navigateur : ${summary.passed}/${summary.total}`, '',
     ...stageNames.map(name => `- ${name} : ${summary.stages[name]?.exitCode === 0 ? 'OK' : 'ECHEC OU NON EXECUTE'}`), '',
+    `Outils : Node ${toolchain?.node || 'inconnu'}, Playwright ${toolchain?.dependencies?.['@playwright/test'] || 'inconnu'}, axe-core ${toolchain?.dependencies?.['axe-core'] || 'inconnu'}. Chromium ${toolchain?.browser?.version || 'non démarré'} (${toolchain?.browser?.channel || 'inconnu'}).`, '',
     `Compatibilité Firefox/WebKit : ${compatibilityOK ? 'OK' : 'ECHEC OU NON EXECUTE'}.`,
     ...(compatibility?.matrix || []).map(row => `- ${row.name} : ${row.cases.filter(t => t.passed).length}/${row.cases.length}, ${row.engine} ${row.version}, ${compatibility.platform}, Playwright ${compatibility.playwright}`), '',
     `Captures : ${screenshots.length}/8. Audits d'accessibilite : ${accessibility.length} (8 de base requis).`,
@@ -163,8 +167,9 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
 <p>Tests navigateur : ${summary.passed}/${summary.total}. Captures : ${screenshots.length}/8. Audits : ${accessibility.length} (8 de base requis).</p>
 <ul>${summary.tests.map(t => `<li>${esc(t.project)} : ${esc(t.title)} : ${t.passed ? 'OK' : esc(t.status)}${t.errors.length ? `<pre>${esc(t.errors.join('\n'))}</pre>` : ''}</li>`).join('')}</ul>
 ${diagnostics.length || summary.errors.length ? `<pre>${esc(JSON.stringify({ diagnostics, errors: summary.errors }, null, 2))}</pre>` : ''}</section>
+<section><h2>Versions vérifiées</h2><p>Node ${esc(toolchain?.node)} · Playwright ${esc(toolchain?.dependencies?.['@playwright/test'])} · axe-core ${esc(toolchain?.dependencies?.['axe-core'])} · Leaflet ${esc(toolchain?.dependencies?.leaflet)}</p><p>Chromium ${esc(toolchain?.browser?.version)} · canal ${esc(toolchain?.browser?.channel)} · ${esc(toolchain?.platform)}</p><p>Empreinte du verrou npm : <code>${esc(toolchain?.lockSha256)}</code></p><p>Versions réellement installées et moteur démarré avant la recette. Le contrôle des versions ne constitue pas un audit de sécurité du code.</p></section>
 <section><h2>Compatibilité des parcours essentiels</h2><p>${compatibilityOK ? 'RECETTE RÉUSSIE' : 'RECETTE INCOMPLÈTE OU EN ÉCHEC'}</p><p>${esc(compatibility?.platform)} · Playwright ${esc(compatibility?.playwright)}</p><ul>${(compatibility?.matrix || []).map(row => `<li>${esc(row.name)} : ${row.cases.filter(t => t.passed).length}/${row.cases.length} · ${esc(row.engine)} ${esc(row.version)}<details><summary>Scénarios</summary><ul>${row.cases.map(t => `<li>${esc(t.title)} : ${t.passed ? 'OK' : 'ÉCHEC'}</li>`).join('')}</ul></details></li>`).join('')}</ul><p>${esc(compatibilityLimits)}</p></section>
-<section><h2>Accessibilite</h2><p>Regles WCAG 2.1 A/AA detectables par axe-core. L'examen humain reste necessaire.</p>
+<section><h2>Accessibilite</h2><p>Règles WCAG 2.2 A/AA détectables par axe-core, dont la taille minimale des cibles. L'examen humain reste necessaire.</p>
 ${accessibility.map(a => `<details><summary>${esc(a.project)} / ${esc(a.state)} : ${a.violations.length} anomalie(s), ${a.incomplete.length} point(s) a examiner</summary><pre>${esc(JSON.stringify({ violations: a.violations, incomplete: a.incomplete }, null, 2))}</pre></details>`).join('')}</section>
 <section><h2>Captures a inspecter</h2><p>Aucune reference visuelle n'a encore ete approuvee.</p>${screenshots.map(s => `<figure><figcaption>${esc(s.project)} / ${esc(s.state)}</figcaption><a href="${s.file}"><img src="${s.file}" alt="${esc(s.project)} : ${esc(s.state)}" loading="lazy"></a></figure>`).join('')}</section>
 <section><h2>Perimetre restant</h2><ul>${status.notTested.map(t => `<li>${esc(t)}</li>`).join('')}</ul><p>${esc(status.humanDecision)}. Aucun deploiement n'est declenche par ce rapport.</p></section>

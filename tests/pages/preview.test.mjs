@@ -6,6 +6,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { buildPreview, assembleSite, previewFiles } from './preview.mjs';
 import { passingCompatibility } from '../helpers/compatibility-proof.mjs';
+import { passingToolchain } from '../helpers/toolchain-proof.mjs';
 
 const { planPages } = createRequire(import.meta.url)('./plan.cjs');
 const sha = 'a'.repeat(40);
@@ -17,7 +18,7 @@ function fixture(t) {
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, file === 'index.html' ? '<head></head><body><footer></footer></body>' : 'fixture');
   }
-  fs.writeFileSync(path.join(root, 'quality/status.json'), JSON.stringify({ state: 'inspection', commit: sha, compatibility: passingCompatibility(sha) }));
+  fs.writeFileSync(path.join(root, 'quality/status.json'), JSON.stringify({ state: 'inspection', commit: sha, compatibility: passingCompatibility(sha), toolchain: passingToolchain(sha) }));
   return root;
 }
 
@@ -74,7 +75,7 @@ test('compatibility absence, partial matrix and stale commit block preview const
   fs.mkdirSync(site);
   const partial = structuredClone(proof); partial.matrix[0].cases.pop();
   for (const compatibility of [null, partial, { ...proof, commit: 'b'.repeat(40) }]) {
-    const status = JSON.stringify({ state: 'inspection', commit: sha, compatibility });
+    const status = JSON.stringify({ state: 'inspection', commit: sha, compatibility, toolchain: passingToolchain(sha) });
     fs.writeFileSync(statusFile, status);
     fs.writeFileSync(path.join(incoming, 'rapport/status.json'), status);
     assert.throws(() => buildPreview(root, path.join(root, 'out'), { commit: sha, pr: 3 }), /Compatibilite/);
@@ -101,4 +102,16 @@ test('publisher accepts only the current successful internal PR and validated ma
     assert.equal((await planPages({ github: api(options), context })).publish, false);
   }
   assert.equal((await planPages({ github: api(), context: { ...context, eventName: 'pull_request_target' } })).publish, false);
+});
+
+
+test('runtime proof absence or stale commit blocks preview build and assembly',t=>{
+ const root=fixture(t),incoming=path.join(root,'incoming'),site=path.join(root,'site');
+ buildPreview(root,incoming,{commit:sha,pr:3});fs.mkdirSync(site);
+ for(const toolchain of [null,passingToolchain('old'),{...passingToolchain(sha),browser:null}]) {
+  const status=JSON.stringify({state:'inspection',commit:sha,compatibility:passingCompatibility(sha),toolchain});
+  fs.writeFileSync(path.join(root,'quality/status.json'),status);fs.writeFileSync(path.join(incoming,'rapport/status.json'),status);
+  assert.throws(()=>buildPreview(root,path.join(root,'out'),{commit:sha,pr:3}),/Versions/);
+  assert.throws(()=>assembleSite(site,root,incoming,{pr:3,commit:sha,openPRs:[]}),/Versions/);
+ }
 });

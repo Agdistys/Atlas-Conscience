@@ -2231,7 +2231,7 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   $('routeVariantMarkers').replaceChildren();
   if(!best&&(trip?.choices.length||0)>1)trip.choices.forEach((r,i)=>{
    const [x,y]=P(routeVariantAnchor(r,i)),g=document.createElementNS('http://www.w3.org/2000/svg','g'),active=i===trip.choice;
-   g.setAttribute('class','svg-route-variant'+(active?' current':''));g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-pressed',String(active));g.setAttribute('aria-haspopup','dialog');g.setAttribute('aria-label',routeChoiceText(r,i)+(active?' · référence actuelle':' · comparer avant confirmation'));g.dataset.routeIndex=String(i);
+   g.setAttribute('class','svg-route-variant'+(active?' current':''));g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-pressed',String(active));g.setAttribute('aria-haspopup','dialog');g.setAttribute('aria-label',`T${i+1} · `+routeChoiceText(r,i)+(active?' · référence actuelle':' · comparer avant confirmation'));g.dataset.routeIndex=String(i);
    g.innerHTML=`<rect x="${x-28}" y="${y-24}" width="56" height="48" rx="8"/><text x="${x}" y="${y+7}" text-anchor="middle">T${i+1}</text>`;
    g.addEventListener('click',()=>chooseRoute(i,g));g.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();chooseRoute(i,g)}});$('routeVariantMarkers').append(g);
   });
@@ -2266,7 +2266,7 @@ function showOnMap(coords,stations,best,start,end,label,fit=true){
   L.polyline(coords,{color:"#fff",weight:11,opacity:1,interactive:false,className:"map-route-outline"}).addTo(routeLayer);
   L.polyline(coords,{color:"#0758d9",weight:7,opacity:1,interactive:false,className:"map-route-selected"}).addTo(routeLayer);
   if(variants.length>1)for(const {r,i} of variants){
-   const active=i===trip.choice,title=routeChoiceText(r,i)+(active?' · référence actuelle':' · comparer avant confirmation');
+   const active=i===trip.choice,title=`T${i+1} · `+routeChoiceText(r,i)+(active?' · référence actuelle':' · comparer avant confirmation');
    const marker=L.marker(routeVariantAnchor(r,i),{icon:L.divIcon({className:'route-variant-marker'+(active?' current':''),html:'T'+(i+1),iconSize:[44,44],iconAnchor:[22,22]}),title,keyboard:true}).addTo(routeLayer);
    const el=marker.getElement();el.setAttribute('aria-label',title);el.setAttribute('aria-pressed',String(active));el.setAttribute('aria-haspopup','dialog');el.dataset.routeIndex=String(i);
    marker.on('click',()=>chooseRoute(i,el));el.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();e.stopPropagation();chooseRoute(i,el)}});

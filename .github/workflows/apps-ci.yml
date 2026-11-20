@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-24.04
     # Match the npm pin; browsers and OS libraries are already in this image.
     container:
-      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
       options: --init
     timeout-minutes: 20
     env:
@@ -38,7 +38,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Audit declared dependencies
+        run: |
+          mkdir -p quality
+          npm audit --audit-level=high --json > quality/npm-audit.json
       - name: Qualify essential flows
         # Firefox requires the real home directory of the container's root user.
         env:
@@ -50,6 +54,7 @@ jobs:
         with:
           name: inspectrice-compatibility
           path: |
+            quality/npm-audit.json
             quality/compatibility-status.json
             quality/compatibility-results.json
             quality/compatibility-results/
@@ -70,7 +75,7 @@ jobs:
         with:
           node-version: 22
       - name: Install test dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Read compatibility proof from this workflow run
