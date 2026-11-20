@@ -3842,6 +3842,7 @@ function adoptRouteChoice(){
  document.querySelector(`[data-route-choice="${index}"]`)?.focus();setStatus('Trajet choisi. Les stations seront recherchées sur ce trajet.','ok');
 }
 $('routeChoiceCancel').addEventListener('click',()=>closeRouteChoice());
+$('routeChoiceClose').addEventListener('click',()=>closeRouteChoice());
 $('routeChoiceConfirm').addEventListener('click',adoptRouteChoice);
 $('routeChoiceDialog').addEventListener('cancel',e=>{e.preventDefault();closeRouteChoice()});
 $('routeChoiceDialog').addEventListener('close',()=>{if(!$('routeChoiceDialog').open&&routeChoiceProposal)closeRouteChoice()});
@@ -4209,6 +4210,7 @@ function confirmStationPreview(){
  $('selectedStop').hidden=false;$('removeStopBtn').hidden=false;updateStopDuration();$('removeStopBtn').focus();
 }
 $('stationPreviewCancel').addEventListener('click',()=>closeStationPreview());
+$('stationPreviewClose').addEventListener('click',()=>closeStationPreview());
 $('stationPreviewDialog').addEventListener('cancel',e=>{e.preventDefault();closeStationPreview()});
 $('stationPreviewConfirm').addEventListener('click',confirmStationPreview);
 $('stationPreviewReference').addEventListener('change',drawStationPreview);
@@ -4961,3 +4963,22 @@ setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
 initMap();
 window.addEventListener("unhandledrejection",e=>dbg("Unhandled",e.reason?.message||String(e.reason)));
 })();
+
+// Keep keyboard focus below each dialog's actual sticky heading, including enlarged text.
+for(const dialog of document.querySelectorAll('dialog')){
+ const heading=dialog.querySelector('.dialog-heading');if(!heading)continue;
+ new ResizeObserver(()=>dialog.style.setProperty('--dialog-heading-height',`${heading.getBoundingClientRect().height}px`)).observe(heading);
+ dialog.addEventListener('keydown',event=>{
+  if(event.key!=='Tab'||!dialog.matches(':modal'))return;
+  const controls=[...dialog.querySelectorAll('button,input,select,textarea,a[href],summary,[tabindex]')].filter(e=>e.tabIndex>=0&&!e.matches(':disabled')&&e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden');
+  const first=controls[0],last=controls.at(-1);if(!first)return;
+  if(event.shiftKey&&(document.activeElement===first||!controls.includes(document.activeElement))){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&(document.activeElement===last||!controls.includes(document.activeElement))){event.preventDefault();first.focus()}
+ });
+ dialog.addEventListener('focusin',event=>{
+  if(!dialog.open||heading.contains(event.target))return;
+  const target=event.target;if(!(target instanceof HTMLElement))return;
+  const top=heading.getBoundingClientRect().bottom+12,rect=target.getBoundingClientRect();
+  if(rect.top<top)dialog.scrollBy({top:rect.top-top,behavior:'instant'});
+ });
+}

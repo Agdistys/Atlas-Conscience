@@ -326,7 +326,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 39f3cad · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 7a5bf32 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -435,13 +435,13 @@
   <button id="confirmPlace" class="primary" type="button" disabled>Confirmer ce lieu</button>
 </dialog>
 <dialog id="routeChoiceDialog" aria-labelledby="routeChoiceTitle">
-  <div class="dialog-heading"><h2 id="routeChoiceTitle" tabindex="-1">Comparer avant de changer de trajet</h2></div>
+  <div class="dialog-heading"><h2 id="routeChoiceTitle" tabindex="-1">Comparer avant de changer de trajet</h2><button id="routeChoiceClose" class="icon-btn" type="button" aria-label="Fermer sans changer de trajet">×</button></div>
   <p id="routeChoiceContext" class="note"></p><div id="routeChoiceMetrics"></div><p id="routeChoiceDifference"></p>
   <h3>Après confirmation</h3><ul id="routeChoiceEffects"></ul>
   <div class="dialog-actions route-choice-actions"><button id="routeChoiceCancel" class="ghost" type="button">Conserver le trajet actuel</button><button id="routeChoiceConfirm" class="primary" type="button">Confirmer le trajet</button></div>
 </dialog>
 <dialog id="stationPreviewDialog" aria-labelledby="stationPreviewTitle">
-  <div class="dialog-heading"><h2 id="stationPreviewTitle" tabindex="-1">Confirmer le trajet avec cette station</h2></div>
+  <div class="dialog-heading"><h2 id="stationPreviewTitle" tabindex="-1">Confirmer le trajet avec cette station</h2><button id="stationPreviewClose" class="icon-btn" type="button" aria-label="Fermer sans ajouter cet arrêt">×</button></div>
   <p id="stationPreviewContext" class="note"></p><p id="stationPreviewStatus" role="status" class="note"></p>
   <div id="stationPreviewBody" hidden>
     <p id="stationPreviewDifference"></p>
