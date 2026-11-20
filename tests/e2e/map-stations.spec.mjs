@@ -42,6 +42,9 @@ test('points : aperçu refusé et changement de critères effacent les anciens p
 });
 test('points : choix utilisable en paysage à texte doublé et tabulation bornée',async({page},info)=>{
  await setup(page);await page.setViewportSize({width:844,height:390});await enlargeText(page);await page.locator('#mapStationsBtn').click();await page.locator('#stationPickerClose').focus();for(let i=0;i<9;i++){await page.keyboard.press('Tab');await expect(page.locator('#stationPickerDialog :focus')).toHaveCount(1);await reachable(page.locator(':focus'),{focus:false,scroll:false})}await page.locator('#stationPickerSearch').fill('2 rue');await page.locator('[data-picker-station=S2]').click();await page.keyboard.press('Escape');await expect(page.locator('[data-picker-station=S2]')).toBeFocused();await readingOverflow(page);await capture(page,info,'choix-paysage-texte-double');await reachable(page.locator('#stationPickerClose'));await page.keyboard.press('Escape');await expect(page.locator('#mapStationsBtn')).toBeFocused();
+ for(const value of ['old','unknown','recent']){await page.locator('#stationPriceView').selectOption(value);await readingOverflow(page)}
+ for(const value of ['all','cost','price','detour','recommended']){await page.locator('#stationListMode').selectOption(value);await readingOverflow(page)}
+ await reachable(page.locator('#stationPriceView'));await capture(page,info,'filtres-paysage-texte-double');
 });
 
 test('points : refus d’un arrêt absent des recommandations rend le focus à son point',async({page})=>{

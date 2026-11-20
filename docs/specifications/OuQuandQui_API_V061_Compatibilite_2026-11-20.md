@@ -18,6 +18,12 @@ Une recette bornée réutilise vingt scénarios existants, sans copier leur logi
 
 La liste canonique et la matrice figurent dans `tests/compatibility-contract.mjs`. Le lanceur est `npm run test:compat`, avec `playwright.compat.config.mjs`. Une exécution filtrée par moteur est utile au diagnostic mais ne suffit pas à produire une recette complète.
 
+## Correction de lecture issue de la recette
+
+Sur WebKit, à 844 × 390 pixels avec le texte doublé, les intitulés longs du menu « Fraîcheur des prix » faisaient déborder le panneau des stations horizontalement. Les menus de fraîcheur et de classement utilisent désormais des intitulés courts ; les critères complets restent expliqués juste dessous. Les valeurs des choix, les filtres, les calculs et les données conservées sont inchangés.
+
+Le scénario de lecture conserve son contrôle de débordement et parcourt aussi chaque choix de ces deux menus. Le diagnostic donne les dimensions des éléments en cause en cas d’échec. Aucun masquage du débordement ni assouplissement du contrôle n’est ajouté.
+
 ## Preuve liée à la version
 
 Le lanceur supprime son ancien résultat avant chaque exécution. Il relève les versions réellement démarrées des moteurs, la version Playwright, le système, le commit, le résultat du processus et chaque scénario par format. Un cas manquant, remplacé, doublé, ignoré, échoué, interrompu ou réussi seulement après une nouvelle tentative empêche la validation. Le budget global de la suite est de douze minutes, sans nouvelle tentative automatique.
