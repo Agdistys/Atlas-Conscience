@@ -16,13 +16,13 @@ La fenêtre trie les stations par numéro stable. Une recherche locale permet de
 
 Fermer une fiche ramène le focus au choix correspondant, ou au point qui l’a ouverte directement. Fermer le choix des stations ramène au point d’origine ou à la commande de la carte. Si un redessin a remplacé un élément, le retour utilise son identifiant stable. Tabulation, tabulation inverse et Échap restent utilisables, y compris en paysage avec texte agrandi.
 
-Le bouton de choix dans la fiche ferme cette fenêtre intermédiaire et ouvre l’aperçu existant de l’arrêt. L’adoption exige toujours sa confirmation. Un refus conserve le trajet précédent. Un changement des critères de recherche supprime les résultats et ferme les choix devenus obsolètes. Les filtres actualisent le nombre et les points ; un arrêt conservé hors filtre est explicitement désigné dans la liste de la carte.
+Le bouton de choix dans la fiche ferme cette fenêtre intermédiaire et ouvre l’aperçu existant de l’arrêt. L’adoption exige toujours sa confirmation. Un refus conserve le trajet précédent. Si la station ne figure pas dans les recommandations du panneau, le focus revient à son point sur la carte. Un changement des critères de recherche supprime les résultats et ferme les choix devenus obsolètes. Les filtres actualisent le nombre et les points ; un arrêt conservé hors filtre est explicitement désigné dans la liste de la carte.
 
 Cette évolution ne modifie ni les prix, ni les classements, ni les critères de routage ou les limites de collecte. Aucun regroupement géographique n’efface les points. Aucun fournisseur ou enregistrement automatique n’est ajouté.
 
 ## Recette et limites
 
-Neuf scénarios sont exécutés sur les quatre formats habituels. Ils couvrent les deux rendus, les cibles mesurées, le clavier, les points superposés, les favoris, les filtres, la confirmation et son refus, l’invalidation des résultats, le retour du focus et la faible hauteur avec texte doublé.
+Dix scénarios sont exécutés sur les quatre formats habituels. Ils couvrent les deux rendus, les cibles mesurées, le clavier, les points superposés, les favoris, les filtres, la confirmation et son refus, l’invalidation des résultats, le retour du focus et la faible hauteur avec texte doublé.
 
 Le cas dense reçoit 100 stations simulées et les compare par cinq groupes de 20, au moyen du parcours normal de continuation. Les 100 points et les 100 lignes du choix restent accessibles ; la station numéro 100 peut être recherchée et sa fiche consultée. Le nombre de requêtes et l’absence d’écriture implicite sont contrôlés. Les durées locales jointes au rapport incluent l’orchestration du navigateur : elles constituent des observations de cette recette, pas une garantie de fluidité sur un téléphone physique.
 

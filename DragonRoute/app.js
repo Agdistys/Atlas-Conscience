@@ -2204,8 +2204,12 @@ $('stationPickerDialog').addEventListener('cancel',e=>{e.preventDefault();closeS
 $('stationPickerDialog').addEventListener('close',()=>{if(!$('stationPickerDialog').open&&stationPicker)closeStationPicker()});
 $('stationPickerSearch').addEventListener('input',renderStationPicker);
 $('stationPickerList').addEventListener('click',e=>{const button=e.target.closest('[data-picker-station]');if(!button||busy)return;const id=button.dataset.pickerStation;if(!mapStations().some(s=>s.id===id)){renderStationPicker();return}stationDetailReturn={pickerId:id};openStation(id)});
-new ResizeObserver(()=>{if(!mapView)return;if(map)queueStationPoints();else showOnMap(...mapView,false)}).observe($('map'));
-new ResizeObserver(()=>{if(!mapView)return;if(map)queueStationPoints();else showOnMap(...mapView,false)}).observe($('sheet'));
+const stationLayoutObserver=new ResizeObserver(()=>{
+ if(!mapView)return;if(map){queueStationPoints();return}
+ const id=document.activeElement?.dataset?.stationPoint;showOnMap(...mapView,false);
+ if(id)returnStationFocus(null,id);
+});
+stationLayoutObserver.observe($('map'));stationLayoutObserver.observe($('sheet'));
 function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   if(!coords?.length)return;
   const W=1000,H=700,pad=70;
@@ -4191,7 +4195,7 @@ function closeStationPreview(message='Arrêt non confirmé. Le trajet précéden
  if(stationPreviewMap){stationPreviewMap.remove();stationPreviewMap=null;stationPreviewLayers=null}
  $('stationPreviewMap').replaceChildren();$('stationPreviewSvg').replaceChildren();
  if($('stationPreviewDialog').open)$('stationPreviewDialog').close();
- if(op){$('fuelStatus').textContent=message;const button=[...document.querySelectorAll('[data-select]')].find(e=>e.dataset.select===op.station.id);if(button&&!button.disabled)button.focus()}
+ if(op){$('fuelStatus').textContent=message;const button=[...document.querySelectorAll('[data-select]')].find(e=>e.dataset.select===op.station.id);if(button&&!button.disabled)button.focus();else returnStationFocus(null,op.station.id)}
 }
 function stationPreviewConsent(op){
  const old=!stationFreshness(op.station).eligible,range=rangeEstimate(),far=range?.valid&&op.access?.km!==null&&op.access.km>range.useful;
