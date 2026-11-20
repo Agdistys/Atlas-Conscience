@@ -3758,6 +3758,7 @@ function chooseRoute(index){
   setStatus("Trajet choisi. Les stations seront recherchées sur ce trajet.","ok");
 }
 function clearStations(){
+  closeStationPreview();
   if(stationJob){stationJob.controller.abort();stationJob.invalid=true}
   $("stationContinuation").hidden=true;$("stationEmpty").hidden=true;
   selectedStop=null;invalidateStationPrice();
@@ -3920,33 +3921,113 @@ async function searchStations(more=false){
  }
 }
 
-async function selectStation(id){
-  if(busy||!trip||trip.routing.vehicle.type==='walk')return;
-  const station=compared.find(s=>s.id===id);if(!station)return;
-  try{readStopMinutes()}catch(e){$('stopMinutesStatus').textContent=e.message;$('stopMinutes').setAttribute('aria-invalid','true');$('stopMinutes').focus();return}
-  const range=rangeEstimate();
-  if(range?.valid&&station.distanceFromStart>range.useful&&!confirm("Cette station est hors de la portée estimée avec la réserve choisie. Conserver néanmoins cet arrêt dans la préparation du trajet ?"))return;
-  if((station.via||trip.choice>0)&&!confirm(`Ajouter cet arrêt ? Le trajet sera recalculé via la station et peut changer de routes. ${routingLabel(trip.routing)}.${station.via?` Total : ${fmt(station.via.distance/1000,1)} km, ${stopDurationText(station.via.duration,true,readStopMinutes())}.`:""}`))return;
-  lock(true);$("fuelStatus").textContent="Vérification du trajet avec cet arrêt…";
-  try{
-    const via=station.via||await route(routePlanNodes(station).map(n=>n.point));
-    if(trip.meetings){meetingLegs(via,routePlanNodes(station));if(!meetingDetour(via,trip.meetings.reference.base,trip.meetings.limits).allowed)throw new Error("Limite totale de détour des rencontres dépassée.");}
-    const changed=Math.abs(via.distance-(trip.base.distance+station.extraKm*1000))>100||Math.abs(via.duration-(trip.base.duration+station.extraMin*60))>60;
-    if(changed&&!confirm(`Le recalcul diffère de la comparaison : ${fmt(via.distance/1000,1)} km, ${Math.round(via.duration/60)} min. Confirmer ce trajet avec arrêt ?`)){$("fuelStatus").textContent="Arrêt non confirmé. Le trajet précédent est conservé.";return}
-    const freshness=stationFreshness(station);
-    if(!freshness.eligible&&!confirm(`${stationPriceText(station)}. Conserver uniquement cet arrêt dans le trajet, sans utiliser ce prix dans les recommandations ni dans le budget ?`)){$("fuelStatus").textContent="Arrêt non confirmé. Le trajet précédent est conservé.";renderStations(compared,stopWindow().mode);return}
-    invalidateStationPrice();selectedStop={station,via,confirmedAt:new Date().toISOString()};
-    updateTripMetrics();
-    renderStations(compared,stopWindow().mode,true);
-    document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===id));
-    document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===id)));
-    $("selectedStop").hidden=false;
-    $("removeStopBtn").hidden=false;
-    updateStopDuration();
-    $("fuelStatus").textContent="Trajet avec la station sélectionnée affiché sur la carte.";
-  }catch(e){dbg(e.message);$("fuelStatus").textContent=`Arrêt non confirmé : ${e.message}`}
-  finally{lock(false)}
+// BEGIN STATION PREVIEW MODEL
+function stationPreviewDelta(current,proposed){
+ for(const r of [current,proposed])if(!hasRouteMetrics(r))throw new Error('Distances ou durées invalides.');
+ const rounded=(v,n)=>Math.round(v*10**n)/10**n;
+ return {km:rounded(rounded(proposed.distance/1000,1)-rounded(current.distance/1000,1),1),minutes:rounded(rounded(proposed.duration/60,1)-rounded(current.duration/60,1),1)};
 }
+function stationPreviewAccess(via,nodes,fallback){
+ try{const leg=meetingLegs(via,nodes),distance=leg.accessDistance;if(!Number.isFinite(distance))throw new Error('Accès absent');return {km:distance/1000,seconds:leg.accessSeconds,source:'route'}}catch{return {km:Number.isFinite(fallback)&&fallback>=0?fallback:null,seconds:null,source:'comparison'}}
+}
+// END STATION PREVIEW MODEL
+let stationPreview=null,stationPreviewMap=null,stationPreviewLayers=null;
+function stationPreviewSignature(){
+ return JSON.stringify([roadContextSignature(),...['stopMinutes','rangeMode','rangeValue','reserveKm','liters','routeOnlyBefore'].map(id=>[$(id).value,$(id).checked])]);
+}
+function stationPreviewCurrent(op){return stationPreview===op&&trip===op.trip&&selectedStop===op.previous&&compared.includes(op.station)&&stationPreviewSignature()===op.signature}
+function closeStationPreview(message='Arrêt non confirmé. Le trajet précédent est conservé.'){
+ const op=stationPreview;stationPreview=null;
+ if(op?.running){op.controller.abort();if(activeAbort===op.controller)activeAbort=null;lock(false)}
+ if(stationPreviewMap){stationPreviewMap.remove();stationPreviewMap=null;stationPreviewLayers=null}
+ $('stationPreviewMap').replaceChildren();$('stationPreviewSvg').replaceChildren();
+ if($('stationPreviewDialog').open)$('stationPreviewDialog').close();
+ if(op){$('fuelStatus').textContent=message;const button=[...document.querySelectorAll('[data-select]')].find(e=>e.dataset.select===op.station.id);if(button&&!button.disabled)button.focus()}
+}
+function stationPreviewConsent(op){
+ const old=!stationFreshness(op.station).eligible,range=rangeEstimate(),far=range?.valid&&op.access?.km!==null&&op.access.km>range.useful;
+ if(old!==op.oldPrice){$('stationPreviewAcceptPrice').checked=false;op.oldPrice=old}
+ if(Boolean(far)!==op.outOfRange){$('stationPreviewAcceptRange').checked=false;op.outOfRange=Boolean(far)}
+ $('stationPreviewOldPrice').hidden=!old;$('stationPreviewFar').hidden=!far;
+ $('stationPreviewPrice').textContent=stationPriceText(op.station)+(old?' · Prix exclu du budget et des recommandations.':' · Ce prix ne remplace pas le prix de référence du budget sans action explicite.');
+ $('stationPreviewConfirm').disabled=!op.via||old&&!$('stationPreviewAcceptPrice').checked||far&&!$('stationPreviewAcceptRange').checked;
+ return !old||$('stationPreviewAcceptPrice').checked ? !far||$('stationPreviewAcceptRange').checked : false;
+}
+function drawStationPreview(){
+ const op=stationPreview;if(!op?.via)return;
+ const reference=$('stationPreviewReference').checked,coords=r=>r.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
+ const current=coords(op.reference),proposed=coords(op.via),points=[...current,...proposed,...op.nodes.map(n=>n.point)];
+ if(window.L){try{
+  if(!stationPreviewMap){stationPreviewMap=L.map('stationPreviewMap',{scrollWheelZoom:false});L.tileLayer(C.tileUrl,{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(stationPreviewMap)}
+  $('stationPreviewMap').hidden=false;$('stationPreviewSvg').setAttribute('hidden','');$('stationPreviewMapNote').textContent='Bleu foncé continu : trajet proposé avec la station. Bleu clair pointillé : trajet actuel. Les commandes de zoom et la carte sont accessibles au clavier.';
+  if(stationPreviewLayers)stationPreviewMap.removeLayer(stationPreviewLayers);stationPreviewLayers=L.featureGroup().addTo(stationPreviewMap);
+  if(reference)L.polyline(current,{color:'#82baff',weight:10,dashArray:'9 9',opacity:1,interactive:false}).addTo(stationPreviewLayers);
+  L.polyline(proposed,{color:'#fff',weight:7,opacity:1,interactive:false}).addTo(stationPreviewLayers);L.polyline(proposed,{color:'#0758d9',weight:4,opacity:1,interactive:false}).addTo(stationPreviewLayers);
+  op.nodes.forEach((n,i)=>L.marker(n.point,{icon:L.divIcon({className:'station-marker',html:String(i+1),iconSize:[32,32],iconAnchor:[16,16]}),title:(i+1)+'. '+op.labels[i],keyboard:true}).addTo(stationPreviewLayers));
+  stationPreviewMap.invalidateSize();stationPreviewMap.fitBounds(points,{padding:[30,30],animate:false});return;
+ }catch{if(stationPreviewMap)stationPreviewMap.remove();stationPreviewMap=null}}
+ $('stationPreviewMap').hidden=true;$('stationPreviewSvg').removeAttribute('hidden');$('stationPreviewMapNote').textContent='Schéma des tracés sans fond de carte. Bleu foncé continu : proposition ; bleu clair pointillé : trajet actuel. Les points numérotés correspondent aux étapes ci-dessous.';
+ const xs=points.map(p=>p[1]*Math.cos(points[0][0]*Math.PI/180)),ys=points.map(p=>p[0]),xmin=Math.min(...xs),ymin=Math.min(...ys),dx=Math.max(...xs)-xmin,dy=Math.max(...ys)-ymin,scale=Math.min(540/(dx||1e-6),300/(dy||1e-6));
+ const xy=([lat,lon])=>[300+(lon*Math.cos(points[0][0]*Math.PI/180)-xmin-dx/2)*scale,180-(lat-ymin-dy/2)*scale],path=ps=>ps.map(p=>xy(p).map(v=>v.toFixed(2)).join(',')).join(' ');
+ $('stationPreviewSvg').innerHTML=(reference?'<polyline points="'+path(current)+'" fill="none" stroke="#82baff" stroke-width="10" stroke-dasharray="9 9"/>':'')+'<polyline points="'+path(proposed)+'" fill="none" stroke="#fff" stroke-width="7"/><polyline points="'+path(proposed)+'" fill="none" stroke="#0758d9" stroke-width="4"/>'+op.nodes.map((n,i)=>{const [x,y]=xy(n.point);return '<g><circle cx="'+x+'" cy="'+y+'" r="13" fill="#fff" stroke="#111"/><text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" fill="#111">'+(i+1)+'</text></g>'}).join('');
+}
+function renderStationPreview(op){
+ if(!stationPreviewCurrent(op)){closeStationPreview('Aperçu périmé : le contexte a changé. Rechercher à nouveau cet arrêt.');return}
+ const f=escapeHtml,delta=stationPreviewDelta(op.reference,op.via),signed=v=>(v>0?'+':'')+fmt(v,1);
+ let h=null;try{h=timingHypotheses(routeTimingRaw())}catch{}
+ const cons=Number($('cons').value),price=budgetReference?.stationId?null:Number($('budgetPrice').value)||null;
+ const card=(r,title,hasStop)=>{const pause=stopDuration(r.duration,hasStop,op.minutes),liters=Number.isFinite(cons)&&cons>=1&&cons<=100?r.distance/1000*cons/100:null,cost=liters!==null&&price>0&&price<=10?liters*price:null;
+ return '<section><h3>'+title+'</h3><p><strong>'+fmt(r.distance/1000,1)+' km</strong></p><p>'+f(stopDurationText(r.duration,hasStop,op.minutes))+'</p><p>'+f(h?timingText(timingEstimate(pause.totalSeconds,h)):'Horaire non estimé : vérifier le départ et l’heure limite.')+'</p><p>Carburant consommé estimé : '+(liters===null?'inconnu':fmt(liters,2)+' L')+(cost===null?' · prix de référence non renseigné': ' · '+fmt(cost)+' €')+'.</p></section>'};
+ $('stationPreviewMetrics').innerHTML=card(op.reference,'Trajet actuel',Boolean(op.previous))+card(op.via,'Avec cette station',true);
+ $('stationPreviewDifference').textContent='Écarts par rapport au trajet actuel : '+signed(delta.km)+' km · '+signed(delta.minutes)+' min de conduite. '+(op.previous?'La station actuelle sera remplacée. ':'')+'Le tracé peut changer de routes.';
+ $('stationPreviewCosts').textContent='Consommation commune : '+fmt(cons,1)+' L/100 km'+(price>0?' ; prix de référence : '+fmt(price,3)+' €/L.':'. Prix du budget non repris s’il provenait de l’arrêt actuel.')+' Achat à la pompe distinct du carburant consommé. Péages et autres frais du nouveau trajet non vérifiés : budget total incomplet. Les anciens tronçons de péage seront à vérifier après adoption.';
+ $('stationPreviewAccess').textContent=(op.access.km===null?'Accès à la station non mesuré':`Station à ${fmt(op.access.km,1)} km du départ · ${op.access.source==='route'?'selon les étapes du tracé':'selon la comparaison précédente, à vérifier'}`)+'. '+(op.access.km===null?'Portée non vérifiable':stationRangeText(op.access.km))+'. '+openingText(op.access.source==='route'?{...op.station,accessSeconds:op.access.seconds}:op.station);
+ $('stationPreviewSteps').innerHTML=op.labels.map(label=>'<li>'+f(label)+'</li>').join('');
+ $('stationPreviewBody').hidden=false;$('stationPreviewStatus').textContent='Aperçu prêt. Le trajet actuel est conservé jusqu’à confirmation. Hors trafic en direct et autres pauses ; accès et état du terrain non garantis.';
+ stationPreviewConsent(op);drawStationPreview();
+}
+async function selectStation(id){
+ if(busy||!trip||trip.routing.vehicle.type==='walk')return;
+ const station=compared.find(s=>s.id===id);if(!station)return;
+ let minutes;try{minutes=readStopMinutes()}catch(e){$('stopMinutesStatus').textContent=e.message;$('stopMinutes').setAttribute('aria-invalid','true');$('stopMinutes').focus();return}
+ closeStationPreview();
+ const nodes=routePlanNodes(station),labels=nodes.map(n=>({start:trip.places.start,end:trip.places.end,station:'Station : '+station.address,pickup:'Prise en charge : '+(trip.meetings?.pickup.label||''),dropoff:'Dépose : '+(trip.meetings?.dropoff.label||'')}[n.kind]));
+ const op={trip,station,previous:selectedStop,reference:selectedStop?.via||trip.base,nodes,labels,minutes,controller:new AbortController(),running:true};
+ stationPreview=op;lock(true);op.signature=stationPreviewSignature();activeAbort=op.controller;
+ $('stationPreviewBody').hidden=true;$('stationPreviewConfirm').disabled=true;$('stationPreviewAcceptPrice').checked=false;$('stationPreviewAcceptRange').checked=false;$('stationPreviewReference').checked=true;
+ $('stationPreviewContext').textContent=station.address+' · '+routingLabel(trip.routing)+'. Les rencontres et leurs limites sont conservées.';
+ $('stationPreviewStatus').textContent='Calcul du trajet avec cette station… Le trajet actuel reste en place.';$('stationPreviewDialog').showModal();$('stationPreviewTitle').focus();
+ try{
+  const via=station.via||await route(nodes.map(n=>n.point),true,false,op.trip.routing,()=>stationPreviewCurrent(op));
+  if(!stationPreviewCurrent(op))return;
+  validateRoadChoice(via,[op.trip.a,op.trip.b]);
+  if(op.trip.meetings){meetingLegs(via,nodes);if(!meetingDetour(via,op.trip.meetings.reference.base,op.trip.meetings.limits).allowed)throw new Error('Limite totale de détour des rencontres dépassée.')}
+  op.via=via;op.access=stationPreviewAccess(via,nodes,station.distanceFromStart);
+ }catch(e){if(stationPreview===op){dbg(e.message);$('stationPreviewStatus').textContent='Arrêt non confirmé : '+e.message;$('fuelStatus').textContent='Arrêt non confirmé : '+e.message}}
+ finally{
+  if(stationPreview===op){op.running=false;if(activeAbort===op.controller)activeAbort=null;lock(false);if(op.via)renderStationPreview(op);else if(!stationPreviewCurrent(op))closeStationPreview('Aperçu périmé : le contexte a changé.')}
+ }
+}
+function confirmStationPreview(){
+ const op=stationPreview;if(!op?.via||op.running)return;
+ if(!stationPreviewCurrent(op)){closeStationPreview('Aperçu périmé : le contexte a changé. Rechercher à nouveau cet arrêt.');return}
+ if(!stationPreviewConsent(op)){$('stationPreviewStatus').textContent='Vérifier les réserves affichées avant de confirmer cet arrêt.';return}
+ if(op.access.source==='route'){op.station.distanceFromStart=op.access.km;op.station.accessSeconds=op.access.seconds}
+ invalidateStationPrice();selectedStop={station:op.station,via:op.via,confirmedAt:new Date().toISOString()};
+ closeStationPreview('Trajet avec la station sélectionnée affiché sur la carte.');
+ updateTripMetrics();renderStations(compared,stopWindow().mode,true);
+ document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===op.station.id));
+ document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===op.station.id)));
+ $('selectedStop').hidden=false;$('removeStopBtn').hidden=false;updateStopDuration();$('removeStopBtn').focus();
+}
+$('stationPreviewCancel').addEventListener('click',()=>closeStationPreview());
+$('stationPreviewDialog').addEventListener('cancel',e=>{e.preventDefault();closeStationPreview()});
+$('stationPreviewConfirm').addEventListener('click',confirmStationPreview);
+$('stationPreviewReference').addEventListener('change',drawStationPreview);
+for(const id of ['stationPreviewAcceptPrice','stationPreviewAcceptRange'])$(id).addEventListener('change',()=>{if(stationPreview?.via)stationPreviewConsent(stationPreview)});
+window.addEventListener('resize',()=>{if(stationPreview?.via)drawStationPreview()});
+window.addEventListener('focus',()=>{if(stationPreview?.via){if(stationPreviewCurrent(stationPreview))stationPreviewConsent(stationPreview);else closeStationPreview('Aperçu périmé : le contexte a changé.')}});
+
 function selectTab(name){
   for(const tab of ["stations","rides"]){
     $(tab+"Tab").setAttribute("aria-selected",String(tab===name));
