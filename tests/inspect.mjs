@@ -15,8 +15,8 @@ function run(name, command, args, timeout = 600_000) {
 run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
 run('report-tests', 'npm', ['run', 'test:inspection']);
-// The 2,396-scenario suite reached the old 45-minute bound on the hosted runner.
-// Allow 55 minutes, with five minutes left for setup/report/upload in the job.
+// The 2,796-scenario suite took 54.7 minutes on the hosted runner.
+// Allow 65 minutes, with five minutes left for setup/report/upload in the job.
 // Individual test timeouts and the requirement for a complete report are unchanged.
-run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 3_300_000);
+run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 3_900_000);
 process.exitCode = writeReport(process.cwd(), { publishSummary: false }).state === 'inspection' ? 0 : 1;

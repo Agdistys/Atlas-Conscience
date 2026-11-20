@@ -35,9 +35,10 @@ test('horaires : arrivée par station, filtre strict, inconnus séparés et ré�
  await capture(page,info,'horaires-fiche');await checkOverflow(page);await checkAccessibility(page,info,'horaires-fiche');await page.getByRole('button',{name:'Fermer la fiche station'}).click();
  await page.locator('#resetStationFilters').click();await ids(page,['A','B','C']);expect(calls()).toBe(n);await page.locator('#stationDeparture').scrollIntoViewIfNeeded();await capture(page,info,'horaires-filtres');await checkOverflow(page);await checkAccessibility(page,info,'horaires-filtres');
 });
-test('horaires : heure invalide et changements d’heure ne passent jamais le filtre strict',async({page})=>{
+test('horaires : départ inconnu ou heure invalide ne passent jamais le filtre strict',async({page})=>{
  const calls=await fixture(page),n=calls();await select(page,'compatible');
- for(const date of ['','2026-03-29T02:30','2026-10-25T02:30']){await page.locator('#stationDeparture').fill(date);await expect(page.locator('#stationDeparture')).toHaveAttribute('aria-invalid','true');await ids(page,[])}
+ await page.locator('#stationDeparture').fill('');await expect(page.locator('#stationDeparture')).toHaveAttribute('aria-invalid','false');await expect(page.locator('#stationDepartureStatus')).toContainText('non renseigné');await ids(page,[]);
+ for(const date of ['2026-03-29T02:30','2026-10-25T02:30']){await page.locator('#stationDeparture').fill(date);await expect(page.locator('#stationDeparture')).toHaveAttribute('aria-invalid','true');await ids(page,[])}
  await expect(page.locator('#stationDepartureStatus')).toContainText('existe deux fois');await page.locator('#stationDepartureNow').click();await expect(page.locator('#stationDeparture')).toHaveValue('2026-09-17T12:00');await ids(page,['A']);expect(calls()).toBe(n);
 });
 test('horaires : filtres cumulés, badges et arrêt choisi conservé hors horaires',async({page})=>{
