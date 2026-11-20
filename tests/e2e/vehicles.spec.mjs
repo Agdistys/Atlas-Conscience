@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
@@ -24,7 +25,7 @@ test('véhicules : créer, choisir, reprendre les réglages et garder les modifi
 
 test('véhicules : changement retire les calculs dépendants, préserve journal et préparation',async({page})=>{
  await seed(page,{[key]:fleet()});await page.goto('/DragonRoute/');page.on('dialog',d=>d.accept());const calls=[];page.on('request',r=>{if(/route\/v1|navigation\/itineraire/.test(r.url()))calls.push(r.url())});await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
- await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées');await page.locator('[data-select]').first().click();await expect(page.locator('#selectedStop')).toBeVisible();
+ await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées');await page.locator('[data-select]').first().click();await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toBeVisible();
  await page.locator('#savePreparationBtn').click();await page.locator('#preparedName').fill('Voiture initiale');await page.locator('#preparedConfirm').check();await page.locator('#preparedSave').click();await page.getByRole('button',{name:'Fermer les trajets préparés'}).click();
  await page.locator('#journalRecordBtn').click();await page.locator('#journalEnable').check();await page.locator('#journalCopy').click();await page.locator('#journalConfirm').check();await page.locator('#journalSave').click();await page.getByRole('button',{name:'Fermer le journal'}).click();
  const prepared=await read(page,'dragonroute.prepared.v11.public'),journal=await read(page,'dragonroute.journal.v2.public');

@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute,publicRouting,orsPattern,orsResponse} from '../helpers/dragonroute.mjs';
 import {capture,checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
@@ -40,7 +41,7 @@ test('horaires : heure invalide et changements d’heure ne passent jamais le fi
  await expect(page.locator('#stationDepartureStatus')).toContainText('existe deux fois');await page.locator('#stationDepartureNow').click();await expect(page.locator('#stationDeparture')).toHaveValue('2026-09-17T12:00');await ids(page,['A']);expect(calls()).toBe(n);
 });
 test('horaires : filtres cumulés, badges et arrêt choisi conservé hors horaires',async({page})=>{
- const calls=await fixture(page),n=calls();page.on('dialog',d=>d.accept());await page.locator('[data-select=B]').click();await expect(page.locator('#selectedStop')).toBeVisible();const afterSelect=calls();expect(afterSelect).toBeGreaterThan(n);
+ const calls=await fixture(page),n=calls();page.on('dialog',d=>d.accept());await page.locator('[data-select=B]').click();await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toBeVisible();const afterSelect=calls();expect(afterSelect).toBeGreaterThan(n);
  await select(page,'compatible');await page.locator('#stationDeparture').fill('2026-09-17T11:45');await expect(page.locator('#filteredStopNote')).toContainText('reste dans le trajet');await expect(page.locator('#stationDots .svg-station')).toHaveCount(2);
  await page.locator('#maxDetourKm').fill('0');await expect(page.locator('.result-card')).toHaveCount(0);await expect(page.locator('#stationDots .svg-station')).toHaveCount(1);
  await page.locator('#resetStationFilters').click();await select(page,'compatible');await expect(page.locator('[data-station=A] .result-badge')).toHaveText(['OPTIMAL','POMPE','RAPIDE']);expect(calls()).toBe(afterSelect);

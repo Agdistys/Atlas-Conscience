@@ -427,6 +427,23 @@
   <fieldset id="placeChoices" class="stop-modes"></fieldset>
   <button id="confirmPlace" class="primary" type="button" disabled>Confirmer ce lieu</button>
 </dialog>
+<dialog id="stationPreviewDialog" aria-labelledby="stationPreviewTitle">
+  <div class="dialog-heading"><h2 id="stationPreviewTitle" tabindex="-1">Confirmer le trajet avec cette station</h2></div>
+  <p id="stationPreviewContext" class="note"></p><p id="stationPreviewStatus" role="status" class="note"></p>
+  <div id="stationPreviewBody" hidden>
+    <p id="stationPreviewDifference"></p>
+    <label class="check-label"><input id="stationPreviewReference" type="checkbox" checked> Afficher aussi le trajet actuel en bleu clair pointillé</label>
+    <div id="stationPreviewMap" role="region" aria-label="Carte de comparaison des trajets" hidden></div>
+    <svg id="stationPreviewSvg" viewBox="0 0 600 360" role="img" aria-label="Schéma comparant le trajet actuel et la proposition avec station"></svg>
+    <p id="stationPreviewMapNote" class="note"></p>
+    <details><summary>Étapes du trajet proposé</summary><ol id="stationPreviewSteps"></ol></details>
+    <div id="stationPreviewMetrics"></div><p id="stationPreviewCosts" class="note"></p>
+    <p id="stationPreviewAccess" class="note"></p><p id="stationPreviewPrice" class="note"></p>
+    <label id="stationPreviewFar" class="check-label" hidden><input id="stationPreviewAcceptRange" type="checkbox"> Conserver cet arrêt dans la préparation malgré la portée estimée insuffisante</label>
+    <label id="stationPreviewOldPrice" class="check-label" hidden><input id="stationPreviewAcceptPrice" type="checkbox"> Conserver cet arrêt sans utiliser ce prix ancien ou non vérifiable dans le budget</label>
+  </div>
+  <div class="dialog-actions station-preview-actions"><button id="stationPreviewCancel" class="ghost" type="button">Conserver le trajet actuel</button><button id="stationPreviewConfirm" class="primary" type="button" disabled>Confirmer cet arrêt</button></div>
+</dialog>
 <dialog id="stationDialog" aria-labelledby="stationTitle">
   <div class="dialog-heading"><h2 id="stationTitle">Station</h2><button class="icon-btn close-dialog" aria-label="Fermer la fiche station" title="Fermer">×</button></div>
   <div id="stationDetails"></div>

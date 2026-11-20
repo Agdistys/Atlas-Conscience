@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
 import { mockDragonRoute, geocodingPattern, addressFeature, placesResponse } from '../helpers/dragonroute.mjs';
 import { capture, checkAccessibility, checkOverflow } from '../helpers/inspection.mjs';
@@ -91,7 +92,7 @@ test('budget carburant distinct du plein et peages inconnus', async ({page},info
 test('budget arret : distance via, prix source et suppression', async ({page}) => {
   await ready(page);await page.locator('#stationsBtn').click();
   await expect(page.locator('.result-card')).toHaveCount(2);
-  await page.locator('[data-select=A]').click();
+  await page.locator('[data-select=A]').click();await confirmStationPreview(page);
   await expect(page.locator('#tripKm')).toHaveText('106,0 km');
   await page.locator('#useStationPrice').click();
   await expect(page.locator('#budgetFuel')).toHaveText('6,57 L · 11,30 €');
@@ -135,10 +136,9 @@ test('autonomie : depart change, hors portee confirme et liste complete', async 
   await ready(page);await page.locator('#rangeOptions summary').click();
   await page.locator('#rangeMode').selectOption('km');await page.locator('#rangeValue').fill('20');
   await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
-  page.once('dialog',async d=>{expect(d.message()).toContain('hors');await d.dismiss()});
-  await page.locator('[data-select=A]').click();
+  await page.locator('[data-select=A]').click();await expect(page.locator('#stationPreviewFar')).toBeVisible();await expect(page.locator('#stationPreviewConfirm')).toBeDisabled();await page.locator('#stationPreviewCancel').click();
   await expect(page.locator('#selectedStop')).toBeHidden();
-  page.once('dialog',d=>d.accept());await page.locator('[data-select=A]').click();
+  await page.locator('[data-select=A]').click();await confirmStationPreview(page,{outOfRange:true});
   await expect(page.locator('#selectedStop')).toBeVisible();
   await page.locator('#stationListMode').selectOption('all');
   await expect(page.locator('[data-select=A]')).toHaveAttribute('aria-pressed','true');
@@ -161,8 +161,7 @@ test('recalcul via different : refus preserve ancien trajet et couts', async ({p
   await ready(page);await page.locator('#stationsBtn').click();
   await expect(page.locator('.result-card')).toHaveCount(2);
   await page.route('https://router.project-osrm.org/route/v1/driving/**',r=>r.fulfill({json:{code:'Ok',routes:[{distance:150000,duration:8000,geometry:{type:'LineString',coordinates:[[4.8357,45.764],[4.87,45.4],[4.8924,44.9334]]}}]}}));
-  page.once('dialog',async d=>{expect(d.message()).toContain('diffère');await d.dismiss()});
-  await page.locator('[data-select=A]').click();
+  await page.locator('[data-select=A]').click();await expect(page.locator('#stationPreviewMetrics')).toContainText('150,0 km');await page.locator('#stationPreviewCancel').click();
   await expect(page.locator('#fuelStatus')).toContainText('précédent est conservé');
   await expect(page.locator('#tripKm')).toHaveText('104,0 km');
   await expect(page.locator('#selectedStop')).toBeHidden();

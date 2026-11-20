@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
@@ -85,7 +86,7 @@ test('classements et égalités : badges recalculés sous contraintes, numéros 
 });
 
 test('arrêt choisi hors filtre conservé explicitement et retiré sans stations fantômes',async({page})=>{
-  await fixture(page);page.on('dialog',d=>d.accept());await page.locator('[data-select=A]').click();await expect(page.locator('#selectedStop')).toBeVisible();
+  await fixture(page);page.on('dialog',d=>d.accept());await page.locator('[data-select=A]').click();await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toBeVisible();
   await page.locator('#maxDetourKm').fill('0');await expect(page.locator('.result-card')).toHaveCount(0);await expect(page.locator('#eligibleCount')).toHaveText('0');
   await expect(page.locator('#filteredStopNote')).toContainText('reste dans le trajet');await expect(page.locator('#stationDots .svg-station')).toHaveCount(1);
   await expect(page.locator('#tripKm')).toHaveText('106,0 km');

@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {once} from 'node:events';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
@@ -57,7 +58,7 @@ test('peages : arret complet et retrait recalcules sans double paiement',async({
  const calls=[];await setup(page,r=>{const d=r.request().postDataJSON();calls.push(d);return r.fulfill({json:quote(d,d.coordinates.length===3?12:9.5)})});
  await page.route('https://router.project-osrm.org/route/v1/driving/**',r=>{const points=new URL(r.request().url()).pathname.split('/').at(-1).split(';').map(p=>p.split(',').map(Number));if(points.length!==3)return r.fallback();return r.fulfill({json:{code:'Ok',routes:[{distance:106000,duration:106000/26,geometry:{type:'LineString',coordinates:points}}]}})});
  await calculate(page);await expect(page.locator('#tollAmount')).toContainText('9,50');await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
- await page.locator('[data-select=A]').click();await expect(page.locator('#tollAmount')).toHaveText('12,00 € · estimation');expect(calls.at(-1).coordinates).toEqual([[4.8357,45.764],[4.87,45.4],[4.8924,44.9334]]);
+ await page.locator('[data-select=A]').click();await confirmStationPreview(page);await expect(page.locator('#tollAmount')).toHaveText('12,00 € · estimation');expect(calls.at(-1).coordinates).toEqual([[4.8357,45.764],[4.87,45.4],[4.8924,44.9334]]);
  await page.locator('#removeStopBtn').click();await expect(page.locator('#tollAmount')).toHaveText('9,50 € · estimation');expect(calls.at(-1).coordinates).toEqual(calls[0].coordinates);
 });
 test('peages : panne, reprise manuelle et expiration sans appels repetes',async({page})=>{

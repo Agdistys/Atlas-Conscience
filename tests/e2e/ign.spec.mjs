@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
 import { mockDragonRoute } from '../helpers/dragonroute.mjs';
 import { capture, checkAccessibility, checkOverflow } from '../helpers/inspection.mjs';
@@ -43,7 +44,7 @@ test('IGN sans autoroute : trajet et stations gardent les exclusions et le cache
   for(const url of requests.slice(1))expect(new URL(url).searchParams.get('intermediates')).toMatch(/^4\.8/);
   await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées');
   expect(requests).toHaveLength(3);
-  page.once('dialog',d=>d.accept());await page.locator('[data-select]').first().click();
+  await page.locator('[data-select]').first().click();await confirmStationPreview(page);
   await expect(page.locator('#tripKm')).toHaveText('130,0 km');expect(requests).toHaveLength(3);
   await page.locator('#removeStopBtn').click();await expect(page.locator('#tripKm')).toHaveText('120,0 km');
   await page.locator('#sheet').evaluate(e=>e.scrollTop=0);

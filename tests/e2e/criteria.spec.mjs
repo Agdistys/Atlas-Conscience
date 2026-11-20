@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
@@ -29,7 +30,7 @@ test('critères : durée et distance changent le tracé sans mélanger le cache'
 
 test('critères : stations et arrêt utilisent aussi la distance, avec autoroutes permises',async({page})=>{
  const calls=await setup(page);await page.locator('#routeOptimization').selectOption('shortest');await go(page);await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées');
- page.once('dialog',d=>d.accept());await page.locator('[data-select]').first().click();await expect(page.locator('#tripKm')).toHaveText('110,0 km');await expect(page.locator('#appliedRouting')).toContainText('Plus court');expect(calls.ign).toHaveLength(3);
+ await page.locator('[data-select]').first().click();await confirmStationPreview(page);await expect(page.locator('#tripKm')).toHaveText('110,0 km');await expect(page.locator('#appliedRouting')).toContainText('Plus court');expect(calls.ign).toHaveLength(3);
  for(const u of calls.ign){const p=new URL(u).searchParams;expect(p.get('optimization')).toBe('shortest');expect(p.has('constraints')).toBe(false)}expect(calls.osrm).toHaveLength(0);
  await page.locator('#removeStopBtn').click();await expect(page.locator('#tripKm')).toHaveText('100,0 km');expect(calls.ign).toHaveLength(3);
 });

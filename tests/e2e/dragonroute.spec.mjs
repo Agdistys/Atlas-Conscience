@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
 import { mockDragonRoute, orsPattern, orsResponse, testOrsKey, publicRouting } from '../helpers/dragonroute.mjs';
 import { capture, checkAccessibility, checkOverflow } from '../helpers/inspection.mjs';
@@ -53,11 +54,9 @@ test('routage public exclusions appliquees aux stations sans secret client', asy
   await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées',{timeout:20000});
   await expect(page.locator('.result-card').first()).toContainText('+10,0 km');
   expect(requests.map(x=>x.coordinates.length)).toEqual([2,3,3]);expect(osrm).toBe(0);
-  page.once('dialog',dialog=>dialog.dismiss());
-  await page.locator('[data-select]').first().click();
+  await page.locator('[data-select]').first().click();await expect(page.locator('#stationPreviewBody')).toBeVisible();await page.locator('#stationPreviewCancel').click();
   await expect(page.locator('#selectedStop')).toBeHidden();
-  page.once('dialog',async dialog=>{expect(dialog.message()).toContain('peut changer de routes');await dialog.accept()});
-  await page.locator('[data-select]').first().click();
+  await page.locator('[data-select]').first().click();await confirmStationPreview(page);
   await expect(page.locator('#selectedStop')).toContainText('130,0 km');
   expect(requests).toHaveLength(3);
   await page.locator('#routingOptions').scrollIntoViewIfNeeded();
@@ -172,7 +171,7 @@ test('alternatives selectionnables et suppression arret sans ancien classement',
   await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
   page.once('dialog',d=>d.dismiss());await page.locator('input[name=routeChoice][value="1"]').click();
   await expect(page.locator('input[name=routeChoice][value="0"]')).toBeChecked();
-  await page.locator('[data-select]').first().click();await expect(page.locator('#removeStopBtn')).toBeVisible();
+  await page.locator('[data-select]').first().click();await confirmStationPreview(page);await expect(page.locator('#removeStopBtn')).toBeVisible();
   await page.locator('#removeStopBtn').click();await expect(page.locator('#selectedStop')).toBeHidden();
   await expect(page.locator('#routeLine')).toHaveAttribute('d',initial);
   await expect(page.locator('[data-select][aria-pressed=true]')).toHaveCount(0);
@@ -383,7 +382,7 @@ test('une seule station cumule les trois badges sans doublon', async ({ page }) 
   await page.locator('#stationsBtn').click();
   await expect(page.locator('.result-card')).toHaveCount(1);
   await expect(page.locator('.result-badge')).toHaveText(['OPTIMAL','POMPE','RAPIDE']);
-  await page.getByRole('button', { name: 'Choisir cette station' }).click();
+  await page.getByRole('button', { name: 'Choisir cette station' }).click();await confirmStationPreview(page);
   await expect(page.locator('#selectedStop')).toContainText('Station unique');
   await expect(page.locator('.choose-station')).toHaveAttribute('aria-pressed', 'true');
 });
@@ -451,7 +450,7 @@ test('carte Leaflet interactive sans recouvrement des commandes', async ({ page 
   expect(sheet.x + sheet.width <= map.x + 1 || map.y + map.height <= sheet.y + 1).toBe(true);
   await page.locator('.leaflet-control-zoom-in').click();
   await capture(page, info, 'carte-leaflet');
-  await page.locator('[data-select]').first().click();
+  await page.locator('[data-select]').first().click();await confirmStationPreview(page);
   await expect(page.locator('#selectedStop')).toBeVisible();
   await expect(page.locator('.map-route-selected')).toHaveCount(1);
   await expect(page.locator('.map-route-alternative')).toHaveCount(0);

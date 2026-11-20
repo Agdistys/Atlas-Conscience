@@ -73,3 +73,14 @@ export async function mockDragonRoute(page,{origin="http://127.0.0.1:4173"}={}){
     ]
   }));
 }
+
+// Explicit user action for the station preview; never auto-accept a native dialog.
+export async function confirmStationPreview(page,{oldPrice=false,outOfRange=false}={}){
+ const {expect}=await import('@playwright/test');
+ await expect(page.locator('#stationPreviewBody')).toBeVisible();
+ if(oldPrice)await page.locator('#stationPreviewAcceptPrice').check();
+ if(outOfRange)await page.locator('#stationPreviewAcceptRange').check();
+ await expect(page.locator('#stationPreviewConfirm')).toBeEnabled();
+ await page.locator('#stationPreviewConfirm').click();
+ await expect(page.locator('#stationPreviewDialog')).toBeHidden();
+}

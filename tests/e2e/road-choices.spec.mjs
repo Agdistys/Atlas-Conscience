@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
 import {mockDragonRoute,publicRouting,orsPattern,orsResponse} from '../helpers/dragonroute.mjs';
@@ -46,7 +47,7 @@ test('choix routiers : mêmes exclusions IGN, cache distinct et arrêts recalcul
  const calls=await setup(page);await page.locator('#avoidHighways').check();await go(page);await open(page);await calculate(page);
  expect(calls.ign.map(u=>new URL(u).searchParams.get('optimization'))).toEqual(['fastest','shortest']);expect(calls.osrm).toHaveLength(0);expect(calls.ign.every(u=>new URL(u).searchParams.has('constraints'))).toBe(true);
  await adopt(page,'shortest').click();await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées');
- page.once('dialog',d=>d.accept());await page.locator('[data-select]').first().click();await expect(page.locator('#tripKm')).toHaveText('110,0 km');await expect(page.locator('#appliedRouting')).toContainText('Plus court');expect(calls.ign.slice(2).every(u=>new URL(u).searchParams.get('optimization')==='shortest')).toBe(true);expect(calls.osrm).toHaveLength(0);
+ await page.locator('[data-select]').first().click();await confirmStationPreview(page);await expect(page.locator('#tripKm')).toHaveText('110,0 km');await expect(page.locator('#appliedRouting')).toContainText('Plus court');expect(calls.ign.slice(2).every(u=>new URL(u).searchParams.get('optimization')==='shortest')).toBe(true);expect(calls.osrm).toHaveLength(0);
 });
 
 test('choix routiers : heure limite, filtre local et arrivée inconnue sans faux admissible',async({page})=>{
@@ -93,7 +94,7 @@ test('choix routiers : contexte modifié pendant un calcul rend sa réponse inut
 });
 
 test('choix routiers : arrêt préservé au refus, retiré après confirmation sans ancien tarif',async({page})=>{
- await setup(page);await go(page);await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('stations comparées');await page.locator('[data-select]').first().click();await page.locator('#useStationPrice').click();await expect(page.locator('#selectedStop')).toBeVisible();const km=await page.locator('#tripKm').innerText(),price=await page.locator('#budgetPrice').inputValue();
+ await setup(page);await go(page);await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('stations comparées');await page.locator('[data-select]').first().click();await confirmStationPreview(page);await page.locator('#useStationPrice').click();await expect(page.locator('#selectedStop')).toBeVisible();const km=await page.locator('#tripKm').innerText(),price=await page.locator('#budgetPrice').inputValue();
  await open(page);await calculate(page);page.once('dialog',d=>d.dismiss());await adopt(page,'shortest').click();await expect(page.locator('#tripKm')).toHaveText(km);await expect(page.locator('#budgetPrice')).toHaveValue(price);await expect(page.locator('#selectedStop')).toBeVisible();
  page.once('dialog',d=>d.accept());await adopt(page,'shortest').click();await expect(page.locator('#selectedStop')).toBeHidden();await expect(page.locator('#budgetPrice')).toHaveValue('');await expect(page.locator('#tollAmount')).toHaveText('Tarif indisponible');await expect(page.locator('#budgetTotal')).toHaveText('Incomplet');await expect(page.locator('.result-card')).toHaveCount(0);
 });

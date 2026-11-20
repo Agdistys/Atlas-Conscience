@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse,publicRouting,orsPattern,orsResponse} from '../helpers/dragonroute.mjs';
@@ -67,7 +68,7 @@ test('navigation : variante et arret confirmes dans les liens et le GPX',async({
   expect(track.description).toContain('118,0 km');await close(page);
   await page.locator('input[name=routeChoice][value="0"]').check();
   await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
-  await page.locator('[data-select=A]').click();await expect(page.locator('#selectedStop')).toBeVisible();
+  await page.locator('[data-select=A]').click();await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toBeVisible();
   await open(page);
   expect(new URL(await page.locator('#googleMapsLink').getAttribute('href')).searchParams.get('waypoints')).toBe('45.4,4.87');
   expect(new URL(await page.locator('#wazeStationLink').getAttribute('href')).searchParams.get('ll')).toBe('45.4,4.87');

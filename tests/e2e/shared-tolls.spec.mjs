@@ -1,3 +1,4 @@
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {setup,plan,save,calculate,adopt} from '../helpers/meetings.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
@@ -38,7 +39,7 @@ test('péages partagés : dates, classe et expiration invalident sans restaurer 
 });
 test('péages partagés : station, rencontres et reprise ne réutilisent pas les attributions',async({page})=>{
  await ready(page);await assign(page);const doc=await save(page);expect(JSON.stringify(doc)).not.toMatch(/sharedTolls|tollRevision|placement|AIGUEBELETTE/);await page.getByRole('button',{name:'Fermer les trajets préparés'}).click();
- await page.locator('#stationsTab').click();await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('stations comparées');page.once('dialog',d=>d.accept());await page.locator('[data-select=A]').click();await page.locator('#ridesTab').click();await expect(picks(page)).toHaveCount(0);await expect(line(page,'Par passager')).toContainText('carburant seulement');
+ await page.locator('#stationsTab').click();await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('stations comparées');await page.locator('[data-select=A]').click();await confirmStationPreview(page);await page.locator('#ridesTab').click();await expect(picks(page)).toHaveCount(0);await expect(line(page,'Par passager')).toContainText('carburant seulement');
  await add(page);await assign(page);await page.locator('#meetingRemove').click();await expect(page.locator('#rideTollAllocation')).toBeHidden();await expect(page.locator('#tariffSegments li')).toHaveCount(0);
  await page.reload();await page.locator('#preparedBtn').click();await page.locator('[data-prepared-show]').click();await page.locator('#preparedResumeBtn').click();await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await page.locator('#meetingReview').click();await calculate(page);await adopt(page);await expect(picks(page)).toHaveCount(0);await add(page);await open(page);await expect(picks(page)).toHaveValue('unassigned');
 });
