@@ -1,3 +1,4 @@
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
@@ -41,7 +42,7 @@ test('BPNL : dates propres au réseau, date inconnue et expiration sans zero imp
 });
 test('BPNL : classe et changement de route retirent montant et confirmation de passage',async({page})=>{
  await setup(page);await choose(page);await page.locator('#tariffAdd').click();await page.locator('#tariffClass').selectOption('2');await expect(page.locator('#tariffSegments li')).toHaveCount(0);await expect(page.locator('#tariffPassageConfirmed')).not.toBeChecked();
- await page.locator('#tariffPassageConfirmed').check();await page.locator('#tariffAdd').click();await page.locator('#routeChoices input').nth(1).check();await expect(page.locator('#tariffSegments li')).toHaveCount(0);await expect(page.locator('#tariffPassageConfirmed')).not.toBeChecked();await expect(page.locator('#tariffAdd')).toBeDisabled();
+ await page.locator('#tariffPassageConfirmed').check();await page.locator('#tariffAdd').click();await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);await expect(page.locator('#tariffSegments li')).toHaveCount(0);await expect(page.locator('#tariffPassageConfirmed')).not.toBeChecked();await expect(page.locator('#tariffAdd')).toBeDisabled();
  await page.locator('#tariffPassageConfirmed').check();await page.locator('#tariffDate').fill('2026-11-25');await expect(page.locator('#tariffPassageConfirmed')).not.toBeChecked();
 });
 test('BPNL : classe absente dans une source ne devient jamais un tarif nul',async({page})=>{

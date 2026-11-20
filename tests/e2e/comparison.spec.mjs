@@ -1,3 +1,4 @@
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';import fs from 'node:fs/promises';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';
@@ -34,7 +35,7 @@ test('comparaison : annulation et réponse tardive ne remplacent pas le trajet a
 });
 
 test('comparaison : lieux, variante, limite et préférences invalident les résultats',async({page})=>{
- await setup(page);await go(page,false);await open(page);await calculate(page);await page.locator('input[name=routeChoice][value="1"]').check();await expect(page.locator('#comparisonPanel')).toBeHidden();await open(page);await calculate(page);await page.locator('#start').fill('Autre départ');await expect(page.locator('#comparisonPanel')).toBeHidden();await expect(page.locator('#compareBtn')).toBeHidden();await go(page);await open(page);await calculate(page);await page.locator('#comparisonWalkLimit').fill('1');await expect(card(page,'walk')).toContainText('Limite souhaitée dépassée');await page.locator('#avoidHighways').uncheck();await expect(page.locator('#comparisonPanel')).toBeHidden();await expect(page.locator('#summary')).toBeHidden();
+ await setup(page);await go(page,false);await open(page);await calculate(page);await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);await expect(page.locator('#comparisonPanel')).toBeHidden();await open(page);await calculate(page);await page.locator('#start').fill('Autre départ');await expect(page.locator('#comparisonPanel')).toBeHidden();await expect(page.locator('#compareBtn')).toBeHidden();await go(page);await open(page);await calculate(page);await page.locator('#comparisonWalkLimit').fill('1');await expect(card(page,'walk')).toContainText('Limite souhaitée dépassée');await page.locator('#avoidHighways').uncheck();await expect(page.locator('#comparisonPanel')).toBeHidden();await expect(page.locator('#summary')).toBeHidden();
 });
 
 test('comparaison : arrêt et prix de station préservés au refus, retirés après confirmation',async({page})=>{

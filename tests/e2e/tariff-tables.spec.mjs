@@ -1,3 +1,4 @@
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
@@ -42,8 +43,8 @@ test('grilles : changement de classe, date et expiration invalident le budget',a
 test('grilles : variante, station et nouveau depart retirent les anciens troncons',async({page})=>{
  await setup(page);page.on('dialog',d=>d.accept());
  await page.route('https://router.project-osrm.org/route/v1/driving/**',r=>{const points=new URL(r.request().url()).pathname.split('/').at(-1).split(';').map(p=>p.split(',').map(Number));if(points.length!==3)return r.fallback();return r.fulfill({json:{code:'Ok',routes:[{distance:106000,duration:106000/26,geometry:{type:'LineString',coordinates:points}}]}})});
- await choose(page);await page.locator('#tariffAdd').click();await page.locator('#routeChoices input').nth(1).check();await expect(page.locator('#tariffSegments li')).toHaveCount(0);
- await page.locator('#routeChoices input').first().check();await page.locator('#tariffAdd').click();await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
+ await choose(page);await page.locator('#tariffAdd').click();await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);await expect(page.locator('#tariffSegments li')).toHaveCount(0);
+ await page.locator('[data-route-choice="0"]').click();await confirmRouteChoice(page);await page.locator('#tariffAdd').click();await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
  await page.locator('[data-select=A]').click();await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toBeVisible();await expect(page.locator('#tariffSegments li')).toHaveCount(0);
  await page.locator('#tariffAdd').click();await page.locator('#start').fill('Autre départ');await expect(page.locator('#tripBudget')).toBeHidden();
  await page.locator('#goBtn').click();await expect(page.locator('#tollAmount')).toHaveText('Tarif indisponible');

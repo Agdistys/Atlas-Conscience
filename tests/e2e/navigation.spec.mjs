@@ -1,3 +1,4 @@
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
@@ -61,12 +62,12 @@ test('navigation : variante et arret confirmes dans les liens et le GPX',async({
     return r.fulfill({json:{code:'Ok',routes:[{distance:106000,duration:106000/26,geometry:{type:'LineString',coordinates:points}}]}});
   });
   await ready(page);
-  await page.locator('input[name=routeChoice][value="1"]').check();await open(page);
+  await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);await open(page);
   let track=await gpx(page,info,'variante');expect(track.error).toBe(0);
   expect(track.namespace).toBe('http://www.topografix.com/GPX/1/1');expect(track.version).toBe('1.1');
   expect(track.points).toContainEqual([5.08,45.55]);expect(track.waypoints).toHaveLength(2);
   expect(track.description).toContain('118,0 km');await close(page);
-  await page.locator('input[name=routeChoice][value="0"]').check();
+  await page.locator('[data-route-choice="0"]').click();await confirmRouteChoice(page);
   await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
   await page.locator('[data-select=A]').click();await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toBeVisible();
   await open(page);

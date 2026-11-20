@@ -1,3 +1,4 @@
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
 import { mockDragonRoute, geocodingPattern, addressFeature, placesResponse } from '../helpers/dragonroute.mjs';
@@ -76,7 +77,7 @@ test('budget carburant distinct du plein et peages inconnus', async ({page},info
   await expect(page.locator('#tripBudget .budget-lines')).toContainText('Tarif indisponible');
   await expect(page.locator('#tripBudget .budget-lines')).toContainText('Incomplet');
   await expect(page.locator('#useStationPrice')).toBeDisabled();
-  await page.locator('input[name=routeChoice][value="1"]').check();
+  await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);
   await expect(page.locator('#budgetFuel')).toHaveText('7,32 L · 14,63 €');
   await page.locator('#budgetPrice').fill('0');
   await expect(page.locator('#budgetFuel')).toContainText('prix à renseigner');

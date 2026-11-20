@@ -84,3 +84,10 @@ export async function confirmStationPreview(page,{oldPrice=false,outOfRange=fals
  await page.locator('#stationPreviewConfirm').click();
  await expect(page.locator('#stationPreviewDialog')).toBeHidden();
 }
+
+export async function confirmRouteChoice(page){
+ const {expect}=await import('@playwright/test');
+ await expect(page.locator('#routeChoiceDialog')).toBeVisible();
+ await page.locator('#routeChoiceConfirm').click();
+ await expect(page.locator('#routeChoiceDialog')).toBeHidden();
+}

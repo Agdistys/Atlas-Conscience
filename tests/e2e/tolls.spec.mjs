@@ -1,3 +1,4 @@
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {once} from 'node:events';
 import {test,expect} from '@playwright/test';
@@ -50,8 +51,8 @@ test('peages : variante ignore la reponse tardive de lancien trace',async({page}
  await page.addInitScript(()=>{const original=window.fetch;window.fetch=(url,options)=>original(url,String(url).includes('tolls.example.test')?{...options,signal:undefined}:options)});
  let pending,resolveRequest;const received=new Promise(r=>resolveRequest=r);const calls=[];
  await setup(page,r=>{const data=r.request().postDataJSON();calls.push(data);if(calls.length===1){pending=r;resolveRequest();return}return r.fulfill({json:quote(data,15)})});
- await calculate(page);await received;await page.locator('input[name=routeChoice][value="1"]').check();
- await expect(page.locator('#tollAmount')).toHaveText('15,00 € · estimation');expect(calls[1].coordinates).toContainEqual([5.08,45.55]);
+ await calculate(page);await received;await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);
+ await expect(page.locator('#tollAmount')).toHaveText('Tarif indisponible');expect(calls).toHaveLength(1);await page.locator('#tollCalculate').click();await expect(page.locator('#tollAmount')).toHaveText('15,00 € · estimation');expect(calls[1].coordinates).toContainEqual([5.08,45.55]);
  await pending.fulfill({json:quote(calls[0],95)});await page.waitForTimeout(100);await expect(page.locator('#tollAmount')).toHaveText('15,00 € · estimation');
 });
 test('peages : arret complet et retrait recalcules sans double paiement',async({page})=>{

@@ -21,7 +21,7 @@
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
       <div id="mapFallback" class="fallback-map">
         <svg id="routeViz" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Schéma du trajet, sans fond cartographique">
-          <g id="grid"></g><g id="alternativeRoutes"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="meetingDots"></g><g id="stationDots"></g><g id="tollDots"></g>
+          <g id="grid"></g><g id="alternativeRoutes"></g><path id="routeGlow" class="route-glow" d=""></path><path id="routeLine" class="route-line" d=""></path><g id="routeVariantMarkers"></g><g id="meetingDots"></g><g id="stationDots"></g><g id="tollDots"></g>
           <circle id="startDot" class="endpoint" r="7" cx="-50" cy="-50"></circle><circle id="endDot" class="endpoint" r="7" cx="-50" cy="-50"></circle>
         </svg>
         <div id="fallbackLabel" class="map-label">Chargement de la carte…</div>
@@ -426,6 +426,12 @@
   <div class="dialog-heading"><h2 id="placeTitle">Choisir le lieu</h2><button id="cancelPlace" class="icon-btn" type="button" aria-label="Annuler le choix du lieu" title="Annuler">×</button></div>
   <fieldset id="placeChoices" class="stop-modes"></fieldset>
   <button id="confirmPlace" class="primary" type="button" disabled>Confirmer ce lieu</button>
+</dialog>
+<dialog id="routeChoiceDialog" aria-labelledby="routeChoiceTitle">
+  <div class="dialog-heading"><h2 id="routeChoiceTitle" tabindex="-1">Comparer avant de changer de trajet</h2></div>
+  <p id="routeChoiceContext" class="note"></p><div id="routeChoiceMetrics"></div><p id="routeChoiceDifference"></p>
+  <h3>Après confirmation</h3><ul id="routeChoiceEffects"></ul>
+  <div class="dialog-actions route-choice-actions"><button id="routeChoiceCancel" class="ghost" type="button">Conserver le trajet actuel</button><button id="routeChoiceConfirm" class="primary" type="button">Confirmer le trajet</button></div>
 </dialog>
 <dialog id="stationPreviewDialog" aria-labelledby="stationPreviewTitle">
   <div class="dialog-heading"><h2 id="stationPreviewTitle" tabindex="-1">Confirmer le trajet avec cette station</h2></div>

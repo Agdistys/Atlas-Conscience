@@ -1,3 +1,4 @@
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {createRequire} from 'node:module';
 import fs from 'node:fs';
@@ -49,7 +50,7 @@ test('repérage : points accessibles, masquage, rayon et nouveau trajet retirent
  await page.locator('#tollGuideToggle').click();await expect(page.locator('.svg-toll')).toHaveCount(count);
  await page.locator('#tollGuideRadius').selectOption('0.1');await expect(card(page,entry)).toBeVisible();
  await proposePair(page);await page.locator('#tariffGateConfirmed').check();
- await page.locator('#routeChoices input').nth(1).check();await expect(page.locator('.toll-gate-card')).toHaveCount(0);await expect(page.locator('.svg-toll')).toHaveCount(0);await expect(page.locator('#tariffEntry')).toHaveValue('');await expect(page.locator('#tariffAdd')).toBeDisabled();
+ await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);await expect(page.locator('.toll-gate-card')).toHaveCount(0);await expect(page.locator('.svg-toll')).toHaveCount(0);await expect(page.locator('#tariffEntry')).toHaveValue('');await expect(page.locator('#tariffAdd')).toBeDisabled();
  await page.locator('#tollLocate').click();await expect(page.locator('#tollGuideStatus')).toContainText('Cela ne confirme pas');await expect(page.locator('#tollAmount')).toHaveText('Tarif indisponible');
 });
 

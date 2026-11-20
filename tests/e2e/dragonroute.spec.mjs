@@ -1,3 +1,4 @@
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
 import { mockDragonRoute, orsPattern, orsResponse, testOrsKey, publicRouting } from '../helpers/dragonroute.mjs';
@@ -161,21 +162,21 @@ test('alternatives selectionnables et suppression arret sans ancien classement',
   await page.goto('/DragonRoute/');await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('Trajet prêt');
   const initial=await page.locator('#routeLine').getAttribute('d');
-  await page.locator('input[name=routeChoice][value="1"]').check();
+  await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);
   await expect(page.locator('#tripKm')).toHaveText('118,0 km');
   expect(await page.locator('#routeLine').getAttribute('d')).not.toBe(initial);
   await page.locator('#stationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('non comparable');
   await expect(page.locator('.result-card')).toHaveCount(0);
-  await page.locator('input[name=routeChoice][value="0"]').check();
+  await page.locator('[data-route-choice="0"]').click();await confirmRouteChoice(page);
   await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
-  page.once('dialog',d=>d.dismiss());await page.locator('input[name=routeChoice][value="1"]').click();
-  await expect(page.locator('input[name=routeChoice][value="0"]')).toBeChecked();
+  await page.locator('[data-route-choice="1"]').click();await page.locator('#routeChoiceCancel').click();
+  await expect(page.locator('[data-route-choice="0"]')).toHaveAttribute('aria-pressed','true');
   await page.locator('[data-select]').first().click();await confirmStationPreview(page);await expect(page.locator('#removeStopBtn')).toBeVisible();
   await page.locator('#removeStopBtn').click();await expect(page.locator('#selectedStop')).toBeHidden();
   await expect(page.locator('#routeLine')).toHaveAttribute('d',initial);
   await expect(page.locator('[data-select][aria-pressed=true]')).toHaveCount(0);
-  page.once('dialog',d=>d.accept());await page.locator('input[name=routeChoice][value="1"]').click();
+  await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);
   await expect(page.locator('#tripKm')).toHaveText('118,0 km');await expect(page.locator('.result-card')).toHaveCount(0);
 });
 
