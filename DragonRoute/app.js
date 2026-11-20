@@ -746,12 +746,12 @@ function bindJournal(){
 function placeDescription(place){return `${place.label} · IGN · choix du ${new Date(place.resolvedAt).toLocaleDateString('fr-FR')}`}
 function clearRememberedInput(field){if(field==='start'){currentPos=null;currentFix=null;updateGpsOrigin()}preparationInputs[field]=null;resumePreparation=null;updateResumePreparation();rememberedInputs[field]=null;favoriteInputs[field]=null;$(field+'PlaceNote').hidden=true}
 function resetRememberedInputs(){clearRememberedInput('start');clearRememberedInput('end')}
-async function resolveTripPlace(value,field,isCurrent=()=>true){
+async function resolveTripPlace(value,field,isCurrent=()=>true,signal=activeAbort?.signal){
  if(!isCurrent())throw new Error("Recherche du lieu annulée.");
  const prepared=preparationInputs[field];if(prepared?.value===value)return structuredClone(prepared.place);
  const favorite=favoriteInputs[field];
  if(favorite?.value===value&&!temporaryAddress(value)){rememberedInputs[field]=structuredClone(favorite);return favorite.place}
- const place=await geocode(temporaryAddress(value)&&field==='start'?'__CURRENT__':value,field,isCurrent);
+ const place=await geocode(temporaryAddress(value)&&field==='start'?'__CURRENT__':value,field,isCurrent,signal);
  if(!isCurrent())throw new Error("Recherche du lieu annulée.");
  rememberedInputs[field]=temporaryAddress(value)?null:{value,place:{...place,source:'ign',resolvedAt:new Date().toISOString()}};
  return place;
@@ -1448,17 +1448,18 @@ function valueNum(id,min,max){
   if(!Number.isFinite(n)||n<min||n>max) throw new Error(`Valeur invalide : ${id}`);
   return n;
 }
-function makeTimeout(ms){
+function makeTimeout(ms,parent=activeAbort?.signal){
   const c=new AbortController(), t=setTimeout(()=>c.abort(),ms);
-  const parent=activeAbort?.signal,onAbort=()=>c.abort();
+  const onAbort=()=>c.abort();
   if(parent?.aborted)c.abort();else parent?.addEventListener("abort",onAbort,{once:true});
   return {signal:c.signal,done:()=>{clearTimeout(t);parent?.removeEventListener("abort",onAbort)}};
 }
-async function getJSON(url,label,ms=16000){
+async function getJSON(url,label,ms=16000,signal=activeAbort?.signal){
   dbg("GET",label,url);
-  const t=makeTimeout(ms);
+  const t=makeTimeout(ms,signal);
   try{
     const r=await fetch(url,{signal:t.signal,headers:{Accept:"application/json"}});
+    if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");
     if(!r.ok){
       const error=new Error(`${label} : HTTP ${r.status}`);
       error.status=r.status;
@@ -1466,9 +1467,9 @@ async function getJSON(url,label,ms=16000){
       error.retryAfterMs=retry==null?0:/^\d+$/.test(retry)?Number(retry)*1000:Date.parse(retry)-Date.now();
       throw error;
     }
-    return await r.json();
+    const data=await r.json();if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");return data;
   }catch(e){
-    if(e.name==="AbortError") throw new Error(`${label} : délai dépassé`);
+    if(e.name==="AbortError") {if(signal?.aborted)throw new DOMException("Recherche interrompue.","AbortError");throw new Error(`${label} : délai dépassé`)}
     if(e instanceof TypeError) throw new Error(`${label} : requête réseau refusée`);
     throw e;
   }finally{t.done()}
@@ -1526,13 +1527,18 @@ function makeGrid(){
   $("grid").innerHTML=s;
 }
 
-function choosePlace(places,field){
+function choosePlace(places,field,signal=activeAbort?.signal){
+  if(signal?.aborted)throw new DOMException("Choix du lieu annulé.","AbortError");
   const dialog=$("placeDialog");
   $("placeTitle").textContent=field==="pickup"?"Quel lieu de prise en charge ?":field==="dropoff"?"Quel lieu de dépose ?":field==="address"?"Quelle adresse enregistrer ?":field==="start"?"Quel lieu de départ ?":"Quel lieu d’arrivée ?";
   $("placeChoices").innerHTML=`<legend>Plusieurs lieux correspondent</legend>${places.map((p,i)=>`<label><input type="radio" name="placeChoice" value="${i}"><span>${escapeHtml(p.label)}</span></label>`).join("")}`;
   $("confirmPlace").disabled=true;
   dialog.showModal();
-  return new Promise((resolve,reject)=>{placePending={places,resolve,reject}});
+  return new Promise((resolve,reject)=>{
+    const pending={places,resolve,reject,signal,cleanup:()=>signal?.removeEventListener('abort',onAbort)};
+    const onAbort=()=>{pending.cleanup();if(placePending===pending){placePending=null;if(dialog.open)dialog.close()}reject(new DOMException('Choix du lieu annulé.','AbortError'))};
+    placePending=pending;signal?.addEventListener('abort',onAbort,{once:true});
+  });
 }
 function geocodedPlace(feature){
   const coordinates=feature?.geometry?.coordinates,p=feature?.properties;
@@ -1548,7 +1554,7 @@ function geocodedPlace(feature){
   for(const detail of details)if(!parts.some(part=>part.toLocaleLowerCase("fr-FR").includes(detail.toLocaleLowerCase("fr-FR"))))parts.push(detail);
   return {lat:coordinates[1],lon:coordinates[0],label:parts.join(" · ")};
 }
-async function geocode(q,field,isCurrent=()=>true){
+async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal){
   if(!isCurrent())throw new Error("Recherche du lieu annulée.");
   if(q==="__CURRENT__"){
     if(!currentPos) throw new Error("Position GPS non disponible");
@@ -1561,11 +1567,11 @@ async function geocode(q,field,isCurrent=()=>true){
     const remaining=Math.ceil((geoBlockedUntil-performance.now())/1000);
     if(remaining>0)throw new Error(`Recherche d’adresses temporairement limitée. Réessayer dans ${remaining} s.`);
     await sleep(Math.max(0,250-(performance.now()-geoLastRequest)));
-    if(activeAbort?.signal.aborted)throw new Error("Recherche d’adresses annulée.");
+    if(signal?.aborted||!isCurrent())throw new DOMException("Recherche d’adresses annulée.","AbortError");
     geoLastRequest=performance.now();
     const p=new URLSearchParams({q:query,index:"address,poi",limit:"5",autocomplete:"false"});
     let d;
-    try{d=await getJSON(`${C.geocodingApi}?${p}`,"Recherche d’adresses IGN")}
+    try{d=await getJSON(`${C.geocodingApi}?${p}`,"Recherche d’adresses IGN",16000,signal)}
     catch(e){
       if(e.status===429){
         const delay=Math.max(5000,Number.isFinite(e.retryAfterMs)?e.retryAfterMs:0);
@@ -1584,7 +1590,7 @@ async function geocode(q,field,isCurrent=()=>true){
     geoCache.set(key,{at:performance.now(),places});
   }
   if(!isCurrent())throw new Error("Recherche du lieu annulée.");
-  return places.length===1?places[0]:choosePlace(places,field);
+  return places.length===1?places[0]:choosePlace(places,field,signal);
 }
 function validateDimensions(d){
   const maxima={height:6,width:6,length:40,weight:100,axleload:30};
@@ -1629,7 +1635,7 @@ let walkRun=null;
 function walkingRule(id){const rule=$(id).value;if(!['soft','strict'].includes(rule))throw new Error('Règle de marche invalide.');return rule==='strict'}
 function readWalkingCriteria(compared=false){const field=$(compared?'comparisonWalkLimit':'maxWalkKm');if(field.validity.badInput)throw new Error('Distance de marche invalide.');return walkCriteria(field.value,walkingRule(compared?'comparisonWalkRule':'walkRule'))}
 function fillWalkingCriteria(c){$('maxWalkKm').value=c.maxWalkKm??'';$('walkRule').value=c.walkStrict?'strict':'soft'}
-function walkingChanged(){if(walkRun){walkRun.cancelled=true;walkRun.controller.abort();if($('placeDialog').open)$('placeDialog').close();setStatus('Critères de marche modifiés : calcul annulé.');return}updateWalking()}
+function walkingChanged(){if(walkRun){cancelTripSearch('Critères de marche modifiés : calcul annulé.');return}updateWalking()}
 function updateWalking(){
  const walking=isWalking();$('walkingOptions').hidden=!walking;$('routingOptions').hidden=walking;if(walking)$('activeVehicle').hidden=true;
  $('savePreparationBtn').disabled=busy;$('journalRecordBtn').disabled=busy;
@@ -1696,16 +1702,26 @@ function hasRouteGeometry(r){
   return r?.geometry?.type==="LineString"&&Array.isArray(r.geometry.coordinates)&&r.geometry.coordinates.length>1&&r.geometry.coordinates.every(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90);
 }
 function hasRouteMetrics(r){return [r?.distance,r?.duration].every(n=>Number.isFinite(n)&&n>=0)}
-async function orsRoutes(points,settings,alternatives=false){
+const routingBlockedUntil=new Map();
+function checkRouteRequest(isCurrent,signal){if(signal?.aborted||!isCurrent())throw new DOMException('Recherche interrompue.','AbortError')}
+function routingCooldown(provider,error){
+ if(error?.status===429)routingBlockedUntil.set(provider,Math.max(routingBlockedUntil.get(provider)||0,performance.now()+Math.max(5000,Number.isFinite(error.retryAfterMs)?error.retryAfterMs:0)));
+ const remaining=Math.ceil(((routingBlockedUntil.get(provider)||0)-performance.now())/1000);
+ if(remaining>0)throw Object.assign(new Error(`Limite du service ${provider==='ign'?'IGN':provider==='ors'?'public':'routier'} atteinte. Réessayer dans ${remaining} s. Le critère et les contraintes sont conservés.`),{status:429,retryAfterMs:remaining*1000});
+}
+async function orsRoutes(points,settings,alternatives=false,isCurrent=()=>true,signal=activeAbort?.signal){
+  checkRouteRequest(isCurrent,signal);routingCooldown("ors");
   const endpoint=routingEndpoint();if(!endpoint)throw new Error("Service public de routage non activé.");
   await sleep(Math.max(0,1800-(performance.now()-orsLastRequest)));
-  if(activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
+  checkRouteRequest(isCurrent,signal);routingCooldown("ors");
   orsLastRequest=performance.now();
-  const t=makeTimeout(25000);
+  const t=makeTimeout(25000,signal);
   const body={coordinates:points.map(([lat,lon])=>[lon,lat]),avoid:[...settings.avoid],vehicle:settings.vehicle,alternatives};
   try{
     const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/geo+json"},body:JSON.stringify(body),signal:t.signal,cache:"no-store",credentials:"omit",redirect:"error",referrerPolicy:"no-referrer"});
     const data=await response.json().catch(()=>null);
+    checkRouteRequest(isCurrent,signal);if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");
+    if(response.status===429){const retry=response.headers.get("Retry-After");routingCooldown("ors",{status:429,retryAfterMs:retry==null?0:/^\d+$/.test(retry)?Number(retry)*1000:Date.parse(retry)-Date.now()})}
     if(!response.ok||data?.error){
       const noRoute=data?.error?.code==="NO_ROUTE";
       const message=response.status===401||response.status===403?"Accès au service public refusé.":response.status===429?"Limite du service public atteinte. Réessayer plus tard.":noRoute?"Aucun trajet accessible avec ces options.":`Service public indisponible ou demande refusée (HTTP ${response.status}).`;
@@ -1719,35 +1735,35 @@ async function orsRoutes(points,settings,alternatives=false){
       return r;
     });
   }catch(e){
-    health("hRoute","err","routage ✕");
-    if(e.name==="AbortError")throw new Error(activeAbort?.signal.aborted?"Recherche interrompue.":"OpenRouteService : délai dépassé.");
+    checkRouteRequest(isCurrent,signal);health("hRoute","err","routage ✕");
+    if(e.name==="AbortError")throw new Error(signal?.aborted?"Recherche interrompue.":"OpenRouteService : délai dépassé.");
     if(e instanceof TypeError)throw new Error("OpenRouteService : requête réseau refusée.");
     throw e;
   }finally{t.done()}
 }
-async function ignRoute(points,settings,isCurrent=()=>true){
+async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.signal){
   ensureRouting(settings);
   const walking=settings.vehicle.type==='walk',profileName=walking?'pedestrian':'car',snapKm=walking?.15:1;
   const key=JSON.stringify([points,settings.avoid,profileName,settings.optimization]),cached=ignCache.get(key);
-  if(activeAbort?.signal.aborted||!isCurrent())throw new Error("Recherche interrompue.");
+  checkRouteRequest(isCurrent,signal);
   if(cached&&performance.now()-cached.at<300000)return structuredClone(cached.route);
   // Calls are sequential in run/scoreConstrainedCandidates. Below 5 requests/s/IP;
   // other tabs/users on the same IP may still trigger a quota: never auto-retry.
-  await sleep(Math.max(0,550-(performance.now()-ignLastRequest)));
-  if(activeAbort?.signal.aborted||!isCurrent())throw new Error("Recherche interrompue.");
-  ignLastRequest=performance.now();
+  routingCooldown("ign");await sleep(Math.max(0,550-(performance.now()-ignLastRequest)));
+  checkRouteRequest(isCurrent,signal);
+  routingCooldown("ign");ignLastRequest=performance.now();
   const constraint={constraintType:"banned",key:"waytype",operator:"=",value:"autoroute"};
   const query=new URLSearchParams({resource:"bdtopo-osrm",profile:profileName,optimization:settings.optimization,start:[...points[0]].reverse().join(","),end:[...points.at(-1)].reverse().join(","),geometryFormat:"geojson",crs:"EPSG:4326",distanceUnit:"meter",timeUnit:"second",getSteps:"false",getBbox:"false"});
   if(settings.avoid.includes("highways"))query.set("constraints",JSON.stringify(constraint));
   if(points.length>2)query.set("intermediates",points.slice(1,-1).map(([lat,lon])=>`${lon},${lat}`).join("|"));
   let data;
-  try{data=await getJSON(`https://data.geopf.fr/navigation/itineraire?${query}`,"IGN",25000)}
+  try{data=await getJSON(`https://data.geopf.fr/navigation/itineraire?${query}`,"IGN",25000,signal)}
   catch(e){
-    health("hRoute","err","routage ✕");
-    if(e.message.includes("HTTP 429"))throw new Error("Limite du service IGN atteinte. Réessayer plus tard. "+"Le critère et les contraintes sont conservés.");
+    checkRouteRequest(isCurrent,signal);health("hRoute","err","routage ✕");
+    routingCooldown("ign",e);
     throw new Error(`${e.message}. ${walking?"Aucun trajet voiture ne sera substitué.":settings.avoid.length?"Aucun trajet avec autoroute ne sera substitué.":"Aucun autre critère ne sera substitué."}`);
   }
-  if(activeAbort?.signal.aborted||!isCurrent())throw new Error("Recherche interrompue.");
+  checkRouteRequest(isCurrent,signal);
   const r={geometry:data.geometry,distance:data.distance,duration:data.duration,legs:data.portions,alternatives:[],resourceVersion:data.resourceVersion};
   const exclusions=data.constraints;
   const echoed=!settings.avoid.length?Array.isArray(exclusions)&&exclusions.length===0:Array.isArray(exclusions)&&exclusions.length===1&&exclusions[0].type==="banned"&&exclusions[0].key==="waytype"&&exclusions[0].operator==="="&&exclusions[0].value==="autoroute";
@@ -1759,7 +1775,7 @@ async function ignRoute(points,settings,isCurrent=()=>true){
   }));
   const geometry=hasRouteGeometry(r)&&hav([...r.geometry.coordinates[0]].slice(0,2).reverse(),points[0])<=snapKm&&hav([...r.geometry.coordinates.at(-1)].slice(0,2).reverse(),points.at(-1))<=snapKm;
   if(data.resource!=="bdtopo-osrm"||data.profile!==profileName||(walking&&(typeof data.resourceVersion!=="string"||!data.resourceVersion.trim()))||data.optimization!==settings.optimization||data.crs!=="EPSG:4326"||data.distanceUnit!=="meter"||data.timeUnit!=="second"||!echoed||!geometry||!hasRouteMetrics(r)||!legs||!endpoints){
-    health("hRoute","err","routage ✕");
+    checkRouteRequest(isCurrent,signal);health("hRoute","err","routage ✕");
     throw new Error("Réponse IGN incomplète ou incohérente : critère, unités, accès ou exclusion non confirmés. Aucun trajet de remplacement affiché.");
   }
   r.alternativeNotice=walking?"Un itinéraire à pied calculé par l’IGN. Aucune alternative demandée ; durée estimée hors pauses. Pente, escaliers, revêtement et accessibilité non vérifiés.":`Un seul trajet ${settings.avoid.length?"sans autoroute ":""}calculé par l’IGN. Le montant des péages reste inconnu, notamment pour les ouvrages payants.`;
@@ -1767,18 +1783,19 @@ async function ignRoute(points,settings,isCurrent=()=>true){
   ignCache.set(key,{at:performance.now(),route:structuredClone(r)});
   return r;
 }
-async function route(points,overview=true,alternatives=false,settings=trip?.routing||routingPreferences(),isCurrent=()=>true){
+async function route(points,overview=true,alternatives=false,settings=trip?.routing||routingPreferences(),isCurrent=()=>true,signal=activeAbort?.signal){
+  checkRouteRequest(isCurrent,signal);
   health("hRoute","busy","routage…");
   ensureRouting(settings);
   if(settings.provider==="ign"){
-    const r=await ignRoute(points,settings,isCurrent);
+    const r=await ignRoute(points,settings,isCurrent,signal);
     health("hRoute","ok","routage ✓");return r;
   }
   if(settings.provider==="ors"){
-    let base=(await orsRoutes(points,settings))[0];
+    let base=(await orsRoutes(points,settings,false,isCurrent,signal))[0];
     if(alternatives&&base.distance<=100000){
-      try{const all=await orsRoutes(points,settings,true);base={...all[0],alternatives:all.slice(1)}}
-      catch{base.alternativeNotice="Recherche d’alternatives indisponible. Le trajet calculé avec les exclusions est conservé."}
+      try{const all=await orsRoutes(points,settings,true,isCurrent,signal);base={...all[0],alternatives:all.slice(1)}}
+      catch{checkRouteRequest(isCurrent,signal);base.alternativeNotice="Recherche d’alternatives indisponible. Le trajet calculé avec les exclusions est conservé."}
     }else if(alternatives)base.alternativeNotice="Alternatives non recherchées : limite OpenRouteService de 100 km dépassée.";
     health("hRoute","ok","routage ✓");
     return base;
@@ -1786,7 +1803,8 @@ async function route(points,overview=true,alternatives=false,settings=trip?.rout
   if(settings.avoid.length||settings.vehicle.type!=="car")throw new Error("OSRM ne prend pas en charge ces options de véhicule ou d’exclusion.");
   const coords=points.map(p=>`${p[1]},${p[0]}`).join(";");
   const u=`${C.osrm}/route/v1/driving/${coords}?overview=${overview?"full":"false"}&geometries=geojson&steps=false&alternatives=${alternatives}`;
-  const d=await getJSON(u,"Routage",20000);
+  routingCooldown("osrm");let d;try{d=await getJSON(u,"Routage",20000,signal)}catch(e){checkRouteRequest(isCurrent,signal);routingCooldown("osrm",e);throw e}
+  checkRouteRequest(isCurrent,signal);
   if(d.code!=="Ok"||!d.routes?.length) throw new Error("Aucun itinéraire routier trouvé");
   if(!hasRouteMetrics(d.routes[0])||(overview&&!hasRouteGeometry(d.routes[0])))throw new Error("Tracé routier incomplet. Relancer la recherche.");
   if(points.length>=4){
@@ -3911,26 +3929,40 @@ function displayTrip(base,routing,a,b,ga,gb){
     updateWindow();$("rideTrip").textContent=label;
     setStatus(routing.vehicle.type==="walk"?"Trajet prêt · à pied. Vérifier la distance et les conditions du parcours.":"Trajet prêt. Choisis maintenant tes arrêts.","ok");
 }
+let tripRun=null,tripRequestId=0;
+function tripSearchSignature(){return JSON.stringify([...['start','end','travelMode','routeOptimization','routeVehicle','maxWalkKm','walkRule',...Object.values(dimensionFields)].map(id=>[id,$(id).value]),...[...document.querySelectorAll('.avoid-options input')].map(el=>[el.id,el.checked]),currentPos])}
+function finishTripSearch(job){
+ if(tripRun!==job)return;tripRun=null;if(walkRun===job)walkRun=null;
+ if(activeAbort===job.controller)activeAbort=null;lock(false);$('cancelTripBtn').hidden=true;
+}
+function cancelTripSearch(message='Recherche du trajet annulée. Saisies et options conservées.'){
+ const job=tripRun;if(!job)return;job.cancelled=true;job.controller.abort();finishTripSearch(job);
+ health('hGeo','','géocodage');health('hRoute','','routage');setStatus(message);$('diagWrap').open=false;
+ $( $('goBtn').disabled?'start':'goBtn').focus();
+}
 async function run(){
-  if(busy)return;
-  if(activeAbort)activeAbort.abort();activeAbort=new AbortController();
-  clearResults();lock(true);log.length=0;const walking=isWalking(),signature=JSON.stringify(['start','end','travelMode','routeOptimization','maxWalkKm','walkRule'].map(id=>$(id).value)),job={controller:activeAbort,cancelled:false};if(walking)walkRun=job;const current=()=>!walking||walkRun===job&&!job.cancelled&&!job.controller.signal.aborted&&signature===JSON.stringify(['start','end','travelMode','routeOptimization','maxWalkKm','walkRule'].map(id=>$(id).value));
-  health("hGeo","","géocodage");health("hRoute","","routage");
-  try{
-    const routing=routingPreferences();ensureRouting(routing);
-    const sv=$("start").value.trim(),ev=$("end").value.trim();
-    if(!sv||!ev)throw new Error("Départ et arrivée requis.");
-    setStatus("Recherche du départ…","busy");health("hGeo","busy","géocodage…");
-    const ga=await resolveTripPlace(sv,"start",current);
-    setStatus("Recherche de l’arrivée…","busy");const gb=await resolveTripPlace(ev,"end",current);
-    health("hGeo","ok","géocodage ✓");
-    const a=[ga.lat,ga.lon],b=[gb.lat,gb.lon];
-    setStatus("Calcul du trajet…","busy");
-    const base=await route([a,b],true,true,routing,current);
-    if(!current())throw new Error('Critères modifiés : calcul à pied annulé.');displayTrip(base,routing,a,b,ga,gb);
-  }catch(e){
-    if(walking&&!current()){setStatus('Critères modifiés : calcul à pied annulé.');return}dbg(e.stack||e.message);setStatus(`⚠️ ${e.message}`,"err");$("diagWrap").open=true;
-  }finally{if(walkRun===job)walkRun=null;lock(false);activeAbort=null}
+ if(busy)return;
+ if(activeAbort)activeAbort.abort();clearResults();
+ const job={id:++tripRequestId,revision:tripSearchSignature(),controller:new AbortController(),cancelled:false,phase:'hGeo'};
+ tripRun=job;activeAbort=job.controller;if(isWalking())walkRun=job;
+ const current=()=>tripRun===job&&!job.cancelled&&!job.controller.signal.aborted&&job.revision===tripSearchSignature();
+ lock(true);$('cancelTripBtn').hidden=false;$('cancelTripBtn').disabled=false;log.length=0;
+ health('hGeo','','géocodage');health('hRoute','','routage');
+ try{
+  const routing=routingPreferences();ensureRouting(routing);
+  const sv=$('start').value.trim(),ev=$('end').value.trim();if(!sv||!ev)throw new Error('Départ et arrivée requis.');
+  setStatus('Recherche du départ…','busy');health('hGeo','busy','géocodage…');
+  const ga=await resolveTripPlace(sv,'start',current,job.controller.signal);checkRouteRequest(current,job.controller.signal);
+  setStatus('Recherche de l’arrivée…','busy');const gb=await resolveTripPlace(ev,'end',current,job.controller.signal);checkRouteRequest(current,job.controller.signal);
+  health('hGeo','ok','géocodage ✓');job.phase='hRoute';const a=[ga.lat,ga.lon],b=[gb.lat,gb.lon];setStatus('Calcul du trajet…','busy');
+  const base=await route([a,b],true,true,routing,current,job.controller.signal);checkRouteRequest(current,job.controller.signal);
+  displayTrip(base,routing,a,b,ga,gb);
+ }catch(e){
+  if(tripRun!==job)return;
+  if(!current()){cancelTripSearch('Paramètres modifiés : calcul annulé. Relancer la recherche.');return}
+  if(e.name==='AbortError'){cancelTripSearch(e.message+' Saisies et options conservées.');return}
+  health(job.phase,'err',job.phase==='hGeo'?'géocodage ✕':'routage ✕');dbg(e.stack||e.message);setStatus(`⚠️ ${e.message}`,'err');$('diagWrap').open=true;
+ }finally{finishTripSearch(job)}
 }
 function stationSearchSignature(){
  return JSON.stringify({inputs:['start','end','travelMode','routeOptimization','routeVehicle','stopKm','stopKmInput','stopTolerance','nearKm','stationRadiusKm','stationSpacingKm','stationMaxPoints','stationScope','fuel','liters','cons',...Object.values(dimensionFields)].map(id=>$(id).value),mode:stopWindow().mode,avoid:[...document.querySelectorAll('.avoid-options input:checked')].map(e=>e.value),routing:trip?.routing});
@@ -4364,10 +4396,10 @@ function bind(){
   });
   $("cancelPlace").addEventListener("click",()=>$("placeDialog").close());
   $("placeDialog").addEventListener("close",()=>{
-    if(!placePending)return;
-    const pending=placePending;placePending=null;
+    if($("placeDialog").open||!placePending)return;
+    const pending=placePending;placePending=null;pending.cleanup();
     if(pending.result)pending.resolve(pending.result);
-    else pending.reject(new Error("Choix du lieu annulé. Préciser l’adresse puis relancer."));
+    else pending.reject(new DOMException("Choix du lieu annulé. Préciser l’adresse puis relancer.","AbortError"));
   });
   $("budgetPrice").addEventListener("input",()=>{budgetReference={label:"Prix saisi",at:new Date().toLocaleString("fr-FR")};updateBudget()});
   $("useStationPrice").addEventListener("click",()=>{
@@ -4394,6 +4426,8 @@ function bind(){
   $("cancelStationsBtn").addEventListener("click",()=>activeAbort?.abort());
   $("routeChoices").addEventListener("click",e=>{const b=e.target.closest("[data-route-choice]");if(b)chooseRoute(Number(b.dataset.routeChoice),b)});
   $("removeStopBtn").addEventListener("click",()=>{if(!busy&&trip){selectedStop=null;invalidateStationPrice();updateTripMetrics();renderStations(compared,stopWindow().mode);$("selectedStop").hidden=true;$("removeStopBtn").hidden=true;document.querySelectorAll('[data-station]').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed','false'));$("fuelStatus").textContent="Arrêt retiré. Trajet choisi restauré."}});
+  $('cancelTripBtn').addEventListener('click',()=>cancelTripSearch());
+  for(const event of ['input','change'])$('sheet').addEventListener(event,e=>{if(tripRun&&tripRun.revision!==tripSearchSignature()&&!['maxWalkKm','walkRule'].includes(e.target.id))cancelTripSearch('Paramètres modifiés : calcul annulé. Relancer la recherche.')},true);
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   $('gpsCancel').addEventListener('click',()=>cancelGps());$('gpsClose').addEventListener('click',()=>cancelGps());$('gpsRetry').addEventListener('click',gps);$('gpsConfirm').addEventListener('click',adoptGps);
   $('gpsAcceptImprecise').addEventListener('change',()=>{if(gpsJob)showGpsProposal(gpsJob)});

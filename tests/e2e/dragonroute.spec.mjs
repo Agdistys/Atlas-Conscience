@@ -82,7 +82,7 @@ test('ORS refus et geometrie invalide sans fuite de cle ni repli', async ({ page
   for(const [http,message] of [[403,'Accès au service public refusé'],[429,'Limite du service public'],[500,'indisponible']]){
     status=http;await page.locator('#goBtn').click();
     await expect(page.locator('#status')).toContainText(message);
-    await expect(page.locator('#stops')).toBeHidden();expect(await page.content()).not.toContain(testOrsKey);
+    await expect(page.locator('#stops')).toBeHidden();expect(await page.content()).not.toContain(testOrsKey);if(http===429){await page.evaluate(()=>{const now=performance.now.bind(performance);performance.now=()=>now()+6000});}
   }
   status=200;invalid=true;await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('incomplète ou incohérente');expect(osrm).toBe(0);
@@ -110,7 +110,7 @@ test('ORS comparaison interrompue ou incoherente conserve le trajet', async ({ p
   await expect(page.locator('#fuelStatus')).toContainText('Limite du service public');
   await expect(page.locator('.result-card')).toHaveCount(1);
   await expect(page.locator('.result-card')).toHaveAttribute('data-station','A');
-  await expect(page.locator('#continueStationsBtn')).toBeVisible();
+  await expect(page.locator('#continueStationsBtn')).toBeVisible();await page.evaluate(()=>{const now=performance.now.bind(performance);performance.now=()=>now()+6000});
   await page.locator('#stationsBtn').click();await page.locator('#cancelStationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('Recherche interrompue');
   await expect(page.locator('#summary')).toBeVisible();await expect(page.locator('#stationsBtn')).toBeEnabled();
