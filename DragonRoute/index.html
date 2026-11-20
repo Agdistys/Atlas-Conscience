@@ -32,6 +32,11 @@
         <p id="connectionNotice" class="app-notice" role="status" hidden></p>
         <p id="pwaUpdateNotice" class="app-notice" role="status" hidden></p>
         <h1>Mon trajet</h1>
+        <section id="tripValidation" class="trip-validation" aria-labelledby="tripValidationHeading" hidden>
+          <h2 id="tripValidationHeading">À corriger avant le calcul</h2>
+          <p>Choisir une erreur pour rejoindre le champ concerné, puis relancer la recherche.</p>
+          <ul id="tripValidationList"></ul>
+        </section>
         <label for="travelMode">Mode de déplacement</label><select id="travelMode"><option value="car">En véhicule</option><option value="walk">À pied</option></select>
         <div id="walkingOptions" hidden>
           <label for="maxWalkKm">Distance de marche souhaitée au maximum (km)</label><input id="maxWalkKm" type="number" min="0" max="500" step="any" placeholder="Sans limite renseignée" aria-describedby="walkingPreference"><label for="walkRule">Règle pour la distance à pied</label><select id="walkRule"><option value="soft">Préférence</option><option value="strict">Limite impérative</option></select>
