@@ -1502,8 +1502,20 @@ async function initMap(){
     markerLayer=L.featureGroup().addTo(map);
     $("mapFallback").style.display="none";
     health("hMap","ok","carte ✓");
+    let zooming=false,resizePending=false,resizeFrame=0;
+    const fitAfterResize=()=>{
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame=requestAnimationFrame(()=>{
+        if(!map||zooming)return;
+        resizePending=false;map.invalidateSize({pan:false});
+        if(routeLayer&&map.getSize().x>0&&map.getSize().y>0){const bounds=L.featureGroup([routeLayer,markerLayer]).getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[35,35],animate:false})}
+      });
+    };
+    // Leaflet ignores a new zoom target during its current zoom transition.
+    map.on('zoomstart',()=>{zooming=true});
+    map.on('zoomend',()=>{zooming=false;if(resizePending)fitAfterResize()});
+    new ResizeObserver(()=>{resizePending=true;fitAfterResize()}).observe($("map"));
     if(mapView)showOnMap(...mapView);
-    new ResizeObserver(()=>map?.invalidateSize()).observe($("map"));
   }catch(e){
     map=null; health("hMap","err","carte fallback"); dbg("Map init",e.message);
   }
@@ -2131,8 +2143,17 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
     const path=document.createElementNS("http://www.w3.org/2000/svg","path");
     path.setAttribute("class","route-alternative");
     path.setAttribute("d",points.map((p,i)=>{const [x,y]=P(p);return `${i?"L":"M"} ${x.toFixed(1)} ${y.toFixed(1)}`}).join(" "));
+    const index=trip?.choices.findIndex(r=>JSON.stringify(r.geometry.coordinates.map(([lon,lat])=>[lat,lon]))===JSON.stringify(points));
+    if(index>=0){path.dataset.routeIndex=String(index);path.addEventListener('click',()=>chooseRoute(index))}
     return path;
   }));
+  $('routeVariantMarkers').replaceChildren();
+  if(!best&&(trip?.choices.length||0)>1)trip.choices.forEach((r,i)=>{
+   const [x,y]=P(routeVariantAnchor(r,i)),g=document.createElementNS('http://www.w3.org/2000/svg','g'),active=i===trip.choice;
+   g.setAttribute('class','svg-route-variant'+(active?' current':''));g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-pressed',String(active));g.setAttribute('aria-haspopup','dialog');g.setAttribute('aria-label',routeChoiceText(r,i)+(active?' · référence actuelle':' · comparer avant confirmation'));g.dataset.routeIndex=String(i);
+   g.innerHTML=`<rect x="${x-28}" y="${y-24}" width="56" height="48" rx="8"/><text x="${x}" y="${y+7}" text-anchor="middle">T${i+1}</text>`;
+   g.addEventListener('click',()=>chooseRoute(i,g));g.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();chooseRoute(i,g)}});$('routeVariantMarkers').append(g);
+  });
   const step=Math.max(1,Math.floor(coords.length/350));let d="";
   coords.forEach((p,i)=>{if(i%step&&i!==coords.length-1)return;const [x,y]=P(p);d+=(d?" L ":"M ")+x.toFixed(1)+" "+y.toFixed(1)});
   $("routeLine").setAttribute("d",d);$("routeGlow").setAttribute("d",d);
@@ -2146,7 +2167,8 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
 }
 function showOnMap(coords,stations,best,start,end,label,fit=true){
   mapView=[coords,stations,best,start,end,label];
-  const alternatives=best?[]:(trip?.base.alternatives||[]).map(r=>r.geometry.coordinates.map(([lon,lat])=>[lat,lon]));
+  const variants=best?[]:(trip?.choices||[]).map((r,i)=>({r,i,points:r.geometry.coordinates.map(([lon,lat])=>[lat,lon])}));
+  const alternatives=variants.filter(v=>v.i!==trip.choice).map(v=>v.points);
   $("routeAlternativesNote").hidden=Boolean(best);
   $("routeAlternativesNote").textContent=alternatives.length?`${alternatives.length} autre(s) trajet(s) disponible(s).`:"Aucun autre trajet proposé par le moteur pour cette recherche.";
   if(!best&&trip?.base.alternativeNotice)$("routeAlternativesNote").textContent=trip.base.alternativeNotice;
@@ -2154,9 +2176,19 @@ function showOnMap(coords,stations,best,start,end,label,fit=true){
   if(routeLayer)map.removeLayer(routeLayer);
   markerLayer.clearLayers();
   routeLayer=L.featureGroup().addTo(map);
-  alternatives.forEach(points=>L.polyline(points,{color:"#82baff",weight:6,opacity:1,interactive:false,className:"map-route-alternative"}).addTo(routeLayer));
+  variants.filter(v=>v.i!==trip.choice).forEach(({points,r,i})=>{
+   const line=L.polyline(points,{color:'#82baff',weight:6,opacity:1,bubblingMouseEvents:false,className:'map-route-alternative'}).addTo(routeLayer);
+   line.on('click',()=>chooseRoute(i,line.getElement()));line.bindTooltip(routeChoiceText(r,i));
+   const el=line.getElement();el.setAttribute('data-route-index',String(i));el.setAttribute('tabindex','0');el.setAttribute('role','button');el.setAttribute('aria-label',routeChoiceText(r,i)+' · comparer avant confirmation');el.setAttribute('aria-haspopup','dialog');el.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();chooseRoute(i,el)}});
+  });
   L.polyline(coords,{color:"#fff",weight:11,opacity:1,interactive:false,className:"map-route-outline"}).addTo(routeLayer);
   L.polyline(coords,{color:"#0758d9",weight:7,opacity:1,interactive:false,className:"map-route-selected"}).addTo(routeLayer);
+  if(variants.length>1)for(const {r,i} of variants){
+   const active=i===trip.choice,title=routeChoiceText(r,i)+(active?' · référence actuelle':' · comparer avant confirmation');
+   const marker=L.marker(routeVariantAnchor(r,i),{icon:L.divIcon({className:'route-variant-marker'+(active?' current':''),html:'T'+(i+1),iconSize:[44,44],iconAnchor:[22,22]}),title,keyboard:true}).addTo(routeLayer);
+   const el=marker.getElement();el.setAttribute('aria-label',title);el.setAttribute('aria-pressed',String(active));el.setAttribute('aria-haspopup','dialog');el.dataset.routeIndex=String(i);
+   marker.on('click',()=>chooseRoute(i,el));el.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();e.stopPropagation();chooseRoute(i,el)}});
+  }
   L.circleMarker(start,{radius:7,color:"#111",weight:3,fillColor:"#fff",fillOpacity:1}).addTo(markerLayer);
   L.circleMarker(end,{radius:7,color:"#111",weight:3,fillColor:"#fff",fillOpacity:1}).addTo(markerLayer);
   if(trip?.meetings)for(const [key,letter] of [['pickup','P'],['dropoff','D']]){const place=trip.meetings[key],title=(key==='pickup'?'Prise en charge : ':'Dépose : ')+place.label;
@@ -2169,7 +2201,7 @@ function showOnMap(coords,stations,best,start,end,label,fit=true){
     marker.on("click",()=>openStation(s.id));
   });
   drawTollMarkers();
-  map.invalidateSize();if(fit)map.fitBounds(L.featureGroup([routeLayer,markerLayer]).getBounds(),{padding:[35,35]});
+  map.invalidateSize();if(fit)map.fitBounds(L.featureGroup([routeLayer,markerLayer]).getBounds(),{padding:[35,35],animate:false});
 }
 
 function rangeEstimate(){
@@ -3739,24 +3771,59 @@ function updateTripMetrics(){
   $("tripKm").textContent=`${fmt(r.distance/1000,1)} km`;$("tripTime").textContent=`${Math.round(r.duration/60)} min`;
   updateBudget();
 }
+// BEGIN ROUTE VARIANTS MODEL
+function distinctRouteChoices(base,limit=3){
+ const cap=Number.isInteger(limit)&&limit>=1&&limit<=3?limit:3,seen=new Set(),choices=[];
+ for(const r of [base,...(Array.isArray(base?.alternatives)?base.alternatives:[])]){
+  if(!hasRouteGeometry(r)||!hasRouteMetrics(r))continue;
+  const key=JSON.stringify(r.geometry.coordinates.map(p=>p.slice(0,2)));
+  if(seen.has(key))continue;seen.add(key);choices.push({...r,alternatives:[]});if(choices.length===cap)break;
+ }
+ return choices;
+}
+function routeVariantAnchor(route,index){
+ const points=route.geometry.coordinates,segments=points.slice(1).map((p,i)=>Math.hypot(p[0]-points[i][0],p[1]-points[i][1])),total=segments.reduce((a,b)=>a+b,0),target=total*(.3+.2*index);let at=0;
+ for(let i=0;i<segments.length;i++){const length=segments[i];if(length&&at+length>=target){const t=(target-at)/length,a=points[i],b=points[i+1];return [a[1]+(b[1]-a[1])*t,a[0]+(b[0]-a[0])*t]}at+=length}
+ return [points[0][1],points[0][0]];
+}
+// END ROUTE VARIANTS MODEL
+let routeChoiceProposal=null;
+function routeChoiceText(r,i){return `Trajet ${i+1} · ${fmt(r.distance/1000,1)} km · ${fmt(r.duration/60,1)} min de conduite estimée`}
+function routeChoiceSignature(){return JSON.stringify([roadContextSignature(),trip?.choices,selectedStop?.via,tableTolls.segments,tollState.quote,...[...$('sheet').querySelectorAll('input,select')].map(el=>[el.id,el.value,el.checked])])}
 function renderRouteChoices(){
-  const choices=trip?.choices||[];
-  $("routeChoices").hidden=choices.length<2;
-  $("routeChoices").innerHTML=choices.length<2?"":`<legend>Choisir le trajet</legend>${choices.map((r,i)=>`<label><input type="radio" name="routeChoice" value="${i}" ${i===trip.choice?"checked":""}> Trajet ${i+1} · ${fmt(r.distance/1000,1)} km · ${Math.round(r.duration/60)} min</label>`).join("")}`;
+ const choices=trip?.choices||[];$('routeChoices').hidden=choices.length<2;
+ $('routeChoices').innerHTML=choices.length<2?'':`<legend>Comparer les trajets reçus</legend><p class="note">Bleu foncé : trajet retenu. Bleu clair : autres propositions. Les repères T1, T2… correspondent à cette liste. Ouvrir un choix pour comparer avant confirmation.</p>${choices.map((r,i)=>`<button type="button" class="ghost route-choice" data-route-choice="${i}" aria-pressed="${i===trip.choice}" aria-haspopup="dialog"><span class="route-number">T${i+1}</span><span>${escapeHtml(routeChoiceText(r,i))}${i===trip.choice?' · référence actuelle':''}</span></button>`).join('')}`;
 }
-function chooseRoute(index){
-  cancelGps();
-  if(busy||!trip||!trip.choices[index]||index===trip.choice)return;
-  if(compared.length&&!confirm("Changer de trajet effacera les stations comparées et l’arrêt choisi. Continuer ?")){renderRouteChoices();document.querySelector('input[name=routeChoice]:checked')?.focus();return}
-  clearComparison();
-  trip.choice=index;trip.base={...trip.choices[index],alternatives:trip.choices.filter((_,i)=>i!==index)};
-  trip.coords=trip.base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
-  clearStations();renderRouteChoices();
-  document.querySelector('input[name=routeChoice]:checked')?.focus();
-  $("tripKm").textContent=`${fmt(trip.base.distance/1000,1)} km`;$("tripTime").textContent=`${Math.round(trip.base.duration/60)} min`;
-  updateWindow();
-  setStatus("Trajet choisi. Les stations seront recherchées sur ce trajet.","ok");
+function closeRouteChoice(message=''){
+ const op=routeChoiceProposal;routeChoiceProposal=null;if($('routeChoiceDialog').open)$('routeChoiceDialog').close();
+ if(op){const target=op.focus?.isConnected?op.focus:document.querySelector(`[data-route-choice="${trip?.choice}"]`);if(target&&!target.disabled)target.focus();if(message)setStatus(message)}
 }
+function chooseRoute(index,focus=document.activeElement){
+ if(busy||!trip||!Number.isInteger(index)||!trip.choices[index]||index===trip.choice)return;
+ cancelGps();closeRouteChoice();const r=trip.choices[index],current=selectedStop?.via||trip.base,delta=stationPreviewDelta(current,r);
+ routeChoiceProposal={trip,index,route:r,signature:routeChoiceSignature(),focus};
+ $('routeChoiceContext').textContent=routingLabel(trip.routing)+' · calcul obtenu le '+new Date(trip.calculatedAt).toLocaleString('fr-FR')+'. Le choix réutilise cette proposition reçue, sans nouveau calcul.';
+ $('routeChoiceMetrics').innerHTML=`<section><h3>Trajet actuel${selectedStop?' · avec station':''}</h3><p>${fmt(current.distance/1000,1)} km · ${fmt(current.duration/60,1)} min de conduite</p></section><section><h3>Proposition T${index+1}</h3><p>${fmt(r.distance/1000,1)} km · ${fmt(r.duration/60,1)} min de conduite</p></section>`;
+ const signed=v=>(v>0?'+':'')+fmt(v,1);$('routeChoiceDifference').textContent=`Écart : ${signed(delta.km)} km · ${signed(delta.minutes)} min de conduite. Hors pauses et trafic en direct.`;
+ const effects=[];if(compared.length||selectedStop)effects.push('Les stations comparées et l’arrêt choisi seront retirés.');if(trip.meetings||$('meetingPickup').value.trim()||$('meetingDropoff').value.trim())effects.push('Les rencontres et leur brouillon seront retirés de ce trajet direct.');
+ effects.push('Les péages liés au trajet précédent devront être vérifiés à nouveau. Leur montant n’est pas supposé nul.');
+ if(budgetReference?.stationId)effects.push('Le prix provenant de l’arrêt retiré ne sera pas repris.');else effects.push('Les hypothèses personnelles de consommation et de prix sont conservées pour recalculer le carburant.');
+ effects.push('Les horaires seront réévalués. Les préparations enregistrées restent inchangées.');$('routeChoiceEffects').replaceChildren(...effects.map(text=>{const li=document.createElement('li');li.textContent=text;return li}));
+ $('routeChoiceConfirm').textContent=`Confirmer le trajet ${index+1}`;$('routeChoiceDialog').showModal();$('routeChoiceTitle').focus();
+}
+function adoptRouteChoice(){
+ const op=routeChoiceProposal;if(!op||busy)return;
+ if(trip!==op.trip||routeChoiceSignature()!==op.signature||trip.choices[op.index]!==op.route){closeRouteChoice('Choix périmé : le contexte a changé. Comparer à nouveau les trajets.');return}
+ const index=op.index;closeRouteChoice();clearRoadChoices();clearComparison();clearMeetingDraft();clearNavigation();
+ tollState.enabled=false;tollState.key='';resetTollQuote();clearTableTolls('Nouveau trajet : péages à vérifier.');
+ trip.choice=index;trip.base={...trip.choices[index],alternatives:trip.choices.filter((_,i)=>i!==index)};delete trip.meetings;
+ trip.coords=trip.base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);clearStations();renderRouteChoices();updateWindow();updateTripMetrics();
+ document.querySelector(`[data-route-choice="${index}"]`)?.focus();setStatus('Trajet choisi. Les stations seront recherchées sur ce trajet.','ok');
+}
+$('routeChoiceCancel').addEventListener('click',()=>closeRouteChoice());
+$('routeChoiceConfirm').addEventListener('click',adoptRouteChoice);
+$('routeChoiceDialog').addEventListener('cancel',e=>{e.preventDefault();closeRouteChoice()});
+$('routeChoiceDialog').addEventListener('close',()=>{if(!$('routeChoiceDialog').open&&routeChoiceProposal)closeRouteChoice()});
 function clearStations(){
   closeStationPreview();
   if(stationJob){stationJob.controller.abort();stationJob.invalid=true}
@@ -3774,6 +3841,7 @@ function clearStations(){
   updateTripMetrics();updateBudget();
 }
 function clearResults(){
+ closeRouteChoice();
  clearRoadChoices();if($('roadCompareDialog').open)$('roadCompareDialog').close();
  budgetRecall=null;$("budgetMemoryMessage").textContent='';
   cancelGps();
@@ -3786,7 +3854,7 @@ function clearResults(){
   $("resolvedPlaces").hidden=true;
   $("tripKm").textContent="—";$("tripTime").textContent="—";
   for(const id of ["routeLine","routeGlow"])$(id).setAttribute("d","");
-  $("alternativeRoutes").replaceChildren();$("routeAlternativesNote").hidden=true;
+  $("alternativeRoutes").replaceChildren();$("routeVariantMarkers").replaceChildren();$("routeAlternativesNote").hidden=true;
   $("appliedRouting").hidden=true;$("routingAttribution").textContent="OSRM / IGN / OpenRouteService";
   $("stationDots").replaceChildren();$("meetingDots").replaceChildren();
   for(const id of ["startDot","endDot"]){$(id).setAttribute("cx","-50");$(id).setAttribute("cy","-50")}
@@ -3827,7 +3895,8 @@ function changeStationWindow(){clearStations();updateWindow();$('fuelStatus').te
 function displayTrip(base,routing,a,b,ga,gb){
     const coords=base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
     const label=`${ga.label.split(",")[0]} → ${gb.label.split(",")[0]}`;
-    const choices=[base,...base.alternatives];
+    const choices=distinctRouteChoices(base,C.routeChoiceLimit);
+    base={...choices[0],alternatives:choices.slice(1)};
     const endpoints=JSON.stringify([a,b]);if(routing.vehicle.type==='walk'||meetingEndpoints&&meetingEndpoints!==endpoints)clearMeetingDraft();meetingEndpoints=endpoints;meetingProposal=null;
     trip={a,b,base,coords,label,routing,choices,choice:0,places:{start:ga.label,end:gb.label},calculatedAt:new Date().toISOString()};renderRouteChoices();
     $("resolvedPlaces").textContent=`Départ : ${ga.label}. Arrivée : ${gb.label}.`;
@@ -4323,7 +4392,7 @@ function bind(){
   $("stationListMode").addEventListener("change",()=>{if(compared.length)renderStations(compared,stopWindow().mode)});
   document.querySelectorAll('.avoid-options input,#routeVehicle,#truckDimensions input').forEach(el=>el.addEventListener("change",()=>{if(!busy)invalidateRouting()}));
   $("cancelStationsBtn").addEventListener("click",()=>activeAbort?.abort());
-  $("routeChoices").addEventListener("change",e=>{if(e.target.name==="routeChoice")chooseRoute(Number(e.target.value))});
+  $("routeChoices").addEventListener("click",e=>{const b=e.target.closest("[data-route-choice]");if(b)chooseRoute(Number(b.dataset.routeChoice),b)});
   $("removeStopBtn").addEventListener("click",()=>{if(!busy&&trip){selectedStop=null;invalidateStationPrice();updateTripMetrics();renderStations(compared,stopWindow().mode);$("selectedStop").hidden=true;$("removeStopBtn").hidden=true;document.querySelectorAll('[data-station]').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed','false'));$("fuelStatus").textContent="Arrêt retiré. Trajet choisi restauré."}});
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   $('gpsCancel').addEventListener('click',()=>cancelGps());$('gpsClose').addEventListener('click',()=>cancelGps());$('gpsRetry').addEventListener('click',gps);$('gpsConfirm').addEventListener('click',adoptGps);
