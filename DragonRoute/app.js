@@ -1249,8 +1249,45 @@ function preparedDescription(e,withMap=false){
  <details><summary>Préférences conservées</summary><p>Collecte géographique : ${p.stationScope==='window'?'portion recherchée':'tracé entier'}, rayon ${fmt(p.stationRadiusKm,1)} km, espacement ${fmt(p.stationSpacingKm,1)} km, maximum ${p.stationMaxPoints} points. Accès routiers à recalculer ; couverture non exhaustive.</p><p>${escapeHtml({soon:'Au plus tôt',near:'Bon compromis dans les '+p.nearKm+' premiers km',around:'Vers '+p.stopKm+' km, marge ±'+p.stopTolerance+' km'}[p.stopMode])}. Détour maximal : ${p.maxDetourKm===null?'sans limite':fmt(p.maxDetourKm,1)+' km'} / ${p.maxDetourMin===null?'sans limite':fmt(p.maxDetourMin,1)+' min'}. Services : ${escapeHtml(p.services.join(', ')||'aucun requis')}. Filtre horaires : ${escapeHtml({all:'tous',compatible:'compatibles',unknown:'inconnus',outside:'hors guichet'}[p.openingFilter])}.</p><p>Autonomie : ${p.rangeMode==='none'?'inconnue':fmt(p.rangeValue,1)+(p.rangeMode==='km'?' km':' L')+', réserve '+fmt(p.reserveKm,0)+' km'}${p.rangeOnly?' · filtre de portée demandé':''}. L’autonomie conservée devra être actualisée au nouveau départ.</p></details>
  ${e.meetings?`<p>Rencontres mémorisées : prise en charge ${escapeHtml(e.meetings.pickup.label)} → dépose ${escapeHtml(e.meetings.dropoff.label)}. Plein ${meetingPositionText(e.meetings)}. Limites totales : +${e.meetings.limits.km} km / +${e.meetings.limits.minutes} min. À recalculer puis adopter après le nouveau trajet ; anciens frais non repris.</p>`:''}${criterion}${preparedTimingText(e)}${preparedBudgetHtml(e)}${withMap?preparedSchemaSvg(e):''}<p class="note">Tracé et estimations historiques. Les informations actuelles doivent être vérifiées à nouveau. Un éventuel budget mémorisé reste historique. La reprise charge les paramètres ; elle demande un nouveau calcul et une nouvelle confirmation de l’arrêt.</p>`;
 }
+
+let preparedPrioritySource=null,preparedPriorities=null;
+function clearPreparedPriorities(){preparedPriorities=null;$('preparedPriorities').hidden=true;$('preparedPriorityResults').replaceChildren();$('preparedPriorityGroup').textContent='';$('preparedPriorityStatus').textContent=''}
+function preparedPriorityContext(){
+ if(!preparedPrioritySource||!preparedComparisonFresh())return null;
+ const ids=[$('preparedCompareA').value,$('preparedCompareB').value];if(JSON.stringify(ids)!==JSON.stringify(preparedPrioritySource.ids)){clearPreparedComparison('Choix modifié : lancer à nouveau la comparaison.');return null}return preparedPrioritySource;
+}
+function preparedPriorityWeights(){const raw={carbon:0};for(const [key,id] of [['duration','preparedPriorityDuration'],['cost','preparedPriorityCost']]){const e=$(id),valid=e.validity.valid&&e.value.trim()!=='';e.setAttribute('aria-invalid',String(!valid));raw[key]=valid?Number(e.value):NaN}return priorityWeights(raw)}
+function openPreparedPriorities(){
+ if(!preparedPriorityContext())return;if(preparedPriorities){$('preparedPrioritiesTitle').focus();return}
+ preparedPriorities={snapshot:null,stale:false};$('preparedPriorityTravelers').checked=false;for(const id of ['preparedPriorityDuration','preparedPriorityCost']){$(id).value='0';$(id).removeAttribute('aria-invalid')}
+ $('preparedPriorities').hidden=false;renderPreparedPriorities();$('preparedPrioritiesTitle').focus();$('preparedPrioritiesTitle').scrollIntoView({block:'start'});
+}
+function capturePreparedPriorities(){
+ const source=preparedPriorityContext();if(!source||!preparedPriorities)return;
+ try{preparedPriorityWeights();preparedPriorities.snapshot=preparedPrioritySnapshot(...source.entries,$('preparedPriorityTravelers').checked,new Date().toISOString());preparedPriorities.stale=false;renderPreparedPriorities()}catch(e){$('preparedPriorityStatus').textContent=e.message;$('preparedPriorityResults').replaceChildren()}
+}
+function renderPreparedPriorities(){
+ if(!preparedPriorityContext()||!preparedPriorities)return;const v=preparedPriorities,s=v.snapshot,h=escapeHtml;
+ $('preparedPriorityResults').replaceChildren();$('preparedPriorityGroup').textContent='';$('preparedPrioritiesApply').textContent=s?'Actualiser le groupe et appliquer':'Figer les préparations et appliquer';
+ let weights;try{weights=preparedPriorityWeights()}catch(e){$('preparedPriorityStatus').textContent=e.message;return}
+ if(!s){$('preparedPriorityStatus').textContent='Aucun indice au démarrage. Confirmer le groupe, choisir les poids puis figer la comparaison.';return}
+ if(s.sameTravelers!==$('preparedPriorityTravelers').checked)v.stale=true;if(v.stale){$('preparedPriorityStatus').textContent='Confirmation modifiée : indices retirés. Actualiser le groupe pour appliquer ce choix.';return}
+ const result=priorityResult(s,weights),labels={duration:'Conduite + pause station',cost:'Budget historique carburant + péages'},value=(v,k)=>v===null?'Inconnu / non comparable':fmt(v,k==='cost'?2:1)+(k==='cost'?' €':' min');
+ $('preparedPriorityStatus').textContent={off:'Tous les poids sont à zéro : aucune recommandation pondérée. Les valeurs brutes restent disponibles.',context:'Contexte non comparable : aucun indice. Consulter les motifs ci-dessous.',insufficient:'Moins de deux préparations admissibles et complètes pour les critères actifs : aucun indice. Un critère incomplet peut être désactivé pour tout le groupe.',scored:'Indices relatifs à ces préparations historiques et aux priorités choisies. Plus petit = plus proche de ces priorités. Aucun trajet sélectionné.'}[result.state];
+ const first=s.rows[0].source;$('preparedPriorityGroup').textContent=`Groupe figé le ${new Date(s.at).toLocaleString('fr-FR')} · ${first.places.start.label} → ${first.places.end.label} · départ ${first.timing.departure?.replace('T',' ')||'inconnu'} (Paris). Véhicule entier, sans partage par personne. ${result.eligible} préparation(s) complète(s) et admissible(s). Formule ${result.formula}.`;
+ $('preparedPriorityResults').innerHTML=(s.reasons.length?'<ul>'+s.reasons.map(x=>'<li>'+h(x)+'</li>').join('')+'</ul>':'')+(s.budgetReasons.length?'<details open><summary>Pourquoi le budget n’est pas comparable</summary><ul>'+s.budgetReasons.map(x=>'<li>'+h(x)+'</li>').join('')+'</ul></details>':'')+result.rows.map(r=>{const original=s.rows.find(x=>x.id===r.id),e=original.source;return `<article class="road-card" data-prepared-priority-id="${h(r.id)}" data-prepared-priority-state="${r.status==='ready'?(r.missing.length?'incomplete':result.state):r.status}"><h4>${h(r.label)}</h4><p>${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p>${r.reason?'<p>'+h(r.reason)+'</p>':''}<dl><div><dt>Conduite + pause station</dt><dd>${value(r.values.duration,'duration')}</dd></div><div><dt>Budget historique carburant + péages</dt><dd>${value(original.rawBudget,'cost')}${r.values.cost===null&&original.rawBudget!==null?' · non comparable pour cet indice':''}</dd></div></dl><p class="note">Calcul du ${h(new Date(e.snapshot.calculatedAt).toLocaleString('fr-FR'))} ; budget ${e.budget?'constitué le '+h(new Date(e.budget.capturedAt).toLocaleString('fr-FR')):'non conservé'}. Sources et hypothèses dans les cartes A/B ci-dessus.</p>${r.missing.length?'<p>Critères actifs incomplets : '+r.missing.map(k=>labels[k]).join(', ')+'.</p>':''}${r.contributions.length?'<details><summary>Détail du score · '+h(r.label)+'</summary><ul>'+r.contributions.map(c=>'<li>'+labels[c.key]+' : '+value(c.value,c.key)+' ; bornes '+value(c.min,c.key)+' à '+value(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul><p>Valeurs comparées à la précision visible : 0,1 minute et 0,01 €. Indice au dixième ; même indice, même rang.</p></details>':''}</article>`}).join('');
+}
+function bindPreparedPriorities(){
+ $('preparedPrioritiesOpen').addEventListener('click',openPreparedPriorities);$('preparedPrioritiesApply').addEventListener('click',capturePreparedPriorities);
+ $('preparedPrioritiesReset').addEventListener('click',()=>{for(const id of ['preparedPriorityDuration','preparedPriorityCost'])$(id).value='0';renderPreparedPriorities()});
+ $('preparedPrioritiesClose').addEventListener('click',()=>{clearPreparedPriorities();$('preparedPrioritiesOpen').focus()});
+ $('preparedPriorityTravelers').addEventListener('change',renderPreparedPriorities);for(const id of ['preparedPriorityDuration','preparedPriorityCost'])$(id).addEventListener('input',renderPreparedPriorities);
+ $('preparedPrioritiesTitle').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();e.stopPropagation();$(e.shiftKey?'preparedPrioritiesOpen':'preparedPriorityTravelers').focus()}});
+}
+
 let preparedComparisonStale=false;
 function clearPreparedComparison(message='',close=false){
+ clearPreparedPriorities();preparedPrioritySource=null;
  $('preparedCompareResult').hidden=true;$('preparedCompareResultBody').replaceChildren();delete $('preparedCompareResult').dataset.ids;$('preparedCompareStatus').textContent=message;
  if(close){for(const id of ['preparedCompareA','preparedCompareB'])$(id).value='';$('preparedCompareRun').disabled=true;$('preparedComparePanel').hidden=true;$('preparedCompareOpen').setAttribute('aria-expanded','false');$('preparedDialog').classList.remove('prepared-comparing')}
 }
@@ -1276,10 +1313,11 @@ function showPreparedComparison(){
  try{const ids=[$('preparedCompareA').value,$('preparedCompareB').value],entries=ids.map(id=>preparedTrips.entries.find(e=>e.id===id)),result=comparePreparedTrips(...entries),h=escapeHtml;
  const delta=(value,unit)=>value===null?'Non comparable / incomplet':value===0?'Égalité à la précision affichée':(value>0?'+':'−')+fmt(Math.abs(value),unit==='€'?2:1)+' '+unit;
  $('preparedCompareResultBody').innerHTML=`<p class="note">Montants pour le véhicule entier, sans répartition par voyageur. Hors stationnement, ferries, autres frais, autres pauses et trafic en direct. Aucun classement de meilleur trajet ni garantie de passage ou de terrain.</p><div class="prepared-compare-grid">${result.rows.map(preparedComparisonCard).join('')}</div><section class="detail-section" aria-label="Écarts entre les préparations"><h4>Écarts B moins A</h4><dl>${[['Distance',result.distanceDelta,'km'],['Conduite',result.drivingDelta,'min'],['Conduite + pause station',result.totalDurationDelta,'min'],['Budget historique carburant + péages',result.budgetDelta,'€']].map(([label,value,unit])=>`<div><dt>${label}</dt><dd>${delta(value,unit)}</dd></div>`).join('')}</dl><p>${result.budgetDelta===null?'Les montants restent consultables, mais aucun écart budgétaire comparable n’est annoncé.':'Écart arithmétique des budgets historiques selon les hypothèses conservées. Ce n’est pas une économie actuelle garantie.'}</p>${result.budgetReasons.length?'<ul>'+result.budgetReasons.map(t=>'<li>'+h(t)+'</li>').join('')+'</ul>':''}${result.notes.length?'<ul>'+result.notes.map(t=>'<li>'+h(t)+'</li>').join('')+'</ul>':''}<p class="note">Les valeurs affichées sont arrondies avant comparaison : 0,1 km, 0,1 min et 0,01 €. Les préparations importées restent déclaratives. Reprendre chaque trajet pour actualiser ses données.</p></section>`;
- $('preparedCompareResult').dataset.ids=JSON.stringify(ids);$('preparedCompareResult').hidden=false;$('preparedCompareStatus').textContent='Comparaison affichée sans requête ni enregistrement.';$('preparedCompareResultTitle').focus();
+ preparedPrioritySource={ids:[...ids],entries:result.rows.map(r=>structuredClone(r.entry))};$('preparedCompareResult').dataset.ids=JSON.stringify(ids);$('preparedCompareResult').hidden=false;$('preparedCompareStatus').textContent='Comparaison affichée sans requête ni enregistrement.';$('preparedCompareResultTitle').focus();
  }catch(e){$('preparedCompareStatus').textContent='Comparaison impossible. '+e.message}
 }
 function bindPreparedComparison(){
+ bindPreparedPriorities();
  $('preparedCompareOpen').addEventListener('click',()=>{if(!preparedComparisonFresh())return;const open=$('preparedComparePanel').hidden;$('preparedComparePanel').hidden=!open;$('preparedCompareOpen').setAttribute('aria-expanded',String(open));$('preparedDialog').classList.toggle('prepared-comparing',open);if(open){$('preparedView').hidden=true;$('preparedCompareA').focus()}else clearPreparedComparison('',true)});
  for(const id of ['preparedCompareA','preparedCompareB'])$(id).addEventListener('change',()=>{clearPreparedComparison('Choix modifié : lancer la comparaison.');$('preparedCompareRun').disabled=!$('preparedCompareA').value||!$('preparedCompareB').value||$('preparedCompareA').value===$('preparedCompareB').value||!preparedComparisonFresh()});
  $('preparedCompareForm').addEventListener('submit',ev=>{ev.preventDefault();showPreparedComparison()});
@@ -3272,6 +3310,24 @@ function priorityResult(snapshot,raw){
  result.rows=[...eligible,...rows.filter(r=>r.score===null)];return result;
 }
 // END PRIORITIES MODEL
+
+// BEGIN PREPARED PRIORITIES MODEL
+function preparedPrioritySnapshot(rawA,rawB,sameTravelers,at){
+ if(typeof sameTravelers!=='boolean'||typeof at!=='string'||!Number.isFinite(Date.parse(at)))throw new Error('Confirmation ou date de comparaison invalide.');
+ const compared=comparePreparedTrips(rawA,rawB),[a,b]=compared.rows.map(r=>r.entry),same=(x,y)=>JSON.stringify(x)===JSON.stringify(y),reasons=[...compared.baseReasons];
+ if(!sameTravelers)reasons.push('Confirmer le même groupe de voyageurs avant de pondérer.');
+ if(!a.timing.departure||!b.timing.departure||a.timing.departure!==b.timing.departure)reasons.push('Les départs doivent être renseignés et identiques, date et heure comprises.');
+ if(!same([a.timing.arriveBy,a.timing.onlyBefore],[b.timing.arriveBy,b.timing.onlyBefore]))reasons.push('Les heures limites et leur caractère impératif doivent correspondre.');
+ if(a.vehicle.fuel!==b.vehicle.fuel)reasons.push('Les carburants diffèrent.');
+ const avoid=e=>e.preferences.avoid.filter(x=>x!=='tollways').slice().sort();if(!same(avoid(a),avoid(b)))reasons.push('Les évitements hors péages diffèrent.');
+ const meetings=e=>e.meetings?[e.meetings.pickup.lat,e.meetings.pickup.lon,e.meetings.dropoff.lat,e.meetings.dropoff.lon,e.meetings.stationPosition]:null;
+ if(!same(meetings(a),meetings(b)))reasons.push('Les rencontres de covoiturage diffèrent.');
+ const scopes={duration:'historical-driving-station-minutes',cost:'historical-fuel-tolls-vehicle-eur',carbon:'unavailable-carbon'},money=v=>v===null?null:Math.round((v+Number.EPSILON)*100)/100;
+ const rows=compared.rows.map((r,i)=>{const e=r.entry,duration=stopDuration(e.snapshot.durationSeconds,Boolean(e.snapshot.stop),e.preferences.stopMinutes),timing=timingEstimate(duration.totalSeconds,timingHypotheses(e.timing)),excluded=e.timing.onlyBefore&&!timing.admissible;return {id:e.id,label:(i?'B':'A')+' · '+e.name,status:excluded?'excluded':'ready',reason:excluded?(timing.state==='unknown'?'Arrivée inconnue : la contrainte impérative n’est pas vérifiée.':'Heure limite impérative dépassée.'):compared.budgetReasons.length?'Budget non comparable pour cet indice : consulter les motifs communs.':'',values:{duration:r.totalMinutes,cost:compared.budgetDelta===null?null:money(r.budget.total),carbon:null},scopes:{...scopes},rawBudget:money(r.budget?.total??null),source:e}});
+ return {formula:PRIORITY_FORMULA,at,scopes,contextValid:reasons.length===0,reasons,budgetReasons:[...compared.budgetReasons],sameTravelers,rows};
+}
+// END PREPARED PRIORITIES MODEL
+
 
 let roadPriorities=null;
 const priorityLabels={duration:'Conduite',cost:'Coût total',carbon:'Empreinte du véhicule'};
