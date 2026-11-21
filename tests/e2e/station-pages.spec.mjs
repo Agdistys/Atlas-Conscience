@@ -3,6 +3,7 @@ import {setupPages,collectAll,ready,point,snapshot} from '../helpers/station-pag
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility} from '../helpers/inspection.mjs';
 import {readingOverflow,enlargeText,reachable} from '../helpers/reading-layout.mjs';
+import fs from 'node:fs/promises';
 const cards=page=>page.locator('#stationCards .result-card'),ids=page=>cards(page).evaluateAll(es=>es.map(e=>e.dataset.station));
 const pager=(page,action,bottom=false)=>page.locator(`[data-station-pagination=${bottom?'bottom':'top'}] [data-station-page=${action}]`);
 async function all(page,count=100){await collectAll(page,count);await page.locator('#stationListMode').selectOption('all')}
@@ -15,6 +16,10 @@ test('pages stations : 100 fiches accessibles, rendu borné et navigation sans e
  for(let n=0;n<5;n++){await expect(cards(page)).toHaveCount(20);seen.push(...await ids(page));await expect(page.locator('#map [data-station-point]')).toHaveCount(100);if(n<4)await jump(page,'next',n%2===0)}
  expect(seen).toEqual(Array.from({length:100},(_,i)=>'S'+(i+1)));expect(new Set(seen).size).toBe(100);await expect(pager(page,'next')).toBeDisabled();await expect(status(page)).toContainText('81 à 100');await pager(page,'previous').focus();await page.keyboard.press('Enter');await expect(status(page)).toContainText('Page 4 sur 5');await expect(page.locator('#stationResultsTitle')).toBeFocused();await jump(page,'first');await expect(status(page)).toContainText('Page 1 sur 5');
  expect(JSON.stringify(calls)).toBe(before);expect(await snapshot(page)).toEqual(saved);expect(errors).toEqual([]);await page.locator('#jumpStationResult').click();await capture(page,info,'stations-page-premiere');await checkAccessibility(page,info,'stations-pages');await readingOverflow(page);
+ // Two scans with the same label must keep distinct, complete evidence files.
+ const first=info.attachments.find(a=>a.name==='accessibilite-stations-pages'),bytes=await fs.readFile(first.path);
+ await jump(page,'next');await checkAccessibility(page,info,'stations-pages');
+ const audits=info.attachments.filter(a=>a.name==='accessibilite-stations-pages');expect(audits).toHaveLength(2);expect(audits[1].path).not.toBe(first.path);expect(await fs.readFile(first.path)).toEqual(bytes);
 });
 
 test('pages stations : tri et filtres globaux, badges et égalités conservés',async({page})=>{
