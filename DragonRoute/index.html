@@ -62,13 +62,15 @@
           <nav class="preparation-links" aria-label="Accès dans la préparation">
             <button class="ghost" type="button" data-preparation-target="routeModeHeading">Réglages du trajet</button>
             <button class="ghost" type="button" data-preparation-target="stationDeparture">Horaires</button>
-            <button id="jumpRouteResult" class="ghost" type="button" data-preparation-target="summary" hidden>Voir le trajet</button>
-            <button id="jumpStations" class="ghost" type="button" data-preparation-target="stopsHeading" hidden>Choisir les arrêts</button>
-            <button id="jumpBudget" class="ghost" type="button" data-preparation-target="budgetHeading" hidden>Budget</button>
           </nav>
         <button id="goBtn" class="primary">Trouver mon trajet</button>
         <button id="cancelTripBtn" class="ghost navigation-button" type="button" hidden>Annuler la recherche du trajet</button>
         <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
+          <nav id="routeResultLinks" class="preparation-links" aria-label="Accès aux résultats du trajet" hidden>
+            <button id="jumpRouteResult" class="ghost" type="button" data-preparation-target="summary" hidden>Voir le trajet</button>
+            <button id="jumpStations" class="ghost" type="button" data-preparation-target="stopsHeading" hidden>Choisir les arrêts</button>
+            <button id="jumpBudget" class="ghost" type="button" data-preparation-target="budgetHeading" hidden>Budget</button>
+          </nav>
         </section>
         <p id="routeModuleName" class="note">DragonRoute · module routier</p>
         <h2 id="routeModeHeading" tabindex="-1">Trajet en véhicule</h2>
@@ -261,11 +263,13 @@
               <button class="ghost" type="button" data-preparation-target="fuel">Carburant et budget</button>
               <button class="ghost" type="button" data-preparation-target="liters">Quantité et autonomie</button>
               <button class="ghost" type="button" data-preparation-target="maxDetourKm">Filtres</button>
-              <button id="jumpStationResult" class="ghost" type="button" data-preparation-target="stationResultsTitle" hidden>Voir les stations</button>
             </nav>
           <button id="stationsBtn" class="primary">Chercher les stations</button>
           <button id="cancelStationsBtn" class="ghost" type="button" hidden>Arrêter la recherche</button>
           <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
+            <nav id="stationResultLinks" class="preparation-links" aria-label="Accès aux résultats des stations" hidden>
+              <button id="jumpStationResult" class="ghost" type="button" data-preparation-target="stationResultsTitle" hidden>Voir les stations</button>
+            </nav>
           </section>
           <details id="samplingOptions"><summary>Zone de recherche autour du trajet</summary>
             <label for="stationScope">Où rechercher les stations ?</label><select id="stationScope" aria-describedby="samplingNote"><option value="route">Sur tout le trajet</option><option value="window">Sur la portion recherchée</option></select>

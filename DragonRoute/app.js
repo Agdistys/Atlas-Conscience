@@ -1664,7 +1664,7 @@ function updatePreparationReadout(){
  const criteria=walking?`À pied · ${value('maxWalkKm')?value('maxWalkKm')+' km maximum · '+selected('walkRule'):'sans limite de marche demandée'}`:`${selected('routeVehicle')} · ${avoid.length?'éviter '+avoid.join(', '):'sans évitement demandé'}`;
  const clock=value('stationDeparture'),limit=value('routeArriveBy');
  $('tripReadout').textContent=`${criteria}. ${selected('routeOptimization')}. Départ : ${clock?clock.replace('T',' '):'non renseigné'} (Paris).${limit?' Arriver au plus tard : '+limit.replace('T',' ')+' (Paris).':''}${$('routeOnlyBefore').checked?' Filtre d’heure limite actif.':''}${!busy&&$('goBtn').disabled?' Calcul indisponible : vérifier les réglages.':''}`;
- for(const [id,hide] of [['jumpRouteResult',!trip],['jumpStations',!trip||trip.routing.vehicle.type==='walk'],['jumpBudget',!trip||trip.routing.vehicle.type==='walk'],['jumpStationResult',!stationSearch],['stationResultStart',!stationSearch]])$(id).hidden=hide;
+ for(const [id,hide] of [['routeResultLinks',!trip],['stationResultLinks',!stationSearch],['jumpRouteResult',!trip],['jumpStations',!trip||trip.routing.vehicle.type==='walk'],['jumpBudget',!trip||trip.routing.vehicle.type==='walk'],['jumpStationResult',!stationSearch],['stationResultStart',!stationSearch]])$(id).hidden=hide;
  const filters=[];for(const [id,unit] of [['maxDetourKm','km'],['maxDetourMin','min']])if(value(id))filters.push('détour ≤ '+value(id)+' '+unit);
  const services=[...document.querySelectorAll('[data-service]:checked')].map(e=>e.closest('label').textContent.trim());if(services.length)filters.push('services requis : '+services.join(', '));
  if($('stationOpeningFilter').value!=='all')filters.push(selected('stationOpeningFilter'));

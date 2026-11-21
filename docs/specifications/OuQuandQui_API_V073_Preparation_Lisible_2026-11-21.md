@@ -1,12 +1,12 @@
 # V073 — Préparation et résultats lisibles
 
-UX-PREPARATION-LISIBLE-01 · 21 novembre 2026. Complément à UX-01/02/05/07, PAR-01/02, STA-12 et PEA-08 du [cahier V5](OuQuandQui-Cahier-des-Charges-V5-2026-09-18.md). Les capacités et limites de [V070](OuQuandQui_API_V070_Recette_Parcours_2026-11-21.md), la recherche station [V071](OuQuandQui_API_V071_Acces_Station_2026-11-21.md) et l’identité [V072](OuQuandQui_API_V072_Identite_Produit_2026-11-21.md) sont conservées.
+UX-PREPARATION-LISIBLE-01 · 21 novembre 2026. Complément à UX-01/02/05/06/07, PAR-01/02, STA-12 et PEA-08 du [cahier V5](OuQuandQui-Cahier-des-Charges-V5-2026-09-18.md). Les capacités et limites de [V070](OuQuandQui_API_V070_Recette_Parcours_2026-11-21.md), la recherche station [V071](OuQuandQui_API_V071_Acces_Station_2026-11-21.md) et l’identité [V072](OuQuandQui_API_V072_Identite_Produit_2026-11-21.md) sont conservées.
 
 ## Calcul et réglages
 
 Le bouton « Trouver mon trajet » suit les lieux et les cinq accès aux modes. Un récapitulatif présente le mode principal, les évitements demandés, le critère durée/distance, le départ et l’éventuelle heure limite. Les préférences de marche distinguent zéro, absence de limite et règle impérative. Un profil indisponible reste identifiable et bloqué ; le récapitulatif ne convertit pas une caravane en voiture.
 
-Les boutons « Réglages du trajet » et « Horaires » rejoignent leurs champs. Une rubrique repliée s’ouvre avant de recevoir le focus. Les réglages restent dans la page et conservent leurs valeurs. Après calcul, des accès rejoignent le résumé, les arrêts et le budget. Ils disparaissent si le résultat est invalidé. Le calcul ne déplace pas le focus automatiquement : la navigation vers le résultat est volontaire.
+Les boutons « Réglages du trajet » et « Horaires » rejoignent leurs champs. Une rubrique repliée s’ouvre avant de recevoir le focus. Les réglages restent dans la page et conservent leurs valeurs. Après calcul, des accès rejoignent le résumé, les arrêts et le budget. Ils disparaissent si le résultat est invalidé. Les raccourcis de résultats sont placés sous les boutons de calcul pour ne pas les déplacer à l’apparition ou au retrait des résultats. Le calcul ne déplace pas le focus automatiquement : la navigation vers le résultat est volontaire.
 
 Les accès n’exécutent aucun calcul, géocodage, localisation ou écriture. Pendant une recherche, les commandes restent soumises au verrouillage existant. Une erreur garde son résumé et rejoint le champ concerné, même si les horaires ou les options étaient repliés. Aucun bandeau fixe ne recouvre les champs ; le défilement reste possible en paysage et avec du texte agrandi.
 
