@@ -3,15 +3,25 @@ import {shellFiles} from '../pwa-shell.mjs';
 export async function pwaServer(){
  const files=new Map();for(const path of shellFiles)files.set(path,await fs.readFile(new URL('../../DragonRoute/'+(path==='./'?'index.html':path),import.meta.url)));
  const worker=await fs.readFile(new URL('../../DragonRoute/service-worker.js',import.meta.url),'utf8');
- const state={release:'A',corrupt:null,requests:[]};
+ const state={release:'A',corrupt:null,requests:[],legacyIdentity:false};
+ // Simulate an earlier display identity without replacing the worker lifecycle or storage.
+ function shellBody(path,preview=false){
+  if(path==='./'||path==='./index.html'){
+   let html=files.get('./index.html').toString().replace('<body>',`<body data-test-release="${state.release}"${preview?' data-preview="true"':''}>`);
+   if(state.legacyIdentity)html=html.replaceAll('OùQuandQui','DragonRoute');
+   return Buffer.from(html);
+  }
+  if(path==='./manifest.webmanifest'&&state.legacyIdentity){const manifest=JSON.parse(files.get(path));manifest.name=manifest.short_name='DragonRoute';return Buffer.from(JSON.stringify(manifest))}
+  return files.get(path);
+ }
  const server=http.createServer((req,res)=>{
   const url=new URL(req.url,'http://localhost');state.requests.push(url.pathname+url.search);
   const preview=url.pathname.startsWith('/preview/');
   const path='./'+url.pathname.split('/').slice(2).join('/');
-  const body=path==='./'||path==='./index.html'?Buffer.from(files.get('./index.html').toString().replace('<body>',`<body data-test-release="${state.release}"${preview?' data-preview="true"':''}>`)):files.get(path);
+  const body=shellBody(path,preview);
   let payload=body,type='application/octet-stream',status=200;
   if(path==='./service-worker.js'){
-   const entries=shellFiles.map(p=>{const data=p==='./'||p==='./index.html'?Buffer.from(files.get('./index.html').toString().replace('<body>',`<body data-test-release="${state.release}">`)):files.get(p);return {path:p,integrity:'sha256-'+createHash('sha256').update(data).digest('base64')}});
+   const entries=shellFiles.map(p=>{const data=shellBody(p);return {path:p,integrity:'sha256-'+createHash('sha256').update(data).digest('base64')}});
    payload=worker.replace(/\/\/ BEGIN SHELL MANIFEST[\s\S]*?\/\/ END SHELL MANIFEST/,'// BEGIN SHELL MANIFEST\nconst RELEASE="test-'+state.release+'";\nconst SHELL='+JSON.stringify(entries)+';\n// END SHELL MANIFEST');type='text/javascript';
   }else if(!body){payload=JSON.stringify({message:'not cached',path:url.pathname});type='application/json';status=url.pathname.includes('/api')?200:404}
   else type=path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':path.endsWith('.webmanifest')?'application/manifest+json':path.endsWith('.png')?'image/png':'text/html';

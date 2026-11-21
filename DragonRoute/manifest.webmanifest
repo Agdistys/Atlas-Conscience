@@ -1,7 +1,7 @@
 {
-  "name": "DragonRoute",
-  "short_name": "DragonRoute",
-  "description": "Préparer un trajet, choisir ses arrêts et conserver ses déplacements.",
+  "name": "OùQuandQui",
+  "short_name": "OùQuandQui",
+  "description": "Préparer et comparer ses déplacements. DragonRoute pour la route et les stations, marche, vélo et pilotes collectifs.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -4,18 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#09090e">
-  <meta name="description" content="DragonRoute : préparer un trajet en véhicule ou à pied, puis organiser ses déplacements.">
+  <meta name="description" content="OùQuandQui : préparer et comparer ses déplacements. DragonRoute pour la route et les stations, marche, vélo et pilotes collectifs.">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <link rel="stylesheet" href="./style.css">
-  <title>DragonRoute</title>
+  <meta name="application-name" content="OùQuandQui">
+  <meta name="apple-mobile-web-app-title" content="OùQuandQui">
+  <title>OùQuandQui — Préparer ses déplacements</title>
 </head>
 <body>
 <div id="app">
   <header class="topbar">
-    <div class="brand"><span class="dragon">🐉</span><strong>DragonRoute</strong><span class="badge">V3 PWA</span></div>
-    <div class="header-actions"><button id="preparedBtn" class="ghost" type="button">Mes trajets</button><button id="journalBtn" class="ghost" type="button">Mon journal</button><button id="profileBtn" class="ghost">Mon profil</button><button id="sourcesBtn" class="ghost" type="button">Sources et données</button><button id="installBtn" class="ghost tiny-btn" hidden>＋ Installer</button></div>
+    <div class="brand"><span class="dragon" aria-hidden="true">🐉</span><strong>OùQuandQui</strong><span class="badge">V3 PWA</span></div>
+    <div class="header-actions"><button id="preparedBtn" class="ghost" type="button">Mes trajets</button><button id="journalBtn" class="ghost" type="button">Mon journal</button><button id="profileBtn" class="ghost">Mon profil</button><button id="sourcesBtn" class="ghost" type="button">Sources et données</button><button id="installBtn" class="ghost tiny-btn" aria-label="Installer OùQuandQui" hidden>＋ Installer</button></div>
   </header>
   <main class="stage">
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
@@ -55,6 +57,7 @@
           </div>
           <p id="modeAccessHint" class="note">Véhicule et marche : réglages ci-dessous. Les autres modes ouvrent leur recherche avec ces lieux, sans trajet voiture préalable.</p>
         </section>
+        <p id="routeModuleName" class="note">DragonRoute · module routier</p>
         <h2 id="routeModeHeading">Trajet en véhicule</h2>
         <select id="travelMode" aria-label="Mode du trajet principal" hidden><option value="car">En véhicule</option><option value="walk">À pied</option></select>
         <div id="walkingOptions" hidden>
