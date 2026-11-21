@@ -8,7 +8,7 @@ async function stations(page){await route(page);await page.locator('#stationsBtn
 const stored=page=>page.evaluate(()=>JSON.stringify({...localStorage}));
 test('lecture : texte réellement doublé, champs non coupés et en-tête adapté',async({page},info)=>{
  await setup(page,info,false);const selectors=['#start','#goBtn','h1','label[for=start]','#status','.brand strong'];const fonts=()=>page.evaluate(ss=>ss.map(s=>parseFloat(getComputedStyle(document.querySelector(s)).fontSize)),selectors);const before=await fonts();await enlargeText(page);const after=await fonts();after.forEach((n,i)=>expect(n).toBeCloseTo(before[i]*2,2));
- for(const id of ['start','end','travelMode']){const el=page.locator('#'+id);await reachable(el);expect(await el.evaluate(e=>{const s=getComputedStyle(e);return e.clientHeight>=(parseFloat(s.lineHeight)||parseFloat(s.fontSize)*1.45)+parseFloat(s.paddingTop)+parseFloat(s.paddingBottom)-1})).toBe(true)}
+ for(const id of ['start','end','carMode','walkMode','cycleBtn','transitBtn','bikesBtn']){const el=page.locator('#'+id);await reachable(el);expect(await el.evaluate(e=>{const s=getComputedStyle(e);return e.clientHeight>=(parseFloat(s.lineHeight)||parseFloat(s.fontSize)*1.45)+parseFloat(s.paddingTop)+parseFloat(s.paddingBottom)-1})).toBe(true)}
  for(const id of ['preparedBtn','profileBtn','goBtn']){await reachable(page.locator('#'+id));await target44(page.locator('#'+id))}
  expect(await page.locator('.topbar').evaluate(e=>e.scrollHeight<=e.clientHeight+1)).toBe(true);await readingOverflow(page);await page.locator('#start').scrollIntoViewIfNeeded();await capture(page,info,'texte-double');await checkAccessibility(page,info,'texte-double');
 });
