@@ -376,7 +376,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · bd17c34 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 1a6421b · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -724,7 +724,17 @@
    <label for="modalCarbonSort">Trier les valeurs</label><select id="modalCarbonSort"><option value="mode">Ordre des modes et options</option><option value="time">Temps comparé croissant</option><option value="distance">Distance croissante</option><option value="carbon" disabled>CO₂e du groupe croissant · options comparables</option></select>
    <p id="modalCarbonStatus" role="status" aria-live="polite"></p>
    <p class="note">Si les colonnes dépassent l’écran, faire défiler chaque tableau horizontalement. Au clavier, placer le focus sur le tableau puis utiliser les flèches gauche et droite.</p>
+   <button id="modalPrioritiesOpen" type="button" class="ghost">Comparer les modes selon mes priorités</button>
    <div id="modalCarbonTables"></div>
+   <section id="modalPriorities" hidden aria-labelledby="modalPrioritiesTitle" class="detail-section">
+    <h3 id="modalPrioritiesTitle" tabindex="-1">Mes priorités · modes de déplacement</h3>
+    <p>Même groupe de voyageurs, mêmes lieux et heure demandée. Le temps comparé comprend l’attente ou la marge d’arrivée. L’empreinte utilise les modèles choisis ci-dessus ; les étapes inconnues et périmètres différents restent hors du classement carbone.</p>
+    <fieldset><legend>Importance de chaque critère · de 0 à 10</legend><p class="note">0 ignore ce critère pour tout le groupe. Ces poids expriment des préférences, sans prix du temps en euros par heure.</p><div class="road-fields"><div><label for="modalPriorityDuration">Temps comparé</label><input id="modalPriorityDuration" type="number" min="0" max="10" step="1" value="0"></div><div><label for="modalPriorityCarbon">Empreinte du groupe</label><input id="modalPriorityCarbon" type="number" min="0" max="10" step="1" value="0"></div><div><label for="modalPriorityCost">Coût total · indisponible</label><input id="modalPriorityCost" type="number" value="0" disabled></div></div></fieldset>
+    <p class="note">Billets, péages et autres frais ne forment pas un coût total comparable. Formule facultative proposée : chaque critère est ramené entre les bornes du groupe, puis pondéré. Les contraintes impératives passent avant le score ; aucun indice universel, garantie de disponibilité ou choix automatique.</p>
+    <div class="dialog-actions"><button id="modalPrioritiesApply" type="button" class="ghost">Figer les modes et appliquer</button><button id="modalPrioritiesReset" type="button" class="ghost">Remettre les poids à zéro</button><button id="modalPrioritiesClose" type="button" class="ghost">Retirer la pondération</button></div>
+    <p id="modalPriorityStatus" role="status" aria-live="polite"></p><p id="modalPriorityGroup" class="note"></p><div id="modalPriorityResults"></div>
+    <p class="note">Groupe, modèles et poids propres à cette consultation. Aucun enregistrement, adoption, déclaration de déplacement ni appel fournisseur pendant la pondération. Les tableaux bruts et leurs tris restent indépendants.</p>
+   </section>
    <details id="modalCarbonSource"><summary>Source, version et limites communes</summary><p>Facteurs ADEME / Impact CO₂, jeu <code>impactco2-2026-11-18-bece7af</code>, extrait le 18 novembre 2026. <a href="https://github.com/incubateur-ademe/impactco2/blob/bece7af7e3daa41c7f2233e03d169c33e82530c2/src/data/categories/deplacement.ts" target="_blank" rel="noopener noreferrer">Données de référence</a> · licence MIT Datagir. Les facteurs et unités propres aux étapes sont détaillés dans chaque ligne.</p><p>Construction et énergie modélisées, ou construction seule pour le vélo mécanique : périmètres séparés. Fréquentation moyenne déjà incluse dans les facteurs collectifs par personne ; aucune seconde division. La marche reste non estimée. Infrastructures et alimentation humaine ne sont pas modélisées. Pas de mesure des émissions réelles, d’empreinte exhaustive ou de comparaison du coût total. Les égalités sont conservées à la précision affichée.</p></details>
   </section>
   <section id="transitCarbon" hidden aria-labelledby="transitCarbonTitle">

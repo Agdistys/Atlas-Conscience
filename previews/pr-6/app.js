@@ -3696,6 +3696,21 @@ function modalCarbonOrder(rows,sort){
 }
 // END MODAL CARBON MODEL
 
+// BEGIN MODAL PRIORITIES MODEL
+function modalPrioritySnapshot(rows,context,at){
+ if(!Array.isArray(rows)||!rows.length||rows.length>20||!context||typeof at!=='string'||!Number.isFinite(Date.parse(at)))throw new Error('Groupe de modes invalide.');
+ const persons=modalCarbonPersons(context.persons),reasons=[];
+ if(persons===null||rows.some(r=>r.emission?.persons!==persons))reasons.push('Le même groupe de 1 à 9 voyageurs est requis pour toutes les options.');
+ if(typeof context.instant!=='number'||!Number.isFinite(context.instant)||typeof context.arrive!=='boolean')reasons.push('Date et intention horaire communes non vérifiables.');
+ const scopes={duration:'same-request-elapsed-minutes',cost:'unavailable-modal-total-eur',carbon:'construction-energy-group-kgco2e'};
+ const known=n=>typeof n==='number'&&Number.isFinite(n)&&n>=0;
+ const carbon=n=>n>0&&n<.001?.0005:Number(n.toLocaleString('en-US',{useGrouping:false,minimumFractionDigits:3,maximumFractionDigits:3}));
+ const copy=rows.map(r=>{const c=r.emission,complete=c?.status==='complete'&&c.scope==='construction-energy'&&c.persons===persons&&known(c.groupTotalKg);return {id:r.key,label:r.label,status:r.status,reason:r.status==='ready'?'':r.reason||'',values:{duration:known(r.elapsed)?Math.ceil(r.elapsed/60):null,cost:null,carbon:complete?carbon(c.groupTotalKg):null},scopes:{...scopes},source:structuredClone(r)}});
+ return {formula:PRIORITY_FORMULA,at,persons,instant:context.instant,arrive:context.arrive,label:context.label||'',scopes,contextValid:reasons.length===0,reasons,rows:copy};
+}
+// END MODAL PRIORITIES MODEL
+
+
 
 // BEGIN TRANSIT NETWORK MODEL
 function networkLine(catalog,leg){
@@ -4041,9 +4056,61 @@ async function loadTransitNetwork(index){
 }
 function refreshTransitNetwork(){if(!transitNetworkView)return;const v=transitNetworkView,now=Date.now(),expiry=JSON.stringify([now-v.at>300000||now<v.at-60000,Boolean(v.alerts&&(now-v.alerts.generated>600000||now<v.alerts.generated-60000))]);if(expiry!==v.expiry)renderTransitNetwork()}
 
+
+let modalPriorities=null;
+function clearModalPriorities(){modalPriorities=null;$('modalPriorities').hidden=true;$('modalPriorityResults').replaceChildren();$('modalPriorityStatus').textContent='';$('modalPriorityGroup').textContent=''}
+function modalPriorityHypotheses(){
+ const v=modalCarbonView,raw={...v,persons:$('modalCarbonPeople').value,car:{...v.car},transit:v.transit.map(r=>[...r])};
+ if($('modalCarbonFuel'))raw.fuel=$('modalCarbonFuel').value;if($('modalCarbonCar'))raw.car.factorId=$('modalCarbonCar').value;if($('modalCarbonOccupants'))raw.car.occupants=$('modalCarbonOccupants').value;
+ raw.cycle=Boolean(document.querySelector('[data-modal-cycle]')?.checked);
+ for(const e of document.querySelectorAll('[data-modal-option]')){const i=Number(e.dataset.modalOption),j=Number(e.dataset.modalLeg);if(raw.transit[i]&&j>=0&&j<raw.transit[i].length)raw.transit[i][j]=e.value}
+ return raw;
+}
+function modalPriorityData(){
+ if(!modalPriorities)return null;const d=modalCarbonContext();if(!d||!modalCarbonView||!modalPriorities)return null;
+ const raw=modalPriorityHypotheses(),rows=modalCarbonRows(d.routes,modalShownRoads(d),d.q,raw),hypotheses={persons:raw.persons,fuel:raw.fuel,vehicle:raw.vehicle,car:raw.car,cycle:raw.cycle,transit:raw.transit};
+ const context={persons:raw.persons,instant:d.q.instant,arrive:d.q.arrive,label:`${transitContext.places.start} → ${transitContext.places.end}`};
+ const constraints=['transitMaxTransfers','transitTransferRule','transitCycleLimit','transitCycleRule'].map(id=>$(id)?.value??null);
+ return {rows,raw,context,signature:JSON.stringify([d.signature,context,hypotheses,constraints,d.q.excludedNetworks,d.q.networkError,rows])};
+}
+function modalPriorityWeights(){
+ const raw={cost:Number($('modalPriorityCost').value)};if(raw.cost!==0)throw new Error('Coût total indisponible : poids à zéro.');
+ for(const [key,id] of [['duration','modalPriorityDuration'],['carbon','modalPriorityCarbon']]){const e=$(id),valid=e.validity.valid&&e.value.trim()!=='';e.setAttribute('aria-invalid',String(!valid));raw[key]=valid?Number(e.value):NaN}return priorityWeights(raw);
+}
+function openModalPriorities(){
+ if(!modalCarbonContext()||!modalCarbonView)return;if(modalPriorities){$('modalPrioritiesTitle').focus();return}
+ modalPriorities={snapshot:null,signature:null,stale:false};for(const id of ['modalPriorityDuration','modalPriorityCarbon']){$(id).value='0';$(id).removeAttribute('aria-invalid')}$('modalPriorityCost').value='0';$('modalPriorities').hidden=false;renderModalPriorities();$('modalPrioritiesTitle').focus();$('modalPrioritiesTitle').scrollIntoView({block:'start'});
+}
+function captureModalPriorities(){
+ const d=modalPriorityData();if(!d)return;
+ try{modalPriorityWeights();Object.assign(modalCarbonView,{persons:d.raw.persons,fuel:d.raw.fuel,car:d.raw.car,cycle:d.raw.cycle,transit:d.raw.transit});refreshModalCarbon();
+  if(!modalPriorities)return;const fresh=modalPriorityData();if(!fresh)return;modalPriorities.snapshot=modalPrioritySnapshot(fresh.rows,fresh.context,new Date().toISOString());modalPriorities.signature=fresh.signature;modalPriorities.stale=false;renderModalPriorities();
+ }catch(e){$('modalPriorityResults').replaceChildren();$('modalPriorityStatus').textContent=e.message}
+}
+function renderModalPriorities(){
+ const d=modalPriorityData();if(!d)return;const v=modalPriorities,s=v.snapshot,h=escapeHtml;
+ $('modalPriorityResults').replaceChildren();$('modalPriorityGroup').textContent='';$('modalPrioritiesApply').textContent=s?'Actualiser le groupe et appliquer':'Figer les modes et appliquer';
+ if(s&&v.signature!==d.signature)v.stale=true;
+ let weights;try{weights=modalPriorityWeights()}catch(e){$('modalPriorityStatus').textContent=e.message;return}
+ if(!s){$('modalPriorityStatus').textContent='Aucun indice au démarrage. Choisir les hypothèses et les poids, puis figer la comparaison.';return}
+ if(v.stale){$('modalPriorityStatus').textContent='Hypothèses, contraintes ou admissibilité modifiées : indices retirés. Actualiser le groupe pour appliquer ces choix.';return}
+ const result=priorityResult(s,weights),labels={duration:'Temps comparé',carbon:'Empreinte du groupe'},value=(n,k)=>n===null?'Inconnu / périmètre différent':k==='duration'?fmt(n,0)+' min':carbonAmount(n);
+ $('modalPriorityStatus').textContent={off:'Tous les poids sont à zéro : aucune recommandation pondérée. Les valeurs brutes restent disponibles.',context:'Groupe non comparable : aucun indice. Consulter les motifs ci-dessous.',insufficient:'Moins de deux options admissibles et complètes pour les critères actifs : aucun indice. Un critère incomplet peut être désactivé pour tout le groupe.',scored:'Indices relatifs aux modes complets de ce groupe et aux priorités choisies. Plus petit = plus proche de ces priorités. Aucun trajet sélectionné.'}[result.state];
+ $('modalPriorityGroup').textContent=`Groupe figé le ${new Date(s.at).toLocaleString('fr-FR')} · ${s.label} · ${s.persons??'?'} voyageur(s) · ${s.arrive?'arrivée au plus tard':'départ à partir de'} ${transitClock(s.instant)} (Paris). ${result.eligible} option(s) complète(s) admissible(s). Formule ${result.formula}.`;
+ $('modalPriorityResults').innerHTML=(s.reasons.length?'<ul>'+s.reasons.map(r=>'<li>'+h(r)+'</li>').join('')+'</ul>':'')+result.rows.map(r=>{const source=s.rows.find(x=>x.id===r.id).source,c=source.emission;return `<article class="road-card" data-modal-priority-id="${h(r.id)}" data-modal-priority-state="${r.status==='ready'?(r.missing.length?'incomplete':result.state):r.status}"><h4>${h(r.label)}</h4><p>${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p>${r.reason?'<p>'+h(r.reason)+'</p>':''}<dl><div><dt>Temps comparé · attente ou marge comprise</dt><dd>${value(r.values.duration,'duration')}</dd></div><div><dt>Empreinte du groupe · construction et énergie</dt><dd>${value(r.values.carbon,'carbon')}</dd></div></dl><p class="note">${h(c.reason||'')}${c.scope?' '+h(CARBON_SCOPES[c.scope])+'.':''} Valeurs brutes, modèles, allocations et sources dans les tableaux ci-dessus.</p>${r.missing.length?'<p>Critères actifs incomplets : '+r.missing.map(k=>labels[k]).join(', ')+'.</p>':''}${r.contributions.length?'<details><summary>Détail du score · '+h(r.label)+'</summary><ul>'+r.contributions.map(c=>'<li>'+labels[c.key]+' : '+value(c.value,c.key)+' ; bornes '+value(c.min,c.key)+' à '+value(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul><p>Calcul sur les minutes affichées et les millièmes de kg CO₂e. La classe positive « moins de 0,001 » est représentée par 0,0005 pour le calcul, sans devenir une mesure ni un zéro. Même indice au dixième : même rang.</p></details>':''}</article>`}).join('');
+}
+function bindModalPriorities(){
+ $('modalPrioritiesOpen').addEventListener('click',openModalPriorities);$('modalPrioritiesApply').addEventListener('click',captureModalPriorities);
+ $('modalPrioritiesReset').addEventListener('click',()=>{for(const id of ['modalPriorityDuration','modalPriorityCarbon'])$(id).value='0';renderModalPriorities()});
+ $('modalPrioritiesClose').addEventListener('click',()=>{clearModalPriorities();$('modalPrioritiesOpen').focus()});
+ for(const id of ['modalPriorityDuration','modalPriorityCarbon'])$(id).addEventListener('input',renderModalPriorities);
+ $('modalPrioritiesTitle').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();e.stopPropagation();$(e.shiftKey?'modalPrioritiesOpen':'modalPriorityDuration').focus()}});
+}
+
 let modalCarbonView=null;
 function modalCarbonSignature(){return JSON.stringify([transitLimitContextSignature(),$('fuel').value,$('routeVehicle').value])}
 function clearModalCarbon(focus=false){
+ clearModalPriorities();
  modalCarbonView=null;$('modalCarbon').hidden=true;$('modalCarbonModels').replaceChildren();$('modalCarbonTables').replaceChildren();$('modalCarbonStatus').textContent='';
  if(focus)document.querySelector('[data-modal-carbon-open]')?.focus();
 }
@@ -4097,10 +4164,12 @@ function refreshModalCarbon(){
  for(const value of ['time','distance'])$('modalCarbonSort').querySelector('[value="'+value+'"]').disabled=!result.peopleValid;
  $('modalCarbonSort').querySelector('[value="carbon"]').disabled=!result.canSortCarbon;
  $('modalCarbonContext').textContent=`${transitContext?.places?.start||'Départ'} → ${transitContext?.places?.end||'Arrivée'} · ${label} · ${transitClock(d.q.instant)} (Paris). ${d.q.arrive?'Arrivée au plus tard à cette heure.':'Départ à partir de cette heure.'} Les temps comparés incluent l’attente ou la marge d’arrivée ; distances propres à chaque parcours.`;
- $('modalCarbonStatus').textContent=`${result.eligible} estimation(s) complète(s) admissible(s) dans le périmètre construction et énergie, pour ${persons===null?'un groupe à préciser':persons===1?'une personne':`le même groupe de ${persons} personnes`}.${result.canSortCarbon?' Un tri sur la part du groupe est disponible.':' Tri carbone indisponible : au moins deux estimations complètes de même périmètre sont nécessaires.'} Les sous-totaux partiels, modes indisponibles, références hors critères et périmètres différents restent hors de ce groupe. Aucun score ni recommandation globale.`;
+ $('modalCarbonStatus').textContent=`${result.eligible} estimation(s) complète(s) admissible(s) dans le périmètre construction et énergie, pour ${persons===null?'un groupe à préciser':persons===1?'une personne':`le même groupe de ${persons} personnes`}.${result.canSortCarbon?' Un tri sur la part du groupe est disponible.':' Tri carbone indisponible : au moins deux estimations complètes de même périmètre sont nécessaires.'} Les sous-totaux partiels, modes indisponibles, références hors critères et périmètres différents restent hors de ce groupe. Les valeurs brutes restent indépendantes de la pondération facultative.`;
  $('modalCarbonTables').innerHTML=modalCarbonTable(result.group,result.active?'Groupe comparable · construction et énergie':'Valeurs des modes admissibles')+(result.other.length?`<h4>${result.active?'Hors du groupe comparable':'Références hors critères ou modes indisponibles'}</h4>`+modalCarbonTable(result.other,'Valeurs hors du groupe'):'');
+ renderModalPriorities();
 }
 function bindModalCarbon(){
+ bindModalPriorities();
  $('transitCompareResults').addEventListener('click',e=>{if(e.target.closest('[data-modal-carbon-open]'))openModalCarbon()});
  $('modalCarbonClose').addEventListener('click',()=>clearModalCarbon(true));
  const change=e=>{
