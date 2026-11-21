@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "pages stations : 100 fiches accessibles, rendu borné et navigation sans effet externe",
+  "pages stations Leaflet : carte, fiche et bonne page sans modifier les filtres",
   "préparation lisible : actions proches des choix, navigation clavier et critères explicites",
   "préparation lisible : méthode repliée, limites visibles et suite volontaire",
   'accès station IGN : absence de chemin isolée, suite bornée et contraintes conservées',
