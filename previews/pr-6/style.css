@@ -186,3 +186,16 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 .modal-carbon-table th,.modal-carbon-table td{vertical-align:top}
 
 #transitNetworkChoices .check-label span{min-width:0;overflow-wrap:anywhere}#transitNetworkChoices small{display:block}
+
+/* Common entry points retain their existing, independent calculation flows. */
+.mode-access{margin-block:1.25rem;border-block:1px solid var(--line);padding-block:1rem}
+.mode-access h2{margin:0 0 .75rem;font-size:1.1rem}
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr));gap:.5rem}
+.mode-grid .mode-choice{display:flex;flex-direction:column;align-items:flex-start;text-align:left;justify-content:center;gap:.3rem;padding:.75rem;min-height:64px;white-space:normal;overflow-wrap:anywhere}
+.mode-choice strong{font-size:1rem}
+.mode-choice small{font-size:.8rem;font-weight:400;color:var(--muted)}
+.mode-choice[aria-pressed="true"]{border:2px solid var(--blue);background:#182536;color:var(--text)}
+.mode-choice[aria-pressed="true"] strong::before{content:'✓ ';color:var(--blue)}
+.mode-access .note{margin-bottom:0}
+#routeModeHeading{font-size:1.1rem;margin-block:1rem}
+@media(max-width:380px){.mode-grid{grid-template-columns:minmax(0,1fr)}}
