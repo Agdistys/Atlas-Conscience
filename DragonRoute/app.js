@@ -2250,7 +2250,7 @@ function renderStations(stations,mode,fit=false,options={}){
     <div class="result-line"><b>${fmt(s.price,3)} €/L${archival?" déclaré, à vérifier":""}</b> · +${fmt(s.extraKm,1)} km · +${Math.round(s.extraMin)} min</div>
     ${archival?'':`<div class="result-small">Achat ${fmt(s.purchase)} € · carburant du détour ${fmt(s.detourFuelCost)} €</div>`}
     <p class="price-freshness" data-freshness="${stationFreshness(s).state}">${escapeHtml(stationPriceText(s))}</p>
-    <button class="ghost station-detail-link" data-locate="${escapeHtml(s.id)}">Voir sur la carte</button><button class="ghost station-detail-link" data-details="${escapeHtml(s.id)}">Infos et favori</button><button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">${archival?"Choisir cet arrêt · prix à vérifier":"Choisir cette station"}</button>
+    <button class="ghost station-map-link" data-locate="${escapeHtml(s.id)}">Voir sur la carte</button><button class="ghost station-detail-link" data-details="${escapeHtml(s.id)}">Infos et favori</button><button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">${archival?"Choisir cet arrêt · prix à vérifier":"Choisir cette station"}</button>
     </article>`).join("");
   document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===selectedStop?.station.id));
   document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===selectedStop?.station.id)));
