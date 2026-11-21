@@ -12,7 +12,7 @@ async function setup(page,{disabled=false,heavy=false,preview=false}={}){
  if(preview)await page.route('**/DragonRoute/',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('<body>','<body data-preview="true">')})});
  await page.goto('/DragonRoute/');await page.locator('#start').fill('Gare de Grenoble');await page.locator('#end').fill('Avenue Innsbruck Grenoble');return calls;
 }
-async function roadOpen(page,{cycle=true,walk=false}={}){if(walk)await page.locator('#travelMode').selectOption('walk');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await page.locator('#compareBtn').click();if(cycle)await page.locator('#comparisonCycle').check()}
+async function roadOpen(page,{cycle=true,walk=false}={}){if(walk)await page.locator('#walkMode').click();await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await page.locator('#compareBtn').click();if(cycle)await page.locator('#comparisonCycle').check()}
 async function roadRun(page,n=3){await page.locator('#comparisonCalculate').click();await expect(page.locator('#comparisonStatus')).toContainText(`${n}/3 trajets disponibles`);await expect(page.locator('#comparisonCalculate')).toBeEnabled()}
 async function tcOpen(page){await page.locator('#transitBtn').click();await page.locator('#transitWhen').fill('2026-11-19T10:00');await page.locator('#transitCompare').check();await page.locator('#transitCycle').check()}
 async function tcRun(page){await page.locator('#transitSearch').click();await expect(page.locator('[data-transit-mode=cycle]')).toBeVisible();await expect(page.locator('#transitSearch')).toBeEnabled()}

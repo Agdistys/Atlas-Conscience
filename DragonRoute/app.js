@@ -1671,7 +1671,7 @@ function readWalkingCriteria(compared=false){const field=$(compared?'comparisonW
 function fillWalkingCriteria(c){$('maxWalkKm').value=c.maxWalkKm??'';$('walkRule').value=c.walkStrict?'strict':'soft'}
 function walkingChanged(){if(walkRun){cancelTripSearch('Critères de marche modifiés : calcul annulé.');return}updateWalking()}
 function updateWalking(){
- const walking=isWalking();$('walkingOptions').hidden=!walking;$('routingOptions').hidden=walking;if(walking)$('activeVehicle').hidden=true;
+ const walking=isWalking();$('carMode').setAttribute('aria-pressed',String(!walking));$('walkMode').setAttribute('aria-pressed',String(walking));$('routeModeHeading').textContent=walking?'Trajet à pied':'Trajet en véhicule';$('walkingOptions').hidden=!walking;$('routingOptions').hidden=walking;if(walking)$('activeVehicle').hidden=true;
  $('savePreparationBtn').disabled=busy;$('journalRecordBtn').disabled=busy;
  $('walkingStatus').hidden=!trip||trip.routing.vehicle.type!=='walk';if($('walkingStatus').hidden)return;
  try{const c=readWalkingCriteria();$('maxWalkKm').setAttribute('aria-invalid','false');$('walkingStatus').dataset.state=walkReview(trip.base.distance,c).admissible?'admissible':'excluded';$('walkingStatus').textContent=walkingPreference(trip.base.distance,c)}catch(e){$('maxWalkKm').setAttribute('aria-invalid','true');$('walkingStatus').dataset.state='invalid';$('walkingStatus').textContent='Critères invalides : '+e.message;$('savePreparationBtn').disabled=true;$('journalRecordBtn').disabled=true}
@@ -4260,7 +4260,7 @@ function collectTripErrors(){
  for(const [id,label] of [['start','de départ'],['end','d’arrivée']])if(!$(id).value.trim())add(id,`Renseigner le lieu ${label}.`);
  if(temporaryAddress($('end').value)&&!transitStoredPlace($('end').value.trim(),'end'))add('end','Ce libellé GPS ne désigne pas une arrivée confirmée. Renseigner une adresse fixe.');
  const mode=$('travelMode').value,vehicle=$('routeVehicle').value;
- if(!['car','walk'].includes(mode))add('travelMode','Choisir un mode de déplacement.');
+ if(!['car','walk'].includes(mode))add('carMode','Choisir un mode de déplacement.');
  if(!['fastest','shortest'].includes($('routeOptimization').value))add('routeOptimization','Choisir le trajet plus rapide ou plus court.');
  if(mode==='walk'){
   try{walkingRule('walkRule')}catch(e){add('walkRule',e.message)}
@@ -4277,7 +4277,7 @@ function collectTripErrors(){
    ensureRouting(routingPreferences());
   }catch(e){
    const unavailable=[...document.querySelectorAll('.avoid-options input:checked')].some(el=>el.dataset.routingAvailable==='false');
-   add(mode==='walk'?'travelMode':unavailable?'clearUnavailableOptions':$('routeOptimization').value==='shortest'?'routeOptimization':'routeVehicle',e.message);
+   add(mode==='walk'?'walkMode':unavailable?'clearUnavailableOptions':$('routeOptimization').value==='shortest'?'routeOptimization':'routeVehicle',e.message);
   }
  }
  const dates={};
@@ -4770,6 +4770,7 @@ function bindProfile(){
 function bind(){
   $('routeOptimization').addEventListener('change',()=>{if(!busy){invalidateRouting();updateResumePreparation()}});
   for(const id of ['fuel','cons','liters','routeVehicle',...Object.values(dimensionFields)])$(id).addEventListener('input',()=>{if(!busy)detachTripVehicle()});
+  for(const [id,mode] of [['carMode','car'],['walkMode','walk']])$(id).addEventListener('click',()=>{if(busy||$('travelMode').value===mode)return;$('travelMode').value=mode;$('travelMode').dispatchEvent(new Event('change',{bubbles:true}))});
   $('travelMode').addEventListener('change',()=>{if(busy)return;resumePreparation=null;preparedRangePending=false;invalidateRouting();setStatus(isWalking()?(C.ignRouting===true?'Mode à pied choisi. Calculer un nouveau trajet.':'Calcul à pied indisponible : service IGN non activé.'):'Mode véhicule choisi. Options conservées ; calculer un nouveau trajet.')});
   $('maxWalkKm').addEventListener('input',walkingChanged);$('walkRule').addEventListener('change',walkingChanged);
   for(const id of ["tollHeight","tollWeight","tollPayment","tollDeparture","tollVehicleConfirmed"])$(id).addEventListener("input",updateBudget);
