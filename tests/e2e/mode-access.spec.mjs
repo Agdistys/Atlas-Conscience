@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
+import {reachable} from '../helpers/reading-layout.mjs';
 const ids=['carMode','walkMode','cycleBtn','transitBtn','bikesBtn'];
 const flows=[['cycleBtn','cycleDialog','cyclePlaces'],['transitBtn','transitDialog','transitPlaces'],['bikesBtn','bikesDialog',null]];
 async function setup(page,{heavy=false}={}){
@@ -49,7 +50,7 @@ test('accès modes : erreur des lieux réparable depuis le mode marche',async({p
 });
 test('accès modes : commandes accessibles en paysage, texte agrandi et petit écran',async({page},info)=>{
  await setup(page);await page.locator('.mode-access').scrollIntoViewIfNeeded();await capture(page,info,'modes-preparation');
- await page.setViewportSize({width:740,height:360});await page.addStyleTag({content:'html{font-size:200%}'});await page.locator('.mode-access').scrollIntoViewIfNeeded();await checkOverflow(page);await capture(page,info,'modes-paysage-texte-agrandi');
- for(const id of ids){const button=page.locator('#'+id);await button.scrollIntoViewIfNeeded();const box=await button.boundingBox();expect(box.width).toBeGreaterThanOrEqual(44);expect(box.height).toBeGreaterThanOrEqual(44)}
+ await page.setViewportSize({width:844,height:390});await page.addStyleTag({content:'html{font-size:200%}'});await page.locator('.mode-access').scrollIntoViewIfNeeded();await checkOverflow(page);await capture(page,info,'modes-paysage-texte-agrandi');
+ for(const id of ids){const button=page.locator('#'+id);await reachable(button);const box=await button.boundingBox();expect(box.width).toBeGreaterThanOrEqual(44);expect(box.height).toBeGreaterThanOrEqual(44)}
  await page.locator('#cycleBtn').click();await expect(page.locator('#cycleDialog')).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('#cycleBtn')).toBeFocused();await checkAccessibility(page,info,'modes-texte-agrandi');
 });

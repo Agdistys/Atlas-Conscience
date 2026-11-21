@@ -28,7 +28,7 @@ Pendant une opération qui verrouille le contexte commun, les cinq accès sont d
 
 ## Lecture et accessibilité
 
-Les cinq accès sont regroupés en deux colonnes, puis une seule sur les écrans les plus étroits. Le défilement vertical reste possible, y compris en paysage et avec le texte agrandi. Les intitulés et limites se replient ; les zones d’action gardent une dimension minimale. La distinction du mode principal ne repose pas uniquement sur la couleur. Les fenêtres conservent leurs titres, commandes de fermeture et règles de focus.
+Les cinq accès sont regroupés en deux colonnes lorsque la place le permet, puis une seule selon la largeur disponible et la taille du texte. Cette adaptation reste active dans un panneau étroit en paysage, même si la fenêtre globale est large. Le défilement vertical reste possible, y compris en paysage et avec le texte agrandi. Les intitulés et limites se replient ; les zones d’action gardent une dimension minimale. La distinction du mode principal ne repose pas uniquement sur la couleur. Les fenêtres conservent leurs titres, commandes de fermeture et règles de focus.
 
 ## Vérifications et limites
 
