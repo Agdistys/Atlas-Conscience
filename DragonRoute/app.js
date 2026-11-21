@@ -4186,7 +4186,7 @@ async function loadTransitNetwork(index){
   if(!r.ok)throw new Error('Information du réseau indisponible.');const text=await r.text();if(text.length>2e6)throw new Error('Réponse du réseau trop volumineuse.');try{return JSON.parse(text)}catch{throw new Error('Réponse du réseau illisible.')}
  }
  try{
-  let catalog,catalogError;try{catalog=await get('routers/default/index/routes')}catch(e){catalogError=e.message}
+  let catalog,catalogError;try{catalog=await get('routers/default/index/routes')}catch(e){catalogError=e.name==='AbortError'?'Consultation interrompue ou délai dépassé.':e.message}
   if(!current())return;
   for(const leg of route.legs.filter(l=>l.mode!=='WALK').slice(0,3)){
    try{if(catalogError)throw new Error(catalogError);if(!leg.stopId)throw new Error('Identifiant d’arrêt non qualifié.');const line=networkLine(catalog,leg),raw=await get('routers/default/index/stops/'+encodeURIComponent(leg.stopId)+'/stoptimes?'+new URLSearchParams({route:line.id,showCancelledTrips:'true'}));if(!current())return;v.boards.push({leg,data:networkDepartures(raw,line,leg,Date.now())})}catch(e){if(!current())return;v.boards.push({leg,error:e.name==='AbortError'?'Le réseau n’a pas répondu à temps.':e.message})}
