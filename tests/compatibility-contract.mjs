@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "comparaisons conservées : sauvegarde volontaire, relecture et exports fidèles sans nouveau calcul",
+  "comparaisons conservées : clavier et texte doublé gardent consentement et exports accessibles",
   "priorités modes : choix volontaire, contributions et valeurs brutes sans appel ni écriture",
   "priorités modes : clavier et paysage à texte doublé gardent les commandes accessibles",
   "priorités enregistrées : choix volontaire, contributions et poids sans écriture ni appel",

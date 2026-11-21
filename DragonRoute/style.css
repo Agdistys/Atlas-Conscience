@@ -230,3 +230,7 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 #map .station-marker.station-consulted{outline:4px solid #112354;outline-offset:3px;box-shadow:0 0 0 7px #fff}
 #map .svg-station.station-consulted circle{stroke:#112354;stroke-width:5;stroke-dasharray:6 3}
 @media(max-width:800px){.map-area{order:0;overflow:visible}.map-area .map{flex:none}}
+
+/* Historical comparison evidence remains inert text, readable at narrow widths. */
+.comparison-evidence{white-space:pre-wrap;overflow-wrap:anywhere}
+#comparisonLibraryDialog,#comparisonSaveDialog{max-width:800px}
