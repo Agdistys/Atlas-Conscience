@@ -1444,7 +1444,8 @@ async function openStation(id){
   const sequence=++detailSequence,fuel=$("fuel").value;
   const live=compared.find(s=>s.id===id),saved=profile.stations.find(s=>s.id===id);
   if(!live&&!saved)return;
-  currentStation=live||saved;
+  if(live)revealStationList(id);
+  currentStation=live||saved;updateStationListLink();
   $("stationMessage").textContent="";$("favoriteBtn").disabled=false;
   $("detailChooseBtn").hidden=!live;updateFavorite();renderStationDetails(currentStation);
   if(!$("stationDialog").open)$("stationDialog").showModal();
@@ -2122,7 +2123,7 @@ function refreshPriceFreshness(){
   expireStationBudget();updateBudget();
   const signature=JSON.stringify(compared.map(s=>[s.id,stationFreshness(s).state,stationFreshness(s).reason]));
   if(signature!==priceViewSignature){priceViewSignature=signature;if(stationSearch)renderStations(compared,stopWindow().mode)}
-  if($('stationDialog').open&&currentStation)renderStationDetails(currentStation);
+  if($('stationDialog').open&&currentStation){renderStationDetails(currentStation);updateStationListLink()}
 }
 
 function serviceSelection(){return [...document.querySelectorAll('[data-service]:checked')].map(el=>el.value)}
@@ -2161,7 +2162,42 @@ function refreshStationMap(visible,fit=false){
   const coords=selectedStop?selectedStop.via.geometry.coordinates.map(([lon,lat])=>[lat,lon]):trip.coords;
   showOnMap(coords,points,chosen||null,trip.a,trip.b,chosen?`${trip.label} · arrêt ${chosen.city}`:trip.label,fit);
 }
-function renderStations(stations,mode,fit=false){
+const STATION_LIST_SIZE=20;
+const stationListPage={index:0,ids:[],signature:''};
+function stationListCriteria(){
+ return JSON.stringify([...['stationListMode','stationPriceView','maxDetourKm','maxDetourMin','stationOpeningFilter','rangeMode','rangeValue','reserveKm','stationDeparture'].map(id=>$(id).value),$('rangeOnly').checked,serviceSelection().slice().sort()]);
+}
+function updateStationPagination(){
+ const total=stationListPage.ids.length,pages=Math.ceil(total/STATION_LIST_SIZE),index=stationListPage.index;
+ for(const nav of document.querySelectorAll('[data-station-pagination]')){
+  nav.hidden=total<=STATION_LIST_SIZE;
+  nav.querySelector('[data-station-page-status]').textContent=total?`Page ${index+1} sur ${pages} · fiches ${index*STATION_LIST_SIZE+1} à ${Math.min(total,(index+1)*STATION_LIST_SIZE)} sur ${total}.`:'';
+  for(const b of nav.querySelectorAll('[data-station-page]'))b.disabled=busy||(b.dataset.stationPage==='next'?index>=pages-1:index===0);
+ }
+}
+function stationCardButton(id,action='details'){return [...$('stationCards').querySelectorAll(`[data-${action}]`)].find(b=>b.dataset[action]===id)}
+function stationListFocus(id,action='details'){
+ if(document.querySelector('dialog[open]'))return;
+ if(id&&stationListPage.ids.includes(id))revealStationList(id);
+ const target=stationCardButton(id,action)||$('stationResultsTitle');target.focus();target.scrollIntoView({block:'nearest',behavior:'instant'});
+}
+function revealStationList(id){
+ const at=stationListPage.ids.indexOf(id);if(at<0)return false;
+ if(Math.floor(at/STATION_LIST_SIZE)!==stationListPage.index)renderStations(compared,stopWindow().mode,false,{revealId:id,pageOnly:true});
+ return true;
+}
+function updateStationListLink(){
+ const live=currentStation&&compared.find(s=>s.id===currentStation.id),button=$('stationListReveal');
+ button.hidden=!live;$('stationListRevealNote').hidden=!live;
+ if(!live)return;
+ const allowed=filterStations(compared).visible.some(s=>s.id===live.id);button.disabled=busy||!allowed;
+ button.textContent=stationListPage.ids.includes(live.id)?'Voir dans la liste':'Voir parmi toutes les stations';
+ $('stationListRevealNote').textContent=allowed?(stationListPage.ids.includes(live.id)?'Rejoindre cette fiche, sans nouveau calcul.':'Cette station est hors de la sélection recommandée. Ouvrir la liste complète conserve les filtres, sans nouveau calcul.'):'Cette station ne satisfait plus les filtres actuels. Les modifier depuis la recherche pour la retrouver dans la liste. L’arrêt choisi reste conservé.';
+}
+function renderStations(stations,mode,fit=false,options={}){
+ const active=document.activeElement,card=active?.closest('#stationCards [data-station]'),focused=card?{id:card.dataset.station,action:active.hasAttribute('data-select')?'select':'details'}:null;
+ const paginationFocused=Boolean(active?.closest('[data-station-pagination]'));
+ const finishList=()=>{updateStationPagination();updateStationListLink();if(!document.querySelector('dialog[open]')){if(focused&&options.pageIndex===undefined&&!options.revealId)stationListFocus(focused.id,focused.action);else if(paginationFocused&&!active.getClientRects().length){$('stationResultsTitle').focus()}}};
  updatePreparationReadout();
   priceViewSignature=JSON.stringify(stations.map(s=>[s.id,stationFreshness(s).state,stationFreshness(s).reason]));
   updateResumePreparation();
@@ -2181,7 +2217,7 @@ function renderStations(stations,mode,fit=false){
     $("stationFilterStatus").textContent=baseText;
     $('stationResultReadout').textContent=baseText;
     $("stationCards").innerHTML=`<p class="note">${error?"Corriger la saisie ou réinitialiser les filtres.":stations.length&&excluded.range===stations.length?"Aucune station comparée dans la portée estimée. Ne pas compter sur cette estimation pour poursuivre sans carburant.":"Aucune station comparée ne satisfait tous les filtres. Modifier ou réinitialiser les filtres sans recalculer le trajet. Aucun élargissement automatique."}</p>`;
-    refreshStationMap([],fit);return;
+    stationListPage.index=0;stationListPage.ids=[];stationListPage.signature=stationListCriteria();finishList();if(!options.pageOnly)refreshStationMap([],fit);return;
   }
   const cost=Math.min(...visible.map(s=>Math.round(s.real*100))),price=Math.min(...visible.map(s=>Math.round(s.price*1000))),minutes=Math.min(...visible.map(s=>s.extraMin));
   const winners=archival?[]:[
@@ -2194,9 +2230,14 @@ function renderStations(stations,mode,fit=false){
   const sorts={all:byDistance,cost:(a,b)=>Math.round(a.real*100)-Math.round(b.real*100)||byDistance(a,b),price:(a,b)=>Math.round(a.price*1000)-Math.round(b.price*1000)||byDistance(a,b),detour:(a,b)=>a.extraMin-b.extraMin||a.extraKm-b.extraKm||byDistance(a,b)};
   const recommendations=[...new Map(winners.flatMap(([,wins])=>visible.filter(wins).sort(byDistance)).map(s=>[s.id,s])).values()];
   const list=archival?[...visible].sort(byDistance):listMode!=="recommended"?[...visible].sort(sorts[listMode]||byDistance):[...new Map([...(mode==="soon"?[...visible].sort(byDistance).slice(0,3):[]),...recommendations].map(s=>[s.id,s])).values()];
+  const signature=stationListCriteria(),same=signature===stationListPage.signature,anchor=options.revealId||(same?(focused?.id||stationListPage.ids[stationListPage.index*STATION_LIST_SIZE]):null),anchorIndex=anchor?list.findIndex(s=>s.id===anchor):-1;
+  let index=Number.isInteger(options.pageIndex)?options.pageIndex:anchorIndex>=0?Math.floor(anchorIndex/STATION_LIST_SIZE):same?stationListPage.index:0;
+  index=Math.max(0,Math.min(index,Math.max(0,Math.ceil(list.length/STATION_LIST_SIZE)-1)));
+  stationListPage.index=index;stationListPage.ids=list.map(s=>s.id);stationListPage.signature=signature;
+  const pageRows=list.slice(index*STATION_LIST_SIZE,(index+1)*STATION_LIST_SIZE);
   $("stationFilterStatus").textContent=baseText+` Carte : ${visible.length} résultats ; liste : ${list.length} fiches. ${archival?"Prix exclus des recommandations et du budget ; arrêts consultables par distance.":`Badges calculés parmi ces ${visible.length} stations, sous les filtres actifs.`}`;
   $('stationResultReadout').textContent=`${list.length} fiches · ${$('stationPriceView').selectedOptions[0].textContent} · ${archival?'distance croissante':$('stationListMode').selectedOptions[0].textContent}. ${visible.length} stations retenues sous les filtres actifs.${stationSearch&&stationSearch.cursor<stationSearch.queue.length?' Comparaison partielle : candidates restantes.':''} Recherche non exhaustive. ${archival?'Prix hors classement et budget.':'Coût : achat + carburant du détour, hors péages.'} Ouverture non garantie.`;
-  $("stationCards").innerHTML=list.map(s=>`<article class="result-card" data-station="${escapeHtml(s.id)}">
+  $("stationCards").innerHTML=pageRows.map(s=>`<article class="result-card" data-station="${escapeHtml(s.id)}">
     <div class="result-badges">${winners.filter(([,winner])=>winner(s)).map(([name])=>`<span class="result-badge">${name}</span>`).join("")}</div>
     <span class="station-index">Point ${s.number}</span><h3>${escapeHtml(s.city||`Station ${s.id}`)}</h3><div class="result-small">${escapeHtml(s.address)}</div>
     <div class="result-line">À ${fmt(s.distanceFromStart,1)} km du départ</div>
@@ -2210,20 +2251,26 @@ function renderStations(stations,mode,fit=false){
     </article>`).join("");
   document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===selectedStop?.station.id));
   document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===selectedStop?.station.id)));
-  refreshStationMap(visible,fit);
+  finishList();if(!options.pageOnly)refreshStationMap(visible,fit);
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 let stationPicker=null,stationDetailReturn=null,stationPointFrame=0;
 function queueStationPoints(){cancelAnimationFrame(stationPointFrame);stationPointFrame=requestAnimationFrame(()=>{
- const points=[...document.querySelectorAll('#map [data-station-point]')].map(e=>({e,r:e.getBoundingClientRect()})).filter(p=>p.r.width&&p.r.height);
- for(const p of points){const n=points.filter(q=>p.r.left<q.r.right&&p.r.right>q.r.left&&p.r.top<q.r.bottom&&p.r.bottom>q.r.top).length;p.e.classList.toggle('station-overlap',n>1);p.e.dataset.nearbyCount=String(n)}
+ const points=[...document.querySelectorAll('#map [data-station-point]')].map((e,i)=>({e,i,r:e.getBoundingClientRect()})).filter(p=>p.r.width&&p.r.height);
+ const overlaps=(a,b)=>a.r.left<b.r.right&&a.r.right>b.r.left&&a.r.top<b.r.bottom&&a.r.bottom>b.r.top;
+ const priority=p=>p.e===document.activeElement?2:p.e.dataset.stationPoint===selectedStop?.station.id?1:0;
+ const representatives=[];
+ for(const p of points.slice().sort((a,b)=>priority(b)-priority(a)||(parseInt(getComputedStyle(b.e).zIndex)||0)-(parseInt(getComputedStyle(a.e).zIndex)||0)||b.i-a.i)){
+  const covered=representatives.some(q=>overlaps(p,q));p.e.classList.toggle('station-cluster-member',covered);if(!covered)representatives.push(p);
+ }
+ for(const p of points){const n=points.filter(q=>overlaps(p,q)).length;p.e.classList.toggle('station-overlap',n>1);p.e.dataset.nearbyCount=String(n)}
 })}
 function mapStations(){return mapView?.[1]||[]}
 function stationPointSize(){return Math.max(44,parseFloat(getComputedStyle(document.documentElement).fontSize)*2.5)}
-function stationPointElement(id){return [...document.querySelectorAll('#map [data-station-point]')].find(e=>e.dataset.stationPoint===id&&e.getClientRects().length)}
+function stationPointElement(id){return [...document.querySelectorAll('#map [data-station-point]')].find(e=>e.dataset.stationPoint===id&&e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden')}
 function returnStationFocus(target,id){
  if(document.querySelector('dialog[open]'))return;
- const next=target?.isConnected&&target.getClientRects().length?target:stationPointElement(id)||(!$('stationMapTools').hidden?$('mapStationsBtn'):$('stationsBtn'));
+ const next=target?.isConnected&&target.getClientRects().length&&getComputedStyle(target).visibility!=='hidden'?target:stationPointElement(id)||(!$('stationMapTools').hidden?$('mapStationsBtn'):$('stationsBtn'));
  if(next&&!next.disabled)next.focus();
 }
 function closeStationPicker(restore=true){
@@ -2250,7 +2297,7 @@ function openStationPicker(ids=null,focus=document.activeElement,stationId=null)
 }
 function activateMapStation(id,element,pointer=true){
  if(busy||!mapStations().some(s=>s.id===id))return;
- if(pointer){const a=element.getBoundingClientRect(),ids=[...document.querySelectorAll('#map [data-station-point]')].filter(e=>{const b=e.getBoundingClientRect();return b.width&&b.height&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top}).map(e=>e.dataset.stationPoint);
+ if(pointer||Number(element.dataset.nearbyCount)>1){const a=element.getBoundingClientRect(),ids=[...document.querySelectorAll('#map [data-station-point]')].filter(e=>{const b=e.getBoundingClientRect();return b.width&&b.height&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top}).map(e=>e.dataset.stationPoint);
   if(ids.length>1){openStationPicker(ids,element,id);return}
  }
  stationDetailReturn={focus:element,id};openStation(id);
@@ -4203,7 +4250,7 @@ function clearStations(){
   if(stationJob){stationJob.controller.abort();stationJob.invalid=true}
   $("stationContinuation").hidden=true;$("stationEmpty").hidden=true;
   selectedStop=null;invalidateStationPrice();
-  compared=[];stationSearch=null;updateResumePreparation();
+  compared=[];stationSearch=null;stationListPage.index=0;stationListPage.ids=[];stationListPage.signature='';updateStationPagination();updateResumePreparation();
   for(const id of ["stationCoverage","stationFilterStatus","filteredStopNote"])$(id).hidden=true;
   $("eligibleCount").textContent="—";
   $("stationCards").replaceChildren();$("stationSummary").hidden=true;$("selectedStop").hidden=true;
@@ -4243,6 +4290,7 @@ function lock(value){
   $("profileBtn").disabled=value;$("preparedBtn").disabled=value;
   document.querySelectorAll('#sheet input,#sheet select,#sheet button').forEach(el=>el.disabled=value);
   if(!value){updateVehicleRouting();updateRange();updateBudget();updateResumePreparation()}
+  updateStationPagination();updateStationListLink();
 }
 function windowBounds(w){return `Entre ${fmt(w.min,1)} et ${fmt(w.max,1)} km depuis le départ`}
 function updateWindow(){
@@ -4486,7 +4534,7 @@ function closeStationPreview(message='Arrêt non confirmé. Le trajet précéden
  if(stationPreviewMap){stationPreviewMap.remove();stationPreviewMap=null;stationPreviewLayers=null}
  $('stationPreviewMap').replaceChildren();$('stationPreviewSvg').replaceChildren();
  if($('stationPreviewDialog').open)$('stationPreviewDialog').close();
- if(op){$('fuelStatus').textContent=message;const button=[...document.querySelectorAll('[data-select]')].find(e=>e.dataset.select===op.station.id);if(button&&!button.disabled)button.focus();else returnStationFocus(null,op.station.id)}
+ if(op){$('fuelStatus').textContent=message;if(stationListPage.ids.includes(op.station.id))revealStationList(op.station.id);const button=[...document.querySelectorAll('[data-select]')].find(e=>e.dataset.select===op.station.id);if(button&&!button.disabled)button.focus();else returnStationFocus(null,op.station.id)}
 }
 function stationPreviewConsent(op){
  const old=!stationFreshness(op.station).eligible,range=rangeEstimate(),far=range?.valid&&op.access?.km!==null&&op.access.km>range.useful;
@@ -4676,14 +4724,26 @@ function initPwa(){
   });
 }
 function bindProfile(){
+  for(const nav of document.querySelectorAll('[data-station-pagination]'))nav.addEventListener('click',e=>{
+   const b=e.target.closest('[data-station-page]');if(!b||b.disabled||busy||!stationSearch)return;
+   const action=b.dataset.stationPage,index=action==='first'?0:stationListPage.index+(action==='next'?1:-1);
+   renderStations(compared,stopWindow().mode,false,{pageIndex:index,pageOnly:true});$('stationResultsTitle').focus();$('stationResultsTitle').scrollIntoView({block:'start',behavior:'instant'});
+  });
+  $('stationListReveal').addEventListener('click',()=>{
+   const id=currentStation?.id;if(busy||!id||!filterStations(compared).visible.some(s=>s.id===id))return;
+   if(!stationListPage.ids.includes(id))$('stationListMode').value='all';
+   renderStations(compared,stopWindow().mode,false,{revealId:id,pageOnly:true});
+   stationDetailReturn={listId:id};closeStationPicker(false);$('stationDialog').close();
+  });
   $("profileBtn").addEventListener("click",openProfile);
   document.querySelectorAll('.close-dialog').forEach(button=>button.addEventListener("click",()=>button.closest('dialog').close()));
   $("stationDialog").addEventListener("close",()=>{detailSequence++;const back=stationDetailReturn;stationDetailReturn=null;
    if(back?.pickerId&&$('stationPickerDialog').open){const row=[...$('stationPickerList').querySelectorAll('button')].find(e=>e.dataset.pickerStation===back.pickerId);(row||$('stationPickerSearch')).focus()}
+   else if(back?.listId)stationListFocus(back.listId);
    else if(back?.focus)returnStationFocus(back.focus,back.id);
   });
   for(const id of ["stationCards","stationDots"]){
-    $(id).addEventListener("click",e=>{const target=e.target.closest('[data-details]');if(target){if(id==='stationDots')activateMapStation(target.dataset.details,target,e.detail!==0);else{stationDetailReturn=null;openStation(target.dataset.details)}}});
+    $(id).addEventListener("click",e=>{const target=e.target.closest('[data-details]');if(target){if(id==='stationDots')activateMapStation(target.dataset.details,target,e.detail!==0);else{stationDetailReturn={listId:target.dataset.details};openStation(target.dataset.details)}}});
     $(id).addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches('.svg-station')){e.preventDefault();activateMapStation(e.target.dataset.details,e.target,false)}});
   }
   $("favoriteBtn").addEventListener("click",()=>{

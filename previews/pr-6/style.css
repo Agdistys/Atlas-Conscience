@@ -210,3 +210,12 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 #tripReadout,#stationReadout,#stationCoverageBrief{line-height:1.5}
 
 #routeModeHeading,#stopsHeading,#budgetHeading,#stationResultsTitle{scroll-margin-top:12px}
+
+/* Bounded card pages; controls remain in normal document flow. */
+.station-pagination{padding:.75rem 0;border-block:1px solid var(--border,#45454f);margin:.75rem 0}
+.station-pagination .preparation-links{display:flex;flex-wrap:wrap;gap:.5rem}
+.station-pagination button{min-height:44px;flex:1 1 9rem;white-space:normal}
+.station-pagination p{margin:.5rem 0}
+
+/* Keep coordinates and identities, expose one full touch target per overlap group. */
+#map .station-cluster-member{visibility:hidden}
