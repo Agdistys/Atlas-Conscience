@@ -3245,11 +3245,98 @@ function validateRoadChoice(r,points){
 }
 // END ROAD CHOICES MODEL
 
+// BEGIN PRIORITIES MODEL
+const PRIORITY_FORMULA='ami-minmax-v1-proposition';
+const PRIORITY_KEYS=['duration','cost','carbon'];
+function priorityWeights(raw){
+ const weights={};for(const key of PRIORITY_KEYS){const n=raw?.[key];if(typeof n!=='number'||!Number.isInteger(n)||n<0||n>10)throw new Error('Choisir des poids entiers de 0 à 10.');weights[key]=n}return weights;
+}
+function priorityResult(snapshot,raw){
+ const weights=priorityWeights(raw),active=PRIORITY_KEYS.filter(k=>weights[k]>0),sum=active.reduce((n,k)=>n+weights[k],0);
+ if(!snapshot||!Array.isArray(snapshot.rows)||snapshot.rows.length<1||snapshot.rows.length>20||typeof snapshot.contextValid!=='boolean'||PRIORITY_KEYS.some(k=>typeof snapshot.scopes?.[k]!=='string'||!snapshot.scopes[k]))throw new Error('Groupe de comparaison invalide.');
+ const ids=new Set(),known=n=>typeof n==='number'&&Number.isFinite(n)&&n>=0&&n<=1e12;
+ const rows=snapshot.rows.map(source=>{
+  if(typeof source.id!=='string'||!source.id||ids.has(source.id)||!['ready','excluded','unavailable'].includes(source.status))throw new Error('Identité ou admissibilité non vérifiable.');ids.add(source.id);
+  const values={},missing=[];for(const k of PRIORITY_KEYS){values[k]=known(source.values?.[k])&&source.scopes?.[k]===snapshot.scopes?.[k]?source.values[k]:null;if(active.includes(k)&&values[k]===null)missing.push(k)}
+  return {id:source.id,label:source.label,status:source.status,reason:source.reason||'',values,missing,score:null,rank:null,tied:false,contributions:[]};
+ });
+ const eligible=rows.filter(r=>r.status==='ready'&&!r.missing.length),result={formula:PRIORITY_FORMULA,weights,active,bounds:{},rows,eligible:eligible.length,state:!sum?'off':!snapshot.contextValid?'context':eligible.length<2?'insufficient':'scored'};
+ if(result.state!=='scored')return result;
+ for(const k of active){const values=eligible.map(r=>r.values[k]);result.bounds[k]={min:Math.min(...values),max:Math.max(...values)}}
+ for(const r of eligible){
+  r.contributions=active.map(key=>{const {min,max}=result.bounds[key],normalized=max===min?0:(r.values[key]-min)/(max-min);return {key,value:r.values[key],min,max,weight:weights[key],normalized,points:100*weights[key]/sum*normalized}});
+  r.score=Number(r.contributions.reduce((n,c)=>n+c.points,0).toLocaleString('en-US',{useGrouping:false,minimumFractionDigits:1,maximumFractionDigits:1}));
+ }
+ const secondary=(a,b)=>{const duration=r=>r.values.duration===null?Infinity:Math.round(r.values.duration*10),cost=r=>r.values.cost===null?Infinity:Math.round(r.values.cost*100);return duration(a)-duration(b)||cost(a)-cost(b)||a.id.localeCompare(b.id)};
+ eligible.sort((a,b)=>a.score-b.score||secondary(a,b));eligible.forEach((r,i)=>{r.rank=eligible.findIndex(x=>x.score===r.score)+1;r.tied=eligible.filter(x=>x.score===r.score).length>1});
+ result.rows=[...eligible,...rows.filter(r=>r.score===null)];return result;
+}
+// END PRIORITIES MODEL
+
+let roadPriorities=null;
+const priorityLabels={duration:'Conduite',cost:'Coût total',carbon:'Empreinte du véhicule'};
+const priorityScopes={duration:'driving-minutes',cost:'total-vehicle-eur',carbon:'construction-energy-vehicle-kgco2e'};
+function clearRoadPriorities(){roadPriorities=null;$('roadPriorities').hidden=true;$('roadPrioritiesOpen').hidden=true;$('roadPriorityResults').replaceChildren();$('roadPriorityGroup').textContent='';$('roadPriorityStatus').textContent=''}
+function roadPrioritySignature(){return JSON.stringify([roadComparison?.signature,roadComparison?.entries.map(e=>[e.criterion,e.status,e.at,e.route?.distance,e.route?.duration]),$('roadOnlyBefore').checked,$('roadPriorityFactor').value])}
+function roadPriorityValues(){const raw={cost:Number($('roadPriorityCost').value)};for(const [key,id] of [['duration','roadPriorityDuration'],['carbon','roadPriorityCarbon']]){const e=$(id),valid=e.validity.valid&&e.value.trim()!=='';e.setAttribute('aria-invalid',String(!valid));raw[key]=valid?Number(e.value):NaN}if(raw.cost!==0)throw new Error('Le coût total reste indisponible dans cette comparaison.');return priorityWeights(raw)}
+function roadPriorityContext(){
+ const op=roadComparison;if(!roadPriorities||!op||op!==roadPriorities.op||op.running||op.cancelled)return null;
+ if(op.signature!==roadSignature()){clearRoadChoices('Contexte modifié : relancer la comparaison.');return null}return op;
+}
+function openRoadPriorities(){
+ const op=roadComparison;if(!op||op.running||op.cancelled||!op.entries.some(e=>e.status==='ready'))return;
+ if(op.signature!==roadSignature()){clearRoadChoices('Contexte modifié : relancer la comparaison.');return}
+ if(roadPriorities){$('roadPrioritiesTitle').focus();return}
+ roadPriorities={op,snapshot:null,signature:null,stale:false};for(const id of ['roadPriorityDuration','roadPriorityCarbon','roadPriorityCost']){$(id).value='0';$(id).removeAttribute('aria-invalid')}
+ const factors=op.source.routing.vehicle.type==='car'?prospectiveFactors(op.source.fuel):[];
+ $('roadPriorityFactor').innerHTML='<option value="">Aucun modèle choisi</option>'+factors.map(f=>'<option value="'+escapeHtml(f.id)+'">'+escapeHtml(f.label)+'</option>').join('');$('roadPriorityFactor').disabled=!factors.length;
+ $('roadPriorityFactorNote').textContent=factors.length?'Modèle à choisir explicitement, pour les deux routes. Construction et énergie moyennes, véhicule entier ; aucune occupation ni part individuelle supposée.':'Aucun modèle qualifié pour ce véhicule ou carburant. Les émissions restent inconnues.';
+ $('roadPriorities').hidden=false;renderRoadPriorities();$('roadPrioritiesTitle').focus();$('roadPrioritiesTitle').scrollIntoView({block:'start'});
+}
+function captureRoadPriorities(){
+ const op=roadPriorityContext();if(!op)return;
+ try{roadPriorityValues()}catch(e){$('roadPriorityStatus').textContent=e.message;$('roadPriorityResults').replaceChildren();return}
+ const factor=op.source.routing.vehicle.type==='car'?prospectiveFactors(op.source.fuel).find(f=>f.id===$('roadPriorityFactor').value):null,h={...op.hypotheses,onlyBefore:$('roadOnlyBefore').checked};
+ const rows=[];
+ for(const group of roadChoiceGroups(op.entries,'duration')){
+  const same=group.entries.length>1&&group.entries.every(e=>e.status==='ready'&&e.route.duration===group.entries[0].route.duration&&e.route.distance===group.entries[0].route.distance),entries=same?[group.entries[0]]:group.entries;
+  for(const e of entries){const ready=e.status==='ready',time=ready?timingEstimate(e.route.duration,h):null,excluded=ready&&h.onlyBefore&&!time.admissible;
+   rows.push({id:same?'same':e.criterion,label:same?'Même tracé · deux critères':optimizationLabel(e.criterion)+(group.entries.length>1?' · même tracé, estimation distincte':''),status:!ready?'unavailable':excluded?'excluded':'ready',reason:!ready?e.error||'Calcul indisponible.':excluded?'Écarté par l’heure limite.':'',values:{duration:ready?e.route.duration/60:null,cost:null,carbon:ready&&factor?e.route.distance/1000*(factor.construction+factor.energy):null},scopes:{...priorityScopes},distanceMeters:ready?e.route.distance:null,at:e.at||null,routing:routingLabel(e.settings)});
+  }
+ }
+ const snapshot={formula:PRIORITY_FORMULA,at:new Date().toISOString(),contextValid:h.departure!==null&&(!h.onlyBefore||h.arriveBy!==null),scopes:{...priorityScopes},rows,source:structuredClone(op.source),departure:h.departure,arriveBy:h.arriveBy,onlyBefore:h.onlyBefore,factor:factor?structuredClone(factor):null,dataset:CARBON_DATA.version};
+ roadPriorities.snapshot=snapshot;roadPriorities.signature=roadPrioritySignature();roadPriorities.stale=false;renderRoadPriorities();
+}
+function priorityValue(value,key){return value===null?'Inconnu':key==='carbon'?carbonAmount(value):fmt(value,key==='cost'?2:1)+(key==='cost'?' €':' min')}
+function renderRoadPriorities(){
+ const op=roadPriorityContext();if(!op)return;const v=roadPriorities,s=v.snapshot;
+ $('roadPrioritiesApply').textContent=s?'Actualiser le groupe et appliquer':'Figer les options et appliquer';
+ $('roadPriorityResults').replaceChildren();$('roadPriorityGroup').textContent='';
+ let weights;try{weights=roadPriorityValues()}catch(e){$('roadPriorityStatus').textContent=e.message;return}
+ if(!s){$('roadPriorityStatus').textContent='Aucun indice au démarrage. Choisir les poids, puis figer les options à comparer.';return}
+ if(v.signature!==roadPrioritySignature())v.stale=true;
+ if(v.stale){$('roadPriorityStatus').textContent='Modèle ou contrainte modifié : indices retirés. Actualiser le groupe pour appliquer ces choix.';return}
+ let result;try{result=priorityResult(s,weights)}catch(e){$('roadPriorityStatus').textContent=e.message;return}
+ $('roadPriorityStatus').textContent={off:'Tous les poids sont à zéro : aucune recommandation pondérée. Les valeurs et tris bruts restent disponibles.',context:'Départ daté ou contrainte horaire incomplet : aucun indice. Renseigner les hypothèses et recalculer les routes.',insufficient:'Moins de deux options admissibles avec tous les critères actifs renseignés : aucun indice comparatif. Choisir un modèle ou mettre le critère manquant à zéro pour tout le groupe.',scored:'Indices relatifs à ces priorités et à ce groupe seulement. Plus petit = plus proche des priorités choisies. Aucun trajet sélectionné.'}[result.state];
+ $('roadPriorityGroup').textContent=`Groupe figé le ${new Date(s.at).toLocaleString('fr-FR')} · ${s.source.places.start} → ${s.source.places.end} · ${s.departure===null?'départ inconnu':arrivalLabel(s.departure)+' (Paris)'}. ${s.rows.length} option(s), ${result.eligible} complète(s) pour les critères actifs. Véhicule entier ; aucun partage par personne. Formule ${result.formula}.`;
+ $('roadPriorityResults').innerHTML=result.rows.map(r=>`<article class="road-card priority-card" data-priority-id="${escapeHtml(r.id)}" data-priority-state="${r.status==='ready'?(r.missing.length?'incomplete':result.state):r.status}"><h4>${escapeHtml(r.label)}</h4><p class="priority-score">${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p>${r.reason?'<p>'+escapeHtml(r.reason)+'</p>':''}${r.missing.length?'<p>Comparaison incomplète : '+r.missing.map(k=>priorityLabels[k]).join(', ')+'.</p>':''}<dl><div><dt>Conduite estimée</dt><dd>${priorityValue(r.values.duration,'duration')}</dd></div><div><dt>Empreinte du véhicule</dt><dd>${priorityValue(r.values.carbon,'carbon')}</dd></div><div><dt>Coût total</dt><dd>Incomplet · péages et autres frais inconnus</dd></div></dl>${r.contributions.length?'<details><summary>Détail du score · '+escapeHtml(r.label)+'</summary><ul>'+r.contributions.map(c=>'<li>'+priorityLabels[c.key]+' : '+priorityValue(c.value,c.key)+' ; bornes '+priorityValue(c.min,c.key)+' à '+priorityValue(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul><p>Calcul sur les valeurs non arrondies ; affichage de l’indice au dixième. Une égalité ne devient pas une supériorité par l’ordre de lecture.</p></details>':''}</article>`).join('')+(s.factor?prospectiveMethodMarkup({factor:s.factor,distanceMeters:s.rows.find(r=>r.distanceMeters!==null)?.distanceMeters||0,dataset:s.dataset}).replace('Facteur, source et méthode','Facteur commun · calcul de '+escapeHtml(s.rows.find(r=>r.distanceMeters!==null)?.label||'l’option')):'');
+}
+function syncRoadPriorities(){const op=roadComparison;if(roadPriorities&&roadPriorities.op!==op)clearRoadPriorities();$('roadPrioritiesOpen').hidden=!op||op.running||op.cancelled||!op.entries.some(e=>e.status==='ready');if(roadPriorities)renderRoadPriorities()}
+function bindRoadPriorities(){
+ $('roadPrioritiesTitle').addEventListener('keydown',e=>{if(e.key!=='Tab')return;e.preventDefault();e.stopPropagation();$(e.shiftKey?'roadPrioritiesOpen':$('roadPriorityFactor').disabled?'roadPriorityDuration':'roadPriorityFactor').focus()});
+ $('roadPrioritiesOpen').addEventListener('click',openRoadPriorities);$('roadPrioritiesApply').addEventListener('click',captureRoadPriorities);
+ $('roadPrioritiesClose').addEventListener('click',()=>{clearRoadPriorities();syncRoadPriorities();$('roadPrioritiesOpen').focus()});
+ $('roadPrioritiesReset').addEventListener('click',()=>{for(const id of ['roadPriorityDuration','roadPriorityCarbon','roadPriorityCost'])$(id).value='0';renderRoadPriorities()});
+ for(const id of ['roadPriorityDuration','roadPriorityCarbon'])$(id).addEventListener('input',renderRoadPriorities);
+ $('roadPriorityFactor').addEventListener('change',renderRoadPriorities);
+}
+
 let roadComparison=null;
 const roadFields=['roadDeparture','roadArriveBy','roadCons','roadPrice'];
 function roadContextSignature(){return JSON.stringify([trip?.a,trip?.b,trip?.routing,trip?.calculatedAt,trip?.choice,trip?.meetings,selectedStop?.station.id,selectedStop?.confirmedAt,compared.length,...['start','end','travelMode','routeOptimization','routeVehicle','fuel','cons','budgetPrice','stationDeparture','routeArriveBy','meetingPickup','meetingDropoff'].map(id=>$(id).value),$('routeOnlyBefore').checked,...document.querySelectorAll('.avoid-options input:checked')].map(x=>x instanceof Element?[x.id,x.value]:x))}
 function roadSignature(){return JSON.stringify([roadContextSignature(),...roadFields.map(id=>$(id).value)])}
 function clearRoadChoices(message=''){
+ clearRoadPriorities();
  if(roadComparison?.running){roadComparison.cancelled=true;roadComparison.controller.abort()}
  roadComparison=null;$('roadCards').replaceChildren();$('roadDifference').textContent='';$('roadStatus').textContent=message;$('roadSortWrap').hidden=true;
 }
@@ -3281,6 +3368,7 @@ function renderRoadChoices(){
  }).join('');
  const d=roadChoiceDifference(op.entries,op.hypotheses),signed=(v,n=1)=>(v>0?'+':'')+fmt(v,n);
  $('roadDifference').textContent=d?'Écarts « plus court » moins « plus rapide », à la précision affichée : '+signed(d.km)+' km · '+signed(d.minutes,0)+' min'+(d.fuel===null?' · coût carburant non comparé.':' · '+signed(d.fuel,2)+' € de carburant estimé.')+' Aucun écart de budget total calculable avec les péages et autres frais inconnus.':'';
+ syncRoadPriorities();
 }
 async function calculateRoadChoices(){
  if(busy||!trip||trip.routing.vehicle.type==='walk')return;
@@ -3315,6 +3403,7 @@ function adoptRoadChoice(criterion){
  $('roadCompareDialog').close();clearRoadChoices();$('roadCompareBtn').focus();setStatus('Choix routier adopté : '+optimizationLabel(e.criterion)+'. Rechercher maintenant les arrêts sur ce trajet.','ok');
 }
 function bindRoadChoices(){
+ bindRoadPriorities();
  $('roadCompareBtn').addEventListener('click',openRoadChoices);$('roadCalculate').addEventListener('click',calculateRoadChoices);
  $('roadClose').addEventListener('click',()=>$('roadCompareDialog').close());
  $('roadCompareDialog').addEventListener('close',()=>{clearRoadChoices();if(!$('roadCompareBtn').hidden)$('roadCompareBtn').focus()});
