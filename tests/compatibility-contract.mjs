@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  'accès station IGN : absence de chemin isolée, suite bornée et contraintes conservées',
+  'accès station IGN : 404 générique interrompt sans consommer la candidate',
   "service public absent : controles indisponibles avant recherche",
   "choix routiers : deux critères, écarts lisibles, tri sans appel et adoption volontaire",
   "choix routiers : mêmes exclusions IGN, cache distinct et arrêts recalculés sur le choix",

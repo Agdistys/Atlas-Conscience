@@ -1487,7 +1487,7 @@ function makeTimeout(ms,parent=activeAbort?.signal){
   if(parent?.aborted)c.abort();else parent?.addEventListener("abort",onAbort,{once:true});
   return {signal:c.signal,done:()=>{clearTimeout(t);parent?.removeEventListener("abort",onAbort)}};
 }
-async function getJSON(url,label,ms=16000,signal=activeAbort?.signal){
+async function getJSON(url,label,ms=16000,signal=activeAbort?.signal,classifyError=null){
   dbg("GET",label,url);
   const t=makeTimeout(ms,signal);
   try{
@@ -1498,6 +1498,11 @@ async function getJSON(url,label,ms=16000,signal=activeAbort?.signal){
       error.status=r.status;
       const retry=r.headers.get("Retry-After");
       error.retryAfterMs=retry==null?0:/^\d+$/.test(retry)?Number(retry)*1000:Date.parse(retry)-Date.now();
+      if(classifyError&&r.status===404){
+        const body=await r.json().catch(()=>null);
+        if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");
+        error.noRoute=classifyError(r.status,body)===true;
+      }
       throw error;
     }
     const data=await r.json();if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");return data;
@@ -1775,6 +1780,7 @@ async function orsRoutes(points,settings,alternatives=false,isCurrent=()=>true,s
     throw e;
   }finally{t.done()}
 }
+function ignNoPath(status,data){return status===404&&typeof data?.error?.message==='string'&&data.error.message.trim()==='No path found'}
 async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.signal){
   ensureRouting(settings);
   const walking=settings.vehicle.type==='walk',profileName=walking?'pedestrian':'car',snapKm=walking?.15:1;
@@ -1791,11 +1797,11 @@ async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.s
   if(settings.avoid.includes("highways"))query.set("constraints",JSON.stringify(constraint));
   if(points.length>2)query.set("intermediates",points.slice(1,-1).map(([lat,lon])=>`${lon},${lat}`).join("|"));
   let data;
-  try{data=await getJSON(`https://data.geopf.fr/navigation/itineraire?${query}`,"IGN",25000,signal)}
+  try{data=await getJSON(`https://data.geopf.fr/navigation/itineraire?${query}`,"IGN",25000,signal,ignNoPath)}
   catch(e){
     checkRouteRequest(isCurrent,signal);health("hRoute","err","routage ✕");
     routingCooldown("ign",e);
-    throw new Error(`${e.message}. ${walking?"Aucun trajet voiture ne sera substitué.":settings.avoid.length?"Aucun trajet avec autoroute ne sera substitué.":"Aucun autre critère ne sera substitué."}`);
+    throw Object.assign(new Error(`${e.noRoute?'IGN : Aucun chemin trouvé avec ces points et ces options':e.message}. ${walking?"Aucun trajet voiture ne sera substitué.":settings.avoid.length?"Aucun trajet avec autoroute ne sera substitué.":"Aucun autre critère ne sera substitué."}`),{noRoute:e.noRoute===true});
   }
   checkRouteRequest(isCurrent,signal);
   const r={geometry:data.geometry,distance:data.distance,duration:data.duration,legs:data.portions,alternatives:[],resourceVersion:data.resourceVersion};
