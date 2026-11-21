@@ -1,3 +1,4 @@
+import {setup as cycleSetup,tcOpen,tcRun} from '../helpers/cycle-limits-browser.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';
 import {checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
@@ -57,3 +58,12 @@ test('horaires : fermeture et réouverture retirent les références sans nouvel
 test('horaires : minuit ne décale pas les propositions au jour suivant',async({page})=>{await setup(page);await ready(page,{when:'2026-11-19T00:00'});await changeTime(page,'2026-11-18T23:00:01Z');await expect(page.locator('#transitTimeNotice')).toContainText('Heure demandée dépassée');await expect(page.locator('#transitWhen')).toHaveValue('2026-11-19T00:00');await expect(card(page,0)).toHaveAttribute('data-transit-temporal','past-context');await expect(card(page,0)).toContainText('19/11')});
 
 test('horaires : retirer une exclusion ne réadmet pas un horaire historique, correspondances conservées',async({page})=>{await setup(page);await ready(page);await page.locator('#transitMaxTransfers').fill('0');await page.locator('#transitTransferRule').selectOption('strict');await page.locator('[data-transit-exclude-network="TEST:A"]').check();await changeTime(page,'2026-11-19T09:00:01Z');await page.locator('#transitNetworkReset').click();await expect(card(page,0)).toHaveAttribute('data-transit-state','excluded');await expect(card(page,1)).toHaveAttribute('data-transit-state','excluded');await expect(page.locator('#transitMaxTransfers')).toHaveValue('0');await expect(page.locator('#transitOptionsTable')).toContainText('Aucune option admissible')});
+
+for(const moment of ['avant ouverture','pendant le détail'])test('horaires : retour clavier au vélo après expiration '+moment,async({page})=>{
+ const calls=await cycleSetup(page);await tcOpen(page);await tcRun(page);const before=JSON.stringify(calls),button=page.locator('[data-transit-cycle]');
+ if(moment==='pendant le détail')await button.click();
+ await page.clock.setFixedTime(new Date('2026-11-19T09:00:01Z'));
+ if(moment==='avant ouverture')await button.click();else await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));
+ await expect(page.locator('#cycleDialog')).toBeVisible();await expect(page.locator('#cycleMetrics')).toContainText('4,88 km');await page.locator('#cycleClose').click();
+ await expect(button).toBeFocused();await expect(page.locator('[data-transit-mode=cycle]')).toHaveAttribute('data-transit-state','excluded');await expect(page.locator('#transitTimeNotice')).toContainText('Heure demandée dépassée');expect(JSON.stringify(calls)).toBe(before);
+});
