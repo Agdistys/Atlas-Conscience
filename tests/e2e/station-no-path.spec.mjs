@@ -42,7 +42,7 @@ for(const [label,failure]of [
  ['404 schéma différent',{status:404,json:{message:'No path found'}}],
  ['500 avec message de chemin',{status:500,json:{error:{message:'No path found'}}}],
  ['503 panne',{status:503,json:{error:{message:'Indisponible'}}}],
- ['429 quota',{status:429,headers:{'Retry-After':'5'},json:{error:{message:'No path found'}}}]
+ ['429 quota',{status:429,headers:{'Retry-After':'5','Access-Control-Expose-Headers':'Retry-After'},json:{error:{message:'No path found'}}}]
 ])test('accès station IGN : '+label+' interrompt sans consommer la candidate',async({page})=>{
  const {calls,control}=await setup(page);control.failures.set('B',failure);await search(page);await ids(page,['A']);expect(via(calls)).toEqual(['A','B']);await expect(page.locator('#stationCoverage')).toContainText('1 candidates examinées sur 5');await expect(page.locator('#fuelStatus')).not.toContainText('sans accès calculable');await expect(page.locator('#tripKm')).toHaveText('104,0 km');
  if(failure.status===429){await page.locator('#continueStationsBtn').click();await done(page);expect(via(calls)).toEqual(['A','B']);await page.evaluate(()=>{const old=performance.now.bind(performance);Object.defineProperty(performance,'now',{value:()=>old()+6000})})}

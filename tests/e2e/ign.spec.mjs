@@ -70,7 +70,7 @@ test('IGN erreurs et reponses incoherentes refusees sans repli',async({page})=>{
     return r.fulfill({json:data});
   });
   await start(page);await expect(page.locator('#status')).toContainText('Limite du service IGN');
-  expect(calls).toBe(1);await page.evaluate(()=>{const now=performance.now.bind(performance);performance.now=()=>now()+6000});
+  expect(calls).toBe(1);await page.evaluate(()=>{const now=performance.now.bind(performance);performance.now=()=>now()+61000});
   for(const next of ['down','units','ignored','legs','geometry','snap']){
     mode=next;await page.locator('#goBtn').click();
     await expect(page.locator('#status')).toContainText(next==='down'?'Aucun trajet avec autoroute':'incomplète ou incohérente');
@@ -91,7 +91,7 @@ test('IGN comparaison interrompue ou en panne preserve seulement le trajet',asyn
   await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('Limite du service IGN');
   await expect(page.locator('#tripKm')).toHaveText('120,0 km');await expect(page.locator('.result-card')).toHaveCount(0);
   expect(calls).toBe(2);
-  await page.evaluate(()=>{const now=performance.now.bind(performance);performance.now=()=>now()+6000});await page.route(pattern,async r=>{await new Promise(resolve=>setTimeout(resolve,1000));await r.fulfill({json:responseFor(r.request().url())})});
+  await page.evaluate(()=>{const now=performance.now.bind(performance);performance.now=()=>now()+61000});await page.route(pattern,async r=>{await new Promise(resolve=>setTimeout(resolve,1000));await r.fulfill({json:responseFor(r.request().url())})});
   await page.locator('#stationsBtn').click();await page.locator('#cancelStationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('Recherche interrompue');
   await expect(page.locator('#tripKm')).toHaveText('120,0 km');await expect(page.locator('.result-card')).toHaveCount(0);
