@@ -1,12 +1,12 @@
 {
-  "name": "DragonRoute",
-  "short_name": "DragonRoute",
-  "description": "Trouver l'arrêt carburant au meilleur coût réel sur son trajet.",
+  "name": "OùQuandQui",
+  "short_name": "OùQuandQui",
+  "description": "Préparer et comparer ses déplacements. DragonRoute pour la route et les stations, marche, vélo et pilotes collectifs.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0d1117",
-  "theme_color": "#0d1117",
+  "background_color": "#09090e",
+  "theme_color": "#09090e",
   "icons": [
     {
       "src": "./icons/icon-192.png",

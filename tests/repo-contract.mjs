@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import {inspectDependencies} from './dependency-contract.mjs';
 
 const ROOT=process.cwd();
+assert.deepEqual(inspectDependencies(ROOT).errors,[],"dépendances verrouillées et image de recette concordantes");
 const registryPath=path.join(ROOT,'tests','apps.registry.json');
 assert.ok(fs.existsSync(registryPath),'registre des applications absent');
 const apps=JSON.parse(fs.readFileSync(registryPath,'utf8'));

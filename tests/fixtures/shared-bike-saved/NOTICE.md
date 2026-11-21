@@ -1,0 +1,1 @@
+Préparation synthétique de test : identité, nom, dates de capture/consultation et temps personnels construits. Géométries/métriques réelles conservées depuis les trois réponses publiques lyonnaises de ../shared-bike-trip (provenance et empreintes dans ce dossier). Stations et anciennes annonces depuis ../shared-bikes. Aucune location ou présence physique attestée.

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "producer": "Ministère de la Transition écologique",
+  "source": "https://www.data.gouv.fr/datasets/gares-de-peage-du-reseau-routier-national-concede",
+  "resource": "https://static.data.gouv.fr/resources/gares-de-peage-du-reseau-routier-national-concede/20250728-140859/gares-peage-2025.csv",
+  "resourceId": "1fe9691f-dfd6-4ffb-89f2-5fbf42d47530",
+  "referenceDate": "2025-01-01",
+  "resourceModified": "2025-07-28",
+  "retrievedAt": "2026-11-18",
+  "license": "ODC-By 1.0",
+  "licenseUrl": "https://opendatacommons.org/licenses/by/1-0/",
+  "rawSha256": "e70ebf3d57c550eb8e0b9583aba697273b6089d72bdfd2515a595248e18937ec",
+  "convertedSha256": "018a7430d1b818d916930293c9b961d022dbd85cbc179aa587aed0b739cefe22",
+  "recordCount": 1266,
+  "conversion": {
+    "library": "pyproj 3.7.2",
+    "proj": "9.5.1",
+    "sourceCrs": "EPSG:2154",
+    "targetCrs": "EPSG:4326",
+    "alwaysXY": true,
+    "networkEnabled": false,
+    "maximumRoundTripErrorMeters": 0.06644067801164294
+  },
+  "limitations": [
+    "Inventaire daté, sans confirmation terrain actuelle.",
+    "Aucun identifiant tarifaire, exploitant ou sens de parcours déduit du code routier.",
+    "Les gares proches du tracé restent des candidates ; aucune gratuité ni passage déduit."
+  ]
+}

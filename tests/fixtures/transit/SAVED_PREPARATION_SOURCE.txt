@@ -1,0 +1,1 @@
+saved-preparation.json est une préparation synthétique normalisée à partir de depart.json, réponse Mobilités M / SMMAG reçue et documentée dans ce dossier. Dates de calcul/sauvegarde et nom ajoutés pour les tests, aucun trajet privé. L’horaire reste théorique. Source : https://data.mobilites-m.fr/donnees — attribution ODbL.

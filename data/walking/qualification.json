@@ -1,0 +1,128 @@
+{
+  "retrievedAt": "2026-11-18",
+  "source": "https://data.geopf.fr/navigation/itineraire",
+  "license": "Licence Ouverte 2.0",
+  "scope": "Deux couples de lieux publics, qualification technique ponctuelle, aucun déplacement terrain",
+  "observations": [
+    {
+      "case": "paris",
+      "request": "https://data.geopf.fr/navigation/itineraire?resource=bdtopo-osrm&profile=pedestrian&optimization=fastest&start=2.337306%2C48.849319&end=2.367776%2C48.852891&geometryFormat=geojson&crs=EPSG%3A4326&distanceUnit=meter&timeUnit=second&getSteps=false&getBbox=false",
+      "status": 200,
+      "cors": "*",
+      "response": {
+        "resource": "bdtopo-osrm",
+        "resourceVersion": "2026-11-17",
+        "start": "2.337325,48.84932",
+        "end": "2.367842,48.85278",
+        "profile": "pedestrian",
+        "optimization": "fastest",
+        "crs": "EPSG:4326",
+        "distanceUnit": "meter",
+        "timeUnit": "second",
+        "distance": 2510.5,
+        "duration": 2510,
+        "constraints": [],
+        "portions": [
+          {
+            "start": "2.337325,48.84932",
+            "end": "2.367842,48.85278",
+            "distance": 2510.5,
+            "duration": 2510,
+            "steps": []
+          }
+        ]
+      },
+      "geometryPoints": 72
+    },
+    {
+      "case": "paris",
+      "request": "https://data.geopf.fr/navigation/itineraire?resource=bdtopo-osrm&profile=car&optimization=fastest&start=2.337306%2C48.849319&end=2.367776%2C48.852891&geometryFormat=geojson&crs=EPSG%3A4326&distanceUnit=meter&timeUnit=second&getSteps=false&getBbox=false",
+      "status": 200,
+      "cors": "*",
+      "response": {
+        "resource": "bdtopo-osrm",
+        "resourceVersion": "2026-11-17",
+        "start": "2.337325,48.84932",
+        "end": "2.367842,48.85278",
+        "profile": "car",
+        "optimization": "fastest",
+        "crs": "EPSG:4326",
+        "distanceUnit": "meter",
+        "timeUnit": "second",
+        "distance": 2568.5,
+        "duration": 581.1,
+        "constraints": [],
+        "portions": [
+          {
+            "start": "2.337325,48.84932",
+            "end": "2.367842,48.85278",
+            "distance": 2568.5,
+            "duration": 581.1,
+            "steps": []
+          }
+        ]
+      },
+      "geometryPoints": 76
+    },
+    {
+      "case": "lyon",
+      "request": "https://data.geopf.fr/navigation/itineraire?resource=bdtopo-osrm&profile=pedestrian&optimization=fastest&start=4.832%2C45.7578&end=4.822%2C45.7623&geometryFormat=geojson&crs=EPSG%3A4326&distanceUnit=meter&timeUnit=second&getSteps=false&getBbox=false",
+      "status": 200,
+      "cors": "*",
+      "response": {
+        "resource": "bdtopo-osrm",
+        "resourceVersion": "2026-11-17",
+        "start": "4.831922,45.757816",
+        "end": "4.821932,45.762301",
+        "profile": "pedestrian",
+        "optimization": "fastest",
+        "crs": "EPSG:4326",
+        "distanceUnit": "meter",
+        "timeUnit": "second",
+        "distance": 1528.6,
+        "duration": 1465.4,
+        "constraints": [],
+        "portions": [
+          {
+            "start": "4.831922,45.757816",
+            "end": "4.821932,45.762301",
+            "distance": 1528.6,
+            "duration": 1465.4,
+            "steps": []
+          }
+        ]
+      },
+      "geometryPoints": 117
+    },
+    {
+      "case": "lyon",
+      "request": "https://data.geopf.fr/navigation/itineraire?resource=bdtopo-osrm&profile=car&optimization=fastest&start=4.832%2C45.7578&end=4.822%2C45.7623&geometryFormat=geojson&crs=EPSG%3A4326&distanceUnit=meter&timeUnit=second&getSteps=false&getBbox=false",
+      "status": 200,
+      "cors": "*",
+      "response": {
+        "resource": "bdtopo-osrm",
+        "resourceVersion": "2026-11-17",
+        "start": "4.832348,45.758436",
+        "end": "4.821975,45.762023",
+        "profile": "car",
+        "optimization": "fastest",
+        "crs": "EPSG:4326",
+        "distanceUnit": "meter",
+        "timeUnit": "second",
+        "distance": 2338.2,
+        "duration": 600.8,
+        "constraints": [],
+        "portions": [
+          {
+            "start": "4.832348,45.758436",
+            "end": "4.821975,45.762023",
+            "distance": 2338.2,
+            "duration": 600.8,
+            "steps": []
+          }
+        ]
+      },
+      "geometryPoints": 119
+    }
+  ]
+}

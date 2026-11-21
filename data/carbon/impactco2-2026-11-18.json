@@ -1,0 +1,321 @@
+{
+  "version": "impactco2-2026-11-18-bece7af",
+  "publisher": "ADEME / Impact CO₂",
+  "retrievedAt": "2026-11-18",
+  "sourceCommit": "bece7af7e3daa41c7f2233e03d169c33e82530c2",
+  "sourceURL": "https://github.com/incubateur-ademe/impactco2/blob/bece7af7e3daa41c7f2233e03d169c33e82530c2/src/data/categories/deplacement.ts",
+  "license": "MIT",
+  "sourceSha256": "d0cf114a19cf098c726dc4bab5d79a8bc477e6f14309686d1f7726cf6b440ef2",
+  "factors": [
+    {
+      "id": "tgv",
+      "mode": "train",
+      "label": "TGV",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00063,
+      "energy": 0.0023,
+      "source": "https://impactco2.fr/outils/transport/tgv"
+    },
+    {
+      "id": "intercites",
+      "mode": "train",
+      "label": "Intercités",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00318,
+      "energy": 0.0058,
+      "source": "https://impactco2.fr/outils/transport/intercites"
+    },
+    {
+      "id": "autocar",
+      "mode": "bus",
+      "label": "Autocar thermique",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00442,
+      "energy": 0.03314,
+      "source": "https://impactco2.fr/outils/transport/autocar"
+    },
+    {
+      "id": "velo",
+      "mode": "bike",
+      "label": "Vélo mécanique",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction",
+      "construction": 0.00017,
+      "energy": 0,
+      "source": "https://impactco2.fr/outils/transport/velo"
+    },
+    {
+      "id": "veloelectrique",
+      "mode": "bike",
+      "label": "Vélo électrique",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00872,
+      "energy": 0.00223,
+      "source": "https://impactco2.fr/outils/transport/veloelectrique"
+    },
+    {
+      "id": "busthermique",
+      "mode": "bus",
+      "label": "Bus thermique",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00892,
+      "energy": 0.1135,
+      "source": "https://impactco2.fr/outils/transport/busthermique"
+    },
+    {
+      "id": "tramway",
+      "mode": "train",
+      "label": "Tramway",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00048,
+      "energy": 0.0038,
+      "source": "https://impactco2.fr/outils/transport/tramway"
+    },
+    {
+      "id": "metro",
+      "mode": "train",
+      "label": "Métro",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00024,
+      "energy": 0.0042,
+      "source": "https://impactco2.fr/outils/transport/metro"
+    },
+    {
+      "id": "rer",
+      "mode": "train",
+      "label": "RER / Transilien",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00318,
+      "energy": 0.0066,
+      "source": "https://impactco2.fr/outils/transport/rer"
+    },
+    {
+      "id": "ter",
+      "mode": "train",
+      "label": "TER",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.00479,
+      "energy": 0.0229,
+      "source": "https://impactco2.fr/outils/transport/ter"
+    },
+    {
+      "id": "buselectrique",
+      "mode": "bus",
+      "label": "Bus électrique",
+      "unit": "kgCO2e/person-km",
+      "scope": "construction-energy",
+      "construction": 0.0122,
+      "energy": 0.0095,
+      "source": "https://impactco2.fr/outils/transport/buselectrique"
+    },
+    {
+      "id": "voiture-citadine-essence",
+      "mode": "car",
+      "label": "Petite — Essence E5 / E10",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.027733695652173936,
+      "energy": 0.1169810600556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-citadine-essence"
+    },
+    {
+      "id": "voiture-citadine-diesel",
+      "mode": "car",
+      "label": "Petite — Diesel B7 / B10",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.027733695652173936,
+      "energy": 0.09416971630563031,
+      "source": "https://impactco2.fr/outils/transport/voiture-citadine-diesel"
+    },
+    {
+      "id": "voiture-citadine-electrique",
+      "mode": "car",
+      "label": "Petite — Électrique",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.046089130434782626,
+      "energy": 0.011504485055630311,
+      "source": "https://impactco2.fr/outils/transport/voiture-citadine-electrique"
+    },
+    {
+      "id": "voiture-citadine-hybride",
+      "mode": "car",
+      "label": "Petite — Hybride non rechargeable",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.02919796195652175,
+      "energy": 0.1060514350556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-citadine-hybride"
+    },
+    {
+      "id": "voiture-citadine-hybriderechargeable",
+      "mode": "car",
+      "label": "Petite — Hybride rechargeable",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.03677027173913044,
+      "energy": 0.09211716005563031,
+      "source": "https://impactco2.fr/outils/transport/voiture-citadine-hybriderechargeable"
+    },
+    {
+      "id": "voiture-compact-essence",
+      "mode": "car",
+      "label": "Moyenne — Essence E5 / E10",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.03169565217391306,
+      "energy": 0.1380123725556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-compact-essence"
+    },
+    {
+      "id": "voiture-compact-diesel",
+      "mode": "car",
+      "label": "Moyenne — Diesel B7 / B10",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.03169565217391306,
+      "energy": 0.1105577600556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-compact-diesel"
+    },
+    {
+      "id": "voiture-compact-electrique",
+      "mode": "car",
+      "label": "Moyenne — Électrique",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.05527690217391306,
+      "energy": 0.01208836005563031,
+      "source": "https://impactco2.fr/outils/transport/voiture-compact-electrique"
+    },
+    {
+      "id": "voiture-compact-hybride",
+      "mode": "car",
+      "label": "Moyenne — Hybride non rechargeable",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.03315991847826087,
+      "energy": 0.1134194350556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-compact-hybride"
+    },
+    {
+      "id": "voiture-compact-hybriderechargeable",
+      "mode": "car",
+      "label": "Moyenne — Hybride rechargeable",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.04073222826086956,
+      "energy": 0.0931681350556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-compact-hybriderechargeable"
+    },
+    {
+      "id": "voiture-berline-essence",
+      "mode": "car",
+      "label": "Berline — Essence E5 / E10",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.03961956521739131,
+      "energy": 0.1496510600556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-berline-essence"
+    },
+    {
+      "id": "voiture-berline-diesel",
+      "mode": "car",
+      "label": "Berline — Diesel B7 / B10",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.03961956521739131,
+      "energy": 0.1437828350556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-berline-diesel"
+    },
+    {
+      "id": "voiture-berline-electrique",
+      "mode": "car",
+      "label": "Berline — Électrique",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.0759790760869565,
+      "energy": 0.014735260055630313,
+      "source": "https://impactco2.fr/outils/transport/voiture-berline-electrique"
+    },
+    {
+      "id": "voiture-berline-hybride",
+      "mode": "car",
+      "label": "Berline — Hybride non rechargeable",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.041083831521739125,
+      "energy": 0.12976718505563029,
+      "source": "https://impactco2.fr/outils/transport/voiture-berline-hybride"
+    },
+    {
+      "id": "voiture-berline-hybriderechargeable",
+      "mode": "car",
+      "label": "Berline — Hybride rechargeable",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.048656141304347804,
+      "energy": 0.11580859130563032,
+      "source": "https://impactco2.fr/outils/transport/voiture-berline-hybriderechargeable"
+    },
+    {
+      "id": "voiture-grandeberline-essence",
+      "mode": "car",
+      "label": "SUV — Essence E5 / E10",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.03961956521739131,
+      "energy": 0.2066193725556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-grandeberline-essence"
+    },
+    {
+      "id": "voiture-grandeberline-diesel",
+      "mode": "car",
+      "label": "SUV — Diesel B7 / B10",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.03961956521739131,
+      "energy": 0.1300887163056303,
+      "source": "https://impactco2.fr/outils/transport/voiture-grandeberline-diesel"
+    },
+    {
+      "id": "voiture-grandeberline-electrique",
+      "mode": "car",
+      "label": "SUV — Électrique",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.08024456521739132,
+      "energy": 0.014112460055630311,
+      "source": "https://impactco2.fr/outils/transport/voiture-grandeberline-electrique"
+    },
+    {
+      "id": "voiture-grandeberline-hybride",
+      "mode": "car",
+      "label": "SUV — Hybride non rechargeable",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.041083831521739125,
+      "energy": 0.1408191850556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-grandeberline-hybride"
+    },
+    {
+      "id": "voiture-grandeberline-hybriderechargeable",
+      "mode": "car",
+      "label": "SUV — Hybride rechargeable",
+      "unit": "kgCO2e/vehicle-km",
+      "scope": "construction-energy",
+      "construction": 0.048656141304347804,
+      "energy": 0.1373241350556303,
+      "source": "https://impactco2.fr/outils/transport/voiture-grandeberline-hybriderechargeable"
+    }
+  ]
+}

@@ -13,6 +13,8 @@ export default defineConfig({
     ['json', { outputFile: 'quality/browser-results.json' }]
   ],
   use: {
+    // Optional installed browser for local checks; CI keeps bundled Chromium.
+    channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
     baseURL: 'http://127.0.0.1:4173',
     serviceWorkers: 'block',
     locale: 'fr-FR',

@@ -1,0 +1,13 @@
+{
+  "source": "Métropole de Lyon / JCDecaux — Vélo’v",
+  "consulted_at": "2026-11-18T23:48:43.050099+00:00",
+  "dataset": "https://transport.data.gouv.fr/datasets/stations-velov-de-la-metropole-de-lyon-disponibilites-temps-reel",
+  "licence_in_feed": "https://developer.jcdecaux.com/files/Open-Licence-fr.pdf",
+  "licence_in_catalog": "Licence Ouverte 2.0",
+  "notes": "Raw provider snapshots. Tests deliberately adjust dates and counts; no actual rental or availability guaranteed. Three catalogue records have invalid/foreign coordinates or no name.",
+  "files": {
+    "station_information.json": "562e3322b05512286652c4e07ef0df08daf42256c3c7856f5f38816a6e350046",
+    "station_status.json": "04ed2a720d5f9b6774dd3b5391b68db4a02954094936bc4a87c77e5e924f225e",
+    "vehicle_types.json": "a06d400862ef96cc33c1181cb3b985bf2e0912b91d2ac5c3fa54432d82a85936"
+  }
+}

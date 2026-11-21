@@ -1,0 +1,20 @@
+{
+  "url": "https://routing.openstreetmap.de/routed-bike/route/v1/driving/4.832126,45.757974;4.858507,45.760146?overview=full&geometries=geojson&steps=true&alternatives=false",
+  "observed": "2026-11-19T02:01:03.898006+01:00",
+  "status": 200,
+  "headers": {
+    "Server": "nginx",
+    "Date": "Thu, 19 Nov 2026 01:01:04 GMT",
+    "Content-Type": "application/json; charset=UTF-8",
+    "Content-Length": "23042",
+    "Connection": "close",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Headers": "X-Requested-With, Content-Type",
+    "Content-Disposition": "inline; filename=\"response.json\""
+  },
+  "sha256": "d0451b0371481c304bc96fadaeb8169c8917abf0850255bee04af8a1f95adf7e",
+  "places": "Place Bellecour → gare de Lyon Part-Dieu, lieux publics, aucun trajet personnel",
+  "provider": "FOSSGIS OSRM routed-bike, OpenStreetMap ODbL",
+  "source": "https://routing.openstreetmap.de/about.html"
+}

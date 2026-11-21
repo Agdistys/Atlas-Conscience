@@ -1,0 +1,9 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
+const s=fs.readFileSync('DragonRoute/app.js','utf8'),c={};vm.createContext(c);
+for(const [a,b] of [['function hasRouteGeometry','async function orsRoutes'],['function meetingLegs','function meetingDetour']])vm.runInContext(s.slice(s.indexOf(a),s.indexOf(b)),c);
+vm.runInContext(s.split('// BEGIN STATION PREVIEW MODEL\n')[1].split('// END STATION PREVIEW MODEL')[0],c);
+const plain=x=>JSON.parse(JSON.stringify(x)),r=(distance,duration)=>({distance,duration});
+test('aperçu : différences signées à la précision affichée, sans écraser les entrées',()=>{const a=r(100040,6001),b=r(99010,5940),before=JSON.stringify([a,b]);assert.deepEqual(plain(c.stationPreviewDelta(a,b)),{km:-1,minutes:-1});assert.equal(JSON.stringify([a,b]),before);assert.deepEqual(plain(c.stationPreviewDelta(a,a)),{km:0,minutes:0})});
+test('aperçu : métriques invalides ou absentes refusées, zéro connu accepté',()=>{for(const bad of [r(null,1),r(1,NaN),r(-1,2),r(1,Infinity)])assert.throws(()=>c.stationPreviewDelta(r(1,1),bad));assert.deepEqual(plain(c.stationPreviewDelta(r(0,0),r(0,0))),{km:0,minutes:0})});
+test('aperçu : distance réelle jusqu’à la station après une rencontre',()=>{const route={distance:110000,duration:6600,legs:[r(10000,600),r(50000,3000),r(50000,3000)]},nodes=[{kind:'start'},{kind:'pickup'},{kind:'station'},{kind:'end'}];assert.deepEqual(plain(c.stationPreviewAccess(route,nodes,20)),{km:60,seconds:3600,source:'route'})});
+test('aperçu : étapes incohérentes utilisent la comparaison avec provenance explicite',()=>{assert.deepEqual(plain(c.stationPreviewAccess({distance:1000,duration:60,legs:[r(10,1)]},[{kind:'start'},{kind:'station'},{kind:'end'}],12)),{km:12,seconds:null,source:'comparison'});for(const v of [null,undefined,NaN,-1])assert.deepEqual(plain(c.stationPreviewAccess({},[],v)),{km:null,seconds:null,source:'comparison'})});

@@ -23,9 +23,51 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  inspect:
+  compatibility:
+    name: Essential flows - Firefox and WebKit
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # Match the npm pin; browsers and OS libraries are already in this image.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --init --shm-size=1g
+    timeout-minutes: 20
+    env:
+      INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Audit declared dependencies
+        run: |
+          mkdir -p quality
+          npm audit --audit-level=high --json > quality/npm-audit.json
+      - name: Qualify essential flows
+        # Firefox requires the real home directory of the container's root user.
+        env:
+          HOME: /root
+          DEBUG: pw:browser
+        run: npm run test:compat
+      - name: Archive compatibility evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inspectrice-compatibility
+          path: |
+            quality/npm-audit.json
+            quality/compatibility-status.json
+            quality/compatibility-results.json
+            quality/compatibility-results/
+            quality/compatibility-report/
+          if-no-files-found: error
+          retention-days: 14
+
+  inspect:
+    needs: compatibility
+    runs-on: ubuntu-24.04
+    # Reserve setup and evidence-upload time around the bounded browser suite.
+    timeout-minutes: 70
     env:
       INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
@@ -34,9 +76,14 @@ jobs:
         with:
           node-version: 22
       - name: Install test dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Read compatibility proof from this workflow run
+        uses: actions/download-artifact@v4
+        with:
+          name: inspectrice-compatibility
+          path: quality/
       - name: Preview assembly tests
         run: npm run test:preview
       - name: Inspectrice v2
