@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "priorités : choix volontaire, contributions, poids réversibles sans appel ni adoption",
+  "priorités : clavier, paysage et texte doublé conservent les commandes",
   "carte et liste Leaflet : retour au même point et à sa page sans recalcul",
   "carte et liste schéma : paysage et texte doublé sans masquer les commandes",
   "pages stations : 100 fiches accessibles, rendu borné et navigation sans effet externe",

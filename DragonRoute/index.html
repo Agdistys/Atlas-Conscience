@@ -739,7 +739,21 @@
   <div class="dialog-actions"><button id="roadCalculate" type="button" class="ghost">Calculer les deux choix</button><button id="roadCancel" type="button" class="ghost" hidden>Annuler la comparaison</button></div>
   <p id="roadStatus" role="status" aria-live="polite"></p>
   <div id="roadSortWrap" hidden><label for="roadSort">Présenter d’abord</label><select id="roadSort"><option value="duration">La durée la plus courte affichée</option><option value="distance">La distance la plus courte affichée</option></select><p class="note">Tri des valeurs disponibles, sans score. Les égalités restent visibles ; un résultat hors limite est consultable mais ne peut être choisi tant que le filtre est actif.</p></div>
+  <button id="roadPrioritiesOpen" type="button" class="ghost navigation-button" hidden>Comparer selon mes priorités</button>
   <p id="roadDifference"></p><div id="roadCards"></div>
+  <section id="roadPriorities" class="detail-section" aria-labelledby="roadPrioritiesTitle" hidden>
+    <h3 id="roadPrioritiesTitle" tabindex="-1">Mes priorités · choix routiers</h3>
+    <p>Mêmes lieux, départ daté, véhicule et groupe de voyageurs. Valeurs pour le véhicule entier, sans répartition par personne. Les contraintes impératives passent avant les préférences. Aucun trajet n’est choisi automatiquement.</p>
+    <label for="roadPriorityFactor">Modèle moyen pour l’empreinte · facultatif</label><select id="roadPriorityFactor"><option value="">Aucun modèle choisi</option></select>
+    <p id="roadPriorityFactorNote" class="note"></p>
+    <fieldset><legend>Importance de chaque critère · de 0 à 10</legend><p class="note">0 : ignorer ce critère pour toutes les options. Les poids expriment une préférence ; ils ne sont pas des euros par heure.</p>
+      <div class="road-fields"><label for="roadPriorityDuration">Durée de conduite<input id="roadPriorityDuration" type="number" min="0" max="10" step="1" value="0" inputmode="numeric"></label><label for="roadPriorityCarbon">Empreinte du véhicule<input id="roadPriorityCarbon" type="number" min="0" max="10" step="1" value="0" inputmode="numeric"></label><label for="roadPriorityCost">Coût total · indisponible<input id="roadPriorityCost" type="number" value="0" disabled aria-describedby="roadPriorityCostNote"></label></div>
+      <p id="roadPriorityCostNote" class="note">Péages et autres frais inconnus : le coût total ne peut pas être pondéré. Le carburant seul reste visible dans les cartes, sans devenir un budget complet.</p>
+    </fieldset>
+    <div class="dialog-actions"><button id="roadPrioritiesApply" type="button" class="ghost">Figer les options et appliquer</button><button id="roadPrioritiesReset" type="button" class="ghost">Remettre les poids à zéro</button><button id="roadPrioritiesClose" type="button" class="ghost">Retirer la pondération</button></div>
+    <p id="roadPriorityStatus" role="status" aria-live="polite"></p><p id="roadPriorityGroup" class="note"></p><div id="roadPriorityResults"></div>
+    <details><summary>Formule proposée, portée et égalités</summary><p>Version <code>ami-minmax-v1-proposition</code>. Pour chaque critère actif : (valeur − minimum du groupe) / (maximum − minimum). Lorsque les valeurs sont égales, cette contribution vaut zéro. L’indice est la moyenne pondérée de ces valeurs, multipliée par 100.</p><p>Plus petit signifie plus proche de ces priorités, dans ce seul groupe. Les options admissibles avec tous les critères actifs renseignés partagent les mêmes bornes et les mêmes poids. Une donnée absente n’est jamais zéro. Il faut au moins deux options comparables ; une option exclue par une contrainte ne participe pas au calcul.</p><p>Les poids se modifient sur un groupe figé. Changer un modèle ou une contrainte retire les anciens indices jusqu’à une actualisation volontaire. L’indice est affiché au dixième ; les ex æquo restent ex æquo. Durée, coût connu puis identifiant fixent uniquement leur ordre de lecture. Aucun score comparable entre recherches, barème éthique ou garantie de terrain. Les choix et résultats restent dans cette consultation, sans sauvegarde.</p></details>
+  </section>
 </dialog>
 
 <dialog id="sourcesDialog" aria-labelledby="sourcesTitle">
