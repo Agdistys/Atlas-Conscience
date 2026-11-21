@@ -199,3 +199,14 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 .mode-access .note{margin-bottom:0}
 #routeModeHeading{font-size:1.1rem;margin-block:1rem}
 @media(max-width:380px){.mode-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Preparation actions precede optional explanations; no overlay masks a field. */
+.preparation-actions{padding:12px;border:1px solid var(--line);border-radius:8px;margin:16px 0 24px;background:var(--panel)}
+.preparation-actions>.note{margin:0 0 10px;color:var(--text);overflow-wrap:anywhere}
+.preparation-links{display:flex;gap:8px;flex-wrap:wrap}.preparation-links button{min-height:44px;flex:1 1 140px;overflow-wrap:anywhere;white-space:normal}
+.explanation{margin:10px 0}.explanation>summary{min-height:44px;padding:10px 0;color:var(--green);cursor:pointer;overflow-wrap:anywhere}
+.explanation[open]{border-left:2px solid var(--line);padding-left:10px}
+.coverage-summary:focus,[tabindex="-1"]:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+#tripReadout,#stationReadout,#stationCoverageBrief{line-height:1.5}
+
+#routeModeHeading,#stopsHeading,#budgetHeading,#stationResultsTitle{scroll-margin-top:12px}

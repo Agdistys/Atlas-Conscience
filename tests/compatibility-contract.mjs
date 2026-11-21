@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "préparation lisible : actions proches des choix, navigation clavier et critères explicites",
+  "préparation lisible : méthode repliée, limites visibles et suite volontaire",
   'accès station IGN : absence de chemin isolée, suite bornée et contraintes conservées',
   'accès station IGN : 404 générique interrompt sans consommer la candidate',
   "service public absent : controles indisponibles avant recherche",

@@ -45,7 +45,7 @@
           <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint endPlaceNote" value="Valence" autocomplete="off" placeholder="Ville ou adresse"><p id="endPlaceNote" class="note" hidden></p></div>
         </div>
         <button id="swapTripBtn" class="ghost navigation-button" type="button" aria-describedby="swapTripHint">Inverser départ et arrivée</button>
-        <p id="swapTripHint" class="note">Préparer le retour : les lieux sont inversés. Le trajet, ses arrêts, les horaires et l’autonomie seront à renseigner ou calculer à nouveau. Les sauvegardes sont conservées.</p>
+        <details class="explanation"><summary>À savoir pour le retour</summary><p id="swapTripHint" class="note">Préparer le retour : les lieux sont inversés. Le trajet, ses arrêts, les horaires et l’autonomie seront à renseigner ou calculer à nouveau. Les sauvegardes sont conservées.</p></details>
         <section class="mode-access" aria-labelledby="modeAccessTitle" aria-describedby="modeAccessHint">
           <h2 id="modeAccessTitle">Comment se déplacer ?</h2>
           <div class="mode-grid">
@@ -57,12 +57,25 @@
           </div>
           <p id="modeAccessHint" class="note">Véhicule et marche : réglages ci-dessous. Les autres modes ouvrent leur recherche avec ces lieux, sans trajet voiture préalable.</p>
         </section>
+        <section class="preparation-actions" aria-label="Calcul du trajet">
+          <p id="tripReadout" class="note" aria-live="polite"></p>
+          <nav class="preparation-links" aria-label="Accès dans la préparation">
+            <button class="ghost" type="button" data-preparation-target="routeModeHeading">Réglages du trajet</button>
+            <button class="ghost" type="button" data-preparation-target="stationDeparture">Horaires</button>
+            <button id="jumpRouteResult" class="ghost" type="button" data-preparation-target="summary" hidden>Voir le trajet</button>
+            <button id="jumpStations" class="ghost" type="button" data-preparation-target="stopsHeading" hidden>Choisir les arrêts</button>
+            <button id="jumpBudget" class="ghost" type="button" data-preparation-target="budgetHeading" hidden>Budget</button>
+          </nav>
+        <button id="goBtn" class="primary">Trouver mon trajet</button>
+        <button id="cancelTripBtn" class="ghost navigation-button" type="button" hidden>Annuler la recherche du trajet</button>
+        <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
+        </section>
         <p id="routeModuleName" class="note">DragonRoute · module routier</p>
-        <h2 id="routeModeHeading">Trajet en véhicule</h2>
+        <h2 id="routeModeHeading" tabindex="-1">Trajet en véhicule</h2>
         <select id="travelMode" aria-label="Mode du trajet principal" hidden><option value="car">En véhicule</option><option value="walk">À pied</option></select>
         <div id="walkingOptions" hidden>
           <label for="maxWalkKm">Distance de marche souhaitée au maximum (km)</label><input id="maxWalkKm" type="number" min="0" max="500" step="any" placeholder="Sans limite renseignée" aria-describedby="walkingPreference"><label for="walkRule">Règle pour la distance à pied</label><select id="walkRule"><option value="soft">Préférence</option><option value="strict">Limite impérative</option></select>
-          <p id="walkingPreference" class="note">Préférence : dépassement signalé. Limite impérative : trajet non admissible si dépassée. Vide : aucune distance demandée ; zéro : zéro kilomètre. Réévaluation locale sans nouveau calcul. Pente, effort et accessibilité non vérifiés.</p>
+          <details class="explanation"><summary>Comprendre la limite de marche</summary><p id="walkingPreference" class="note">Préférence : dépassement signalé. Limite impérative : trajet non admissible si dépassée. Vide : aucune distance demandée ; zéro : zéro kilomètre. Réévaluation locale sans nouveau calcul. Pente, effort et accessibilité non vérifiés.</p></details>
           <p class="note">Pente, escaliers, revêtement, fermetures et accessibilité ne sont pas vérifiés. La durée du moteur reste une estimation, hors pauses.</p>
         </div>
         <div id="vehiclePicker"><label for="savedVehicleSelect">Véhicule mémorisé pour ce trajet</label><select id="savedVehicleSelect" aria-describedby="activeVehicle"><option value="">Réglages ponctuels</option></select></div>
@@ -98,10 +111,7 @@
           <label class="check-label"><input id="routeOnlyBefore" type="checkbox"> Filtrer la comparaison par cette heure limite</label><p id="routeTimingStatus" class="note" role="status"></p>
           <p class="note">Départ commun au trajet et aux horaires des stations. La pause carburant déclarée est ajoutée après le choix d’une station. Autres pauses et trafic en direct exclus ; aucune garantie d’arrivée.</p>
         </details>
-        <button id="goBtn" class="primary">Trouver mon trajet</button>
-        <button id="cancelTripBtn" class="ghost navigation-button" type="button" hidden>Annuler la recherche du trajet</button>
-        <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
-        <div id="summary" class="summary" hidden><div class="metric"><b id="tripKm">—</b><small>trajet affiché</small></div><div class="metric"><b id="tripTime">—</b><small>durée de déplacement</small></div></div>
+        <div id="summary" class="summary" tabindex="-1" role="group" aria-label="Résumé du trajet calculé" hidden><div class="metric"><b id="tripKm">—</b><small>trajet affiché</small></div><div class="metric"><b id="tripTime">—</b><small>durée de déplacement</small></div></div>
         <section id="meetingSummary" class="selection" hidden aria-label="Rencontres sur le trajet"><h3>Rencontres sur le trajet</h3><p id="meetingOrder"></p><p id="meetingMetrics"></p><button id="meetingEdit" class="ghost" type="button">Modifier les rencontres</button><button id="meetingRemove" class="ghost" type="button">Retirer les rencontres</button></section>
         <p id="meetingPending" class="selection" hidden>Des rencontres sont en préparation, mais ne sont pas incluses dans le trajet affiché. <button id="meetingReview" class="ghost" type="button">Vérifier les rencontres</button></p>
         <p id="tripDurationBreakdown" class="note" role="status" hidden></p>
@@ -164,7 +174,7 @@
         <p class="note">Le modèle et l’occupation restent dans cette session. Après rechargement ou reprise d’une préparation, les choisir à nouveau. Aucun résultat ajouté au journal des déplacements.</p>
       </section>
       <section id="tripBudget" class="stops-section" hidden aria-labelledby="budgetHeading">
-        <h2 id="budgetHeading">Budget du trajet</h2>
+        <h2 id="budgetHeading" tabindex="-1">Budget du trajet</h2>
         <p id="budgetRoute" class="note"></p>
         <div class="settings">
           <div><label for="fuel">Carburant</label><select id="fuel"><option>E10</option><option>Gazole</option><option>SP98</option><option>SP95</option><option>E85</option><option>GPLc</option></select></div>
@@ -230,7 +240,7 @@
         <p class="note">Budget d’un aller simple. Stationnement et ferries non compris.</p>
       </section>
       <section id="stops" class="stops-section" hidden aria-labelledby="stopsHeading">
-        <h2 id="stopsHeading">Sur mon trajet</h2>
+        <h2 id="stopsHeading" tabindex="-1">Sur mon trajet</h2>
         <div class="tabs" role="tablist" aria-label="Étapes du trajet"><button id="stationsTab" role="tab" aria-selected="true" aria-controls="stationsPanel">Stations</button><button id="ridesTab" role="tab" aria-selected="false" aria-controls="ridesPanel" tabindex="-1">Covoiturage</button></div>
         <div id="stationsPanel" role="tabpanel" aria-labelledby="stationsTab">
           <fieldset class="stop-modes"><legend>Quand faire le plein ?</legend>
@@ -245,6 +255,18 @@
           <div id="nearControl" hidden><label for="nearKm">Proximité maximale (km)</label><input id="nearKm" type="number" min="0.1" max="40000" step="any" value="50" aria-describedby="windowNote"></div>
           <button id="fitStationTarget" class="ghost" type="button" hidden>Viser la fin du trajet</button>
           <p id="windowNote" class="note" role="status">Stations classées par distance routière depuis le départ.</p>
+          <section class="preparation-actions" aria-label="Recherche de stations">
+            <p id="stationReadout" class="note" aria-live="polite"></p>
+            <nav class="preparation-links" aria-label="Accès dans les stations">
+              <button class="ghost" type="button" data-preparation-target="fuel">Carburant et budget</button>
+              <button class="ghost" type="button" data-preparation-target="liters">Quantité et autonomie</button>
+              <button class="ghost" type="button" data-preparation-target="maxDetourKm">Filtres</button>
+              <button id="jumpStationResult" class="ghost" type="button" data-preparation-target="stationResultsTitle" hidden>Voir les stations</button>
+            </nav>
+          <button id="stationsBtn" class="primary">Chercher les stations</button>
+          <button id="cancelStationsBtn" class="ghost" type="button" hidden>Arrêter la recherche</button>
+          <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
+          </section>
           <details id="samplingOptions"><summary>Zone de recherche autour du trajet</summary>
             <label for="stationScope">Où rechercher les stations ?</label><select id="stationScope" aria-describedby="samplingNote"><option value="route">Sur tout le trajet</option><option value="window">Sur la portion recherchée</option></select>
             <p class="note">La portion suit « Quand faire le plein ? » : premiers kilomètres, distance cible et sa marge, ou tout le trajet pour « Au plus tôt ». Le rayon peut déborder de cette portion ; les accès sont ensuite vérifiés dans la plage choisie.</p>
@@ -252,9 +274,10 @@
             <label for="stationMaxPoints">Maximum de points à consulter</label><input id="stationMaxPoints" type="number" min="2" max="24" step="1" value="24" aria-describedby="samplingNote">
             <p class="note">De 1 à 30 km autour des points du tracé, avec un espacement de 5 à 100 km et 2 à 24 points au maximum. La collecte géographique repère des candidates ; leur accès et leur détour exigent un calcul routier distinct. Modifier ces choix demande une nouvelle recherche.</p>
           </details>
-          <p id="samplingNote" class="note" role="status">Calculer un trajet pour connaître le nombre de points à consulter.</p>
+          <p id="samplingSummary" class="note" role="status"></p>
+          <details class="explanation"><summary>Méthode et couverture de la recherche</summary><p id="samplingNote" class="note" role="status">Calculer un trajet pour connaître le nombre de points à consulter.</p></details>
           <label for="stopMinutes">Temps prévu à la station (min, facultatif)</label><input id="stopMinutes" type="number" min="0" max="1440" step="any" inputmode="decimal" placeholder="Non renseigné" aria-describedby="stopMinutesHelp stopMinutesStatus">
-          <p id="stopMinutesHelp" class="note">De 0 à 1 440 minutes. Prévoir le plein et l’attente sur place. Laisser vide si la durée est inconnue ; zéro signifie une pause explicitement nulle. Les autres pauses ne sont pas incluses.</p>
+          <details class="explanation"><summary>Renseigner le temps du plein</summary><p id="stopMinutesHelp" class="note">De 0 à 1 440 minutes. Prévoir le plein et l’attente sur place. Laisser vide si la durée est inconnue ; zéro signifie une pause explicitement nulle. Les autres pauses ne sont pas incluses.</p></details>
           <p id="stopMinutesStatus" class="note" role="status">Cette durée sera ajoutée uniquement après le choix d’une station.</p>
           <label for="liters">Litres à acheter</label><input id="liters" type="number" min="1" max="2000" step="1" value="40">
           <details id="rangeOptions"><summary>Autonomie et réserve</summary>
@@ -275,19 +298,17 @@
             <label for="stationOpeningFilter">Horaires habituels à l’arrivée estimée</label><select id="stationOpeningFilter"><option value="all">Toutes les informations</option><option value="compatible">Horaires déclarés compatibles uniquement</option><option value="unknown">Horaires inconnus — à vérifier</option><option value="outside">Hors guichet, sans automate déclaré</option></select><p class="note">Les inconnus ne satisfont pas le filtre « compatibles ». L’automate n’est pas utilisé pour qualifier l’accès au GPLc.</p>
             <button id="resetStationFilters" class="ghost" type="button">Réinitialiser les filtres</button>
           </details>
-          <button id="stationsBtn" class="primary">Chercher les stations</button>
-          <button id="cancelStationsBtn" class="ghost" type="button" hidden>Arrêter la recherche</button>
-          <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
           <div id="stationEmpty" hidden><p id="stationEmptyNote" class="note" role="status"></p><div class="row-actions"><button id="widenStationWindow" class="ghost" type="button">Élargir la zone</button><button id="editStationFuel" class="ghost" type="button">Modifier le carburant</button><button id="editStationFilters" class="ghost" type="button">Modifier les filtres</button></div></div>
-          <div id="stationSummary" class="summary" hidden><div class="metric"><b id="stationCount">—</b><small>stations reçues</small></div><div class="metric"><b id="testedCount">—</b><small>comparées dans la zone</small></div><div class="metric"><b id="eligibleCount">—</b><small>après les filtres</small></div></div>
-          <p id="stationCoverage" class="note" hidden tabindex="-1"></p>
+          <div id="stationSummary" class="summary" tabindex="-1" role="group" aria-label="Résumé des stations comparées" hidden><div class="metric"><b id="stationCount">—</b><small>stations reçues</small></div><div class="metric"><b id="testedCount">—</b><small>comparées dans la zone</small></div><div class="metric"><b id="eligibleCount">—</b><small>après les filtres</small></div></div>
+          <section id="stationCoverage" class="coverage-summary" hidden tabindex="-1" aria-label="Couverture de la recherche"><p id="stationCoverageBrief" class="note"></p><details class="explanation"><summary>Détail de la recherche</summary><p id="stationCoverageDetails" class="note"></p><p id="stationContinuationMethod" class="note"></p></details></section>
           <div id="stationContinuation" hidden><p id="stationContinuationNote" class="note"></p><button id="continueStationsBtn" class="ghost" type="button" aria-describedby="stationContinuationNote">Comparer les candidates suivantes</button></div>
           <p id="stationFilterStatus" class="note" role="status" hidden></p>
           <p id="filteredStopNote" class="note" hidden></p>
           <div id="stationListControls" hidden>
             <label for="stationPriceView">Fraîcheur des prix</label><select id="stationPriceView" aria-describedby="stationFreshnessPolicy stationFreshnessStatus"><option value="recent">Récents (≤ 7 jours)</option><option value="old">Anciens (> 7 jours)</option><option value="unknown">Dates non vérifiables</option></select>
-            <p id="stationFreshnessPolicy" class="note">Prix récents : comparaison possible. Prix anciens ou dates non vérifiables : arrêts consultables. Avertissement après 48 heures ; au-delà de 7 jours, prix exclus du classement et du budget. Date absente, invalide ou future : non vérifiable. La date concerne le carburant choisi ; la consultation ne la remet pas à zéro. Règle de l’application, aucune garantie de disponibilité.</p><p id="stationFreshnessStatus" class="note" role="status"></p>
-            <div id="stationRankingControls"><label for="stationListMode">Stations affichées</label><select id="stationListMode"><option value="recommended">Sélection recommandée</option><option value="all">Toutes — distance</option><option value="cost">Toutes — coût</option><option value="price">Toutes — prix au litre</option><option value="detour">Toutes — détour</option></select><p class="note">La sélection suit la recherche ; les autres tris affichent toutes les stations retenues par les filtres, par distance depuis le départ, coût comparé, prix au litre ou durée du détour. Comparaison achat + carburant du détour, hors péages et autres frais.</p></div></div>
+            <p class="note">Prix de plus de 7 jours ou date non vérifiable : hors classement et budget. Prix et ouverture non garantis.</p><details class="explanation"><summary>Règles de fraîcheur des prix</summary><p id="stationFreshnessPolicy" class="note">Prix récents : comparaison possible. Prix anciens ou dates non vérifiables : arrêts consultables. Avertissement après 48 heures ; au-delà de 7 jours, prix exclus du classement et du budget. Date absente, invalide ou future : non vérifiable. La date concerne le carburant choisi ; la consultation ne la remet pas à zéro. Règle de l’application, aucune garantie de disponibilité.</p></details><p id="stationFreshnessStatus" class="note" role="status"></p>
+            <div id="stationRankingControls"><label for="stationListMode">Stations affichées</label><select id="stationListMode"><option value="recommended">Sélection recommandée</option><option value="all">Toutes — distance</option><option value="cost">Toutes — coût</option><option value="price">Toutes — prix au litre</option><option value="detour">Toutes — détour</option></select><p class="note">Coût comparé : achat + carburant du détour, hors péages et autres frais.</p><details class="explanation"><summary>Comprendre les classements</summary><p class="note">La sélection suit la recherche ; les autres tris affichent toutes les stations retenues par les filtres, par distance depuis le départ, coût comparé, prix au litre ou durée du détour. Comparaison achat + carburant du détour, hors péages et autres frais.</p></details></div></div>
+          <section id="stationResultStart" hidden aria-labelledby="stationResultsTitle"><h3 id="stationResultsTitle" tabindex="-1">Stations proposées</h3><p id="stationResultReadout" class="note" role="status"></p><nav class="preparation-links" aria-label="Modifier les résultats des stations"><button class="ghost" type="button" data-preparation-target="stationPriceView">Tri et fraîcheur</button><button class="ghost" type="button" data-preparation-target="maxDetourKm">Filtres</button><button class="ghost" type="button" data-preparation-target="stationsBtn">Revenir à la recherche</button></nav></section>
           <div id="stationCards" class="cards"></div><p id="selectedStop" class="selection" hidden role="status"></p>
           <button id="removeStopBtn" class="ghost" type="button" hidden>Retirer l’arrêt</button>
         </div>

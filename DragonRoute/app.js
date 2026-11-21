@@ -936,7 +936,7 @@ function refreshArrival(){
   const field=$("stationDeparture"),d=field.validity.badInput?{error:"Compléter la date et l’heure, ou effacer le champ."}:field.value?departureInstant(field.value):{error:"",instant:null};
   $("stationDeparture").setAttribute('aria-invalid',String(Boolean(d.error)));
   $("stationDepartureStatus").textContent=d.error||(d.instant===null?"Départ non renseigné : arrivée et ouverture à l’arrivée inconnues.":`Départ fixé au ${arrivalLabel(d.instant)} (Paris). Durée routière d’accès, sans pauses ni trafic en direct.${d.instant<Date.now()-60000?' Heure passée : actualiser le départ pour un trajet à venir.':''}`);
-  refreshTripValidation();
+  refreshTripValidation();updatePreparationReadout();
   if(stationSearch)renderStations(compared,stopWindow().mode);
   if($("stationDialog").open&&currentStation)renderStationDetails(currentStation);
 }
@@ -1005,6 +1005,7 @@ function updateStopDuration(){
  return {minutes,error};
 }
 function updateTripTiming(){
+ updatePreparationReadout();
  const pause=updateStopDuration();$('tripTiming').hidden=!trip;
  try{const h=timingHypotheses(routeTimingRaw());$('routeTimingStatus').textContent=h.onlyBefore?'Filtre d’heure limite repris à l’ouverture de la comparaison. Le trajet affiché reste consultable.':'';$('routeArriveBy').setAttribute('aria-invalid','false');
  if(trip){const r=selectedStop?.via||trip.base,plan=stopDuration(r.duration,Boolean(selectedStop),pause.error?null:pause.minutes),result=timingEstimate(plan.totalSeconds,h);
@@ -1657,6 +1658,24 @@ function walkCriteria(maxWalkKm,walkStrict=false){if(typeof walkStrict!=='boolea
 function walkReview(distance,criteria){const c=walkCriteria(criteria.maxWalkKm,criteria.walkStrict),known=typeof distance==='number'&&Number.isFinite(distance)&&distance>=0,status=c.maxWalkKm===null?'not-requested':!known?'unknown':distance-c.maxWalkKm*1000>1e-6?'over':'within';return {...c,status,distance:known?distance:null,excess:status==='over'?distance-c.maxWalkKm*1000:null,admissible:!c.walkStrict||status==='within'}}
 function walkingPreference(distance,criteria){const r=walkReview(distance,criteria),f=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3});if(r.status==='not-requested')return 'Marche · aucune limite personnelle renseignée.';return (r.distance===null?'Distance inconnue':f(r.distance/1000)+' km calculés')+' / '+f(r.maxWalkKm)+' km demandés. '+(r.status==='unknown'?'Distance non vérifiable.':r.status==='over'?(r.walkStrict?'Limite impérative dépassée.':'Limite souhaitée dépassée. Préférence souple.')+' Dépassement : '+(r.excess<1?'moins de 1 m':r.excess.toLocaleString('fr-FR',{maximumFractionDigits:1})+' m')+'.':r.walkStrict?'Limite impérative respectée.':'Distance dans la limite souhaitée.')+' '+(!r.admissible?'Parcours non admissible pour cette limite. ':'')+'Le tracé reste consultable. Comparaison avant arrondi ; pente, effort et accessibilité non vérifiés.'}
 // END WALKING MODEL
+function updatePreparationReadout(){
+ const selected=id=>$(id).selectedOptions[0]?.textContent||'À renseigner',value=id=>$(id).value.trim();
+ const walking=isWalking(),avoid=[...document.querySelectorAll('.avoid-options input:checked')].map(e=>avoidLabels[e.value]+(e.dataset.routingAvailable==='false'?' (indisponible)':''));
+ const criteria=walking?`À pied · ${value('maxWalkKm')?value('maxWalkKm')+' km maximum · '+selected('walkRule'):'sans limite de marche demandée'}`:`${selected('routeVehicle')} · ${avoid.length?'éviter '+avoid.join(', '):'sans évitement demandé'}`;
+ const clock=value('stationDeparture'),limit=value('routeArriveBy');
+ $('tripReadout').textContent=`${criteria}. ${selected('routeOptimization')}. Départ : ${clock?clock.replace('T',' '):'non renseigné'} (Paris).${limit?' Arriver au plus tard : '+limit.replace('T',' ')+' (Paris).':''}${$('routeOnlyBefore').checked?' Filtre d’heure limite actif.':''}${!busy&&$('goBtn').disabled?' Calcul indisponible : vérifier les réglages.':''}`;
+ for(const [id,hide] of [['jumpRouteResult',!trip],['jumpStations',!trip||trip.routing.vehicle.type==='walk'],['jumpBudget',!trip||trip.routing.vehicle.type==='walk'],['jumpStationResult',!stationSearch],['stationResultStart',!stationSearch]])$(id).hidden=hide;
+ const filters=[];for(const [id,unit] of [['maxDetourKm','km'],['maxDetourMin','min']])if(value(id))filters.push('détour ≤ '+value(id)+' '+unit);
+ const services=[...document.querySelectorAll('[data-service]:checked')].map(e=>e.closest('label').textContent.trim());if(services.length)filters.push('services requis : '+services.join(', '));
+ if($('stationOpeningFilter').value!=='all')filters.push(selected('stationOpeningFilter'));
+ if($('rangeOnly').checked)filters.push('portée estimée uniquement');
+ $('stationReadout').textContent=`${value('fuel')} · ${value('liters')||'quantité à renseigner'} L à acheter · ${value('cons')||'consommation à renseigner'} L/100 km.${filters.length?' Filtres : '+filters.join(' ; ')+'.':''}`;
+}
+function bindPreparationNavigation(){
+ $('sheet').addEventListener('click',e=>{const b=e.target.closest('[data-preparation-target]');if(!b||b.disabled)return;const el=$(b.dataset.preparationTarget);if(!el)return;for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;el.focus({preventScroll:true});el.scrollIntoView({block:/^H[23]$/.test(el.tagName)?'start':'center',behavior:'instant'})});
+ for(const event of ['input','change'])$('sheet').addEventListener(event,updatePreparationReadout);
+}
+
 function optimizationLabel(value){return {fastest:'Plus rapide · durée estimée',shortest:'Plus court · distance'}[value]||'Critère non renseigné'}
 function routingSettings(type,avoid,dimensions,optimization=$('routeOptimization').value){
  const provider=type==='walk'||optimization==='shortest'?'ign':routingEndpoint()?'ors':C.ignRouting===true&&avoid.includes('highways')?'ign':'osrm';
@@ -1688,7 +1707,7 @@ function updateVehicleRouting(){
     document.querySelectorAll('#routingOptions input,#routingOptions select,#routingOptions button').forEach(el=>el.disabled=true);
     $('goBtn').disabled=busy||C.ignRouting!==true||!criterionReady;
     if(C.ignRouting!==true)setStatus('Calcul à pied indisponible : service IGN non activé.');
-    return;
+    updatePreparationReadout();return;
   }
   document.querySelectorAll('#routingOptions input,#routingOptions select,#routingOptions button').forEach(el=>el.disabled=busy);
   const type=$("routeVehicle").value;
@@ -1710,6 +1729,7 @@ function updateVehicleRouting(){
   $("vehicleRoutingNote").hidden=type==="car";
   $("vehicleRoutingNote").textContent=type==="truck"?"Restrictions calculées selon le gabarit déclaré et les données cartographiques. La signalisation et les conditions réelles restent prioritaires. Transport exceptionnel ou de matières dangereuses non pris en charge.":"Le routage spécifique aux caravanes et utilitaires n’est pas encore validé. Aucun trajet voiture ne sera substitué automatiquement.";
   $("routingAvailability").textContent=advanced?"Service public configuré : coordonnées et gabarit transmis au service de calcul puis à OpenRouteService. Aucun compte technique requis.":C.ignRouting===true?"Plus court et sans autoroute disponibles en véhicule léger avec l’IGN, aucune clé à fournir. Les coordonnées du trajet et des arrêts sont transmises à l’IGN lors de la recherche.":"Évitements et poids lourds indisponibles : service non activé. Trajet léger standard disponible ; aucune clé à fournir.";
+ updatePreparationReadout();
 }
 function routingPreferences(){
   if(isWalking()){readWalkingCriteria();return routingSettings('walk',[])}
@@ -1914,6 +1934,9 @@ function updateSampling(){
  let text=settings.error||'Calculer un trajet pour connaître le nombre de points à consulter.';
  if(settings.valid&&trip)try{text=samplingPlanText(settings,stationSamplingPlan(settings))+' Au plus 100 lignes par réponse source ; ces prélèvements ne garantissent pas une couverture exhaustive.'}catch(e){text=e.message}
  if($('samplingNote').textContent!==text)$('samplingNote').textContent=text;
+ let brief=text;
+ if(settings.valid&&trip)try{const p=stationSamplingPlan(settings);brief=`${settings.scope==='window'?'Portion choisie':'Tout le trajet'} · rayon ${fmt(settings.radius,1)} km · ${p.points.length} points consultés au maximum. ${p.capped?'Plafond atteint : couverture partielle. ':''}${p.maxGap>2*settings.radius?'Espaces non consultés possibles. ':''}Recherche non exhaustive.`}catch{}
+ $('samplingSummary').textContent=brief;
 }
 function geomPoint(g){
   if(!g)return null;
@@ -2139,6 +2162,7 @@ function refreshStationMap(visible,fit=false){
   showOnMap(coords,points,chosen||null,trip.a,trip.b,chosen?`${trip.label} · arrêt ${chosen.city}`:trip.label,fit);
 }
 function renderStations(stations,mode,fit=false){
+ updatePreparationReadout();
   priceViewSignature=JSON.stringify(stations.map(s=>[s.id,stationFreshness(s).state,stationFreshness(s).reason]));
   updateResumePreparation();
   const range=rangeEstimate(),{visible,excluded,error}=filterStations(stations);
@@ -2155,6 +2179,7 @@ function renderStations(stations,mode,fit=false){
   const baseText=error||`${visible.length} sur ${stations.length} stations comparées satisfont les filtres.${reasons.length?" Écartées : "+reasons.join(" ; ")+".":""}`+hoursSummary;
   if(!visible.length){
     $("stationFilterStatus").textContent=baseText;
+    $('stationResultReadout').textContent=baseText;
     $("stationCards").innerHTML=`<p class="note">${error?"Corriger la saisie ou réinitialiser les filtres.":stations.length&&excluded.range===stations.length?"Aucune station comparée dans la portée estimée. Ne pas compter sur cette estimation pour poursuivre sans carburant.":"Aucune station comparée ne satisfait tous les filtres. Modifier ou réinitialiser les filtres sans recalculer le trajet. Aucun élargissement automatique."}</p>`;
     refreshStationMap([],fit);return;
   }
@@ -2170,6 +2195,7 @@ function renderStations(stations,mode,fit=false){
   const recommendations=[...new Map(winners.flatMap(([,wins])=>visible.filter(wins).sort(byDistance)).map(s=>[s.id,s])).values()];
   const list=archival?[...visible].sort(byDistance):listMode!=="recommended"?[...visible].sort(sorts[listMode]||byDistance):[...new Map([...(mode==="soon"?[...visible].sort(byDistance).slice(0,3):[]),...recommendations].map(s=>[s.id,s])).values()];
   $("stationFilterStatus").textContent=baseText+` Carte : ${visible.length} résultats ; liste : ${list.length} fiches. ${archival?"Prix exclus des recommandations et du budget ; arrêts consultables par distance.":`Badges calculés parmi ces ${visible.length} stations, sous les filtres actifs.`}`;
+  $('stationResultReadout').textContent=`${list.length} fiches · ${$('stationPriceView').selectedOptions[0].textContent} · ${archival?'distance croissante':$('stationListMode').selectedOptions[0].textContent}. ${visible.length} stations retenues sous les filtres actifs.${stationSearch&&stationSearch.cursor<stationSearch.queue.length?' Comparaison partielle : candidates restantes.':''} Recherche non exhaustive. ${archival?'Prix hors classement et budget.':'Coût : achat + carburant du détour, hors péages.'} Ouverture non garantie.`;
   $("stationCards").innerHTML=list.map(s=>`<article class="result-card" data-station="${escapeHtml(s.id)}">
     <div class="result-badges">${winners.filter(([,winner])=>winner(s)).map(([name])=>`<span class="result-badge">${name}</span>`).join("")}</div>
     <span class="station-index">Point ${s.number}</span><h3>${escapeHtml(s.city||`Station ${s.id}`)}</h3><div class="result-small">${escapeHtml(s.address)}</div>
@@ -4184,7 +4210,7 @@ function clearStations(){
   $("removeStopBtn").hidden=true;
   $("stationListControls").hidden=true;
   $("stationCount").textContent="—";$("testedCount").textContent="—";$("fuelStatus").textContent="";
-  health("hFuel","","carburants");
+  health("hFuel","","carburants");updatePreparationReadout();
   if(trip)showOnMap(trip.coords,[],null,trip.a,trip.b,trip.label);
   updateTripMetrics();updateBudget();
 }
@@ -4209,7 +4235,7 @@ function clearResults(){
   $("fallbackLabel").textContent="En attente du nouveau trajet.";
   if(map&&routeLayer){map.removeLayer(routeLayer);routeLayer=null}
   if(markerLayer)markerLayer.clearLayers();
-  $("diagWrap").open=false;
+  $("diagWrap").open=false;updatePreparationReadout();
 }
 function lock(value){
   if(value)cancelGps();
@@ -4255,7 +4281,7 @@ function displayTrip(base,routing,a,b,ga,gb){
     showOnMap(coords,[],null,a,b,label);
     $("tripKm").textContent=`${fmt(base.distance/1000,1)} km`;
     $("tripTime").textContent=`${Math.round(base.duration/60)} min`;
-    $("summary").hidden=false;$("stops").hidden=routing.vehicle.type==="walk";
+    $("summary").hidden=false;$("stops").hidden=routing.vehicle.type==="walk";updatePreparationReadout();
     updateWindow();$("rideTrip").textContent=label;
     setStatus(routing.vehicle.type==="walk"?"Trajet prêt · à pied. Vérifier la distance et les conditions du parcours.":"Trajet prêt. Choisis maintenant tes arrêts.","ok");
 }
@@ -4387,10 +4413,12 @@ function updateStationCoverage(){
  const s=stationSearch;if(!s){$('stationContinuation').hidden=true;return}
  const remaining=s.queue.length-s.cursor,n=stationPage(s.queue,s.cursor,C.maxCandidates).length,f=s.found;
  $('stationCoverage').hidden=false;
- $('stationCoverage').textContent=`Recherche par échantillons : ${samplingPlanText(f.settings,f.plan)} ${s.cursor} candidates examinées sur ${s.queue.length} dans la zone approchée. ${s.results.length} comparables dans la plage routière, ${s.outside} hors plage et ${s.rejected} non comparables.${remaining?' Limite atteinte : comparaison partielle. Continuer explicitement ci-dessous ou choisir une distance plus précise.':' Toutes les candidates reçues de cette sélection ont été examinées.'}${f.limited?` ${f.limited} réponse(s) limitée(s) par le service : couverture partielle.`:''}${f.failed?` ${f.failed} point(s) en échec : couverture partielle.`:''} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
+ $('stationCoverageDetails').textContent=`Recherche par échantillons : ${samplingPlanText(f.settings,f.plan)} ${s.cursor} candidates examinées sur ${s.queue.length} dans la zone approchée. ${s.results.length} comparables dans la plage routière, ${s.outside} hors plage et ${s.rejected} non comparables.${remaining?' Limite atteinte : comparaison partielle. Continuer explicitement ci-dessous ou choisir une distance plus précise.':' Toutes les candidates reçues de cette sélection ont été examinées.'}${f.limited?` ${f.limited} réponse(s) limitée(s) par le service : couverture partielle.`:''}${f.failed?` ${f.failed} point(s) en échec : couverture partielle.`:''} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
+ $('stationCoverageBrief').textContent=`${s.cursor} candidates examinées sur ${s.queue.length} · ${s.results.length} comparables. ${remaining?'Comparaison partielle : '+remaining+' restent à examiner.':'Candidates reçues examinées.'}${f.limited?' Réponses limitées : couverture partielle.':''}${f.failed?' Points en échec : couverture partielle.':''} Recherche non exhaustive.`;
  $('stationContinuation').hidden=false;$('continueStationsBtn').hidden=!remaining;$('continueStationsBtn').disabled=busy;
  $('continueStationsBtn').textContent=`Comparer ${n} autre${n>1?"s":""} station${n>1?"s":""}`;
- $('stationContinuationNote').textContent=`Stations reçues le ${new Date(s.at).toLocaleString('fr-FR')}. ${remaining} candidate(s) restent à examiner. Chaque continuation calcule au plus ${stationPageSize(C.maxCandidates)} accès parmi les stations déjà reçues ; les prix gardent leur date. Pour obtenir de nouvelles données ou changer de zone, relancer la recherche.`;
+ $('stationContinuationMethod').textContent=`Stations reçues le ${new Date(s.at).toLocaleString('fr-FR')}. ${remaining} candidate(s) restent à examiner. Chaque continuation calcule au plus ${stationPageSize(C.maxCandidates)} accès parmi les stations déjà reçues ; les prix gardent leur date. Pour obtenir de nouvelles données ou changer de zone, relancer la recherche.`;
+ $("stationContinuationNote").textContent=remaining?`${remaining} candidates restantes. Continuer conserve la date des prix.`:"Pour actualiser les prix, relancer la recherche.";updatePreparationReadout();
 }
 async function searchStations(more=false){
  more=more===true;if(busy||!trip||trip.routing.vehicle.type==='walk')return;
@@ -4848,6 +4876,7 @@ function bind(){
   $("removeStopBtn").addEventListener("click",()=>{if(!busy&&trip){selectedStop=null;invalidateStationPrice();updateTripMetrics();renderStations(compared,stopWindow().mode);$("selectedStop").hidden=true;$("removeStopBtn").hidden=true;document.querySelectorAll('[data-station]').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed','false'));$("fuelStatus").textContent="Arrêt retiré. Trajet choisi restauré."}});
   $('cancelTripBtn').addEventListener('click',()=>cancelTripSearch());
   for(const event of ['input','change'])$('sheet').addEventListener(event,e=>{if(tripRun&&tripRun.revision!==tripSearchSignature()&&!['maxWalkKm','walkRule'].includes(e.target.id))cancelTripSearch('Paramètres modifiés : calcul annulé. Relancer la recherche.')},true);
+  bindPreparationNavigation();
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   $('gpsCancel').addEventListener('click',()=>cancelGps());$('gpsClose').addEventListener('click',()=>cancelGps());$('gpsRetry').addEventListener('click',gps);$('gpsConfirm').addEventListener('click',adoptGps);
   $('gpsAcceptImprecise').addEventListener('change',()=>{if(gpsJob)showGpsProposal(gpsJob)});
