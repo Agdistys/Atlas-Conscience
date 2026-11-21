@@ -3248,9 +3248,23 @@ function transitNetworkReview(route,q){
  if(unknown)return {status:'excluded',reason:'Réseau non renseigné pour une étape : exclusions non vérifiables.'};
  return {status:'ready',reason:'Aucun des réseaux exclus dans les étapes reçues.'};
 }
+function transitClockReview(q,now){
+ const last=Object.hasOwn(q,'reviewNow')?q.reviewNow:q.now,valid=[q.now,last,now].every(n=>typeof n==='number'&&Number.isFinite(n))&&last>=q.now;
+ return {reviewNow:valid?Math.max(last,now):last,clockError:Boolean(q.clockError)||!valid||now<last};
+}
+function transitTimeReview(route,q){
+ const now=Object.hasOwn(q,'reviewNow')?q.reviewNow:q.now;
+ if(q.clockError||![now,q.now,q.instant].every(n=>typeof n==='number'&&Number.isFinite(n))||now<q.now)return {status:'excluded',temporal:'unverified',reason:'Horloge non vérifiable ou reculée depuis cette recherche. Vérifier la date et relancer volontairement.'};
+ if(now>q.instant)return {status:'excluded',temporal:'past-context',reason:'Heure demandée dépassée : référence historique, hors des propositions actuelles.'};
+ if(route){
+  if(typeof route.start!=='number'||!Number.isFinite(route.start))return {status:'excluded',temporal:'unverified',reason:'Heure de départ non vérifiable.'};
+  if(route.start<now)return {status:'excluded',temporal:'past-departure',reason:'Départ théorique passé selon l’horloge de l’appareil : référence historique.'};
+ }
+ return {status:'ready',temporal:'current',reason:''};
+}
 function transitRouteReview(route,q){
- const transfer=transitTransferReview(route,q),network=transitNetworkReview(route,q);
- return {status:transfer.status==='excluded'||network.status==='excluded'?'excluded':'ready',reason:[transfer.reason,network.reason].filter(Boolean).join(' ')};
+ const transfer=transitTransferReview(route,q),network=transitNetworkReview(route,q),time=transitTimeReview(route,q);
+ return {status:[transfer,network,time].some(r=>r.status==='excluded')?'excluded':'ready',temporal:time.temporal,reason:[time.reason,transfer.reason,network.reason].filter(Boolean).join(' ')};
 }
 function transitCriteria(raw,now=Date.now()){
  const when=departureInstant(raw.when);if(when.error)throw new Error(when.error);
@@ -3294,7 +3308,10 @@ function transitOptionRows(routes,q,sort='elapsed'){
 function transitTimeRows(routes,roads,q){
  const rows=routes.map((r,i)=>({mode:'transit',label:`Collectif · option ${i+1}`,start:r.start,end:r.end,duration:r.duration,elapsed:q.arrive?(q.instant-r.start)/1000:(r.end-q.instant)/1000,price:null,carbon:null,...transitRouteReview(r,q)}));
  if(!rows.length)rows.push({mode:'transit',label:'Transports collectifs',status:'unavailable',reason:'Aucune option collective disponible pour ces critères.'});
- for(const mode of ['car','walk',...(Object.hasOwn(roads,'cycle')?['cycle']:[])]){const item=roads[mode];rows.push({...item,mode,label:mode==='car'?'Véhicule léger':mode==='cycle'?'Vélo classique':'Marche directe',status:item?.status||'unavailable',reason:item?.reason||'Mode indisponible.'})}
+ for(const mode of ['car','walk',...(Object.hasOwn(roads,'cycle')?['cycle']:[])]){
+  const item=roads[mode],time=item&&(item.status==='ready'||item.status==='excluded'&&Number.isFinite(item.start))?transitTimeReview(item,q):null;
+  rows.push({...item,mode,label:mode==='car'?'Véhicule léger':mode==='cycle'?'Vélo classique':'Marche directe',status:time?.status==='excluded'?'excluded':item?.status||'unavailable',temporal:time?.temporal,reason:time?.status==='excluded'?[time.reason,item?.reason].filter(Boolean).join(' '):item?.reason||'Mode indisponible.'});
+ }
  return rows.map((r,i)=>({...r,index:i})).sort((a,b)=>(a.status==='ready')!==(b.status==='ready')?a.status==='ready'?-1:1:a.status==='ready'?Math.ceil(a.elapsed/60)-Math.ceil(b.elapsed/60)||a.index-b.index:a.index-b.index);
 }
 function transitPolyline(encoded){
@@ -3503,7 +3520,7 @@ function parseSavedTransitText(text,version){
  const data=JSON.parse(text);if(version!==undefined&&data?.version!==version)throw new Error('Format incohérent avec la copie enregistrée.');return validateSavedTransit(data);
 }
 // END SAVED TRANSIT MODEL
-let transitContext=null,transitJob=null,transitRoutes=[],transitMap=null,transitLayers=null,transitNextRequest=0,transitResult=null,transitResultSignature=null;
+let transitContext=null,transitJob=null,transitRoutes=[],transitMap=null,transitLayers=null,transitNextRequest=0,transitResult=null,transitResultSignature=null,transitTimeKey=null;
 const transitClock=ms=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(ms);
 const transitMinutes=s=>`${Math.ceil(s/60)} min`;
 function transitInputSignature(){return JSON.stringify(['start','end'].map(id=>$(id).value.trim()))}
@@ -3512,6 +3529,7 @@ function transitStoredPlace(value,field){
  return saved?structuredClone(saved.place):null;
 }
 function clearTransit(message=''){
+ transitTimeKey=null;$('transitTimeNotice').hidden=true;$('transitTimeNotice').textContent='';
  clearModalCarbon();transitComparedCycle=null;transitComparisonData=null;transitResult=null;transitResultSignature=null;
  clearTransitNetwork();clearTransitCarbon();transitCalculation=null;
  const job=transitJob;
@@ -3536,11 +3554,13 @@ function openTransit(){
  if(transitContext.a&&(!transitPilot(transitContext.a)||!transitPilot(transitContext.b)))$('transitStatus').textContent='Ces lieux sont hors du secteur pilote autour de Grenoble. Aucun appel au calculateur n’a été effectué.';
 }
 function renderTransitTimes(routes,roads,q){
+ Object.assign(q,transitClockReview(q,Date.now()));
  transitComparisonData={routes,roads,q,signature:transitLimitContextSignature()};const c=transitComparedCycle,shown={...roads};if(c&&roads.cycle)shown.cycle=c.criteriaError?{...roads.cycle,status:'excluded',reason:'Critères de distance invalides : '+c.criteriaError}:cycleConstrainedTiming(roads.cycle,c.view.route.distance,c);
  const rows=transitTimeRows(routes,shown,q),sourceLinks={ign:'<a href="https://cartes.gouv.fr/" target="_blank" rel="noopener noreferrer">IGN · BD TOPO</a>',osrm:'<a href="https://project-osrm.org/" target="_blank" rel="noopener noreferrer">OSRM · OpenStreetMap</a>',ors:'<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">openrouteservice.org by HeiGIT · OpenStreetMap</a>'};
  const sources=[...new Set(Object.values(roads).filter(r=>r.status==='ready').map(r=>sourceLinks[r.provider]).filter(Boolean))];
  $('transitCompareResults').innerHTML=`<h3>Comparer les temps</h3><p class="note">Même départ et même arrivée, pour une personne. Heure commune : ${transitClock(q.instant)} (Paris). ${q.arrive?'Comparaison entre le départ et l’heure limite, marge d’arrivée comprise.':'Comparaison depuis l’heure demandée, attente avant départ comprise.'} Places, accessibilité et disponibilité à bord non vérifiées.</p><div class="transit-table-scroll" role="region" aria-label="Comparaison des temps de déplacement" tabindex="0"><table><thead><tr><th scope="col">Mode</th><th scope="col">Temps comparé</th><th scope="col">Horaires et durée en chemin</th></tr></thead><tbody>${rows.map(r=>`<tr data-transit-mode="${r.mode}" data-transit-state="${r.status}"><th scope="row">${escapeHtml(r.label)}</th>${r.status==='ready'?`<td>${transitMinutes(r.elapsed)}</td><td>${transitClock(r.start)} → ${transitClock(r.end)}<br>${transitMinutes(r.duration)} en chemin</td>`:`<td>${r.status==='excluded'?'Écarté':'Indisponible'}</td><td>${escapeHtml(r.reason)}</td>`}</tr>`).join('')}</tbody></table></div><p class="note">Tri par minutes affichées, égalités conservées. Voiture et marche : estimations hors trafic et pauses, sans contrainte de calendrier routier. Les évitements et le profil saisis sont respectés ou le mode est déclaré indisponible. Prix totaux et empreintes non comparés dans ce tableau de temps ; aucun coût absent ne devient zéro. La carte représente toujours l’option collective choisie.</p>${sources.length?`<p class="note">Sources routières : ${sources.join(' · ')}.</p>`:''}${roads.cycle?transitCycleDescription():''}<button type="button" class="ghost" data-modal-carbon-open ${transitJob?'disabled':''}>Comparer les empreintes</button>`;
- refreshModalCarbon();
+ renderTransitTimeNotice(q);refreshModalCarbon();transitTimeKey=transitTimeFingerprint(q);
+ if(cycleContext?.returnFocus?.hasAttribute('data-transit-cycle')&&cycleContext.signature===transitInputSignature())cycleContext.returnFocus=document.querySelector('[data-transit-cycle]');
 }
 async function compareTransitTimes(job,q,result){
  const roads={},signature=transitInputSignature(),current=()=>transitJob===job&&!job.cancelled&&signature===transitInputSignature();let ignQuota=false;
@@ -3562,7 +3582,7 @@ function drawTransit(index){
  const route=transitRoutes[index];if(!route)return;if(transitCarbonView&&transitCarbonView.index!==index)clearTransitCarbon();
  document.querySelectorAll('[data-transit-map]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.transitMap)===index)));
  document.querySelectorAll('[data-transit-compare-view]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.transitCompareView)===index)));
- $('transitMapWrap').hidden=false;$('transitMapTitle').textContent=`${transitRouteReview(route,transitCalculation).status==='excluded'?'Référence non admissible · ':''}Option ${index+1} · ${transitClock(route.start)} → ${transitClock(route.end)}`;
+ $('transitMapWrap').hidden=false;$('transitMapTitle').textContent=`${transitReferencePrefix(transitRouteReview(route,transitCalculation))}Option ${index+1} · ${transitClock(route.start)} → ${transitClock(route.end)}`;
  if(transitLayers){transitLayers.remove();transitLayers=null}$('transitSketch').replaceChildren();
  const complete=route.legs.every(l=>l.points)&&route.legs.reduce((n,l)=>n+l.points.length,0)<=16000;$('transitMapNote').textContent=complete?'Bleu : transport collectif. Pointillés : marche. Ce parcours est consulté séparément du trajet routier.':'Tracé incomplet : consulter les étapes. Aucune ligne droite ne remplace une géométrie absente.';
  $('transitMap').hidden=!complete||!window.L;$('transitSketch').hidden=!complete||Boolean(window.L);
@@ -3583,11 +3603,11 @@ function drawTransit(index){
  }
 }
 function renderTransit(result,q){
- clearTransitCarbon();transitRoutes=result.routes;transitCalculation=q;transitResult=result;transitResultSignature=transitLimitContextSignature();
+ Object.assign(q,transitClockReview(q,Date.now()));clearTransitCarbon();transitRoutes=result.routes;transitCalculation=q;transitResult=result;transitResultSignature=transitLimitContextSignature();
  $('transitStatus').textContent=`${result.routes.length} itinéraire(s) collectif(s) compatible(s). ${result.excluded?`${result.excluded} proposition(s) écartée(s) : marche seule, doublon, limite ou données non qualifiées. `:''}Consulté le ${transitClock(Date.now())}.`;
- if(!result.routes.length){$('transitStatus').textContent+=' Aucun résultat ne satisfait ces critères. Les modifier puis relancer la recherche.';return}
+ renderTransitTimeNotice(q);if(!result.routes.length){$('transitStatus').textContent+=' Aucun résultat ne satisfait ces critères. Les modifier puis relancer la recherche.';return}
  $('transitResults').innerHTML=result.routes.map((r,i)=>`<article class="comparison-card" data-transit-option="${i}"><h3 tabindex="-1">Option ${i+1} · ${transitMinutes(r.duration)}</h3><p data-transit-transfers="${i}" class="note"></p><p><strong>${transitClock(r.start)} → ${transitClock(r.end)}</strong> · heure de Paris</p><p>${r.transfers} correspondance(s) · ${Math.ceil(r.walk)} m de marche (${transitMinutes(r.walking)}) · ${transitMinutes(r.riding)} à bord · ${transitMinutes(r.waiting)} d’attente en chemin</p><p class="note">${q.arrive?`Arrivée ${transitMinutes((q.instant-r.end)/1000)} avant l’heure limite.`:`Départ ${transitMinutes((r.start-q.instant)/1000)} après l’heure demandée ; ${transitMinutes((r.end-q.instant)/1000)} de cette heure à l’arrivée.`}</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${escapeHtml(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${escapeHtml(l.line)}`}</strong><br>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${escapeHtml(l.direction)}<br>${escapeHtml(l.agency)}`}</li>`).join('')}</ol><p class="note">Horaires théoriques. Perturbations et retards non vérifiés. Prix total inconnu ; aucune réservation. Accessibilité, bagages et vélo à bord non vérifiés.</p><button type="button" class="ghost" data-transit-map="${i}" aria-pressed="false">Voir le parcours ${i+1}</button><p class="note">La consultation réseau transmet les lignes et arrêts consultés à Mobilités M, uniquement à la demande.</p><button type="button" class="ghost" data-transit-network="${i}" disabled>Consulter les infos réseau · option ${i+1}</button><button type="button" class="ghost" data-transit-save="${i}" disabled>Enregistrer cette option collective ${i+1}</button><button type="button" class="ghost" data-transit-journal="${i}" disabled>Déclarer ce trajet effectué · option ${i+1}</button><button type="button" class="ghost" data-transit-carbon="${i}" disabled>Estimer l’empreinte · option ${i+1}</button></article>`).join('');
- renderTransitNetworkFilters();refreshTransitTransfers();const first=result.routes.findIndex(r=>transitRouteReview(r,q).status==='ready');if(first>=0)drawTransit(first);
+ renderTransitNetworkFilters();refreshTransitTransfers();transitTimeKey=transitTimeFingerprint(q);const first=result.routes.findIndex(r=>transitRouteReview(r,q).status==='ready');if(first>=0)drawTransit(first);
 }
 function renderTransitChoices(){
  const q=transitCalculation,wrap=$('transitOptions');wrap.hidden=!q||!transitResult||!transitRoutes.length;if(wrap.hidden)return;
@@ -3631,14 +3651,14 @@ function readTransitTransfers(){
  return transitTransferCriteria(text===''?null:Number(text),rule==='strict');
 }
 function refreshTransitTransfers(){
- const q=transitCalculation;if(!q||!transitResult)return;refreshTransitNetworkFilters();renderTransitChoices();let admissible=0;
+ const q=transitCalculation;if(!q||!transitResult)return;Object.assign(q,transitClockReview(q,Date.now()));renderTransitTimeNotice(q);refreshTransitNetworkFilters();renderTransitChoices();let admissible=0;
  for(const [i,r] of transitRoutes.entries()){
   const review=transitRouteReview(r,q),article=document.querySelector(`[data-transit-option="${i}"]`);if(!article)continue;
-  article.dataset.transitState=review.status;if(review.status==='ready')admissible++;
+  article.dataset.transitState=review.status;article.dataset.transitTemporal=review.temporal;if(review.status==='ready')admissible++;
   const notice=article.querySelector('[data-transit-transfers]');notice.textContent=review.reason;notice.className=review.status==='excluded'?'app-notice':'note';
   const map=article.querySelector('[data-transit-map]');map.textContent=review.status==='excluded'?`Consulter la référence ${i+1} · non admissible`:`Voir le parcours ${i+1}`;
   for(const b of article.querySelectorAll('[data-transit-save],[data-transit-journal]'))b.disabled=Boolean(q.transferError)||Boolean(transitJob);
-  if(map.getAttribute('aria-pressed')==='true')$('transitMapTitle').textContent=`${review.status==='excluded'?'Référence non admissible · ':''}Option ${i+1} · ${transitClock(r.start)} → ${transitClock(r.end)}`;
+  if(map.getAttribute('aria-pressed')==='true')$('transitMapTitle').textContent=`${transitReferencePrefix(review)}Option ${i+1} · ${transitClock(r.start)} → ${transitClock(r.end)}`;
  }
  $('transitStatus').textContent=`${admissible} itinéraire(s) collectif(s) compatible(s), sur ${transitRoutes.length} option(s) reçue(s) et validée(s). ${transitResult.excluded?transitResult.excluded+' proposition(s) écartée(s) pour données, horaires, marche ou doublons. ':''}Consulté le ${transitClock(q.now)}. ${q.transferError?'Critères invalides : '+q.transferError:!transitRoutes.length?'Aucun résultat ne satisfait les critères de recherche. Les modifier puis relancer.':admissible?'':'Aucune option reçue ne respecte les critères actifs. Les références restent consultables ; aucun autre trajet n’est garanti.'}`;
 }
@@ -3678,7 +3698,31 @@ async function searchTransit(){
  }catch(e){if(current())$('transitStatus').textContent=e.message}
  finally{if(transitJob===job){if(context.signature!==transitInputSignature())updateTransitContext();transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false);$('transitSearch').disabled=false;$('transitCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network],[data-transit-save],[data-transit-carbon],[data-transit-journal],[data-modal-carbon-open]'))b.disabled=false;refreshTransitTransfers();if(!$('transitDialog').open&&!document.querySelector('dialog[open]'))$('transitBtn').focus()}}
 }
+function transitTimeFingerprint(q){const d=transitComparisonData,rows=transitTimeRows(transitRoutes,d?.q===q?modalShownRoads(d):{},q);return JSON.stringify([transitTimeReview(null,q),rows.map(r=>[r.mode,r.index,r.temporal])])}
+function transitReferencePrefix(review){return review.temporal?.startsWith('past-')?'Référence historique · ':review.status==='excluded'?'Référence non admissible · ':''}
+function renderTransitTimeNotice(q){
+ const notice=$('transitTimeNotice'),context=transitTimeReview(null,q),rows=transitTimeRows(transitRoutes,transitComparisonData?.q===q?modalShownRoads(transitComparisonData):{},q),past=rows.filter(r=>r.temporal==='past-departure').length;
+ notice.hidden=context.status==='ready'&&!past;
+ notice.textContent=notice.hidden?'':(context.status==='excluded'?context.reason:past+' départ(s) théorique(s) passé(s) selon l’horloge de l’appareil.')+' Les résultats datés restent consultables. Choisir une nouvelle heure puis lancer une recherche pour obtenir de nouvelles propositions. Aucun départ réel, retard ou trajet effectué n’est déduit du temps écoulé.';
+}
+function refreshTransitFreshness(){
+ const d=transitComparisonData,q=transitCalculation||d?.q;if(!q)return;
+ const signature=transitResultSignature||d?.signature;
+ if(signature!==transitLimitContextSignature()){clearTransit('Contexte modifié : relancer la recherche.');return}
+ Object.assign(q,transitClockReview(q,Date.now()));
+ const key=transitTimeFingerprint(q);
+ if(key===transitTimeKey)return;transitTimeKey=key;
+ const active=document.activeElement,choice=active?.dataset?.transitCompareView,cycle=active?.hasAttribute('data-transit-cycle'),region=active?.getAttribute('role')==='region'?active.getAttribute('aria-label'):null,carbonRow=active?.tagName==='SUMMARY'?active.closest('[data-modal-row]')?.dataset.modalRow:null;
+ const openRows=[...document.querySelectorAll('#modalCarbonTables [data-modal-row]')].filter(e=>e.querySelector('details[open]')).map(e=>e.dataset.modalRow);
+ refreshTransitTransfers();if(d)renderTransitTimes(d.routes,d.roads,q);renderTransitTimeNotice(q);
+ if(transitCarbonView)$('transitCarbonTitle').textContent=transitReferencePrefix(transitRouteReview(transitCarbonView.route,q))+`Empreinte · option ${transitCarbonView.index+1}`;
+ for(const id of openRows){const details=document.querySelector('#modalCarbonTables [data-modal-row="'+CSS.escape(id)+'"] details');if(details)details.open=true}
+ if(active&&!active.isConnected){const next=cycle?document.querySelector('[data-transit-cycle]'):choice!==undefined?document.querySelector('[data-transit-compare-view="'+CSS.escape(choice)+'"]'):region?document.querySelector('#transitDialog [role="region"][aria-label="'+CSS.escape(region)+'"]'):carbonRow?document.querySelector('#modalCarbonTables [data-modal-row="'+CSS.escape(carbonRow)+'"] summary'):null;if(next){const details=next.closest('details');if(details)details.open=true;next.focus({preventScroll:true})}}
+}
 function bindTransit(){
+ setInterval(()=>{if(!document.hidden)refreshTransitFreshness()},15000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshTransitFreshness()});window.addEventListener('focus',refreshTransitFreshness);
+ for(const event of ['click','input','change'])$('transitDialog').addEventListener(event,refreshTransitFreshness,{capture:true});
  $('transitNetworkCancel').addEventListener('click',()=>clearTransitNetwork('Consultation annulée.'));
  setInterval(refreshTransitNetwork,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshTransitNetwork()});
  $('transitBtn').addEventListener('click',openTransit);$('transitSearch').addEventListener('click',searchTransit);
@@ -3692,7 +3736,7 @@ function bindTransit(){
  $('transitOptions').addEventListener('click',e=>{const b=e.target.closest('[data-transit-compare-view]');if(!b||transitJob)return;if(transitResultSignature!==transitLimitContextSignature()){clearTransit('Contexte modifié : relancer la recherche.');return}const index=Number(b.dataset.transitCompareView);drawTransit(index);const title=document.querySelector(`[data-transit-option="${index}"] h3`);if(title){title.focus({preventScroll:true});title.scrollIntoView({block:'start'})}});
  $('transitCycleLimit').addEventListener('input',updateTransitCycleLimits);$('transitCycleRule').addEventListener('change',updateTransitCycleLimits);
  $('transitCompare').addEventListener('change',()=>{$('transitCycleOptions').hidden=!$('transitCompare').checked;if(!$('transitCompare').checked){$('transitCycle').checked=false;$('transitCycleFields').hidden=true}});$('transitCycle').addEventListener('change',()=>{$('transitCycleFields').hidden=!$('transitCycle').checked});
- $('transitCompareResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-cycle]'),c=transitComparedCycle;if(b&&c&&!c.criteriaError&&!busy&&c.signature===transitInputSignature())openComparedCycle(c.view,c.places,c.maxKm,b,c.strict)});
+ $('transitCompareResults').addEventListener('click',e=>{const b=e.target.closest('[data-transit-cycle]'),c=transitComparedCycle;if(b&&c&&!c.criteriaError&&!busy&&c.signature===transitInputSignature())openComparedCycle(c.view,c.places,c.maxKm,document.querySelector('[data-transit-cycle]')||b,c.strict)});
  $('transitResults').addEventListener('click',e=>{const j=e.target.closest('[data-transit-journal]');if(j)journalFromTransit(Number(j.dataset.transitJournal));const b=e.target.closest('[data-transit-map]');if(b)drawTransit(Number(b.dataset.transitMap));const n=e.target.closest('[data-transit-network]');if(n)loadTransitNetwork(Number(n.dataset.transitNetwork));const t=e.target.closest('[data-transit-save]');if(t)saveTransitOption(Number(t.dataset.transitSave));const c=e.target.closest('[data-transit-carbon]');if(c)openTransitCarbon(Number(c.dataset.transitCarbon))});
  for(const id of ['start','end'])$(id).addEventListener('input',()=>{clearTransit();transitContext=null;$('transitBtn').hidden=false;if($('transitDialog').open)$('transitDialog').close()});
 }
@@ -3819,7 +3863,7 @@ function clearTransitCarbon(focus=false){
 }
 function openTransitCarbon(index){
  const route=transitRoutes[index];if(busy||transitJob||!route)return;
- transitCarbonView={index,route,choices:route.legs.map(()=>'')};$('transitCarbon').hidden=false;$('transitCarbonTitle').textContent=`Empreinte · option ${index+1}`;
+ transitCarbonView={index,route,choices:route.legs.map(()=>'')};$('transitCarbon').hidden=false;$('transitCarbonTitle').textContent=transitReferencePrefix(transitRouteReview(route,transitCalculation))+`Empreinte · option ${index+1}`;
  $('transitCarbonSteps').innerHTML=route.legs.map((l,i)=>{const options=transitCarbonFactors(l.mode);return `<fieldset class="transit-carbon-step"><legend>Étape ${i+1} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?'':' '+escapeHtml(l.line)}</legend><p>${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)} · ${fmt(l.distance/1000,3)} km</p>${options.length?`<label for="transitCarbonChoice${i}">Modèle moyen retenu pour l’étape ${i+1}</label><select id="transitCarbonChoice${i}" data-transit-factor="${i}"><option value="">Choisir un modèle — sinon non estimé</option>${options.map(f=>`<option value="${f.id}">${escapeHtml(f.label)}</option>`).join('')}</select><p class="note">Hypothèse choisie pour le calcul ; le nom de ligne ne confirme pas le véhicule ni sa motorisation.</p>`:`<p class="note">${l.mode==='WALK'?'Marche non estimée dans le jeu qualifié.':'Aucun facteur qualifié pour ce mode.'} Aucun zéro attribué.</p>`}</fieldset>`}).join('');
  refreshTransitCarbon();$('transitCarbonTitle').focus();$('transitCarbonTitle').scrollIntoView({block:'start'});
 }
