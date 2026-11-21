@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import fs from 'node:fs/promises';
 import { expect } from '@playwright/test';
 
 const require = createRequire(import.meta.url);
@@ -14,9 +15,11 @@ export async function checkAccessibility(page, info, state) {
   const results = await page.evaluate(async () => window.axe.run(document, {
     runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] }
   }));
-  await info.attach(`accessibilite-${state}`, {
-    body: JSON.stringify(results, null, 2), contentType: 'application/json'
-  });
+  // Keep the full scan in its attachment file. Inlining every scan as base64
+  // makes the combined JSON report exceed the runtime's string-size limit.
+  const path = info.outputPath(`accessibilite-${state}.json`);
+  await fs.writeFile(path, JSON.stringify(results, null, 2));
+  await info.attach(`accessibilite-${state}`, { path, contentType: 'application/json' });
   expect.soft(results.violations, 'Regles WCAG A/AA detectables automatiquement').toEqual([]);
 }
 
