@@ -3,7 +3,7 @@ import { compatibilityCases, compatibilityMatrix } from './tests/compatibility-c
 const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export default defineConfig({
   testDir: './tests/e2e',
-  testMatch: /(?:route-validation|dragonroute|route-variants|map-stations|prepared-trips|reading-layout|mode-access|walking|cycling|cycling-saved|transit-direct|transit-saved|transit-freshness|shared-bike-trip|shared-bike-saved)\.spec\.mjs$/,
+  testMatch: /(?:route-validation|dragonroute|route-variants|map-stations|prepared-trips|reading-layout|mode-access|walking|cycling|cycling-saved|transit-direct|transit-saved|transit-freshness|shared-bike-trip|shared-bike-saved|road-choices|station-window|transit-comparison|carpool|journal)\.spec\.mjs$/,
   grep: new RegExp(`(?:${compatibilityCases.map(escape).join('|')})$`),
   timeout: 60_000, expect: { timeout: 8_000 }, globalTimeout: 720_000,
   retries: 0, workers: 2, fullyParallel: false,

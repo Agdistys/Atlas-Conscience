@@ -44,7 +44,20 @@ export const compatibilityModeCases = [
   "partagé sauvegardé : reprise volontaire, catalogue confirmé, nouveau calcul sans géocodage",
   "partagé sauvegardé : clavier à quatre rubriques et fermeture avec retour du focus"
 ];
-export const compatibilityCases = [...compatibilityRoadCases, ...compatibilityModeCases];
+// Complete reference journeys retain the exact Chromium assertions.
+export const compatibilityJourneyCases = [
+  "service public absent : controles indisponibles avant recherche",
+  "choix routiers : deux critères, écarts lisibles, tri sans appel et adoption volontaire",
+  "choix routiers : mêmes exclusions IGN, cache distinct et arrêts recalculés sur le choix",
+  "choix routiers : panne partielle sans repli et moteur désactivé explicite",
+  "fenêtre : proximité choisie filtre les accès routiers puis relance explicite",
+  "fenêtre : sauvegarde format 11, export, rechargement et reprise gardent les trois valeurs",
+  "comparaison collective : arrivée avant limite inclut la marge et conserve les identités",
+  "covoiturage : frais inconnus, partiels puis déclarés, partage exact sans addition du plein",
+  "covoiturage : récapitulatif relu et copié, lieux privés exclus et aucune transmission automatique",
+  "journal : activation volontaire, confirmation et doublon après rechargement"
+];
+export const compatibilityCases = [...compatibilityRoadCases, ...compatibilityModeCases, ...compatibilityJourneyCases];
 export const compatibilityMatrix = ['firefox', 'webkit'].flatMap(engine => [
   { name: `${engine}-desktop-1440`, engine, viewport: { width: 1440, height: 900 }, readingViewport: { width: 1024, height: 768 } },
   { name: `${engine}-small-390`, engine, viewport: { width: 390, height: 844 }, readingViewport: { width: 390, height: 844 } }
