@@ -227,7 +227,8 @@ test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
   let previous;
-  for (const id of ['preparedBtn', 'journalBtn', 'profileBtn', 'sourcesBtn', 'start', 'gpsBtn', 'end', 'swapTripBtn', 'carMode', 'walkMode', 'cycleBtn', 'transitBtn', 'bikesBtn', 'savedVehicleSelect', 'routeOptimization', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore', 'goBtn']) {
+  const sequence = ['preparedBtn', 'journalBtn', 'profileBtn', 'sourcesBtn', 'start', 'gpsBtn', 'end', 'swapTripBtn', 'swapTripBtn + .explanation > summary', 'carMode', 'walkMode', 'cycleBtn', 'transitBtn', 'bikesBtn', 'sheet [data-preparation-target=routeModeHeading]', 'sheet [data-preparation-target=stationDeparture]', 'goBtn', 'savedVehicleSelect', 'routeOptimization', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore'];
+  for (const id of sequence) {
     await page.keyboard.press('Tab');
     // Native date inputs expose several keyboard segments inside the same element.
     if (['stationDeparture','routeArriveBy'].includes(previous)) {
@@ -236,6 +237,11 @@ test('parcours clavier et mouvement reduit', async ({ page }) => {
     await expect(page.locator('#' + id)).toBeFocused();
     const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);
     expect(outline, 'Focus visible sur ' + id).not.toBe('none');
+    if(id==='swapTripBtn + .explanation > summary'){
+      await page.keyboard.press('Enter');await expect(page.locator('#swapTripHint')).toBeVisible();
+      await page.keyboard.press('Enter');await expect(page.locator('#swapTripHint')).toBeHidden();
+      await expect(page.locator('#' + id)).toBeFocused();
+    }
     if(id==='routeSchedule > summary'){
       await page.keyboard.press('Enter');await expect(page.locator('#stationDeparture')).toBeHidden();
       await page.keyboard.press('Enter');await expect(page.locator('#stationDeparture')).toBeVisible();
@@ -280,6 +286,15 @@ test('parcours clavier et mouvement reduit', async ({ page }) => {
       await expect(page.locator('#journalDialog')).toBeHidden();
       await expect(page.locator('#journalBtn')).toBeFocused();
     }
+  }
+  // Return to the earlier calculation button using the same keyboard path.
+  for (const id of sequence.slice(sequence.indexOf('goBtn'), -1).reverse()) {
+    await page.keyboard.press('Shift+Tab');
+    if (['stationDeparture','routeArriveBy'].includes(previous)) {
+      for(let n=0;n<12&&await page.locator('#'+previous).evaluate(el=>el===document.activeElement);n++) await page.keyboard.press('Shift+Tab');
+    }
+    await expect(page.locator('#' + id)).toBeFocused();
+    previous=id;
   }
   await page.keyboard.press('Enter');
   await expect(page.locator('#statusDot')).toHaveClass(/busy/);
