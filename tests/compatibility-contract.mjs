@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "carte et liste Leaflet : retour au même point et à sa page sans recalcul",
+  "carte et liste schéma : paysage et texte doublé sans masquer les commandes",
   "pages stations : 100 fiches accessibles, rendu borné et navigation sans effet externe",
   "pages stations Leaflet : carte, fiche et bonne page sans modifier les filtres",
   "préparation lisible : actions proches des choix, navigation clavier et critères explicites",

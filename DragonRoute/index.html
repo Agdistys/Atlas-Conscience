@@ -20,6 +20,12 @@
     <div class="header-actions"><button id="preparedBtn" class="ghost" type="button">Mes trajets</button><button id="journalBtn" class="ghost" type="button">Mon journal</button><button id="profileBtn" class="ghost">Mon profil</button><button id="sourcesBtn" class="ghost" type="button">Sources et données</button><button id="installBtn" class="ghost tiny-btn" aria-label="Installer OùQuandQui" hidden>＋ Installer</button></div>
   </header>
   <main class="stage">
+    <section id="mapArea" class="map-area" aria-labelledby="mapHeading">
+      <div class="map-navigation">
+        <h2 id="mapHeading" tabindex="-1">Carte du trajet</h2>
+        <nav class="preparation-links" aria-label="Carte et résultats"><button id="mapReturn" class="ghost" type="button">Préparer le trajet</button><button id="mapOverview" class="ghost" type="button" disabled>Vue d’ensemble</button></nav>
+        <p id="mapConsultation" class="note" role="status" hidden></p>
+      </div>
     <div id="map" class="map" role="region" aria-label="Carte du trajet">
       <div id="mapFallback" class="fallback-map">
         <svg id="routeViz" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Schéma du trajet, sans fond cartographique">
@@ -30,6 +36,7 @@
       </div>
       <div id="stationMapTools" class="map-station-tools" hidden><button id="mapStationsBtn" class="ghost" type="button" aria-haspopup="dialog" aria-controls="stationPickerDialog">⛽ <span id="mapStationCount">0</span></button></div>
     </div>
+    </section>
     <section class="sheet" id="sheet" aria-label="Préparation du trajet">
       <section class="route-section">
         <p id="connectionNotice" class="app-notice" role="status" hidden></p>
@@ -66,7 +73,7 @@
         <button id="goBtn" class="primary">Trouver mon trajet</button>
         <button id="cancelTripBtn" class="ghost navigation-button" type="button" hidden>Annuler la recherche du trajet</button>
         <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
-          <nav id="routeResultLinks" class="preparation-links" aria-label="Accès aux résultats du trajet" hidden>
+          <nav id="routeResultLinks" class="preparation-links" aria-label="Accès aux résultats du trajet" hidden><button id="routeMapLink" class="ghost" type="button" data-map-open="route">Voir la carte</button>
             <button id="jumpRouteResult" class="ghost" type="button" data-preparation-target="summary" hidden>Voir le trajet</button>
             <button id="jumpStations" class="ghost" type="button" data-preparation-target="stopsHeading" hidden>Choisir les arrêts</button>
             <button id="jumpBudget" class="ghost" type="button" data-preparation-target="budgetHeading" hidden>Budget</button>
@@ -312,7 +319,7 @@
             <label for="stationPriceView">Fraîcheur des prix</label><select id="stationPriceView" aria-describedby="stationFreshnessPolicy stationFreshnessStatus"><option value="recent">Récents (≤ 7 jours)</option><option value="old">Anciens (> 7 jours)</option><option value="unknown">Dates non vérifiables</option></select>
             <p class="note">Prix de plus de 7 jours ou date non vérifiable : hors classement et budget. Prix et ouverture non garantis.</p><details class="explanation"><summary>Règles de fraîcheur des prix</summary><p id="stationFreshnessPolicy" class="note">Prix récents : comparaison possible. Prix anciens ou dates non vérifiables : arrêts consultables. Avertissement après 48 heures ; au-delà de 7 jours, prix exclus du classement et du budget. Date absente, invalide ou future : non vérifiable. La date concerne le carburant choisi ; la consultation ne la remet pas à zéro. Règle de l’application, aucune garantie de disponibilité.</p></details><p id="stationFreshnessStatus" class="note" role="status"></p>
             <div id="stationRankingControls"><label for="stationListMode">Stations affichées</label><select id="stationListMode"><option value="recommended">Sélection recommandée</option><option value="all">Toutes — distance</option><option value="cost">Toutes — coût</option><option value="price">Toutes — prix au litre</option><option value="detour">Toutes — détour</option></select><p class="note">Coût comparé : achat + carburant du détour, hors péages et autres frais.</p><details class="explanation"><summary>Comprendre les classements</summary><p class="note">La sélection suit la recherche ; les autres tris affichent toutes les stations retenues par les filtres, par distance depuis le départ, coût comparé, prix au litre ou durée du détour. Comparaison achat + carburant du détour, hors péages et autres frais.</p></details></div></div>
-          <section id="stationResultStart" hidden aria-labelledby="stationResultsTitle"><h3 id="stationResultsTitle" tabindex="-1">Stations proposées</h3><p id="stationResultReadout" class="note" role="status"></p><nav class="preparation-links" aria-label="Modifier les résultats des stations"><button class="ghost" type="button" data-preparation-target="stationPriceView">Tri et fraîcheur</button><button class="ghost" type="button" data-preparation-target="maxDetourKm">Filtres</button><button class="ghost" type="button" data-preparation-target="stationsBtn">Revenir à la recherche</button></nav></section>
+          <section id="stationResultStart" hidden aria-labelledby="stationResultsTitle"><h3 id="stationResultsTitle" tabindex="-1">Stations proposées</h3><p id="stationResultReadout" class="note" role="status"></p><nav class="preparation-links" aria-label="Modifier les résultats des stations"><button id="stationsMapLink" class="ghost" type="button" data-map-open="stations">Voir la carte</button><button class="ghost" type="button" data-preparation-target="stationPriceView">Tri et fraîcheur</button><button class="ghost" type="button" data-preparation-target="maxDetourKm">Filtres</button><button class="ghost" type="button" data-preparation-target="stationsBtn">Revenir à la recherche</button></nav></section>
           <nav class="station-pagination" data-station-pagination="top" aria-label="Pages des stations" hidden><p class="note" data-station-page-status role="status"></p><div class="preparation-links"><button type="button" class="ghost" data-station-page="first" aria-controls="stationCards">Première page</button><button type="button" class="ghost" data-station-page="previous" aria-controls="stationCards">Page précédente</button><button type="button" class="ghost" data-station-page="next" aria-controls="stationCards">Page suivante</button></div><p class="note">Fiches déjà comparées : changer de page ne lance aucune recherche.</p></nav>
           <div id="stationCards" class="cards"></div>
           <nav class="station-pagination" data-station-pagination="bottom" aria-label="Pages des stations · fin de liste" hidden><p class="note" data-station-page-status></p><div class="preparation-links"><button type="button" class="ghost" data-station-page="first" aria-controls="stationCards">Première page</button><button type="button" class="ghost" data-station-page="previous" aria-controls="stationCards">Page précédente</button><button type="button" class="ghost" data-station-page="next" aria-controls="stationCards">Page suivante</button></div></nav>

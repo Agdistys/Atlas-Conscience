@@ -1549,7 +1549,9 @@ async function initMap(){
       resizeFrame=requestAnimationFrame(()=>{
         if(!map||zooming)return;
         resizePending=false;map.invalidateSize({pan:false});
-        if(routeLayer&&map.getSize().x>0&&map.getSize().y>0){const bounds=L.featureGroup([routeLayer,markerLayer]).getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[35,35],animate:false})}
+        const consulted=mapStations().find(s=>s.id===mapConsultation.id);
+        if(consulted)map.setView([consulted.lat,consulted.lon],Math.max(14,map.getZoom()),{animate:false});
+        else if(routeLayer&&map.getSize().x>0&&map.getSize().y>0){const bounds=L.featureGroup([routeLayer,markerLayer]).getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[35,35],animate:false})}
       });
     };
     // Leaflet ignores a new zoom target during its current zoom transition.
@@ -2164,6 +2166,7 @@ function refreshStationMap(visible,fit=false){
 }
 const STATION_LIST_SIZE=20;
 const stationListPage={index:0,ids:[],signature:''};
+const mapConsultation={id:null,back:null};
 function stationListCriteria(){
  return JSON.stringify([...['stationListMode','stationPriceView','maxDetourKm','maxDetourMin','stationOpeningFilter','rangeMode','rangeValue','reserveKm','stationDeparture'].map(id=>$(id).value),$('rangeOnly').checked,serviceSelection().slice().sort()]);
 }
@@ -2195,7 +2198,7 @@ function updateStationListLink(){
  $('stationListRevealNote').textContent=allowed?(stationListPage.ids.includes(live.id)?'Rejoindre cette fiche, sans nouveau calcul.':'Cette station est hors de la sélection recommandée. Ouvrir la liste complète conserve les filtres, sans nouveau calcul.'):'Cette station ne satisfait plus les filtres actuels. Les modifier depuis la recherche pour la retrouver dans la liste. L’arrêt choisi reste conservé.';
 }
 function renderStations(stations,mode,fit=false,options={}){
- const active=document.activeElement,card=active?.closest('#stationCards [data-station]'),focused=card?{id:card.dataset.station,action:active.hasAttribute('data-select')?'select':'details'}:null;
+ const active=document.activeElement,card=active?.closest('#stationCards [data-station]'),focused=card?{id:card.dataset.station,action:active.hasAttribute('data-select')?'select':active.hasAttribute('data-locate')?'locate':'details'}:null;
  const paginationFocused=Boolean(active?.closest('[data-station-pagination]'));
  const finishList=()=>{updateStationPagination();updateStationListLink();if(!document.querySelector('dialog[open]')){if(focused&&options.pageIndex===undefined&&!options.revealId)stationListFocus(focused.id,focused.action);else if(paginationFocused&&!active.getClientRects().length){$('stationResultsTitle').focus()}}};
  updatePreparationReadout();
@@ -2247,7 +2250,7 @@ function renderStations(stations,mode,fit=false,options={}){
     <div class="result-line"><b>${fmt(s.price,3)} €/L${archival?" déclaré, à vérifier":""}</b> · +${fmt(s.extraKm,1)} km · +${Math.round(s.extraMin)} min</div>
     ${archival?'':`<div class="result-small">Achat ${fmt(s.purchase)} € · carburant du détour ${fmt(s.detourFuelCost)} €</div>`}
     <p class="price-freshness" data-freshness="${stationFreshness(s).state}">${escapeHtml(stationPriceText(s))}</p>
-    <button class="ghost station-detail-link" data-details="${escapeHtml(s.id)}">Infos et favori</button><button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">${archival?"Choisir cet arrêt · prix à vérifier":"Choisir cette station"}</button>
+    <button class="ghost station-detail-link" data-locate="${escapeHtml(s.id)}">Voir sur la carte</button><button class="ghost station-detail-link" data-details="${escapeHtml(s.id)}">Infos et favori</button><button class="choose-station" data-select="${escapeHtml(s.id)}" aria-pressed="false">${archival?"Choisir cet arrêt · prix à vérifier":"Choisir cette station"}</button>
     </article>`).join("");
   document.querySelectorAll('[data-station]').forEach(el=>el.classList.toggle('selected',el.dataset.station===selectedStop?.station.id));
   document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.select===selectedStop?.station.id)));
@@ -2256,9 +2259,10 @@ function renderStations(stations,mode,fit=false,options={}){
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 let stationPicker=null,stationDetailReturn=null,stationPointFrame=0;
 function queueStationPoints(){cancelAnimationFrame(stationPointFrame);stationPointFrame=requestAnimationFrame(()=>{
+ for(const e of document.querySelectorAll('#map [data-station-point]'))e.classList.toggle('station-consulted',e.dataset.stationPoint===mapConsultation.id);
  const points=[...document.querySelectorAll('#map [data-station-point]')].map((e,i)=>({e,i,r:e.getBoundingClientRect()})).filter(p=>p.r.width&&p.r.height);
  const overlaps=(a,b)=>a.r.left<b.r.right&&a.r.right>b.r.left&&a.r.top<b.r.bottom&&a.r.bottom>b.r.top;
- const priority=p=>p.e===document.activeElement?2:p.e.dataset.stationPoint===selectedStop?.station.id?1:0;
+ const priority=p=>p.e===document.activeElement?3:p.e.dataset.stationPoint===mapConsultation.id?2:p.e.dataset.stationPoint===selectedStop?.station.id?1:0;
  const representatives=[];
  for(const p of points.slice().sort((a,b)=>priority(b)-priority(a)||(parseInt(getComputedStyle(b.e).zIndex)||0)-(parseInt(getComputedStyle(a.e).zIndex)||0)||b.i-a.i)){
   const covered=representatives.some(q=>overlaps(p,q));p.e.classList.toggle('station-cluster-member',covered);if(!covered)representatives.push(p);
@@ -2266,6 +2270,40 @@ function queueStationPoints(){cancelAnimationFrame(stationPointFrame);stationPoi
  for(const p of points){const n=points.filter(q=>overlaps(p,q)).length;p.e.classList.toggle('station-overlap',n>1);p.e.dataset.nearbyCount=String(n)}
 })}
 function mapStations(){return mapView?.[1]||[]}
+function updateMapNavigation(){
+ const station=mapStations().find(s=>s.id===mapConsultation.id);
+ if(mapConsultation.id&&!station)mapConsultation.id=null;
+ const back=mapConsultation.back,canReturn=back?.id&&stationListPage.ids.includes(back.id);
+ $('mapReturn').textContent=canReturn?`Revenir au point ${back.number}`:stationSearch&&back!=='route'?'Voir les stations':trip?'Voir le trajet':'Préparer le trajet';
+ $('mapReturn').disabled=busy;$('mapOverview').disabled=busy||!mapView;
+ $('mapConsultation').hidden=!station;
+ $('mapConsultation').textContent=station?`Point ${station.number} · ${station.address}. ${selectedStop?.station.id===station.id?'Arrêt déjà choisi.':'Consultation seulement ; aucun arrêt ajouté.'}${!map?' Schéma sans fond cartographique.':''}`:'';
+}
+function mapFocus(){
+ $('mapArea').scrollTop=0;$('mapHeading').focus({preventScroll:true});$('mapArea').scrollIntoView({block:'start',behavior:'instant'});
+}
+function visitMap(id=null,source='stations'){
+ if(busy||!mapView)return;
+ const station=id?mapStations().find(s=>s.id===id):null;if(id&&!station)return;
+ mapConsultation.id=station?.id||null;
+ mapConsultation.back=station?{id:station.id,number:station.number}:source;
+ updateMapNavigation();mapFocus();
+ if(map){map.invalidateSize({pan:false});if(station)map.setView([station.lat,station.lon],Math.max(14,map.getZoom()),{animate:false})}
+ queueStationPoints();
+}
+function returnFromMap(){
+ if(busy)return;
+ const back=mapConsultation.back;
+ if(back?.id&&stationListPage.ids.includes(back.id)){stationListFocus(back.id,'locate');return}
+ const target=stationSearch&&back!=='route'?$('stationResultsTitle'):trip?$('summary'):$('start');
+ target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'instant'});
+}
+function bindMapNavigation(){
+ $('sheet').addEventListener('click',e=>{const b=e.target.closest('[data-locate],[data-map-open]');if(!b||b.disabled||busy)return;visitMap(b.dataset.locate||null,b.dataset.mapOpen)});
+ $('mapReturn').addEventListener('click',returnFromMap);
+ $('mapOverview').addEventListener('click',()=>{if(busy||!mapView)return;mapConsultation.id=null;updateMapNavigation();showOnMap(...mapView,true);mapFocus()});
+ updateMapNavigation();
+}
 function stationPointSize(){return Math.max(44,parseFloat(getComputedStyle(document.documentElement).fontSize)*2.5)}
 function stationPointElement(id){return [...document.querySelectorAll('#map [data-station-point]')].find(e=>e.dataset.stationPoint===id&&e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden')}
 function returnStationFocus(target,id){
@@ -2303,6 +2341,7 @@ function activateMapStation(id,element,pointer=true){
  stationDetailReturn={focus:element,id};openStation(id);
 }
 function updateStationMapTools(){
+ updateMapNavigation();
  const n=mapStations().length;$('stationMapTools').hidden=!n;$('mapStationCount').textContent=String(n);$('mapStationsBtn').disabled=busy;
  $('mapStationsBtn').setAttribute('aria-label',`Parcourir les ${n} stations de cette carte`);$('mapStationsBtn').title=`Parcourir les ${n} stations de cette carte`;
  if(stationPicker)renderStationPicker();
@@ -4250,7 +4289,7 @@ function clearStations(){
   if(stationJob){stationJob.controller.abort();stationJob.invalid=true}
   $("stationContinuation").hidden=true;$("stationEmpty").hidden=true;
   selectedStop=null;invalidateStationPrice();
-  compared=[];stationSearch=null;stationListPage.index=0;stationListPage.ids=[];stationListPage.signature='';updateStationPagination();updateResumePreparation();
+  compared=[];stationSearch=null;stationListPage.index=0;stationListPage.ids=[];stationListPage.signature='';mapConsultation.id=null;mapConsultation.back=null;updateMapNavigation();updateStationPagination();updateResumePreparation();
   for(const id of ["stationCoverage","stationFilterStatus","filteredStopNote"])$(id).hidden=true;
   $("eligibleCount").textContent="—";
   $("stationCards").replaceChildren();$("stationSummary").hidden=true;$("selectedStop").hidden=true;
@@ -4290,7 +4329,7 @@ function lock(value){
   $("profileBtn").disabled=value;$("preparedBtn").disabled=value;
   document.querySelectorAll('#sheet input,#sheet select,#sheet button').forEach(el=>el.disabled=value);
   if(!value){updateVehicleRouting();updateRange();updateBudget();updateResumePreparation()}
-  updateStationPagination();updateStationListLink();
+  updateStationPagination();updateStationListLink();updateMapNavigation();
 }
 function windowBounds(w){return `Entre ${fmt(w.min,1)} et ${fmt(w.max,1)} km depuis le départ`}
 function updateWindow(){
@@ -4936,7 +4975,7 @@ function bind(){
   $("removeStopBtn").addEventListener("click",()=>{if(!busy&&trip){selectedStop=null;invalidateStationPrice();updateTripMetrics();renderStations(compared,stopWindow().mode);$("selectedStop").hidden=true;$("removeStopBtn").hidden=true;document.querySelectorAll('[data-station]').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('[data-select]').forEach(el=>el.setAttribute('aria-pressed','false'));$("fuelStatus").textContent="Arrêt retiré. Trajet choisi restauré."}});
   $('cancelTripBtn').addEventListener('click',()=>cancelTripSearch());
   for(const event of ['input','change'])$('sheet').addEventListener(event,e=>{if(tripRun&&tripRun.revision!==tripSearchSignature()&&!['maxWalkKm','walkRule'].includes(e.target.id))cancelTripSearch('Paramètres modifiés : calcul annulé. Relancer la recherche.')},true);
-  bindPreparationNavigation();
+  bindPreparationNavigation();bindMapNavigation();
   $("goBtn").addEventListener("click",run);$("gpsBtn").addEventListener("click",gps);
   $('gpsCancel').addEventListener('click',()=>cancelGps());$('gpsClose').addEventListener('click',()=>cancelGps());$('gpsRetry').addEventListener('click',gps);$('gpsConfirm').addEventListener('click',adoptGps);
   $('gpsAcceptImprecise').addEventListener('change',()=>{if(gpsJob)showGpsProposal(gpsJob)});
