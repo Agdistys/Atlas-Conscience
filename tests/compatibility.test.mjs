@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validCompatibility } from './compatibility-contract.mjs';
+import { validCompatibility, compatibilityRoadCases, compatibilityModeCases } from './compatibility-contract.mjs';
 import { passingCompatibility } from './helpers/compatibility-proof.mjs';
 test('compatibility needs exactly one passing attempt per case and project, same commit and identified engines', () => {
   const sha = 'a'.repeat(40);
@@ -14,4 +14,17 @@ test('compatibility needs exactly one passing attempt per case and project, same
     p => p.matrix[0].engine = 'chromium', p => p.matrix[0].viewport.width = 1,
     p => p.runnerExitCode = 1, p => p.errors.push('crash')
   ]) { const proof = structuredClone(passingCompatibility(sha)); mutate(proof); assert.equal(validCompatibility(proof, sha), false); }
+});
+
+test('compatibility requires autonomous modes in every engine and format; the old road-only proof is insufficient', () => {
+  const sha='a'.repeat(40), proof=passingCompatibility(sha);
+  assert.equal(compatibilityRoadCases.length,20);
+  assert.equal(compatibilityModeCases.length,20);
+  for(const row of proof.matrix)row.cases=row.cases.filter(c=>compatibilityRoadCases.includes(c.title));
+  assert.equal(validCompatibility(proof,sha),false);
+  for(const title of compatibilityModeCases){
+    const incomplete=passingCompatibility(sha);
+    incomplete.matrix.at(-1).cases=incomplete.matrix.at(-1).cases.filter(c=>c.title!==title);
+    assert.equal(validCompatibility(incomplete,sha),false,title);
+  }
 });

@@ -1,5 +1,5 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
-export const compatibilityCases = [
+export const compatibilityRoadCases = [
   'saisies trajet : deux lieux vides, résumé clavier, correction locale et descriptions conservées',
   'saisies trajet : panne ou réponse illisible ne désigne pas l’adresse comme erronée',
   'trajet disponible avant toute recherche de station',
@@ -21,6 +21,30 @@ export const compatibilityCases = [
   'lecture : profil modifiable, clavier visible et rotation conserve les saisies',
   'lecture : tabulation réelle du profil sans masquer le champ actif'
 ];
+// Additional autonomous-mode flows use the same assertions as Chromium.
+export const compatibilityModeCases = [
+  "accès modes : cinq entrées avant le véhicule, limites visibles et aucun effet externe",
+  "accès modes : commandes accessibles en paysage, texte agrandi et petit écran",
+  "accès modes : cycleBtn au clavier, lieux communs et retour du focus",
+  "accès modes : transitBtn au clavier, lieux communs et retour du focus",
+  "accès modes : bikesBtn au clavier, lieux communs et retour du focus",
+  "marche : vrai profil, préférences séparées, distance et cache distincts de la voiture",
+  "marche : sauvegarde, export et reprise gardent le mode et les préférences automobiles",
+  "vélo : calcul volontaire, vrai profil, schéma, limite locale et stockage conservé",
+  "vélo : annulation et réponse tardive ignorées, reprise indépendante possible",
+  "vélo sauvegardé : reprise explicite sans géocodage, nouveau calcul même avec cache",
+  "collectif direct : accessible sans voiture, aucun routage caché et lieux résolus explicites",
+  "collectif direct : géocodage tardif annulé sans mémorisation ni appel supplémentaire",
+  "collectif direct : saisies incomplètes et périmètre extérieur ne déclenchent pas de routage",
+  "collectif sauvegardé : enregistrement explicite, rechargement, étapes hors réseau et export complet",
+  "horaires : focus de la même option conservé lorsqu’elle passe parmi les références",
+  "parcours partagé : choix explicites, trois moteurs/étapes, données et trajet principal conservés",
+  "parcours partagé : stations manquantes ou identiques et lieux hors pilote",
+  "parcours partagé : annulation et réponse tardive ne réaffichent aucun résultat",
+  "partagé sauvegardé : reprise volontaire, catalogue confirmé, nouveau calcul sans géocodage",
+  "partagé sauvegardé : clavier à quatre rubriques et fermeture avec retour du focus"
+];
+export const compatibilityCases = [...compatibilityRoadCases, ...compatibilityModeCases];
 export const compatibilityMatrix = ['firefox', 'webkit'].flatMap(engine => [
   { name: `${engine}-desktop-1440`, engine, viewport: { width: 1440, height: 900 }, readingViewport: { width: 1024, height: 768 } },
   { name: `${engine}-small-390`, engine, viewport: { width: 390, height: 844 }, readingViewport: { width: 390, height: 844 } }
