@@ -1494,7 +1494,7 @@ async function openStation(id){
   try{
     const literal=/^\d+$/.test(id)?id:"'"+id.replaceAll("'","''")+"'";
     const q=new URLSearchParams({limit:"1",where:`id=${literal}`});
-    const data=await getJSON(`${C.fuelApi}?${q}`,"Fiche station");
+    const data=await getJSON(`${C.fuelApi}?${q}`,"Fiche station",16000,undefined,null,"fuel");
     if(sequence!==detailSequence||fuel!==$("fuel").value)return;
     const record=data.results?.find(r=>String(r.id)===id);
     if(!record)throw new Error("Station absente de la réponse officielle.");
@@ -1529,12 +1529,48 @@ function makeTimeout(ms,parent=activeAbort?.signal){
   if(parent?.aborted)c.abort();else parent?.addEventListener("abort",onAbort,{once:true});
   return {signal:c.signal,done:()=>{clearTimeout(t);parent?.removeEventListener("abort",onAbort)}};
 }
-async function getJSON(url,label,ms=16000,signal=activeAbort?.signal,classifyError=null){
+// BEGIN SERVICE WAIT MODEL
+function serviceHttpDate(raw,now=Date.now()){
+ if(typeof raw!=='string'||raw.length>128)return null;
+ const t=raw.trim(),months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let m,day,month,year,hour,minute,second,weekday;
+ if((m=/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d{2}) ([A-Z][a-z]{2}) (\d{4}) (\d{2}):(\d{2}):(\d{2}) GMT$/.exec(t))){[,weekday,day,month,year,hour,minute,second]=m;}
+ else if((m=/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), (\d{2})-([A-Z][a-z]{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2}) GMT$/.exec(t))){[,weekday,day,month,year,hour,minute,second]=m;const current=new Date(now).getUTCFullYear();year=Math.floor(current/100)*100+Number(year);if(year>current+50)year-=100;}
+ else if((m=/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) ([A-Z][a-z]{2}) ( \d|\d{2}) (\d{2}):(\d{2}):(\d{2}) (\d{4})$/.exec(t))){[,weekday,month,day,hour,minute,second,year]=m;}
+ else return null;
+ day=Number(day);year=Number(year);hour=Number(hour);minute=Number(minute);second=Number(second);month=months.indexOf(month);
+ if(year<1601||month<0||hour>23||minute>59||second>59)return null;
+ const at=Date.UTC(year,month,day,hour,minute,second),d=new Date(at);
+ return Number.isFinite(at)&&d.getUTCFullYear()===year&&d.getUTCMonth()===month&&d.getUTCDate()===day&&d.toUTCString().slice(0,3)===weekday.slice(0,3)?at:null;
+}
+function serviceWaitDelay(raw,now=Date.now(),serverDate=null){
+ if(typeof raw==='string'&&/^\d+$/.test(raw.trim())){const seconds=Number(raw.trim()),ms=seconds*1000;return {ms:Number.isSafeInteger(ms)?Math.max(5000,ms):Infinity,source:seconds<5?'minimum-local':'service'};}
+ const target=serviceHttpDate(raw,now),server=serviceHttpDate(serverDate,now),reference=server??now;
+ if(target!==null&&Number.isFinite(reference))return {ms:Math.max(5000,target-reference),source:target-reference<5000?'minimum-local':'service'};
+ return {ms:60000,source:'fallback'};
+}
+function serviceWaitRemaining(state,mono){if(!state)return 0;if(!Number.isFinite(mono)||mono<0)return Infinity;return Math.max(0,state.until-mono)}
+function serviceWaitExtend(previous,delay,mono,status){const until=mono+delay.ms;return previous&&previous.until>=until?previous:{until,status,source:delay.source};}
+// END SERVICE WAIT MODEL
+const serviceWaits=new Map();
+function serviceWaitError(service,state){
+ const seconds=Math.ceil(serviceWaitRemaining(state,performance.now())/1000),label=service==='fuel'?'carburants':'de transports',reason=state.status===429?`Limite du service ${label} atteinte.`:`Service ${label} temporairement indisponible.`,delay=Number.isFinite(seconds)&&seconds<86400?`Réessayer dans ${seconds} s.`:Number.isFinite(seconds)?`Réessayer après environ ${Math.ceil(seconds/86400)} jour(s).`:'Délai du service trop long pour être affiché.';
+ return Object.assign(new Error(reason+' '+delay+(state.source==='fallback'?' Délai du service absent ou illisible ; attente locale initiale de 60 s.':state.source==='minimum-local'?' Attente minimale locale de 5 s.':'')+' Aucune relance automatique.'),{status:state.status,serviceWait:true});
+}
+function serviceWaitGuard(service){const state=serviceWaits.get(service);if(serviceWaitRemaining(state,performance.now())>0)throw serviceWaitError(service,state);}
+function serviceWaitResponse(service,response){
+ if(!service)return;
+ const raw=response.headers.get('Retry-After');if(response.status!==429&&!(response.status===503&&raw!==null))return;
+ const state=serviceWaitExtend(serviceWaits.get(service),serviceWaitDelay(raw,Date.now(),response.headers.get('Date')),performance.now(),response.status);serviceWaits.set(service,state);throw serviceWaitError(service,state);
+}
+
+async function getJSON(url,label,ms=16000,signal=activeAbort?.signal,classifyError=null,service=null){
+  if(service)serviceWaitGuard(service);
   dbg("GET",label,url);
   const t=makeTimeout(ms,signal);
   try{
     const r=await fetch(url,{signal:t.signal,headers:{Accept:"application/json"}});
     if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");
+    serviceWaitResponse(service,r);
     if(!r.ok){
       const error=new Error(`${label} : HTTP ${r.status}`);
       error.status=r.status;
@@ -2005,26 +2041,29 @@ async function stationsAround(p,fuel,radius=C.corridorRadiusKm){
   const where=`within_distance(geom, geom'POINT(${lon} ${lat})', ${radius} km) and ${f}_prix is not null`;
   const select=`id,adresse,cp,ville,geom,horaires,horaires_automate_24_24,services_service,${f}_prix,${f}_maj,${f}_rupture_type`;
   const q=new URLSearchParams({limit:"100",where,select});
-  const d=await getJSON(`${C.fuelApi}?${q}`,"Carburants",18000);
+  const d=await getJSON(`${C.fuelApi}?${q}`,"Carburants",18000,undefined,null,"fuel");
   const rows=Array.isArray(d.results)?d.results:[];
   return {stations:rows.map(r=>stationFrom(r,fuel)).filter(Boolean),limited:rows.length>=100||Number(d.total_count)>rows.length};
 }
 async function collectStations(coords,fuel,settings,plan,isCurrent=()=>true){
   health("hFuel","busy","carburants…");
-  const pts=plan.points,all=[];let failed=0,limited=0;
+  const pts=plan.points,all=[];let failed=0,limited=0,unrequested=0,waitMessage='';
   dbg("Échantillons du corridor",pts.length);
   for(let i=0;i<pts.length;i+=4){
     if(!isCurrent())throw new Error("Recherche interrompue.");
+    try{serviceWaitGuard('fuel')}catch(e){unrequested=pts.length-i;waitMessage=e.message;break}
     const batch=pts.slice(i,i+4);
-    const rs=await Promise.all(batch.map(p=>stationsAround(p,fuel,settings.radius).catch(e=>{failed++;dbg("Carburants partiel",e.message);return {stations:[],limited:false}})));
+    const rs=await Promise.all(batch.map(p=>stationsAround(p,fuel,settings.radius).catch(e=>{failed++;if(e.serviceWait)waitMessage=e.message;dbg("Carburants partiel",e.message);return {stations:[],limited:false}})));
     if(!isCurrent())throw new Error("Recherche interrompue.");
     for(const result of rs){all.push(...result.stations);if(result.limited)limited++}
+    if(waitMessage){unrequested=pts.length-i-batch.length;break}
   }
   const uniq=new Map();all.forEach(s=>uniq.set(s.id,s));
-  const arr=[...uniq.values()].filter(s=>distRoute([s.lat,s.lon],plan.section.coords)<=settings.radius);
-  health("hFuel",arr.length?"ok":"err",arr.length?"carburants ✓":"carburants ✕");
+  const arr=[...uniq.values()].filter(s=>distRoute([s.lat,s.lon],plan.section.coords)<=settings.radius),partial=failed>0||unrequested>0;
+  health("hFuel",partial?'err':arr.length?'ok':'err',partial?'carburants partiels':arr.length?'carburants ✓':'carburants ✕');
+  if(!arr.length&&waitMessage)throw new Error(waitMessage+' Recherche incomplète ; aucune absence de station déduite.');
   if(failed===pts.length)throw new Error("Service carburants indisponible. Le trajet reste disponible.");
-  return {stations:arr,partial:failed>0,failed,limited,samples:pts.length,settings,plan};
+  return {stations:arr,partial,failed,limited,unrequested,waitMessage,samples:pts.length,settings,plan};
 }
 function progressKm(station,coords,totalKm){
   let length=0,best=Infinity,at=0;
@@ -3903,8 +3942,8 @@ function clearTransit(message=''){
  clearModalCarbon();transitComparedCycle=null;transitComparisonData=null;transitResult=null;transitResultSignature=null;
  clearTransitNetwork();clearTransitCarbon();transitCalculation=null;
  const job=transitJob;
- if(job){job.cancelled=true;job.controller.abort();if(job.resolving&&activeAbort===job.controller&&placePending){placePending.reject(new Error('Recherche de transports annulée.'));placePending=null;$('placeDialog').close()}}
- $('transitNetworkFilters').hidden=true;$('transitNetworkChoices').replaceChildren();$('transitNetworkFilterStatus').textContent='';transitRoutes=[];$('transitOptions').hidden=true;$('transitOptionsTable').replaceChildren();$('transitOptionsExcludedTable').replaceChildren();$('transitOptionsExcluded').open=false;$('transitOptionsStatus').textContent='';$('transitResults').replaceChildren();$('transitCompareResults').replaceChildren();$('transitStatus').textContent=message;$('transitCancel').hidden=true;$('transitSearch').disabled=Boolean(job);
+ if(job){job.cancelled=true;job.controller.abort();if(job.resolving&&activeAbort===job.controller&&placePending){placePending.reject(new Error('Recherche de transports annulée.'));placePending=null;$('placeDialog').close()}if(transitJob===job){transitJob=null;if(activeAbort===job.controller)activeAbort=null;lock(false)}}
+ $('transitNetworkFilters').hidden=true;$('transitNetworkChoices').replaceChildren();$('transitNetworkFilterStatus').textContent='';transitRoutes=[];$('transitOptions').hidden=true;$('transitOptionsTable').replaceChildren();$('transitOptionsExcludedTable').replaceChildren();$('transitOptionsExcluded').open=false;$('transitOptionsStatus').textContent='';$('transitResults').replaceChildren();$('transitCompareResults').replaceChildren();$('transitStatus').textContent=message;$('transitCancel').hidden=true;$('transitSearch').disabled=Boolean(transitJob);
  $('transitMapWrap').hidden=true;if(transitLayers){transitLayers.remove();transitLayers=null}$('transitSketch').replaceChildren();
 }
 function updateTransitContext(){
@@ -4042,6 +4081,7 @@ async function searchTransit(){
  if(transitJob||busy||!transitContext)return;
  const raw={when:$('transitWhen').value,direction:$('transitDirection').value,walk:$('transitWalk').value},context=transitContext;let cycleChoice;
  if(context.signature!==transitInputSignature()){updateTransitContext();return}
+ try{serviceWaitGuard('transit')}catch(e){$('transitStatus').textContent=e.message+' Les résultats datés déjà reçus restent consultables.';return}
  try{if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée avant la recherche.');Object.assign(raw,readTransitTransfers());transitCriteria(raw);cycleChoice=$('transitCompare').checked&&$('transitCycle').checked?{enabled:true,...readCycleCriteria('transitCycle')}:cycleComparisonChoice(false);if(Date.now()<transitNextRequest)throw new Error('Patienter quelques secondes avant une nouvelle recherche.')}catch(e){clearTransit(e.message);return}
  clearTransit();const job={controller:new AbortController(),cancelled:false,resolving:true,cycleChoice,compare:$('transitCompare').checked,vehicle:$('routeVehicle').value,settings:{car:comparisonCarSettings(),walk:routingSettings('walk',[])}};
  transitJob=job;activeAbort=job.controller;lock(true);transitNextRequest=Date.now()+3000;
@@ -4059,7 +4099,8 @@ async function searchTransit(){
   const timer=setTimeout(()=>job.controller.abort(),20000);
   try{
    const response=await fetch(q.url,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
-   if(!response.ok)throw new Error(response.status===429?'Limite du service atteinte. Réessayer plus tard.':'Service de transports indisponible. Réessayer plus tard.');
+   if(!current()||job.controller.signal.aborted)return;serviceWaitResponse('transit',response);
+   if(!response.ok)throw new Error('Service de transports indisponible. Réessayer plus tard.');
    const text=await response.text();if(text.length>2e6)throw new Error('Réponse de transports trop volumineuse.');let data;try{data=JSON.parse(text)}catch{throw new Error('Réponse de transports illisible.')}
    if(!current())return;result=transitResponse(data,q);renderTransit(result,q);
   }catch(e){if(!current())return;$('transitStatus').textContent=e.name==='AbortError'?'Le service n’a pas répondu à temps. Relancer la recherche si nécessaire.':e.message}
@@ -4121,7 +4162,7 @@ function clearTransitNetwork(message=''){
 function renderTransitNetwork(){
  const v=transitNetworkView;if(!v)return;const now=Date.now(),old=now-v.at>300000||now<v.at-60000,alertsOld=v.alerts&&(now-v.alerts.generated>600000||now<v.alerts.generated-60000);
  v.expiry=JSON.stringify([old,Boolean(alertsOld)]);
- $('transitNetworkStatus').textContent=`Option ${v.index+1} · consultation du ${transitClock(v.at)}. Les horaires et le classement restent théoriques.`;
+ $('transitNetworkStatus').textContent=`Option ${v.index+1} · consultation du ${transitClock(v.at)}. Les horaires et le classement restent théoriques.${v.waitNotice?' '+v.waitNotice:''}`;
  const boards=v.boards.map(b=>`<article class="network-board"><h4>${escapeHtml(b.leg.fromName)} · ligne ${escapeHtml(b.leg.line)}</h4><p class="note">Étape prévue le ${transitClock(b.leg.start)} vers ${escapeHtml(b.leg.direction)}.</p>${old?'<p class="network-warning">Consultation ancienne : passages retirés. Relancer volontairement la vérification.</p>':b.error?`<p class="network-warning">${escapeHtml(b.error)} Les horaires théoriques restent disponibles.</p>`:`<p class="network-warning">Actualisation non datée. Les estimations ci-dessous sont annoncées par le réseau ; leur fraîcheur n’est pas vérifiable.</p><p>${b.data.rows.some(r=>r.exact)?'Le service prévu est présent dans cette réponse.':'Le service prévu n’est pas identifié dans les prochains passages reçus. Cela ne prouve ni annulation ni circulation.'}</p><details><summary>Prochains passages reçus à cet arrêt (${b.data.rows.length}) · distincts du trajet prévu</summary>${b.data.rows.length?`<ul>${b.data.rows.map(r=>`<li><strong>${r.cancelled?'Annulation annoncée':r.predicted!==null?'Passage annoncé':'Horaire théorique'} · ${transitClock(r.predicted??r.scheduled)}</strong><br>Prévu : ${transitClock(r.scheduled)} · direction ${escapeHtml(r.direction)}${r.exact?'<br>Même service et même horaire que l’étape prévue.':''}${r.delay!==null&&r.delay!==0?`<br>${r.delay>0?'Retard':'Avance'} annoncé : ${networkDelay(r.delay)}, actualisation non datée.`:''}${r.cancelled?'<br>Annulation à confirmer auprès du réseau, date de mise à jour non fournie.':''}</li>`).join('')}</ul>`:'<p>Aucun prochain passage exploitable dans la réponse. Aucun départ de remplacement inventé.</p>'}${b.data.extra?`<p class="note">${b.data.extra} autre(s) passage(s) non affiché(s).</p>`:''}${b.data.rejected?`<p class="note">${b.data.rejected} élément(s) non vérifiable(s) écarté(s).</p>`:''}</details>`}</article>`).join('');
  const list=items=>items.map(a=>`<article class="network-alert"><h4>${escapeHtml(a.title)}</h4><p>${escapeHtml(a.text)}</p>${a.link?`<a href="${escapeHtml(a.link)}" target="_blank" rel="noopener noreferrer">Annonce originale du réseau</a>`:''}</article>`).join('');
  let alerts=v.alertError?`<p class="network-warning">${escapeHtml(v.alertError)} Perturbations non vérifiées.</p>`:'';
@@ -4130,12 +4171,20 @@ function renderTransitNetwork(){
 }
 async function loadTransitNetwork(index){
  const route=transitRoutes[index];if(!Number.isInteger(index)||!route||transitJob||busy||transitNetworkJob)return;
+ try{serviceWaitGuard('transit')}catch(e){if(transitNetworkView?.index===index){transitNetworkView.waitNotice=e.message;renderTransitNetwork()}else{clearTransitNetwork();$('transitNetwork').hidden=false;$('transitNetworkStatus').textContent=`Option ${index+1} demandée. `+e.message}return}
  if(Date.now()<transitNetworkNext){clearTransitNetwork();$('transitNetwork').hidden=false;$('transitNetworkStatus').textContent='Patienter quelques secondes avant une nouvelle consultation.';return}
  clearTransitNetwork();const job={controller:new AbortController(),cancelled:false},current=()=>transitNetworkJob===job&&!job.cancelled&&transitRoutes[index]===route;
  transitNetworkJob=job;transitNetworkNext=Date.now()+10000;const v={index,at:Date.now(),boards:[],alerts:null,alertError:'',more:Math.max(0,route.legs.filter(l=>l.mode!=='WALK').length-3)};
  $('transitNetwork').hidden=false;$('transitNetworkStatus').textContent='Consultation du réseau…';$('transitNetworkCancel').hidden=false;for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=true;
- $('transitNetworkTitle').focus();let quota=false;const timer=setTimeout(()=>job.controller.abort(),30000);
- async function get(path){if(quota)throw new Error('Quota du réseau atteint. Aucun autre appel effectué.');if(job.controller.signal.aborted)throw new Error('Consultation interrompue ou délai dépassé.');const r=await fetch('https://data.mobilites-m.fr/api/'+path,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});if(r.status===429){quota=true;throw new Error('Quota du réseau atteint. Réessayer plus tard.')}if(!r.ok)throw new Error('Information du réseau indisponible.');const text=await r.text();if(text.length>2e6)throw new Error('Réponse du réseau trop volumineuse.');try{return JSON.parse(text)}catch{throw new Error('Réponse du réseau illisible.')}}
+ $('transitNetworkTitle').focus();let quota=null;const timer=setTimeout(()=>job.controller.abort(),30000);
+ async function get(path){
+  if(quota)throw new Error(quota+' Aucun autre appel effectué.');
+  serviceWaitGuard('transit');if(job.controller.signal.aborted||!current())throw new DOMException('Consultation interrompue.','AbortError');
+  const r=await fetch('https://data.mobilites-m.fr/api/'+path,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
+  if(job.controller.signal.aborted||!current())throw new DOMException('Consultation interrompue.','AbortError');
+  try{serviceWaitResponse('transit',r)}catch(e){quota=e.message;v.waitNotice=e.message;throw e}
+  if(!r.ok)throw new Error('Information du réseau indisponible.');const text=await r.text();if(text.length>2e6)throw new Error('Réponse du réseau trop volumineuse.');try{return JSON.parse(text)}catch{throw new Error('Réponse du réseau illisible.')}
+ }
  try{
   let catalog,catalogError;try{catalog=await get('routers/default/index/routes')}catch(e){catalogError=e.message}
   if(!current())return;
@@ -4803,13 +4852,13 @@ async function run(){
 function stationSearchSignature(){
  return JSON.stringify({inputs:['start','end','travelMode','routeOptimization','routeVehicle','stopKm','stopKmInput','stopTolerance','nearKm','stationRadiusKm','stationSpacingKm','stationMaxPoints','stationScope','fuel','liters','cons',...Object.values(dimensionFields)].map(id=>$(id).value),mode:stopWindow().mode,avoid:[...document.querySelectorAll('.avoid-options input:checked')].map(e=>e.value),routing:trip?.routing});
 }
-function stationSearchNote(s){return [s.counts.overLimit?`${s.counts.overLimit} station(s) au-delà de la limite totale des rencontres : exclues.`:'',s.counts.unavailable?`${s.counts.unavailable} station(s) sans accès calculable.`:'',s.counts.incomparable?`${s.counts.incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:'',s.counts.matrix?`${s.counts.matrix} accès indisponible(s) ou trajet(s) recalculé(s) non comparable(s) : exclus du classement.`:''].filter(Boolean).join(' ')}
+function stationSearchNote(s){return [s.found.waitMessage||'',s.found.unrequested?`${s.found.unrequested} point(s) non demandés après la limite du service.`:'',s.counts.overLimit?`${s.counts.overLimit} station(s) au-delà de la limite totale des rencontres : exclues.`:'',s.counts.unavailable?`${s.counts.unavailable} station(s) sans accès calculable.`:'',s.counts.incomparable?`${s.counts.incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:'',s.counts.matrix?`${s.counts.matrix} accès indisponible(s) ou trajet(s) recalculé(s) non comparable(s) : exclus du classement.`:''].filter(Boolean).join(' ')}
 function updateStationCoverage(){
  const s=stationSearch;if(!s){$('stationContinuation').hidden=true;return}
  const remaining=s.queue.length-s.cursor,n=stationPage(s.queue,s.cursor,C.maxCandidates).length,f=s.found;
  $('stationCoverage').hidden=false;
- $('stationCoverageDetails').textContent=`Recherche par échantillons : ${samplingPlanText(f.settings,f.plan)} ${s.cursor} candidates examinées sur ${s.queue.length} dans la zone approchée. ${s.results.length} comparables dans la plage routière, ${s.outside} hors plage et ${s.rejected} non comparables.${remaining?' Limite atteinte : comparaison partielle. Continuer explicitement ci-dessous ou choisir une distance plus précise.':' Toutes les candidates reçues de cette sélection ont été examinées.'}${f.limited?` ${f.limited} réponse(s) limitée(s) par le service : couverture partielle.`:''}${f.failed?` ${f.failed} point(s) en échec : couverture partielle.`:''} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
- $('stationCoverageBrief').textContent=`${s.cursor} candidates examinées sur ${s.queue.length} · ${s.results.length} comparables. ${remaining?'Comparaison partielle : '+remaining+' restent à examiner.':'Candidates reçues examinées.'}${f.limited?' Réponses limitées : couverture partielle.':''}${f.failed?' Points en échec : couverture partielle.':''} Recherche non exhaustive.`;
+ $('stationCoverageDetails').textContent=`Recherche par échantillons : ${samplingPlanText(f.settings,f.plan)} ${s.cursor} candidates examinées sur ${s.queue.length} dans la zone approchée. ${s.results.length} comparables dans la plage routière, ${s.outside} hors plage et ${s.rejected} non comparables.${remaining?' Limite atteinte : comparaison partielle. Continuer explicitement ci-dessous ou choisir une distance plus précise.':' Toutes les candidates reçues de cette sélection ont été examinées.'}${f.limited?` ${f.limited} réponse(s) limitée(s) par le service : couverture partielle.`:''}${f.failed?` ${f.failed} point(s) en échec : couverture partielle.`:''}${f.unrequested?` ${f.unrequested} point(s) non demandés après la limite du service.`:''} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
+ $('stationCoverageBrief').textContent=`${s.cursor} candidates examinées sur ${s.queue.length} · ${s.results.length} comparables. ${remaining?'Comparaison partielle : '+remaining+' restent à examiner.':'Candidates reçues examinées.'}${f.limited?' Réponses limitées : couverture partielle.':''}${f.failed?' Points en échec : couverture partielle.':''}${f.unrequested?' Points non demandés après la limite du service.':''} Recherche non exhaustive.`;
  $('stationContinuation').hidden=false;$('continueStationsBtn').hidden=!remaining;$('continueStationsBtn').disabled=busy;
  $('continueStationsBtn').textContent=`Comparer ${n} autre${n>1?"s":""} station${n>1?"s":""}`;
  $('stationContinuationMethod').textContent=`Stations reçues le ${new Date(s.at).toLocaleString('fr-FR')}. ${remaining} candidate(s) restent à examiner. Chaque continuation calcule au plus ${stationPageSize(C.maxCandidates)} accès parmi les stations déjà reçues ; les prix gardent leur date. Pour obtenir de nouvelles données ou changer de zone, relancer la recherche.`;
@@ -4822,7 +4871,7 @@ async function searchStations(more=false){
  let session=more?stationSearch:null;
  if(more&&(!session||session.cursor>=session.queue.length))return;
  if(more&&(session.trip!==trip||session.base!==trip.base||session.signature!==stationSearchSignature())){clearStations();$('fuelStatus').textContent='Critères modifiés : relancer la recherche des stations.';return}
- if(!more)clearStations();
+ if(!more){try{serviceWaitGuard('fuel')}catch(e){$('fuelStatus').textContent=e.message+' Les résultats datés déjà reçus restent consultables.';return}clearStations();}
  const job={controller:new AbortController(),trip,base:trip.base,signature:stationSearchSignature(),invalid:false};stationJob=job;activeAbort=job.controller;lock(true);
  const context=()=>stationJob===job&&!job.invalid&&trip===job.trip&&trip?.base===job.base&&job.signature===stationSearchSignature(),current=()=>context()&&!job.controller.signal.aborted;
  $('cancelStationsBtn').hidden=false;$('cancelStationsBtn').disabled=false;updateStationCoverage();let problem='';

@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "délais services : collecte partielle conservée et autres candidates comparables pendant le quota",
+  "délais services : réseau et calcul collectif partagent l’attente et gardent les données reçues",
   "comparaisons conservées : sauvegarde volontaire, relecture et exports fidèles sans nouveau calcul",
   "comparaisons conservées : clavier et texte doublé gardent consentement et exports accessibles",
   "priorités modes : choix volontaire, contributions et valeurs brutes sans appel ni écriture",
