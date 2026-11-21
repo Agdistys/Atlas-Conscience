@@ -1676,7 +1676,7 @@ function readWalkingCriteria(compared=false){const field=$(compared?'comparisonW
 function fillWalkingCriteria(c){$('maxWalkKm').value=c.maxWalkKm??'';$('walkRule').value=c.walkStrict?'strict':'soft'}
 function walkingChanged(){if(walkRun){cancelTripSearch('Critères de marche modifiés : calcul annulé.');return}updateWalking()}
 function updateWalking(){
- const walking=isWalking();$('carMode').setAttribute('aria-pressed',String(!walking));$('walkMode').setAttribute('aria-pressed',String(walking));$('routeModeHeading').textContent=walking?'Trajet à pied':'Trajet en véhicule';$('walkingOptions').hidden=!walking;$('routingOptions').hidden=walking;if(walking)$('activeVehicle').hidden=true;
+ const walking=isWalking();$('routeModuleName').hidden=walking;$('carMode').setAttribute('aria-pressed',String(!walking));$('walkMode').setAttribute('aria-pressed',String(walking));$('routeModeHeading').textContent=walking?'Trajet à pied':'Trajet en véhicule';$('walkingOptions').hidden=!walking;$('routingOptions').hidden=walking;if(walking)$('activeVehicle').hidden=true;
  $('savePreparationBtn').disabled=busy;$('journalRecordBtn').disabled=busy;
  $('walkingStatus').hidden=!trip||trip.routing.vehicle.type!=='walk';if($('walkingStatus').hidden)return;
  try{const c=readWalkingCriteria();$('maxWalkKm').setAttribute('aria-invalid','false');$('walkingStatus').dataset.state=walkReview(trip.base.distance,c).admissible?'admissible':'excluded';$('walkingStatus').textContent=walkingPreference(trip.base.distance,c)}catch(e){$('maxWalkKm').setAttribute('aria-invalid','true');$('walkingStatus').dataset.state='invalid';$('walkingStatus').textContent='Critères invalides : '+e.message;$('savePreparationBtn').disabled=true;$('journalRecordBtn').disabled=true}
