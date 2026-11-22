@@ -5379,25 +5379,25 @@ function clearBikes(message='',keepResume=false){
 async function bikesFetch(name,job){
  const now=Date.now(),cached=bikesCache.get(name);if(cached&&now>=cached.at&&now<cached.until)return cached.raw;
  const response=await fetch(BIKE_BASE+name+'.json',{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',redirect:'error'});
- checkRouteRequest(()=>bikesJob===job,job.controller.signal);serviceWaitResponse('bikes',response);
+ checkRouteRequest(()=>bikesJob===job&&$('bikesDialog').open,job.controller.signal);serviceWaitResponse('bikes',response);
  if(!response.ok)throw new Error('Service indisponible (HTTP '+response.status+').');
  if(Number(response.headers.get('Content-Length'))>2000000)throw new Error('Réponse trop volumineuse.');
  const reader=response.body.getReader(),chunks=[];let length=0;while(true){const {done,value}=await reader.read();if(done)break;length+=value.byteLength;if(length>2000000){await reader.cancel();throw new Error('Réponse trop volumineuse.')}chunks.push(value)}const bytes=new Uint8Array(length);let pos=0;for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.length}
  let raw;try{raw=JSON.parse(new TextDecoder().decode(bytes))}catch{throw new Error('Réponse illisible.')}const key=name==='vehicle_types'?'vehicle_types':'stations',env=bikeEnvelope(raw,key);
- checkRouteRequest(()=>bikesJob===job,job.controller.signal);bikesCache.set(name,{raw,at:now,until:now+Math.max(60,env.ttl)*1000});return raw;
+ checkRouteRequest(()=>bikesJob===job&&$('bikesDialog').open,job.controller.signal);bikesCache.set(name,{raw,at:now,until:now+Math.max(60,env.ttl)*1000});return raw;
 }
 async function loadBikes(){
  if(bikesJob||bikeTripJob)return;try{modeRequestGuard('bikes',bikesNext,'une nouvelle consultation')}catch(e){$('bikesStatus').textContent=e.message+(bikesSnapshot?' Catalogue déjà reçu conservé ; consulter ses dates ci-dessous.':'');return}
  if(bikeTripResume)bikesCache.clear();clearBikes('Consultation de Vélo’v…',true);const job={controller:new AbortController()};bikesJob=job;bikesNext=performance.now()+60000;$('bikesLoad').disabled=true;$('bikesCancel').hidden=false;
  const timeout=setTimeout(()=>{job.timeout=true;job.controller.abort()},20000);
  try{
-  const names=['station_information','station_status','vehicle_types'],results=await Promise.allSettled(names.map(n=>bikesFetch(n,job)));if(bikesJob!==job)return;
+  const names=['station_information','station_status','vehicle_types'],results=await Promise.allSettled(names.map(n=>bikesFetch(n,job)));if(bikesJob!==job||!$('bikesDialog').open)return;
   if(job.timeout)throw new Error('Délai dépassé. Relancer la consultation lorsque le service répond.');
   if(results[0].status!=='fulfilled')throw results[0].reason;
   const value=i=>results[i].status==='fulfilled'?results[i].value:null;
   bikesSnapshot=bikeSnapshot(value(0),value(1),value(2));bikesSnapshot.failures=results.flatMap((r,i)=>r.status==='rejected'?[['Stations','Disponibilités','Types de vélos'][i]+' : '+(r.reason?.message||'indisponible')]:[]);
   $('bikesBrowse').hidden=false;renderBikes(true);reconcileSharedStations();bikesTimer=setInterval(refreshBikes,15000);
- }catch(e){if(bikesJob===job)clearBikes('Consultation impossible. '+e.message,true)}finally{clearTimeout(timeout);if(bikesJob===job)bikesJob=null;$('bikesLoad').disabled=Boolean(bikesJob);$('bikesCancel').hidden=!bikesJob}
+ }catch(e){if(bikesJob===job&&$('bikesDialog').open)clearBikes('Consultation impossible. '+e.message,true)}finally{clearTimeout(timeout);if(bikesJob===job)bikesJob=null;$('bikesLoad').disabled=Boolean(bikesJob);$('bikesCancel').hidden=!bikesJob}
 }
 function bikesFilters(){return {text:$('bikesQuery').value,need:$('bikesNeed').value,type:$('bikesType').value}}
 function renderBikes(resetMap=false){
@@ -5426,7 +5426,9 @@ function selectBike(id,center){
 function refreshBikes(){if(bikesSnapshot&&$('bikesDialog').open&&bikesExpiry!==JSON.stringify(bikesSnapshot.rows.map(r=>bikeFreshness(r,bikesSnapshot))))renderBikes(false)}
 function bindBikes(){
  $('bikesBtn').addEventListener('click',()=>{clearBikes('Charger les stations pour consulter les annonces disponibles.');$('bikesDialog').showModal();$('bikesTitle').focus()});
- $('bikesClose').addEventListener('click',()=>$('bikesDialog').close());$('bikesDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('bikesDialog').close()}});$('bikesDialog').addEventListener('close',()=>{clearBikes();$('bikesBtn').focus()});
+ const close=()=>{clearBikes();$('bikesDialog').close()};
+ $('bikesClose').addEventListener('click',close);$('bikesDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});$('bikesDialog').addEventListener('cancel',e=>{e.preventDefault();close()});
+ $('bikesDialog').addEventListener('close',()=>{if($('bikesDialog').open)return;clearBikes();$('bikesBtn').focus()});
  $('bikesLoad').addEventListener('click',loadBikes);$('bikesCancel').addEventListener('click',()=>clearBikes('Consultation annulée.',true));
  for(const id of ['bikesQuery','bikesNeed','bikesType'])$(id).addEventListener(id==='bikesQuery'?'input':'change',()=>{bikesPage=0;bikesSelected=null;renderBikes(true)});
  for(const [id,delta] of [['bikesPrev',-1],['bikesNext',1]])$(id).addEventListener('click',()=>{bikesPage+=delta;renderBikes(true);$('bikesPageLabel').focus()});

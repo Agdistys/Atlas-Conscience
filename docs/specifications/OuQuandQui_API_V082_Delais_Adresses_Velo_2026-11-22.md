@@ -20,7 +20,7 @@ Les caches mémoire conservent leurs règles, bornes et dates d’origine. Une d
 
 ## Annulation et reprise
 
-L’identité du calcul, son contexte et son annulation sont contrôlés avant d’installer un délai provenant d’une réponse. Une réponse arrivée après fermeture, annulation ou modification du contexte ne bloque pas l’opération suivante. La cadence minimale d’un appel réellement lancé reste applicable après annulation. Les réponses valides tardives ne remplissent pas le cache ni l’interface d’une autre opération.
+L’identité du calcul, son contexte et son annulation sont contrôlés avant d’installer un délai provenant d’une réponse. Une réponse arrivée après fermeture, annulation ou modification du contexte ne bloque pas l’opération suivante. La cadence minimale d’un appel réellement lancé reste applicable après annulation. Les réponses valides tardives ne remplissent pas le cache ni l’interface d’une autre opération. La fermeture du catalogue annule immédiatement la consultation ; son événement de fermeture différé ne doit pas effacer une réouverture plus récente. Une réponse reçue entre la fermeture effective et cet événement est également ignorée.
 
 Les contraintes, lieux choisis, limites de distance, durées de prise/restitution et règles de disponibilité ne sont pas relâchés pour contourner une panne. La reprise volontaire réutilise uniquement les caches encore valides. Aucun moteur automobile substitué, aucun fournisseur de secours et aucune écriture de profil, préparation ou journal.
 
