@@ -1,5 +1,7 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  'arrêts successifs : aperçu complet, pauses, autonomie, adoption et affichage accessible',
+  'arrêts successifs : sauvegarde volontaire, rechargement et consultation sans appel',
   'saisies trajet : deux lieux vides, résumé clavier, correction locale et descriptions conservées',
   'saisies trajet : panne ou réponse illisible ne désigne pas l’adresse comme erronée',
   'trajet disponible avant toute recherche de station',

@@ -236,3 +236,6 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 #comparisonLibraryDialog,#comparisonSaveDialog{max-width:800px}
 
 #roadModesDialog{width:min(980px,calc(100% - 24px))}#roadModesDialog p{overflow-wrap:anywhere}#roadModesDialog button{min-height:44px}
+
+/* Ordered fuel-stop preparations: existing route and storage stay independent. */
+#multiDialog{width:min(820px,94vw)}.multi-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px}.multi-nodes{padding-left:26px}.multi-nodes>li{padding:14px 4px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.multi-fields input{width:100%}.multi-leg{padding:12px;border:1px solid var(--line);margin-block:10px;border-radius:6px}.multi-alert{border-left:3px solid #e8b45d;padding-left:10px}.multi-nodes button{min-height:44px}#multiDialog .prepared-schema{max-height:330px}#multiDialog input[type=checkbox]{flex-shrink:0}

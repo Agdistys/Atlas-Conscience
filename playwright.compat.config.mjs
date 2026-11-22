@@ -3,7 +3,7 @@ import { compatibilityCases, compatibilityMatrix } from './tests/compatibility-c
 const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export default defineConfig({
   testDir: './tests/e2e',
-  testMatch: /(?:route-validation|dragonroute|route-variants|map-stations|prepared-trips|reading-layout|mode-access|walking|cycling|cycling-saved|transit-direct|transit-saved|transit-freshness|shared-bike-trip|shared-bike-saved|road-choices|station-window|transit-comparison|carpool|journal|station-no-path|preparation-readability|station-pages|map-list|priorities|prepared-priorities|modal-priorities|comparison-records|service-quotas|routing-quotas|mode-quotas|modal-budgets|road-mode-budgets|modal-tolls|transit-accessibility|toll-bridges)\.spec\.mjs$/,
+  testMatch: /(?:route-validation|dragonroute|route-variants|map-stations|prepared-trips|reading-layout|mode-access|walking|cycling|cycling-saved|transit-direct|transit-saved|transit-freshness|shared-bike-trip|shared-bike-saved|road-choices|station-window|transit-comparison|carpool|journal|station-no-path|preparation-readability|station-pages|map-list|priorities|prepared-priorities|modal-priorities|comparison-records|service-quotas|routing-quotas|mode-quotas|modal-budgets|road-mode-budgets|modal-tolls|transit-accessibility|toll-bridges|multi-stops)\.spec\.mjs$/,
   grep: new RegExp(`(?:${compatibilityCases.map(escape).join('|')})$`),
   timeout: 60_000, expect: { timeout: 8_000 }, globalTimeout: 720_000,
   retries: 0, workers: 2, fullyParallel: false,

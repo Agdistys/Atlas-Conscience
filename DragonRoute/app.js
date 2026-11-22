@@ -45,7 +45,7 @@ function sourcesInventory(config={},context={}){
 }
 function sourcesFilter(rows,filter){if(!['all','startup','request','local','review'].includes(filter))return [];return rows.filter(r=>filter==='all'||(filter==='review'?['disabled','unreviewed'].includes(r.status):r.group===filter))}
 function sourceLocalInventory(read,scope){
- return [['profile','Profil : véhicules, adresses et favoris','profile',[3,2,1]],['road','Préparations route et marche','prepared',[11,10,9,8,7,6,5,4,3,2,1]],['transit','Préparations collectives','transit-prepared',[3,2,1]],['cycle','Préparations vélo','cycling-prepared',[2,1]],['shared','Préparations vélo partagé','shared-bike-prepared',[2,1]],['journal','Journal des déplacements déclarés','journal',[3,2,1]],['comparisons','Comparaisons historiques','comparisons',[1]]].map(([id,label,prefix,versions])=>{
+ return [['profile','Profil : véhicules, adresses et favoris','profile',[3,2,1]],['road','Préparations route et marche','prepared',[11,10,9,8,7,6,5,4,3,2,1]],['transit','Préparations collectives','transit-prepared',[3,2,1]],['cycle','Préparations vélo','cycling-prepared',[2,1]],['shared','Préparations vélo partagé','shared-bike-prepared',[2,1]],['journal','Journal des déplacements déclarés','journal',[3,2,1]],['comparisons','Comparaisons historiques','comparisons',[1]],['multi','Parcours à plusieurs arrêts','multi-stops',[1]]].map(([id,label,prefix,versions])=>{
   try{const copies=versions.filter(v=>read('dragonroute.'+prefix+'.v'+v+'.'+scope)!==null).length;return {id,label,copies,state:copies?'present':'absent'}}catch{return {id,label,copies:null,state:'unavailable'}}
  });
 }
@@ -6125,7 +6125,151 @@ function bindSharedJournal(){
  $('bikeTripJournal').addEventListener('click',()=>journalFromShared());$('savedSharedJournal').addEventListener('click',()=>journalFromShared(true));
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();
+// BEGIN MULTI STOP MODEL
+function multiNumber(value,min,max,optional=false){
+ if(optional&&(value===null||value===''))return null;
+ if(value===null||value===''||typeof value==='boolean'||!['number','string'].includes(typeof value))throw Error('Valeur numérique à renseigner.');
+ const n=Number(value);if(!Number.isFinite(n)||n<min||n>max)throw Error(`Valeur attendue entre ${min} et ${max}.`);return n;
+}
+function multiText(s,max=200){if(typeof s!=='string'||!s.trim()||s.length>max)throw Error('Libellé absent ou trop long.');return s.trim()}
+function multiPoint(p){if(!Array.isArray(p)||p.length!==2)throw Error('Coordonnées invalides.');return [multiNumber(p[0],-90,90),multiNumber(p[1],-180,180)]}
+function multiNear(a,b){const rad=x=>x*Math.PI/180,dlat=rad(a[0]-b[0]),dlon=rad(a[1]-b[1]);return 6371000*2*Math.asin(Math.min(1,Math.sqrt(Math.sin(dlat/2)**2+Math.cos(rad(a[0]))*Math.cos(rad(b[0]))*Math.sin(dlon/2)**2)))}
+function multiInputs(raw){const v={cons:multiNumber(raw.cons,1,100),initial:multiNumber(raw.initial,0,1000,true),capacity:multiNumber(raw.capacity,1,1000,true),reserve:multiNumber(raw.reserve,0,500),referencePrice:multiNumber(raw.referencePrice,.001,10,true)};if(v.capacity!==null&&v.initial!==null&&v.initial>v.capacity)throw Error('Le carburant au départ dépasse la capacité déclarée.');return v}
+function multiNodes(raw){
+ if(!Array.isArray(raw)||raw.length<4||raw.length>7)throw Error('Prévoir deux ou trois stations et au plus deux rencontres.');
+ const nodes=raw.map(n=>{if(!['start','end','station','pickup','dropoff'].includes(n?.kind))throw Error('Type d’étape invalide.');const out={kind:n.kind,id:multiText(n.id,100),name:multiText(n.name,400),point:multiPoint(n.point)};if(n.kind==='station')Object.assign(out,{liters:multiNumber(n.liters,0,1000,true),pause:multiNumber(n.pause,0,1440,true),price:multiNumber(n.price,.001,10,true),updated:n.updated===null?null:multiText(n.updated,80),receivedAt:n.receivedAt===null?null:multiText(n.receivedAt,80)});return out});
+ if(new Set(nodes.map(n=>n.id)).size!==nodes.length||nodes[0].kind!=='start'||nodes.at(-1).kind!=='end'||nodes.filter(n=>n.kind==='start'||n.kind==='end').length!==2)throw Error('Extrémités ou étapes répétées.');
+ const count=nodes.filter(n=>n.kind==='station').length,p=nodes.findIndex(n=>n.kind==='pickup'),d=nodes.findIndex(n=>n.kind==='dropoff');
+ if(count<2||count>3||nodes.filter(n=>n.kind==='pickup'||n.kind==='dropoff').length!==((p===-1&&d===-1)?0:2)||(p!==-1||d!==-1)&&(p<1||d<=p))throw Error('La prise en charge doit précéder la dépose ; deux ou trois stations sont requises.');return nodes;
+}
+function multiRouting(raw){
+ if(!raw||!['ign','osrm'].includes(raw.provider)||raw.vehicle?.type!=='car'||!['fastest','shortest'].includes(raw.optimization)||!Array.isArray(raw.avoid)||raw.avoid.some(x=>x!=='highways')||new Set(raw.avoid).size!==raw.avoid.length||raw.provider==='osrm'&&(raw.avoid.length||raw.optimization!=='fastest'))throw Error('Préparation successive disponible ici en voiture avec IGN ou OSRM seulement.');
+ return {provider:raw.provider,vehicle:{type:'car'},optimization:raw.optimization,avoid:[...raw.avoid]};
+}
+function multiRoute(raw,nodes){
+ const distance=multiNumber(raw?.distance,0,5000000),duration=multiNumber(raw?.duration,0,1209600);
+ if(raw?.geometry?.type!=='LineString'||!Array.isArray(raw.geometry.coordinates)||raw.geometry.coordinates.length<2||raw.geometry.coordinates.length>100000)throw Error('Tracé absent ou hors limite.');
+ const coords=raw.geometry.coordinates.map(p=>{const c=multiPoint([p?.[1],p?.[0]]);return [c[1],c[0]]});
+ if(!Array.isArray(raw.legs)||raw.legs.length!==nodes.length-1)throw Error('Le moteur n’a pas confirmé toutes les portions.');
+ const legs=raw.legs.map(l=>({distance:multiNumber(l.distance,0,5000000),duration:multiNumber(l.duration,0,1209600)}));
+ for(const k of ['distance','duration'])if(Math.abs(legs.reduce((s,l)=>s+l[k],0)-(k==='distance'?distance:duration))>2)throw Error('Les portions ne correspondent pas au total.');
+ // Match waypoints in order along the returned geometry, with bounded network snapping.
+ let cursor=0;for(const node of nodes){let found=-1;for(let i=cursor;i<coords.length;i++)if(multiNear(node.point,[coords[i][1],coords[i][0]])<=1000){found=i;break}if(found<0)throw Error('Le tracé ne confirme pas l’ordre des points demandés.');cursor=found}
+ if(multiNear(nodes[0].point,[coords[0][1],coords[0][0]])>1000||multiNear(nodes.at(-1).point,[coords.at(-1)[1],coords.at(-1)[0]])>1000)throw Error('Extrémités du tracé incohérentes.');
+ return {distance,duration,geometry:{type:'LineString',coordinates:coords},legs,resourceVersion:raw.resourceVersion==null?null:multiText(String(raw.resourceVersion),100)};
+}
+function multiReview(plan){
+ const {nodes,inputs:v,route:r}=plan,reserve=v.reserve*v.cons/100;let remaining=v.initial!==null&&v.capacity!==null?v.initial:null,elapsed=0,pauses=0,allPauses=true,bought=0,allPurchases=true,subtotal=0,totalKm=0,sharedDistance=0,aboard=false;
+ const legs=r.legs.map((leg,i)=>{
+  if(nodes[i].kind==='pickup')aboard=true;if(nodes[i].kind==='dropoff')aboard=false;if(aboard)sharedDistance+=leg.distance;
+  const to=nodes[i+1],used=leg.distance/1000*v.cons/100;totalKm+=leg.distance/1000;elapsed+=leg.duration;
+  const arrival=remaining===null?null:remaining-used,status=arrival===null?'unknown':arrival<0?'unreachable':arrival+1e-9<reserve?'reserve':'within';
+  const row={from:nodes[i].name,to:to.name,km:leg.distance/1000,minutes:leg.duration/60,totalKm,arrival,status,refill:'none',elapsed:allPauses?elapsed+pauses*60:null};
+  remaining=arrival!==null&&arrival>=0?arrival:null;
+  if(to.kind==='station'){
+   if(to.pause===null)allPauses=false;else pauses+=to.pause;
+   if(to.liters===null){allPurchases=false;remaining=null;row.refill='unknown'}else{
+    bought+=to.liters;if(to.price===null&&to.liters>0)allPurchases=false;else subtotal+=to.liters*(to.price||0);
+    if(remaining!==null){if(remaining+to.liters>v.capacity+1e-9){remaining=null;row.refill='overflow'}else remaining+=to.liters}
+   }
+  }
+  return row;
+ });
+ const consumed=r.distance/1000*v.cons/100;
+ return {legs,pauses:allPauses?pauses:null,totalSeconds:allPauses?r.duration+pauses*60:null,bought,allPurchases,subtotal,consumed,fuelCost:v.referencePrice===null?null:consumed*v.referencePrice,sharedDistance:nodes.some(n=>n.kind==='pickup')?sharedDistance:null};
+}
+function multiValidatePlan(raw){
+ if(raw?.version!==1)throw Error('Format de parcours non reconnu.');
+ const nodes=multiNodes(raw.nodes),inputs=multiInputs(raw.inputs),route=multiRoute(raw.route,nodes),routing=multiRouting(raw.routing);
+ const stamp=x=>{if(typeof x!=='string'||x.length>40||!Number.isFinite(Date.parse(x)))throw Error('Date du parcours invalide.');return x};
+ const reference={distance:multiNumber(raw.reference?.distance,0,5000000),duration:multiNumber(raw.reference?.duration,0,1209600)};
+ const meeting=raw.meeting===null?null:{distance:multiNumber(raw.meeting?.distance,0,5000000),duration:multiNumber(raw.meeting?.duration,0,1209600),km:multiNumber(raw.meeting?.km,0,1000),minutes:multiNumber(raw.meeting?.minutes,0,1440)};
+ if(Boolean(meeting)!==nodes.some(n=>n.kind==='pickup'))throw Error('Référence de rencontre manquante ou inattendue.');
+ if(meeting&&((route.distance-meeting.distance)/1000>meeting.km||(route.duration-meeting.duration)/60>meeting.minutes))throw Error('Limite totale de détour des rencontres dépassée.');
+ return {version:1,id:multiText(raw.id,100),name:multiText(raw.name,80),calculatedAt:stamp(raw.calculatedAt),savedAt:raw.savedAt===null?null:stamp(raw.savedAt),fuel:multiText(raw.fuel,10),nodes,inputs,route,routing,reference,meeting};
+}
+function multiValidateStore(raw){if(raw?.version!==1||!Array.isArray(raw.entries)||raw.entries.length>10)throw Error('Sauvegarde invalide : dix parcours au maximum.');const entries=raw.entries.map(multiValidatePlan);if(new Set(entries.map(e=>e.id)).size!==entries.length)throw Error('Identifiants de parcours répétés.');return {version:1,entries}}
+// END MULTI STOP MODEL
+
+const multiState={draft:null,proposal:null,confirmed:null,controller:null,sequence:0,raw:null,store:{version:1,entries:[]},blocked:false,imported:null};
+const multiKey='dragonroute.multi-stops.v1.'+PROFILE_SCOPE;
+const multiClone=x=>JSON.parse(JSON.stringify(x));
+function multiMainKey(){return trip?JSON.stringify([trip.a,trip.b,trip.base.distance,trip.base.duration,trip.base.geometry,trip.meetings,trip.routing,$('fuel').value]):null}
+function multiMessage(text){$('multiMessage').textContent=text}
+function multiAbort(){multiState.sequence++;multiState.controller?.abort();multiState.controller=null;$('multiCancel').hidden=true;$('multiCalculate').disabled=false}
+function multiInvalidate(){multiAbort();multiState.proposal=null;$('multiPreview').hidden=true;$('multiAccept').checked=false;$('multiConfirm').disabled=true}
+function multiReadInputs(){return multiInputs({cons:$('multiCons').value,initial:$('multiInitial').value,capacity:$('multiCapacity').value,reserve:$('multiReserve').value,referencePrice:$('multiPrice').value})}
+function multiFillInputs(v){for(const [id,key] of [['multiCons','cons'],['multiInitial','initial'],['multiCapacity','capacity'],['multiReserve','reserve'],['multiPrice','referencePrice']])$(id).value=v[key]===null?'':v[key]}
+function multiStation(s){return {kind:'station',id:'station:'+s.id,name:s.address||s.name||s.city||'Station',point:[s.lat,s.lon],liters:null,pause:null,price:Number.isFinite(s.price)?s.price:null,updated:s.updated==null?null:String(s.updated),receivedAt:s.receivedAt==null?null:String(s.receivedAt)}}
+function multiNew(){
+ if(busy||!trip){multiMessage('Calculer un trajet routier avant de préparer ses étapes.');return}
+ try{const routing=multiRouting(trip.routing),nodes=routePlanNodes().map(n=>({kind:n.kind,id:n.kind,name:n.kind==='start'?trip.places.start:n.kind==='end'?trip.places.end:n.kind==='pickup'?trip.meetings.pickup.label:trip.meetings.dropoff.label,point:n.point}));
+  multiInvalidate();multiState.draft={version:1,id:crypto.randomUUID(),name:'Parcours à plusieurs arrêts',savedAt:null,calculatedAt:new Date().toISOString(),routing,reference:{distance:trip.base.distance,duration:trip.base.duration},meeting:trip.meetings?{distance:trip.meetings.reference.base.distance,duration:trip.meetings.reference.base.duration,...trip.meetings.limits}:null,nodes,inputs:{cons:Number($('cons').value),initial:$('rangeMode').value==='liters'&&$('rangeValue').value!==''?Number($('rangeValue').value):null,capacity:null,reserve:Number($('reserveKm').value),referencePrice:budgetReference?.stationId?null:$('budgetPrice').value===''?null:Number($('budgetPrice').value)},fuel:$('fuel').value,sourceKey:multiMainKey()};
+  if(selectedStop){const station=multiStation(selectedStop.station),pos=routePlanNodes(selectedStop.station).findIndex(n=>n.kind==='station');multiState.draft.nodes.splice(pos,0,station)}
+  multiFillInputs(multiState.draft.inputs);$('multiSaved').hidden=true;$('multiConfirmed').hidden=true;multiRenderEditor();multiMessage('Brouillon prêt. Ajouter deux ou trois stations et vérifier leur ordre. Aucun trajet remplacé.');
+ }catch(e){multiMessage(e.message)}
+}
+function multiCandidates(){
+ const d=multiState.draft,allowed=d?.sourceKey&&d.sourceKey===multiMainKey();return allowed?[...new Map([...(stationSearch?.found?.stations||[]),...compared].map(s=>[String(s.id),s])).values()].filter(s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon)&&!d.nodes.some(n=>n.id==='station:'+s.id)):[];
+}
+function multiRenderEditor(){
+ const d=multiState.draft;if(!d)return;const esc=escapeHtml;
+ $('multiSaved').hidden=true;
+ $('multiEditor').hidden=false;$('multiContext').textContent=routingLabel(d.routing)+' · '+d.fuel+'. Les coordonnées des étapes seront transmises au moteur au clic sur « Calculer ». Péages et horaires des arrêts à vérifier pour ce nouveau parcours.';
+ $('multiNodes').innerHTML=d.nodes.map((n,i)=>'<li data-multi-node="'+i+'"><strong>'+esc(n.name)+'</strong> · '+({start:'départ',end:'arrivée',station:'station',pickup:'prise en charge',dropoff:'dépose'}[n.kind])+(n.kind==='station'?'<div class="multi-fields"><div><label for="multiLiters'+i+'">Achat prévu (L, facultatif)</label><input id="multiLiters'+i+'" data-multi-field="liters" type="number" min="0" max="1000" step="any" value="'+(n.liters??'')+'"></div><div><label for="multiPause'+i+'">Pause (min, facultatif)</label><input id="multiPause'+i+'" data-multi-field="pause" type="number" min="0" max="1440" step="any" value="'+(n.pause??'')+'"></div></div>':'')+(i>0&&i<d.nodes.length-1?'<div class="dialog-actions"><button type="button" class="ghost" data-multi-up="'+i+'" '+(i===1?'disabled':'')+' aria-label="Avancer '+esc(n.name)+'">↑ Avancer</button><button type="button" class="ghost" data-multi-down="'+i+'" '+(i===d.nodes.length-2?'disabled':'')+' aria-label="Reculer '+esc(n.name)+'">↓ Reculer</button>'+(n.kind==='station'?'<button type="button" class="ghost" data-multi-remove="'+i+'">Retirer</button>':'')+'</div>':'')+'</li>').join('');
+ const candidates=multiCandidates();$('multiCandidate').replaceChildren(...candidates.map(s=>new Option((s.address||s.city||'Station')+' · '+(s.price?fmt(s.price,3)+' €/L':'prix à vérifier'),String(s.id))));
+ if(!candidates.length)$('multiCandidate').add(new Option('Rechercher des stations sur le trajet affiché',''));$('multiAdd').disabled=!candidates.length||d.nodes.filter(n=>n.kind==='station').length>=3;
+}
+function multiDraw(plan){
+ const pts=plan.route.geometry.coordinates,nodes=plan.nodes,lons=pts.map(p=>p[0]),lats=pts.map(p=>p[1]);let minX=180,maxX=-180,minY=90,maxY=-90;for(let i=0;i<pts.length;i++){minX=Math.min(minX,lons[i]);maxX=Math.max(maxX,lons[i]);minY=Math.min(minY,lats[i]);maxY=Math.max(maxY,lats[i])}const scale=Math.min(520/Math.max(.001,maxX-minX),260/Math.max(.001,maxY-minY)),xy=p=>[(600-(maxX-minX)*scale)/2+(p[0]-minX)*scale,170+(maxY-minY)*scale/2-(p[1]-minY)*scale];
+ return '<svg class="prepared-schema" viewBox="0 0 600 340" role="img" aria-label="Tracé du parcours avec étapes numérotées, schéma sans fond de carte"><polyline points="'+pts.map(p=>xy(p).map(x=>x.toFixed(2)).join(',')).join(' ')+'" fill="none" stroke="#fff" stroke-width="8"/><polyline points="'+pts.map(p=>xy(p).map(x=>x.toFixed(2)).join(',')).join(' ')+'" fill="none" stroke="#0758d9" stroke-width="5"/>'+nodes.map((n,i)=>{const [x,y]=xy([n.point[1],n.point[0]]);return '<g><circle cx="'+x+'" cy="'+y+'" r="12" fill="#fff" stroke="#111"/><text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" fill="#111">'+(i+1)+'</text></g>'}).join('')+'</svg>';
+}
+function multiDescription(p,historical=false){
+ const v=multiReview(p),esc=escapeHtml,signed=x=>(x>0?'+':'')+fmt(x,1),status={within:'Dans la portée théorique, réserve conservée',reserve:'Réserve entamée selon la déclaration',unreachable:'Carburant déclaré insuffisant pour atteindre cette étape',unknown:'Autonomie inconnue'};
+ return '<p><strong>'+esc(p.name)+'</strong> · '+esc(routingLabel(p.routing))+' · '+esc(p.fuel)+'</p><p class="note">Calcul du '+esc(new Date(p.calculatedAt).toLocaleString('fr-FR'))+(p.savedAt?' · enregistré le '+esc(new Date(p.savedAt).toLocaleString('fr-FR')):'')+'. '+(historical?'Lecture datée, prix et trajet non actualisés. ':'Aperçu du calcul demandé. ')+'IGN / BD TOPO ou OpenStreetMap / OSRM selon le moteur indiqué. '+(p.route.resourceVersion?'Données : '+esc(p.route.resourceVersion)+'.':'')+'</p>'+multiDraw(p)+'<p>Tracé routier schématisé sans fond de carte ; étapes numérotées dans l’ordre ci-dessous. Accès, état des routes, ouverture et carburant disponible non garantis.</p><ol>'+p.nodes.map(n=>'<li>'+esc(n.name)+(n.kind==='station'?' · achat '+(n.liters===null?'inconnu':fmt(n.liters,1)+' L')+' · pause '+(n.pause===null?'inconnue':fmt(n.pause,1)+' min'):'')+'</li>').join('')+'</ol><p><strong>'+fmt(p.route.distance/1000,1)+' km · '+fmt(p.route.duration/60,1)+' min de conduite</strong>. Pauses carburant : '+(v.pauses===null?'durée totale inconnue':fmt(v.pauses,1)+' min')+'. Conduite + pauses carburant : '+(v.totalSeconds===null?'inconnu':fmt(v.totalSeconds/60,1)+' min')+'. Hors autres pauses, embarquement et trafic en direct.</p><p>Écart au trajet de référence : '+signed((p.route.distance-p.reference.distance)/1000)+' km · '+signed((p.route.duration-p.reference.duration)/60)+' min de conduite.</p><h4>Autonomie par portion</h4><p>Consommation '+fmt(p.inputs.cons,1)+' L/100 km · départ '+(p.inputs.initial===null?'inconnu':fmt(p.inputs.initial,1)+' L')+' · capacité '+(p.inputs.capacity===null?'inconnue':fmt(p.inputs.capacity,1)+' L')+' · réserve '+fmt(p.inputs.reserve,1)+' km. Aucune quantité supposée remise à niveau.</p>'+v.legs.map((l,i)=>'<div class="multi-leg '+(l.status==='within'?'':'multi-alert')+'"><strong>'+(i+1)+' → '+(i+2)+' · '+esc(l.to)+'</strong><p>'+fmt(l.km,1)+' km · '+fmt(l.minutes,1)+' min · cumul '+fmt(l.totalKm,1)+' km.</p><p>'+status[l.status]+(l.arrival===null?'':' · reste théorique '+fmt(l.arrival,2)+' L')+'.'+(l.refill==='overflow'?' Achat prévu supérieur à la place disponible ; autonomie suivante inconnue.':l.refill==='unknown'?' Achat non renseigné ; autonomie suivante inconnue.':'')+'</p></div>').join('')+'<h4>Budget du parcours</h4><p>Carburant consommé estimé : '+fmt(v.consumed,2)+' L'+(v.fuelCost===null?' · prix de référence inconnu':' · '+fmt(v.fuelCost)+' € au prix déclaré de '+fmt(p.inputs.referencePrice,3)+' €/L')+'.</p><p>Achats aux stations : '+(v.allPurchases?fmt(v.subtotal)+' €':'incomplets · '+fmt(v.subtotal)+' € renseignés')+'. Prix reçus au calcul, soumis à actualisation. Ces achats ne sont pas ajoutés au coût du carburant consommé.</p><p class="multi-alert">Péages et autres frais non qualifiés pour ce parcours : budget total incomplet. Aucune ancienne confirmation de péage transférée.</p>'+(v.sharedDistance===null?'':'<p>Rencontres conservées : '+fmt(v.sharedDistance/1000,1)+' km partagés sur ce tracé. Contributions et péages partagés non recalculés dans cette préparation.</p>');
+}
+async function multiCalculate(){
+ const d=multiState.draft;if(!d)return;multiInvalidate();const sequence=multiState.sequence,controller=new AbortController();multiState.controller=controller;
+ try{
+  const nodes=multiNodes(d.nodes),inputs=multiReadInputs();for(const n of nodes.filter(n=>n.kind==='station'))if(!priceFreshness(n.updated,Date.now(),n.receivedAt).eligible)n.price=null;
+  multiRouting(d.routing);$('multiCalculate').disabled=true;$('multiCancel').hidden=false;multiMessage('Calcul du trajet complet dans l’ordre demandé… Le dernier parcours confirmé reste conservé.');
+  const current=()=>sequence===multiState.sequence&&!controller.signal.aborted,via=await route(nodes.map(n=>n.point),true,false,d.routing,current,controller.signal);if(!current())return;
+  const proposal=multiValidatePlan({...d,nodes,inputs,route:via,calculatedAt:new Date().toISOString(),savedAt:null});multiState.proposal=proposal;$('multiPreviewBody').innerHTML=multiDescription(proposal);$('multiPreview').hidden=false;$('multiPreviewTitle').focus();multiMessage('Aperçu prêt. Relire les étapes et les limites avant de confirmer.');
+ }catch(e){if(sequence===multiState.sequence)multiMessage(e.message)}finally{if(sequence===multiState.sequence){multiState.controller=null;$('multiCalculate').disabled=false;$('multiCancel').hidden=true}}
+}
+function multiShowConfirmed(p,historical=false){multiState.confirmed=multiClone(p);$('multiConfirmedBody').innerHTML=multiDescription(p,historical);$('multiConfirmed').hidden=false;$('multiName').value=p.name;$('multiSaveConsent').checked=false;$('multiConfirmedTitle').focus()}
+function multiLoad(){
+ multiState.raw=null;multiState.imported=null;$('multiImportPreview').hidden=true;$('multiEraseConsent').checked=false;try{multiState.raw=localStorage.getItem(multiKey);multiState.store=multiState.raw===null?{version:1,entries:[]}:multiValidateStore(JSON.parse(multiState.raw));multiState.blocked=false;$('multiStorageMessage').textContent='Copie locale relue.'}catch(e){multiState.blocked=true;multiState.store={version:1,entries:[]};$('multiStorageMessage').textContent='Copie non chargée : '+e.message+' Aucun écrasement permis ; exporter l’original disponible.'}multiRenderLibrary();
+}
+function multiRenderLibrary(){
+ $('multiSavedList').innerHTML=multiState.store.entries.map((p,i)=>'<article class="multi-leg"><h4>'+escapeHtml(p.name)+'</h4><p>'+p.nodes.filter(n=>n.kind==='station').length+' stations · '+fmt(p.route.distance/1000,1)+' km</p><button type="button" class="ghost" data-multi-read="'+i+'">Lire ce parcours</button></article>').join('')||'<p>Aucun parcours chargé.</p>';$('multiExportAll').disabled=multiState.raw===null;
+}
+function multiWrite(value){
+ if(multiState.blocked)throw Error('Copie locale non chargée : aucune écriture.');const clean=multiValidateStore(value),raw=JSON.stringify(clean);if(raw.length>3000000)throw Error('Copie trop volumineuse (3 Mo maximum).');if(localStorage.getItem(multiKey)!==multiState.raw)throw Error('La copie a changé dans une autre fenêtre. Relire les parcours avant de recommencer.');localStorage.setItem(multiKey,raw);multiState.raw=raw;multiState.store=clean;multiRenderLibrary();return clean;
+}
+function multiLibrary(){multiInvalidate();$('multiEditor').hidden=true;$('multiConfirmed').hidden=true;$('multiSaved').hidden=false;multiLoad();$('multiSavedTitle').focus()}
+function multiOpen(library=false){if(!$('multiDialog').open)$('multiDialog').showModal();if(library)multiLibrary();else if(!multiState.draft)multiNew();else{multiRenderEditor();multiMessage(multiState.draft.sourceKey&&multiState.draft.sourceKey!==multiMainKey()?'Le trajet affiché a changé. Ce brouillon conserve son trajet précédent ; « Partir du trajet affiché » crée un nouveau brouillon.':'Brouillon conservé. Les stations de la nouvelle zone sont disponibles si le trajet et le carburant sont inchangés.')} $('multiTitle').focus()}
+function multiGpx(p){const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));return '<?xml version="1.0" encoding="UTF-8"?><gpx version="1.1" creator="DragonRoute" xmlns="http://www.topografix.com/GPX/1/1"><metadata><name>'+esc(p.name)+'</name><desc>Préparation datée, sans guidage ni restriction encodée. Vérifier accès et conditions réelles. Source '+esc(routingLabel(p.routing))+'</desc><time>'+esc(p.calculatedAt)+'</time></metadata>'+p.nodes.map((n,i)=>'<wpt lat="'+n.point[0]+'" lon="'+n.point[1]+'"><name>'+esc((i+1)+'. '+n.name)+'</name></wpt>').join('')+'<trk><name>'+esc(p.name)+'</name><trkseg>'+p.route.geometry.coordinates.map(c=>'<trkpt lat="'+c[1]+'" lon="'+c[0]+'"/>').join('')+'</trkseg></trk></gpx>'}
+function bindMultiStops(){
+ $('multiOpen').addEventListener('click',()=>multiOpen());$('multiLibraryOpen').addEventListener('click',()=>multiOpen(true));$('multiNew').addEventListener('click',multiNew);$('multiLibrary').addEventListener('click',multiLibrary);
+ $('multiDialog').addEventListener('close',()=>{multiInvalidate();multiState.imported=null;$('multiImportPreview').hidden=true;if(!$('preparedDialog').open&&$('multiOpen').getClientRects().length)$('multiOpen').focus()});
+ $('multiAdd').addEventListener('click',()=>{const d=multiState.draft,s=multiCandidates().find(s=>String(s.id)===$('multiCandidate').value);if(!d||!s||d.nodes.filter(n=>n.kind==='station').length>=3)return;multiInvalidate();d.nodes.splice(-1,0,multiStation(s));multiRenderEditor();multiMessage('Station ajoutée au brouillon. Vérifier son ordre et recalculer le parcours.');$('multiCalculate').focus()});
+ $('multiNodes').addEventListener('input',e=>{const field=e.target.dataset.multiField;if(!field)return;multiInvalidate();const n=multiState.draft.nodes[Number(e.target.closest('[data-multi-node]').dataset.multiNode)];n[field]=e.target.value===''?null:e.target.value});
+ $('multiNodes').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=multiState.draft,raw=b.dataset.multiUp??b.dataset.multiDown??b.dataset.multiRemove;if(raw===undefined)return;const i=Number(raw),copy=[...d.nodes];if(b.hasAttribute('data-multi-remove'))copy.splice(i,1);else{const j=i+(b.hasAttribute('data-multi-up')?-1:1);if(j<1||j>=copy.length-1)return;[copy[i],copy[j]]=[copy[j],copy[i]]}if(copy.some(n=>n.kind==='pickup')&&copy.findIndex(n=>n.kind==='pickup')>copy.findIndex(n=>n.kind==='dropoff')){multiMessage('La prise en charge doit rester avant la dépose.');return}multiInvalidate();d.nodes=copy;multiRenderEditor();$('multiCalculate').focus()});
+ for(const id of ['multiCons','multiInitial','multiCapacity','multiReserve','multiPrice'])$(id).addEventListener('input',multiInvalidate);
+ $('multiCalculate').addEventListener('click',multiCalculate);$('multiCancel').addEventListener('click',()=>{multiInvalidate();multiMessage('Calcul annulé. Le dernier parcours confirmé est conservé.')});$('multiAccept').addEventListener('change',()=>{$('multiConfirm').disabled=!multiState.proposal||!$('multiAccept').checked});
+ $('multiConfirm').addEventListener('click',()=>{if(!multiState.proposal||!$('multiAccept').checked)return;const p=multiClone(multiState.proposal);for(const n of p.nodes.filter(n=>n.kind==='station'))if(!priceFreshness(n.updated,Date.now(),n.receivedAt).eligible)n.price=null;multiShowConfirmed(multiValidatePlan(p));multiInvalidate();$('multiEditor').hidden=true;multiMessage('Parcours confirmé dans cette préparation. Enregistrer une copie ou exporter son tracé. Le trajet principal et ses péages sont conservés séparément.');multiLoad()});
+ $('multiEdit').addEventListener('click',()=>{if(!multiState.confirmed)return;multiInvalidate();multiState.draft={...multiClone(multiState.confirmed),id:crypto.randomUUID(),savedAt:null,sourceKey:null};multiFillInputs(multiState.draft.inputs);multiRenderEditor();multiMessage('Copie à modifier. Les prix et l’autonomie seront vérifiés au recalcul ; le parcours confirmé reste conservé.')});
+ $('multiGpx').addEventListener('click',()=>{if(multiState.confirmed)downloadCycleText(multiGpx(multiState.confirmed),'DragonRoute-parcours.gpx','application/gpx+xml')});$('multiJson').addEventListener('click',()=>{if(multiState.confirmed)downloadProfile({version:1,entries:[multiState.confirmed]},'DragonRoute-parcours-multiples.json')});
+ $('multiSaveForm').addEventListener('submit',e=>{e.preventDefault();try{if(!multiState.confirmed||!$('multiSaveConsent').checked)throw Error('Confirmer la conservation locale avant d’enregistrer.');const p=multiValidatePlan({...multiState.confirmed,id:crypto.randomUUID(),name:$('multiName').value,savedAt:new Date().toISOString()});multiWrite({version:1,entries:[...multiState.store.entries,p]});$('multiSaveConsent').checked=false;multiMessage('Copie enregistrée dans « Mes trajets à plusieurs arrêts ». Aucun déplacement ajouté au journal.')}catch(e){multiMessage(e.message)}});
+ $('multiSavedList').addEventListener('click',e=>{const b=e.target.closest('[data-multi-read]');if(!b)return;const p=multiState.store.entries[Number(b.dataset.multiRead)];if(p){multiShowConfirmed(p,true);multiMessage('Consultation locale historique. Aucun service interrogé.')}});
+ $('multiExportAll').addEventListener('click',()=>{if(multiState.raw!==null)downloadCycleText(multiState.raw,'DragonRoute-parcours-originaux.json')});
+ $('multiImport').addEventListener('change',async e=>{multiState.imported=null;$('multiImportPreview').hidden=true;$('multiImportConsent').checked=false;const f=e.target.files[0],seq=++multiState.sequence;try{if(!f)return;if(f.size>3000000)throw Error('Fichier trop volumineux.');const data=multiValidateStore(JSON.parse(await f.text()));if(seq!==multiState.sequence||!$('multiDialog').open)return;multiState.imported=data;$('multiImportText').textContent=data.entries.length+' parcours remplaceraient les '+multiState.store.entries.length+' copies locales : '+data.entries.map(p=>p.name+' ('+fmt(p.route.distance/1000,1)+' km)').join(' ; ')+'. Exporter la copie chargée avant remplacement.';$('multiImportPreview').hidden=false}catch(e){$('multiStorageMessage').textContent=e.message}finally{$('multiImport').value=''}});
+ $('multiImportApply').addEventListener('click',()=>{try{if(!multiState.imported||!$('multiImportConsent').checked)throw Error('Relire et confirmer le remplacement.');multiWrite(multiState.imported);multiState.imported=null;$('multiImportPreview').hidden=true;$('multiStorageMessage').textContent='Parcours importés. Tracés et prix historiques non actualisés.'}catch(e){$('multiStorageMessage').textContent=e.message}});$('multiImportCancel').addEventListener('click',()=>{multiState.sequence++;multiState.imported=null;$('multiImportPreview').hidden=true});
+ $('multiErase').addEventListener('click',()=>{try{if(!$('multiEraseConsent').checked)throw Error('Confirmer l’effacement de ces seuls parcours.');multiWrite({version:1,entries:[]});$('multiEraseConsent').checked=false;$('multiStorageMessage').textContent='Parcours à plusieurs arrêts effacés. Autres données conservées.'}catch(e){$('multiStorageMessage').textContent=e.message}});
+}
+
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
