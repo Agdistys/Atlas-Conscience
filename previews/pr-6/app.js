@@ -94,7 +94,7 @@ let mapView=null,currentStation=null,detailSequence=0;
 let orsLastRequest=-Infinity;
 let ignLastRequest=-Infinity;
 const ignCache=new Map();
-let geoLastRequest=-Infinity,geoBlockedUntil=0,placePending=null,selectedStop=null,budgetReference=null,rangeMeasuredAt=null;
+let geoLastRequest=-Infinity,placePending=null,selectedStop=null,budgetReference=null,rangeMeasuredAt=null;
 const geoCache=new Map();
 const dimensionFields={height:"truckHeight",width:"truckWidth",length:"truckLength",weight:"truckWeight",axleload:"truckAxleload"};
 const avoidLabels={tollways:"péages",highways:"autoroutes",ferries:"ferries"};
@@ -203,7 +203,6 @@ function bikeRows(snapshot,{text='',need='all',type='all'}={},now=Date.now()){
   if(need==='rent'){const n=type==='mechanical'?r.mechanical:type==='electric'?r.electric:r.bikes;return r.renting===true&&n!==null&&n>0}return false;
  });
 }
-function bikeRetryAfter(value,now=Date.now()){if(!value)return now+60000;const n=/^\d+$/.test(value)?Number(value)*1000:Date.parse(value)-now;return Number.isFinite(n)?now+Math.max(60000,n):now+60000}
 // END SHARED BIKES MODEL
 // BEGIN SHARED BIKE TRIP MODEL
 function bikeTripPoint(p){p=cyclePoint(p);if(p[0]<4.5||p[0]>5.2||p[1]<45.5||p[1]>46.05)throw new Error('Ce parcours avec vélo partagé est limité au pilote Lyon.');return p}
@@ -1542,10 +1541,10 @@ function serviceHttpDate(raw,now=Date.now()){
  const at=Date.UTC(year,month,day,hour,minute,second),d=new Date(at);
  return Number.isFinite(at)&&d.getUTCFullYear()===year&&d.getUTCMonth()===month&&d.getUTCDate()===day&&d.toUTCString().slice(0,3)===weekday.slice(0,3)?at:null;
 }
-function serviceWaitDelay(raw,now=Date.now(),serverDate=null){
- if(typeof raw==='string'&&/^\d+$/.test(raw.trim())){const seconds=Number(raw.trim()),ms=seconds*1000;return {ms:Number.isSafeInteger(ms)?Math.max(5000,ms):Infinity,source:seconds<5?'minimum-local':'service'};}
+function serviceWaitDelay(raw,now=Date.now(),serverDate=null,minimum=5000){
+ if(typeof raw==='string'&&/^\d+$/.test(raw.trim())){const seconds=Number(raw.trim()),ms=seconds*1000;return {ms:Number.isSafeInteger(ms)?Math.max(minimum,ms):Infinity,source:ms<minimum?'minimum-local':'service'};}
  const target=serviceHttpDate(raw,now),server=serviceHttpDate(serverDate,now),reference=server??now;
- if(target!==null&&Number.isFinite(reference))return {ms:Math.max(5000,target-reference),source:target-reference<5000?'minimum-local':'service'};
+ if(target!==null&&Number.isFinite(reference))return {ms:Math.max(minimum,target-reference),source:target-reference<minimum?'minimum-local':'service'};
  return {ms:60000,source:'fallback'};
 }
 function serviceWaitRemaining(state,mono){if(!state)return 0;if(!Number.isFinite(mono)||mono<0)return Infinity;return Math.max(0,state.until-mono)}
@@ -1553,19 +1552,23 @@ function serviceWaitExtend(previous,delay,mono,status){const until=mono+delay.ms
 // END SERVICE WAIT MODEL
 const serviceWaits=new Map();
 function serviceWaitError(service,state){
- const seconds=Math.ceil(serviceWaitRemaining(state,performance.now())/1000),label=({fuel:'carburants',transit:'de transports','routing:ign':'IGN','routing:osrm':'routier','routing:ors':'public'})[service],reason=state.status===429?`Limite du service ${label} atteinte.`:`Service ${label} temporairement indisponible.`,delay=Number.isFinite(seconds)&&seconds<86400?`Réessayer dans ${seconds} s.`:Number.isFinite(seconds)?`Réessayer après environ ${Math.ceil(seconds/86400)} jour(s).`:'Délai du service trop long pour être affiché.';
- return Object.assign(new Error(reason+' '+delay+(state.source==='fallback'?' Délai du service absent ou illisible ; attente locale initiale de 60 s.':state.source==='minimum-local'?' Attente minimale locale de 5 s.':'')+' Aucune relance automatique.'+(service.startsWith('routing:')?' Le critère et les contraintes sont conservés.':'')),{status:state.status,serviceWait:true,retryAfterMs:seconds*1000});
+ const seconds=Math.ceil(serviceWaitRemaining(state,performance.now())/1000),label=({fuel:'carburants',transit:'de transports','routing:ign':'IGN','routing:osrm':'routier','routing:ors':'public',geo:'d’adresses',cycle:'vélo',bikes:'Vélo’v'})[service],reason=state.status===429?(service==='geo'?'Recherche d’adresses temporairement limitée.':`Limite du service ${label} atteinte.`):`Service ${label} temporairement indisponible.`,delay=Number.isFinite(seconds)&&seconds<86400?`Réessayer dans ${seconds} s.`:Number.isFinite(seconds)?`Réessayer après environ ${Math.ceil(seconds/86400)} jour(s).`:'Délai du service trop long pour être affiché.';
+ return Object.assign(new Error(reason+' '+delay+(state.source==='fallback'?' Délai du service absent ou illisible ; attente locale initiale de 60 s.':state.source==='minimum-local'?` Attente minimale locale de ${['cycle','bikes'].includes(service)?60:5} s.`:'')+' Aucune relance automatique.'+(service.startsWith('routing:')?' Le critère et les contraintes sont conservés.':'')),{status:state.status,serviceWait:true,retryAfterMs:seconds*1000});
 }
 function serviceWaitGuard(service){const state=serviceWaits.get(service);if(serviceWaitRemaining(state,performance.now())>0)throw serviceWaitError(service,state);}
-function serviceWaitFromResponse(response){
+function serviceWaitFromResponse(response,minimum=5000){
  const raw=response.headers.get('Retry-After');if(response.status!==429&&!(response.status===503&&raw!==null))return null;
- return {delay:serviceWaitDelay(raw,Date.now(),response.headers.get('Date')),received:performance.now(),status:response.status};
+ return {delay:serviceWaitDelay(raw,Date.now(),response.headers.get('Date'),minimum),received:performance.now(),status:response.status};
 }
 function serviceWaitRemember(service,info){
  const state=serviceWaitExtend(serviceWaits.get(service),info.delay,info.received,info.status);serviceWaits.set(service,state);return state;
 }
 function serviceWaitResponse(service,response){
- if(!service)return;const info=serviceWaitFromResponse(response);if(info)throw serviceWaitError(service,serviceWaitRemember(service,info));
+ if(!service)return;const info=serviceWaitFromResponse(response,['cycle','bikes'].includes(service)?60000:5000);if(info)throw serviceWaitError(service,serviceWaitRemember(service,info));
+}
+
+function modeRequestGuard(service,until,label){
+ serviceWaitGuard(service);const remaining=Math.ceil((until-performance.now())/1000);if(remaining>0)throw new Error(`Patienter avant ${label} : ${remaining} s. Aucune relance automatique.`);
 }
 
 async function getJSON(url,label,ms=16000,signal=activeAbort?.signal,classifyError=null,service=null){
@@ -1579,8 +1582,6 @@ async function getJSON(url,label,ms=16000,signal=activeAbort?.signal,classifyErr
     if(!r.ok){
       const error=new Error(`${label} : HTTP ${r.status}`);
       error.status=r.status;error.serviceWaitInfo=serviceWaitFromResponse(r);
-      const retry=r.headers.get("Retry-After");
-      error.retryAfterMs=retry==null?0:/^\d+$/.test(retry)?Number(retry)*1000:Date.parse(retry)-Date.now();
       if(classifyError&&r.status===404){
         const body=await r.json().catch(()=>null);
         if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");
@@ -1688,20 +1689,16 @@ async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal){
   const cached=geoCache.get(key);
   let places=cached&&performance.now()-cached.at<300000?cached.places:null;
   if(!places){
-    const remaining=Math.ceil((geoBlockedUntil-performance.now())/1000);
-    if(remaining>0)throw new Error(`Recherche d’adresses temporairement limitée. Réessayer dans ${remaining} s.`);
+    serviceWaitGuard('geo');
     await sleep(Math.max(0,250-(performance.now()-geoLastRequest)));
     if(signal?.aborted||!isCurrent())throw new DOMException("Recherche d’adresses annulée.","AbortError");
-    geoLastRequest=performance.now();
+    serviceWaitGuard('geo');geoLastRequest=performance.now();
     const p=new URLSearchParams({q:query,index:"address,poi",limit:"5",autocomplete:"false"});
     let d;
     try{d=await getJSON(`${C.geocodingApi}?${p}`,"Recherche d’adresses IGN",16000,signal)}
     catch(e){
-      if(e.status===429){
-        const delay=Math.max(5000,Number.isFinite(e.retryAfterMs)?e.retryAfterMs:0);
-        geoBlockedUntil=performance.now()+delay;
-        throw new Error(`Recherche d’adresses temporairement limitée. Réessayer dans ${Math.ceil(delay/1000)} s.`);
-      }
+      checkRouteRequest(isCurrent,signal);
+      if(e.serviceWaitInfo)throw serviceWaitError('geo',serviceWaitRemember('geo',e.serviceWaitInfo));
       throw e;
     }
     if(!isCurrent())throw new Error("Recherche du lieu annulée.");
@@ -4910,7 +4907,7 @@ async function searchStations(more=false){
   else if(session&&stationSearch===session){
    compared=session.results;$('testedCount').textContent=String(compared.length);updateServiceChoices();renderStations(compared,session.window.mode,!more);
    const note=stationSearchNote(session);
-   $('fuelStatus').textContent=(problem?problem+' Résultats valides déjà obtenus conservés. ':'')+`${compared.length} stations comparées parmi ${session.found.stations.length} reçues. ${note?note+' ':''}${session.found.partial?'Réponse partielle du service. ':''}`+(!compared.length?'Aucune station comparable dans cette plage de distance. Modifier la distance ou poursuivre les candidates restantes. ':'')+'Distances depuis le départ choisi ; pas de suivi GPS continu.';
+   $('fuelStatus').textContent=(problem?problem+(compared.length?' Résultats valides déjà obtenus conservés. ':' Stations reçues conservées. '):'')+`${compared.length} stations comparées parmi ${session.found.stations.length} reçues. ${note?note+' ':''}${session.found.partial?'Réponse partielle du service. ':''}`+(!compared.length?(problem&&(session.cursor<session.queue.length||session.found.partial)?(session.cursor===0?'Aucun accès aux stations n’a encore pu être calculé. ':'Comparaison interrompue sans résultat exploitable. ')+'Résultat non concluant ; reprendre la comparaison lorsque le service répond. ':'Aucune station comparable dans cette plage de distance. Modifier la distance ou poursuivre les candidates restantes. '):'')+'Distances depuis le départ choisi ; pas de suivi GPS continu.';
   }else $('fuelStatus').textContent=(problem||'Recherche sans résultat.')+' Le trajet reste disponible.';
   lock(false);$('cancelStationsBtn').hidden=true;updateStationCoverage();if(more&&stationSearch)$('stationCoverage').focus({preventScroll:true});
  }
@@ -5382,25 +5379,25 @@ function clearBikes(message='',keepResume=false){
 async function bikesFetch(name,job){
  const now=Date.now(),cached=bikesCache.get(name);if(cached&&now>=cached.at&&now<cached.until)return cached.raw;
  const response=await fetch(BIKE_BASE+name+'.json',{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',redirect:'error'});
- if(response.status===429){bikesNext=Math.max(bikesNext,bikeRetryAfter(response.headers.get('Retry-After')));throw new Error('Limite du service atteinte. Réessayer après '+bikesDate(bikesNext)+'.')}
+ checkRouteRequest(()=>bikesJob===job&&$('bikesDialog').open,job.controller.signal);serviceWaitResponse('bikes',response);
  if(!response.ok)throw new Error('Service indisponible (HTTP '+response.status+').');
  if(Number(response.headers.get('Content-Length'))>2000000)throw new Error('Réponse trop volumineuse.');
  const reader=response.body.getReader(),chunks=[];let length=0;while(true){const {done,value}=await reader.read();if(done)break;length+=value.byteLength;if(length>2000000){await reader.cancel();throw new Error('Réponse trop volumineuse.')}chunks.push(value)}const bytes=new Uint8Array(length);let pos=0;for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.length}
  let raw;try{raw=JSON.parse(new TextDecoder().decode(bytes))}catch{throw new Error('Réponse illisible.')}const key=name==='vehicle_types'?'vehicle_types':'stations',env=bikeEnvelope(raw,key);
- if(bikesJob===job&&!job.controller.signal.aborted)bikesCache.set(name,{raw,at:now,until:now+Math.max(60,env.ttl)*1000});return raw;
+ checkRouteRequest(()=>bikesJob===job&&$('bikesDialog').open,job.controller.signal);bikesCache.set(name,{raw,at:now,until:now+Math.max(60,env.ttl)*1000});return raw;
 }
 async function loadBikes(){
- if(bikesJob||bikeTripJob)return;if(Date.now()<bikesNext){$('bikesStatus').textContent='Patienter avant une nouvelle consultation : '+bikesDate(bikesNext)+'.';return}
- if(bikeTripResume)bikesCache.clear();clearBikes('Consultation de Vélo’v…',true);const job={controller:new AbortController()};bikesJob=job;bikesNext=Date.now()+60000;$('bikesLoad').disabled=true;$('bikesCancel').hidden=false;
+ if(bikesJob||bikeTripJob)return;try{modeRequestGuard('bikes',bikesNext,'une nouvelle consultation')}catch(e){$('bikesStatus').textContent=e.message+(bikesSnapshot?' Catalogue déjà reçu conservé ; consulter ses dates ci-dessous.':'');return}
+ if(bikeTripResume)bikesCache.clear();clearBikes('Consultation de Vélo’v…',true);const job={controller:new AbortController()};bikesJob=job;bikesNext=performance.now()+60000;$('bikesLoad').disabled=true;$('bikesCancel').hidden=false;
  const timeout=setTimeout(()=>{job.timeout=true;job.controller.abort()},20000);
  try{
-  const names=['station_information','station_status','vehicle_types'],results=await Promise.allSettled(names.map(n=>bikesFetch(n,job)));if(bikesJob!==job)return;
+  const names=['station_information','station_status','vehicle_types'],results=await Promise.allSettled(names.map(n=>bikesFetch(n,job)));if(bikesJob!==job||!$('bikesDialog').open)return;
   if(job.timeout)throw new Error('Délai dépassé. Relancer la consultation lorsque le service répond.');
   if(results[0].status!=='fulfilled')throw results[0].reason;
   const value=i=>results[i].status==='fulfilled'?results[i].value:null;
   bikesSnapshot=bikeSnapshot(value(0),value(1),value(2));bikesSnapshot.failures=results.flatMap((r,i)=>r.status==='rejected'?[['Stations','Disponibilités','Types de vélos'][i]+' : '+(r.reason?.message||'indisponible')]:[]);
   $('bikesBrowse').hidden=false;renderBikes(true);reconcileSharedStations();bikesTimer=setInterval(refreshBikes,15000);
- }catch(e){if(bikesJob===job)clearBikes('Consultation impossible. '+e.message,true)}finally{clearTimeout(timeout);if(bikesJob===job)bikesJob=null;$('bikesLoad').disabled=Boolean(bikesJob);$('bikesCancel').hidden=!bikesJob}
+ }catch(e){if(bikesJob===job&&$('bikesDialog').open)clearBikes('Consultation impossible. '+e.message,true)}finally{clearTimeout(timeout);if(bikesJob===job)bikesJob=null;$('bikesLoad').disabled=Boolean(bikesJob);$('bikesCancel').hidden=!bikesJob}
 }
 function bikesFilters(){return {text:$('bikesQuery').value,need:$('bikesNeed').value,type:$('bikesType').value}}
 function renderBikes(resetMap=false){
@@ -5429,7 +5426,9 @@ function selectBike(id,center){
 function refreshBikes(){if(bikesSnapshot&&$('bikesDialog').open&&bikesExpiry!==JSON.stringify(bikesSnapshot.rows.map(r=>bikeFreshness(r,bikesSnapshot))))renderBikes(false)}
 function bindBikes(){
  $('bikesBtn').addEventListener('click',()=>{clearBikes('Charger les stations pour consulter les annonces disponibles.');$('bikesDialog').showModal();$('bikesTitle').focus()});
- $('bikesClose').addEventListener('click',()=>$('bikesDialog').close());$('bikesDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();$('bikesDialog').close()}});$('bikesDialog').addEventListener('close',()=>{clearBikes();$('bikesBtn').focus()});
+ const close=()=>{clearBikes();$('bikesDialog').close()};
+ $('bikesClose').addEventListener('click',close);$('bikesDialog').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});$('bikesDialog').addEventListener('cancel',e=>{e.preventDefault();close()});
+ $('bikesDialog').addEventListener('close',()=>{if($('bikesDialog').open)return;clearBikes();$('bikesBtn').focus()});
  $('bikesLoad').addEventListener('click',loadBikes);$('bikesCancel').addEventListener('click',()=>clearBikes('Consultation annulée.',true));
  for(const id of ['bikesQuery','bikesNeed','bikesType'])$(id).addEventListener(id==='bikesQuery'?'input':'change',()=>{bikesPage=0;bikesSelected=null;renderBikes(true)});
  for(const [id,delta] of [['bikesPrev',-1],['bikesNext',1]])$(id).addEventListener('click',()=>{bikesPage+=delta;renderBikes(true);$('bikesPageLabel').focus()});
@@ -5555,17 +5554,17 @@ function renderCycle(r,places,at,cached,q){
  $('cycleMetrics').textContent=`${fmt(r.distance/1000,2)} km · ${Math.ceil(r.duration/60)} min estimées, hors pauses. ${r.pushingMeters>0?`${Math.ceil(r.pushingMeters)} m annoncés vélo à la main.`:'Passages vélo à la main : aucun annoncé.'}`;
  $('cycleSteps').innerHTML=r.steps.filter(s=>s.distance>0).map(s=>`<li><strong>${s.mode==='pushing bike'?'Vélo à la main':'Vélo'}</strong> · ${escapeHtml(s.name)||'Voie sans nom'} · ${Math.ceil(s.distance)} m</li>`).join('');showCyclePreference();drawCycle(r);
 }
-async function cycleFetch(q,job){
+async function cycleFetch(q,job,current){
  const response=await fetch(q.url,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'origin',redirect:'error'});
- if(response.status===429){cycleNext=Math.max(cycleNext,bikeRetryAfter(response.headers.get('Retry-After')));throw new Error('Limite du service vélo atteinte. Réessayer après '+bikesDate(cycleNext)+'.')}
+ checkRouteRequest(current,job.controller.signal);serviceWaitResponse('cycle',response);
  if(!response.ok&&response.status!==400)throw new Error('Service vélo indisponible (HTTP '+response.status+').');
  if(Number(response.headers.get('Content-Length'))>2000000)throw new Error('Réponse vélo trop volumineuse.');const reader=response.body.getReader(),chunks=[];let length=0;
  while(true){const {done,value}=await reader.read();if(done)break;length+=value.byteLength;if(length>2000000){await reader.cancel();throw new Error('Réponse vélo trop volumineuse.')}chunks.push(value)}
- const bytes=new Uint8Array(length);let pos=0;for(const c of chunks){bytes.set(c,pos);pos+=c.byteLength}let data;try{data=JSON.parse(new TextDecoder().decode(bytes))}catch{throw new Error('Réponse vélo illisible.')}return cycleResponse(data,q);
+ const bytes=new Uint8Array(length);let pos=0;for(const c of chunks){bytes.set(c,pos);pos+=c.byteLength}let data;try{data=JSON.parse(new TextDecoder().decode(bytes))}catch{throw new Error('Réponse vélo illisible.')}checkRouteRequest(current,job.controller.signal);return cycleResponse(data,q);
 }
 async function searchCycle(){
  if(busy||cycleJob||!cycleContext)return;const context=cycleContext;
- try{if(context.signature!==transitInputSignature())throw new Error('Lieux modifiés : rouvrir le calcul vélo.');if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée dans Mon trajet.');readCycleCriteria('cycle');if(C.cyclingApi!==CYCLE_ENDPOINT)throw new Error('Le service vélo est désactivé.');if(Date.now()<cycleNext)throw new Error('Patienter avant un nouveau calcul vélo : '+bikesDate(cycleNext)+'.')}catch(e){$('cycleStatus').textContent=e.message;return}
+ try{if(context.signature!==transitInputSignature())throw new Error('Lieux modifiés : rouvrir le calcul vélo.');if(context.inputs.some(x=>!x))throw new Error('Renseigner le départ et l’arrivée dans Mon trajet.');readCycleCriteria('cycle');if(C.cyclingApi!==CYCLE_ENDPOINT)throw new Error('Le service vélo est désactivé.');modeRequestGuard('cycle',cycleNext,'un nouveau calcul vélo')}catch(e){$('cycleStatus').textContent=e.message;return}
  clearCycle(context.fixedPlaces?'Préparation du nouveau calcul vélo…':'Vérification des lieux auprès de l’IGN…');const job={controller:new AbortController()};cycleJob=job;activeAbort=job.controller;lock(true);$('cycleSearch').disabled=true;$('cycleCancel').hidden=false;const limitsSignature=JSON.stringify([$('cycleMax').value,$('cycleRule').value]),current=()=>cycleJob===job&&context.signature===transitInputSignature()&&limitsSignature===JSON.stringify([$('cycleMax').value,$('cycleRule').value]);let timer;
  try{
   const work=async()=>{
@@ -5573,8 +5572,8 @@ async function searchCycle(){
    const b=context.fixedPlaces?.end||transitStoredPlace(context.inputs[1],'end')||await resolveTripPlace(context.inputs[1],'end',current);if(!current())return;
    const q=cycleRequest([a.lon,a.lat],[b.lon,b.lat],C.cyclingApi),places={start:a.label,end:b.label},now=Date.now(),cached=cycleCache.get(q.url);
    if(!context.forceFresh&&cached&&now>=cached.at&&now-cached.at<300000){renderCycle(cached.route,places,cached.at,true,q);return}
-   cycleNext=now+5000;$('cyclePlaces').textContent=places.start+' → '+places.end;$('cycleStatus').textContent='Calcul auprès du moteur vélo FOSSGIS…';
-   const route=await cycleFetch(q,job);if(!current())return;const at=Date.now();if(cycleCache.size>=8)cycleCache.delete(cycleCache.keys().next().value);cycleCache.set(q.url,{route,at});renderCycle(route,places,at,false,q);
+   modeRequestGuard('cycle',cycleNext,'un nouveau calcul vélo');cycleNext=performance.now()+5000;$('cyclePlaces').textContent=places.start+' → '+places.end;$('cycleStatus').textContent='Calcul auprès du moteur vélo FOSSGIS…';
+   const route=await cycleFetch(q,job,current);if(!current())return;const at=Date.now();if(cycleCache.size>=8)cycleCache.delete(cycleCache.keys().next().value);cycleCache.set(q.url,{route,at});renderCycle(route,places,at,false,q);
   };
   await Promise.race([work(),new Promise((_,reject)=>{timer=setTimeout(()=>{job.controller.abort();reject(new Error('Délai du calcul vélo dépassé. Relancer plus tard.'))},30000)})]);
  }catch(e){if(current())clearCycle(e.name==='AbortError'?'Calcul vélo interrompu.':e.message)}
@@ -5592,11 +5591,11 @@ async function loadComparedCycle(a,b,owner,current){
  const q=cycleRequest([a[1],a[0]],[b[1],b[0]],C.cyclingApi),now=Date.now();
  if(!current()||owner.controller.signal.aborted)throw new DOMException('Calcul vélo annulé.','AbortError');
  const cached=cycleCache.get(q.url);if(cached&&now>=cached.at&&now-cached.at<300000)return {route:cached.route,q,at:cached.at,cached:true};
- if(Date.now()<cycleNext)throw new Error('Patienter avant un nouveau calcul vélo : '+bikesDate(cycleNext)+'.');
- const job={controller:new AbortController()};let timer,abort;cycleNext=now+5000;
+ modeRequestGuard('cycle',cycleNext,'un nouveau calcul vélo');
+ const job={controller:new AbortController()};let timer,abort;cycleNext=performance.now()+5000;
  try{
   const stopped=new Promise((_,reject)=>{abort=()=>{job.controller.abort();reject(new DOMException('Calcul vélo annulé.','AbortError'))};owner.controller.signal.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>{job.controller.abort();reject(new Error('Délai du calcul vélo dépassé. Relancer plus tard.'))},30000)});
-  const route=await Promise.race([cycleFetch(q,job),stopped]);if(!current()||owner.controller.signal.aborted)throw new DOMException('Calcul vélo annulé.','AbortError');
+  const route=await Promise.race([cycleFetch(q,job,current),stopped]);if(!current()||owner.controller.signal.aborted)throw new DOMException('Calcul vélo annulé.','AbortError');
   const at=Date.now();if(cycleCache.size>=8)cycleCache.delete(cycleCache.keys().next().value);cycleCache.set(q.url,{route,at});return {route,q,at,cached:false};
  }finally{clearTimeout(timer);owner.controller.signal.removeEventListener('abort',abort)}
 }
