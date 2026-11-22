@@ -3356,6 +3356,72 @@ function priorityResult(snapshot,raw){
 }
 // END PRIORITIES MODEL
 
+// BEGIN MODAL BUDGET MODEL
+const MODAL_BUDGET_SCOPE='same-group-direct-journey-eur-v1';
+const MODAL_BUDGET_COMPONENTS={travel:'Billets ou location',fuel:'Carburant consommé',tolls:'Péages et passages payants',parking:'Stationnement',other:'Autres frais directs'};
+function modalBudgetKeys(value,keys){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==keys.length||keys.some(k=>!Object.hasOwn(value,k)))throw new Error('Budget de format inconnu ou incomplet.');}
+function modalBudgetText(value,max,empty=false){if(typeof value!=='string'||value.length>max||(!empty&&!value.trim())||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value))throw new Error('Texte du budget invalide ou trop long.');}
+function modalBudgetDecimal(raw,places,min,max,optional=false){
+ if(typeof raw!=='string')throw new Error('Montant ou hypothèse invalide.');const text=raw.trim();if(optional&&!text)return null;
+ if(!new RegExp('^\\d+(?:[.,]\\d{1,'+places+'})?$').test(text))throw new Error('Utiliser un nombre positif, avec au plus '+places+' décimale(s), sans séparateur de milliers.');
+ const n=Number(text.replace(',','.'));if(!Number.isFinite(n)||n<min||n>max)throw new Error('Valeur attendue entre '+min+' et '+max+'.');return n;
+}
+function modalBudgetCents(raw){const n=modalBudgetDecimal(raw,2,0,100000,true);return n===null?null:Math.round(n*100);}
+function modalBudgetRatio(n){
+ const [mantissa,exponent='0']=String(n).split('e'),parts=mantissa.split('.'),digits=parts.join(''),power=Number(exponent)-(parts[1]?.length||0);
+ return power>=0?{n:BigInt(digits)*10n**BigInt(power),d:1n}:{n:BigInt(digits),d:10n**BigInt(-power)};
+}
+function modalBudgetFuelRatio(basis,persons){
+ const a=modalBudgetRatio(basis.distanceMeters),b=modalBudgetRatio(basis.litersPer100km),c=modalBudgetRatio(basis.pricePerLiter);
+ // Cents for the same group, before rounding; no purchased tankful is added.
+ return {n:a.n*b.n*c.n*BigInt(persons),d:a.d*b.d*c.d*1000n*BigInt(basis.occupants)};
+}
+function modalBudgetRound(r){return Number(r.n/r.d+(2n*(r.n%r.d)>=r.d?1n:0n));}
+function validateModalBudgets(raw){
+ modalBudgetKeys(raw,['version','scope','persons','instant','arrive','label','options']);
+ if(raw.version!==1||raw.scope!==MODAL_BUDGET_SCOPE||!Number.isInteger(raw.persons)||raw.persons<1||raw.persons>9||typeof raw.instant!=='number'||!Number.isFinite(raw.instant)||raw.instant<946684800000||raw.instant>4102444800000||typeof raw.arrive!=='boolean')throw new Error('Groupe, date ou périmètre du budget non vérifiable.');
+ modalBudgetText(raw.label,4000);if(!Array.isArray(raw.options)||!raw.options.length||raw.options.length>20)throw new Error('Options du budget invalides.');const ids=new Set();
+ for(const row of raw.options){
+  modalBudgetKeys(row,['id','mode','distanceMeters','entry']);
+  if(typeof row.id!=='string'||!/^(car|walk|cycle|transit-\d+)$/.test(row.id)||ids.has(row.id)||!['car','walk','cycle','transit'].includes(row.mode)||(row.mode==='transit'?!row.id.startsWith('transit-'):row.id!==row.mode))throw new Error('Identité du budget non vérifiable.');ids.add(row.id);
+  if(row.distanceMeters!==null&&(typeof row.distanceMeters!=='number'||!Number.isFinite(row.distanceMeters)||row.distanceMeters<0||row.distanceMeters>150000))throw new Error('Distance du budget invalide.');
+  const e=row.entry;if(e===null)continue;modalBudgetKeys(e,['confirmedAt','note','components']);modalBudgetText(e.note,1000,true);
+  if(typeof e.confirmedAt!=='string'||!Number.isFinite(Date.parse(e.confirmedAt))||new Date(e.confirmedAt).toISOString()!==e.confirmedAt)throw new Error('Date de confirmation invalide.');
+  modalBudgetKeys(e.components,Object.keys(MODAL_BUDGET_COMPONENTS));
+  for(const [key,part] of Object.entries(e.components)){
+   if(part===null)continue;
+   if(part.kind==='declared'){modalBudgetKeys(part,['kind','cents']);if(!Number.isSafeInteger(part.cents)||part.cents<0||part.cents>10000000)throw new Error('Montant déclaré invalide.');}
+   else if(part.kind==='fuel-estimate'){
+    modalBudgetKeys(part,['kind','basis']);const b=part.basis;modalBudgetKeys(b,['distanceMeters','litersPer100km','pricePerLiter','occupants']);
+    if(key!=='fuel'||row.mode!=='car'||row.distanceMeters===null||b.distanceMeters!==row.distanceMeters||!Number.isInteger(b.occupants)||b.occupants<raw.persons||b.occupants>9)throw new Error('Répartition ou distance du carburant incompatible avec le groupe.');
+    for(const [name,min,max] of [['litersPer100km',1,100],['pricePerLiter',.001,10]]){const v=b[name];if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max||Number(v.toFixed(3))!==v)throw new Error('Hypothèse de carburant invalide.');}
+   }else throw new Error('Origine du montant non prise en charge.');
+  }
+ }
+ return structuredClone(raw);
+}
+function modalBudgetTotal(row,persons){
+ let n=0n,d=1n,known=0;const missing=[];
+ for(const key of Object.keys(MODAL_BUDGET_COMPONENTS)){const part=row.entry?.components[key];if(!part){missing.push(key);continue}known++;const r=part.kind==='declared'?{n:BigInt(part.cents),d:1n}:modalBudgetFuelRatio(part.basis,persons);n=n*r.d+r.n*d;d*=r.d;}
+ const subtotalCents=known?modalBudgetRound({n,d}):null;return {known,missing,subtotalCents,totalCents:missing.length?null:subtotalCents,status:!known?'unknown':missing.length?'partial':'complete'};
+}
+function modalBudgetOrder(rows,budgets){
+ const data=validateModalBudgets(budgets),lookup=new Map(data.options.map(r=>[r.id,modalBudgetTotal(r,data.persons)]));
+ if(rows.length!==data.options.length||rows.some(r=>!lookup.has(r.key)))throw new Error('Le budget ne correspond pas aux options actuelles.');
+ const annotated=rows.map(r=>({...r,budget:lookup.get(r.key)})),group=annotated.filter(r=>r.status==='ready'&&r.budget.totalCents!==null),counts=new Map();
+ for(const r of group)counts.set(r.budget.totalCents,(counts.get(r.budget.totalCents)||0)+1);
+ group.sort((a,b)=>a.budget.totalCents-b.budget.totalCents||a.index-b.index||a.key.localeCompare(b.key));
+ return {group:group.map(r=>({...r,budgetTied:counts.get(r.budget.totalCents)>1})),other:annotated.filter(r=>r.status!=='ready'||r.budget.totalCents===null),eligible:group.length};
+}
+function modalBudgetDescription(budgets){
+ const b=validateModalBudgets(budgets),money=n=>(n/100).toFixed(2)+' EUR',lines=[`Budget renseigné pour ${b.persons} voyageur(s) ; ${b.label} ; ${b.arrive?'arrivée au plus tard':'départ à partir de'} ${new Date(b.instant).toISOString()}.`, 'Frais directs de cet aller simple, hors achat, entretien, assurance et amortissement du matériel. Déclarations et estimations, sans devis ni disponibilité de réservation.'];
+ for(const r of b.options){const t=modalBudgetTotal(r,b.persons);lines.push('',r.id+' : '+(t.totalCents!==null?'Budget complet dans ce périmètre '+money(t.totalCents):t.subtotalCents!==null?'Sous-total partiel '+money(t.subtotalCents):'Budget inconnu'));
+  if(r.entry){lines.push('Confirmé le '+r.entry.confirmedAt,r.entry.note);for(const [key,p] of Object.entries(r.entry.components))lines.push(MODAL_BUDGET_COMPONENTS[key]+' : '+(!p?'inconnu':p.kind==='declared'?money(p.cents)+' déclaré':money(modalBudgetRound(modalBudgetFuelRatio(p.basis,b.persons)))+` estimé ; ${p.basis.distanceMeters} m × ${p.basis.litersPer100km} L/100 km × ${p.basis.pricePerLiter} EUR/L × ${b.persons}/${p.basis.occupants} occupants. Prix et consommation déclarés ; carburant consommé, hors plein acheté. Total calculé avant arrondi.`));}
+ }
+ return lines.join('\n');
+}
+// END MODAL BUDGET MODEL
+
 // BEGIN COMPARISON RECORD MODEL
 const COMPARISON_SCOPES={road:{duration:'driving-minutes',cost:'total-vehicle-eur',carbon:'construction-energy-vehicle-kgco2e'},prepared:{duration:'historical-driving-station-minutes',cost:'historical-fuel-tolls-vehicle-eur',carbon:'unavailable-carbon'},modal:{duration:'same-request-elapsed-minutes',cost:'unavailable-modal-total-eur',carbon:'construction-energy-group-kgco2e'}};
 const COMPARISON_LABELS={road:'Choix routiers',prepared:'Préparations historiques',modal:'Modes de déplacement'};
@@ -3365,15 +3431,18 @@ function comparisonText(v,max,empty=false){if(typeof v!=='string'||v.length>max|
 function comparisonDate(v){if(typeof v!=='string'||!Number.isFinite(Date.parse(v))||new Date(v).toISOString()!==v)throw new Error('Date de comparaison invalide.');return v}
 function comparisonProjection(s){return {formula:s.formula,at:s.at,contextValid:s.contextValid,scopes:{...s.scopes},rows:s.rows.map(r=>({id:r.id,label:r.label,status:r.status,reason:r.reason||'',values:{...r.values},scopes:{...r.scopes}}))}}
 function validateComparisonRecord(raw){
- comparisonKeys(raw,['id','name','savedAt','kind','snapshot','weights','result','context','evidence']);
+ const hasBudgets=Object.hasOwn(raw||{},'budgets');comparisonKeys(raw,['id','name','savedAt','kind','snapshot','weights','result','context','evidence',...(hasBudgets?['budgets']:[])]);
+ if(hasBudgets&&raw.kind!=='modal')throw new Error('Budget de groupe réservé aux modes.');
  if(typeof raw.id!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(raw.id)||!Object.hasOwn(COMPARISON_SCOPES,raw.kind))throw new Error('Identité ou type de comparaison invalide.');
  comparisonText(raw.name,80);comparisonDate(raw.savedAt);comparisonText(raw.context,8000);
  const s=raw.snapshot;comparisonKeys(s,['formula','at','contextValid','scopes','rows']);comparisonDate(s.at);
- if(s.formula!==PRIORITY_FORMULA||!comparisonSame(s.scopes,COMPARISON_SCOPES[raw.kind]))throw new Error('Formule ou périmètre non pris en charge.');
+ const scopes={...COMPARISON_SCOPES[raw.kind],...(hasBudgets?{cost:MODAL_BUDGET_SCOPE}:{})};
+ if(s.formula!==PRIORITY_FORMULA||!comparisonSame(s.scopes,scopes))throw new Error('Formule ou périmètre non pris en charge.');
  if(!Array.isArray(s.rows)||s.rows.length<1||s.rows.length>20)throw new Error('Nombre d’options invalide.');
  for(const r of s.rows){comparisonKeys(r,['id','label','status','reason','values','scopes']);comparisonText(r.id,100);comparisonText(r.label,1024);comparisonText(r.reason,4000,true);comparisonKeys(r.values,PRIORITY_KEYS);if(!comparisonSame(r.scopes,s.scopes))throw new Error('Périmètres incohérents.');for(const v of Object.values(r.values))if(v!==null&&(typeof v!=='number'||!Number.isFinite(v)||v<0||v>1e12))throw new Error('Valeur comparative invalide.');}
  comparisonKeys(raw.weights,PRIORITY_KEYS);priorityWeights(raw.weights);
- if((raw.kind==='prepared'&&raw.weights.carbon!==0)||(raw.kind!=='prepared'&&raw.weights.cost!==0))throw new Error('Critère indisponible dans ce comparateur.');
+ if((raw.kind==='prepared'&&raw.weights.carbon!==0)||(raw.kind!=='prepared'&&!hasBudgets&&raw.weights.cost!==0))throw new Error('Critère indisponible dans ce comparateur.');
+ if(hasBudgets){const b=validateModalBudgets(raw.budgets);if(b.options.length!==s.rows.length)throw new Error('Options du budget incohérentes.');for(const r of s.rows){const option=b.options.find(x=>x.id===r.id);if(!option)throw new Error('Option du budget absente.');const cents=modalBudgetTotal(option,b.persons).totalCents;if(r.values.cost!==(cents===null?null:cents/100))throw new Error('Budget comparé incohérent avec ses composantes.');}}
  const result=priorityResult(s,raw.weights);if(!comparisonSame(result,raw.result))throw new Error('Indices, rangs ou contributions incohérents avec les valeurs conservées.');
  if(!Array.isArray(raw.evidence)||raw.evidence.length<1||raw.evidence.length>24)throw new Error('Sources et hypothèses manquantes ou trop nombreuses.');
  for(const e of raw.evidence){comparisonKeys(e,['label','text']);comparisonText(e.label,160);comparisonText(e.text,30000);}
@@ -3381,15 +3450,17 @@ function validateComparisonRecord(raw){
  return structuredClone(raw);
 }
 function validateComparisonRecords(raw){
- comparisonKeys(raw,['version','entries']);if(raw.version!==1||!Array.isArray(raw.entries)||raw.entries.length>20)throw new Error('Version inconnue ou plus de 20 comparaisons.');
+ comparisonKeys(raw,['version','entries']);if(![1,2].includes(raw.version)||!Array.isArray(raw.entries)||raw.entries.length>20)throw new Error('Version inconnue ou plus de 20 comparaisons.');
+ if(raw.version===1&&raw.entries.some(e=>Object.hasOwn(e||{},'budgets')))throw new Error('Les budgets détaillés exigent le format de comparaisons 2.');
  const entries=raw.entries.map(validateComparisonRecord);if(new Set(entries.map(e=>e.id)).size!==entries.length)throw new Error('Identités de comparaison répétées.');
- if(new TextEncoder().encode(JSON.stringify(raw)).length>2000000)throw new Error('Sauvegarde supérieure à 2 Mo.');return {version:1,entries};
+ if(new TextEncoder().encode(JSON.stringify(raw)).length>2000000)throw new Error('Sauvegarde supérieure à 2 Mo.');return {version:raw.version,entries};
 }
+function comparisonVersion(entries,current=1){return current===2||entries.some(e=>Object.hasOwn(e,'budgets'))?2:1}
 function parseComparisonRecords(text){if(typeof text!=='string'||new TextEncoder().encode(text).length>2000000)throw new Error('Fichier supérieur à 2 Mo.');return validateComparisonRecords(JSON.parse(text))}
 function comparisonReadable(e){
  e=validateComparisonRecord(e);const lines=['OùQuandQui — Comparaison historique',e.name,COMPARISON_LABELS[e.kind],`Enregistrée : ${e.savedAt}`,`Groupe figé : ${e.snapshot.at}`,`Formule : ${e.snapshot.formula}`,'Document daté et déclaratif. Aucune donnée actualisée, réservation, trajet effectué ou disponibilité attestés. Les indices ne se comparent pas entre groupes.',e.context,'','Priorités : '+PRIORITY_KEYS.map(k=>k+'='+e.weights[k]).join(' ; '),'Périmètres : '+JSON.stringify(e.snapshot.scopes),'État du résultat : '+e.result.state];
  for(const r of e.result.rows){lines.push('',r.label,`${r.status} — ${r.reason}`,r.score===null?'Sans indice':`Indice ${r.score} / 100 ; rang ${r.rank}${r.tied?' ; ex æquo':''}`,`Durée (min) : ${r.values.duration??'inconnue'} ; coût (EUR) : ${r.values.cost??'inconnu'} ; empreinte (kg CO₂e) : ${r.values.carbon??'inconnue'}`,...r.contributions.map(c=>`${c.key} : valeur ${c.value}, bornes ${c.min}–${c.max}, poids ${c.weight}, contribution ${c.points} points.`));}
- for(const x of e.evidence)lines.push('',x.label,x.text);return lines.join('\n')+'\n';
+ if(e.budgets)lines.push('',modalBudgetDescription(e.budgets));for(const x of e.evidence)lines.push('',x.label,x.text);return lines.join('\n')+'\n';
 }
 // END COMPARISON RECORD MODEL
 
@@ -3406,14 +3477,14 @@ function comparisonCurrent(kind){
  if(!view?.snapshot||view.stale||!context)throw new Error('Comparaison modifiée ou non figée. Actualiser le groupe avant de conserver ce résultat.');
  const snapshot=comparisonProjection(view.snapshot),result=priorityResult(snapshot,weights);
  if(kind==='road')evidence.push({label:'Hypothèses routières figées',text:(()=>{const s=view.snapshot;return `Départ : ${s.departure===null?'inconnu':new Date(s.departure).toISOString()} ; limite d’arrivée : ${s.arriveBy===null?'aucune':new Date(s.arriveBy).toISOString()} ; impérative : ${s.onlyBefore?'oui':'non'} ; catalogue : ${s.dataset}. `+s.rows.map(r=>`${r.label} : ${r.distanceMeters??'inconnue'} m ; calcul ${r.at===null?'non daté':new Date(r.at).toISOString()} ; ${r.routing}.`).join(' ')})()});
- return {kind,snapshot,weights,result,context,evidence};
+ return {kind,snapshot,weights,result,context,evidence,...(kind==='modal'&&view.snapshot.budgets?{budgets:structuredClone(view.snapshot.budgets)}:{})};
 }
 function loadComparisons(){comparisonBlocked=false;comparisonStore={version:1,entries:[]};comparisonRecordsRaw=null;try{comparisonRecordsRaw=localStorage.getItem(COMPARISON_KEY);if(comparisonRecordsRaw!==null)comparisonStore=parseComparisonRecords(comparisonRecordsRaw)}catch{comparisonBlocked=true;$('comparisonLibraryMessage').textContent='Comparaisons non chargées : stockage inaccessible, données invalides ou version inconnue. L’original reste protégé.'}}
 function comparisonStorageFresh(){if(comparisonBlocked)throw new Error('Stockage protégé : fermer puis rouvrir Mes comparaisons.');if(localStorage.getItem(COMPARISON_KEY)!==comparisonRecordsRaw)throw new Error('Comparaisons modifiées dans un autre onglet. Fermer puis rouvrir cette fenêtre avant de réessayer.');}
 function writeComparisons(data){comparisonStorageFresh();const clean=validateComparisonRecords(data),raw=JSON.stringify(clean);localStorage.setItem(COMPARISON_KEY,raw);comparisonRecordsRaw=raw;comparisonStore=clean;}
 function comparisonRecordHtml(e){
- const h=escapeHtml,labels={duration:e.kind==='modal'?'Temps avec attente ou marge':e.kind==='prepared'?'Conduite + pause station':'Conduite',cost:e.kind==='prepared'?'Budget historique carburant + péages':'Coût total',carbon:e.kind==='modal'?'Empreinte du groupe':'Empreinte du véhicule'};
- return `<h3>${h(e.name)}</h3><p><strong>Comparaison historique · ${COMPARISON_LABELS[e.kind]}</strong></p><p>Enregistrée le ${h(new Date(e.savedAt).toLocaleString('fr-FR'))}. Groupe figé le ${h(new Date(e.snapshot.at).toLocaleString('fr-FR'))}. Dates déclarées ; aucune actualisation des données, réservation ou déplacement attestés.</p><p>${h(e.context)}</p><p>Formule : ${h(e.snapshot.formula)}. ${PRIORITY_KEYS.map(k=>labels[k]+' : poids '+e.weights[k]).join(' ; ')}.</p><p>Les indices sont propres à ce groupe historique et ne se comparent pas aux recherches actuelles.</p>${e.result.state==='off'?'<p>Poids nuls : aucun indice.</p>':e.result.state!=='scored'?'<p>Comparaison incomplète ou non admissible : aucun indice.</p>':''}${e.result.rows.map(r=>`<article class="road-card" data-comparison-row="${h(r.id)}"><h4>${h(r.label)}</h4><p>${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p><p>${h(r.reason)}${r.status==='excluded'?' · Référence exclue':r.status==='unavailable'?' · Mode indisponible':''}</p><dl>${PRIORITY_KEYS.map(k=>`<div><dt>${labels[k]}</dt><dd>${priorityValue(r.values[k],k)}</dd></div>`).join('')}</dl>${r.contributions.length?'<details><summary>Contributions conservées</summary><ul>'+r.contributions.map(c=>'<li>'+labels[c.key]+' : '+priorityValue(c.value,c.key)+' ; bornes '+priorityValue(c.min,c.key)+' à '+priorityValue(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul></details>':''}</article>`).join('')}<details><summary>Valeurs brutes, périmètres, sources et hypothèses conservés</summary><p>${h(JSON.stringify(e.snapshot.scopes))}</p>${e.evidence.map(x=>'<h4>'+h(x.label)+'</h4><p class="comparison-evidence">'+h(x.text)+'</p>').join('')}</details>`;
+ const h=escapeHtml,labels={duration:e.kind==='modal'?'Temps avec attente ou marge':e.kind==='prepared'?'Conduite + pause station':'Conduite',cost:e.budgets?'Budget renseigné du groupe':e.kind==='prepared'?'Budget historique carburant + péages':'Coût total',carbon:e.kind==='modal'?'Empreinte du groupe':'Empreinte du véhicule'};
+ return `<h3>${h(e.name)}</h3><p><strong>Comparaison historique · ${COMPARISON_LABELS[e.kind]}</strong></p><p>Enregistrée le ${h(new Date(e.savedAt).toLocaleString('fr-FR'))}. Groupe figé le ${h(new Date(e.snapshot.at).toLocaleString('fr-FR'))}. Dates déclarées ; aucune actualisation des données, réservation ou déplacement attestés.</p><p>${h(e.context)}</p>${e.budgets?'<details><summary>Composantes et hypothèses du budget du groupe</summary><p class="comparison-evidence">'+h(modalBudgetDescription(e.budgets))+'</p></details>':''}<p>Formule : ${h(e.snapshot.formula)}. ${PRIORITY_KEYS.map(k=>labels[k]+' : poids '+e.weights[k]).join(' ; ')}.</p><p>Les indices sont propres à ce groupe historique et ne se comparent pas aux recherches actuelles.</p>${e.result.state==='off'?'<p>Poids nuls : aucun indice.</p>':e.result.state!=='scored'?'<p>Comparaison incomplète ou non admissible : aucun indice.</p>':''}${e.result.rows.map(r=>`<article class="road-card" data-comparison-row="${h(r.id)}"><h4>${h(r.label)}</h4><p>${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p><p>${h(r.reason)}${r.status==='excluded'?' · Référence exclue':r.status==='unavailable'?' · Mode indisponible':''}</p><dl>${PRIORITY_KEYS.map(k=>`<div><dt>${labels[k]}</dt><dd>${priorityValue(r.values[k],k)}</dd></div>`).join('')}</dl>${r.contributions.length?'<details><summary>Contributions conservées</summary><ul>'+r.contributions.map(c=>'<li>'+labels[c.key]+' : '+priorityValue(c.value,c.key)+' ; bornes '+priorityValue(c.min,c.key)+' à '+priorityValue(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul></details>':''}</article>`).join('')}<details><summary>Valeurs brutes, périmètres, sources et hypothèses conservés</summary><p>${h(JSON.stringify(e.snapshot.scopes))}</p>${e.evidence.map(x=>'<h4>'+h(x.label)+'</h4><p class="comparison-evidence">'+h(x.text)+'</p>').join('')}</details>`;
 }
 function offerComparison(kind,button){
  try{const data=comparisonCurrent(kind);loadComparisons();comparisonStorageFresh();if(comparisonStore.entries.length>=20)throw new Error('20 comparaisons conservées : exporter puis supprimer un souvenir avant d’en ajouter un.');comparisonDraft={data,kind,fingerprint:JSON.stringify(data)};comparisonReturn=button;$('comparisonName').value=COMPARISON_LABELS[kind]+' · '+new Date(data.snapshot.at).toLocaleDateString('fr-FR');$('comparisonConsent').checked=false;$('comparisonSaveMessage').textContent='';$('comparisonSaveSubmit').disabled=true;const e=validateComparisonRecord({id:'preview',name:$('comparisonName').value,savedAt:new Date().toISOString(),...data});$('comparisonSavePreview').innerHTML=comparisonRecordHtml(e);$('comparisonSaveDialog').showModal();$('comparisonName').focus();}catch(e){const id={road:'roadPriorityStatus',prepared:'preparedPriorityStatus',modal:'modalPriorityStatus'}[kind];$(id).textContent='Enregistrement indisponible. '+e.message;}
@@ -3429,9 +3500,9 @@ function bindComparisonRecords(){
  for(const b of document.querySelectorAll('[data-comparison-library]'))b.addEventListener('click',()=>openComparisonLibrary(b));
  $('comparisonConsent').addEventListener('change',()=>$('comparisonSaveSubmit').disabled=!$('comparisonConsent').checked);
  $('comparisonName').addEventListener('input',()=>{$('comparisonConsent').checked=false;$('comparisonSaveSubmit').disabled=true});
- $('comparisonSaveForm').addEventListener('submit',ev=>{ev.preventDefault();if(!comparisonDraft||!$('comparisonConsent').checked)return;try{const fresh=comparisonCurrent(comparisonDraft.kind);if(JSON.stringify(fresh)!==comparisonDraft.fingerprint)throw new Error('La comparaison a changé. Fermer cet aperçu, actualiser le groupe puis préparer un nouvel enregistrement.');const name=$('comparisonName').value.trim();if(comparisonStore.entries.some(e=>e.name.toLocaleLowerCase('fr-FR')===name.toLocaleLowerCase('fr-FR')))throw new Error('Ce nom existe déjà : choisir un autre nom. Aucun souvenir remplacé.');const record=validateComparisonRecord({id:crypto.randomUUID(),name,savedAt:new Date().toISOString(),...comparisonDraft.data});writeComparisons({version:1,entries:[record,...comparisonStore.entries]});const kind=comparisonDraft.kind;$('comparisonSaveDialog').close();$({road:'roadPriorityStatus',prepared:'preparedPriorityStatus',modal:'modalPriorityStatus'}[kind]).textContent='Comparaison conservée sur ce navigateur. La retrouver dans Mes comparaisons.';}catch(e){$('comparisonSaveMessage').textContent='Enregistrement impossible. '+e.message}});
- $('comparisonLibraryList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.comparisonShow||b.dataset.comparisonDelete,e=comparisonStore.entries.find(x=>x.id===id);if(!e)return;try{comparisonStorageFresh();if(b.dataset.comparisonShow){comparisonSelected=id;$('comparisonLibraryContent').innerHTML=comparisonRecordHtml(e);$('comparisonLibraryDetail').hidden=false;$('comparisonDetailTitle').focus();$('comparisonDetailTitle').scrollIntoView({block:'start'});}else if(confirm('Supprimer la comparaison « '+e.name+' » de cet environnement ? Les préparations et le journal restent conservés.')){writeComparisons({version:1,entries:comparisonStore.entries.filter(x=>x.id!==id)});renderComparisonLibrary();$('comparisonLibraryMessage').textContent='Comparaison supprimée.';$('comparisonLibraryTitle').focus();}}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
- for(const [id,format] of [['comparisonExportJson','json'],['comparisonExportText','text']])$(id).addEventListener('click',()=>{try{comparisonStorageFresh();const e=comparisonStore.entries.find(x=>x.id===comparisonSelected);if(!e)throw new Error('Choisir une comparaison.');if(format==='json')downloadProfile({version:1,entries:[e]},'OuQuandQui-comparaison.json');else downloadCycleText(comparisonReadable(e),'OuQuandQui-comparaison.txt','text/plain;charset=utf-8');}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
+ $('comparisonSaveForm').addEventListener('submit',ev=>{ev.preventDefault();if(!comparisonDraft||!$('comparisonConsent').checked)return;try{const fresh=comparisonCurrent(comparisonDraft.kind);if(JSON.stringify(fresh)!==comparisonDraft.fingerprint)throw new Error('La comparaison a changé. Fermer cet aperçu, actualiser le groupe puis préparer un nouvel enregistrement.');const name=$('comparisonName').value.trim();if(comparisonStore.entries.some(e=>e.name.toLocaleLowerCase('fr-FR')===name.toLocaleLowerCase('fr-FR')))throw new Error('Ce nom existe déjà : choisir un autre nom. Aucun souvenir remplacé.');const record=validateComparisonRecord({id:crypto.randomUUID(),name,savedAt:new Date().toISOString(),...comparisonDraft.data});writeComparisons({version:comparisonVersion([record,...comparisonStore.entries],comparisonStore.version),entries:[record,...comparisonStore.entries]});const kind=comparisonDraft.kind;$('comparisonSaveDialog').close();$({road:'roadPriorityStatus',prepared:'preparedPriorityStatus',modal:'modalPriorityStatus'}[kind]).textContent='Comparaison conservée sur ce navigateur. La retrouver dans Mes comparaisons.';}catch(e){$('comparisonSaveMessage').textContent='Enregistrement impossible. '+e.message}});
+ $('comparisonLibraryList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.comparisonShow||b.dataset.comparisonDelete,e=comparisonStore.entries.find(x=>x.id===id);if(!e)return;try{comparisonStorageFresh();if(b.dataset.comparisonShow){comparisonSelected=id;$('comparisonLibraryContent').innerHTML=comparisonRecordHtml(e);$('comparisonLibraryDetail').hidden=false;$('comparisonDetailTitle').focus();$('comparisonDetailTitle').scrollIntoView({block:'start'});}else if(confirm('Supprimer la comparaison « '+e.name+' » de cet environnement ? Les préparations et le journal restent conservés.')){writeComparisons({version:comparisonStore.version,entries:comparisonStore.entries.filter(x=>x.id!==id)});renderComparisonLibrary();$('comparisonLibraryMessage').textContent='Comparaison supprimée.';$('comparisonLibraryTitle').focus();}}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
+ for(const [id,format] of [['comparisonExportJson','json'],['comparisonExportText','text']])$(id).addEventListener('click',()=>{try{comparisonStorageFresh();const e=comparisonStore.entries.find(x=>x.id===comparisonSelected);if(!e)throw new Error('Choisir une comparaison.');if(format==='json')downloadProfile({version:comparisonVersion([e]),entries:[e]},'OuQuandQui-comparaison.json');else downloadCycleText(comparisonReadable(e),'OuQuandQui-comparaison.txt','text/plain;charset=utf-8');}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
  $('comparisonExportAll').addEventListener('click',()=>{try{comparisonStorageFresh();downloadProfile(comparisonStore,'OuQuandQui-comparaisons.json')}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
  $('comparisonExportOriginal').addEventListener('click',()=>{if(comparisonRecordsRaw!==null)downloadCycleText(comparisonRecordsRaw,'OuQuandQui-comparaisons-original.json')});
  $('comparisonErase').addEventListener('click',()=>{if(!confirm('Effacer uniquement les comparaisons de cet environnement ? Exporter une copie avant de confirmer.'))return;try{comparisonStorageFresh();localStorage.removeItem(COMPARISON_KEY);comparisonRecordsRaw=null;comparisonStore={version:1,entries:[]};comparisonImport=null;comparisonSequence++;$('comparisonImportPanel').hidden=true;renderComparisonLibrary();$('comparisonLibraryMessage').textContent='Comparaisons effacées. Les autres données sont conservées.'}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
@@ -3832,16 +3903,19 @@ function modalCarbonOrder(rows,sort){
 // END MODAL CARBON MODEL
 
 // BEGIN MODAL PRIORITIES MODEL
-function modalPrioritySnapshot(rows,context,at){
+function modalPrioritySnapshot(rows,context,at,budgets=null){
  if(!Array.isArray(rows)||!rows.length||rows.length>20||!context||typeof at!=='string'||!Number.isFinite(Date.parse(at)))throw new Error('Groupe de modes invalide.');
  const persons=modalCarbonPersons(context.persons),reasons=[];
  if(persons===null||rows.some(r=>r.emission?.persons!==persons))reasons.push('Le même groupe de 1 à 9 voyageurs est requis pour toutes les options.');
  if(typeof context.instant!=='number'||!Number.isFinite(context.instant)||typeof context.arrive!=='boolean')reasons.push('Date et intention horaire communes non vérifiables.');
- const scopes={duration:'same-request-elapsed-minutes',cost:'unavailable-modal-total-eur',carbon:'construction-energy-group-kgco2e'};
+ const budget=budgets===null?null:validateModalBudgets(budgets);
+ if(budget&&(budget.persons!==persons||budget.instant!==context.instant||budget.arrive!==context.arrive||budget.label!==context.label||budget.options.length!==rows.length||rows.some(r=>!budget.options.some(x=>x.id===r.key&&x.distanceMeters===r.distanceMeters))))throw new Error('Budgets hors du contexte de comparaison.');
+ const costs=new Map(budget?.options.map(r=>[r.id,modalBudgetTotal(r,persons).totalCents])||[]);
+ const scopes={duration:'same-request-elapsed-minutes',cost:budget?MODAL_BUDGET_SCOPE:'unavailable-modal-total-eur',carbon:'construction-energy-group-kgco2e'};
  const known=n=>typeof n==='number'&&Number.isFinite(n)&&n>=0;
  const carbon=n=>n>0&&n<.001?.0005:Number(n.toLocaleString('en-US',{useGrouping:false,minimumFractionDigits:3,maximumFractionDigits:3}));
- const copy=rows.map(r=>{const c=r.emission,complete=c?.status==='complete'&&c.scope==='construction-energy'&&c.persons===persons&&known(c.groupTotalKg);return {id:r.key,label:r.label,status:r.status,reason:r.status==='ready'?'':r.reason||'',values:{duration:known(r.elapsed)?Math.ceil(r.elapsed/60):null,cost:null,carbon:complete?carbon(c.groupTotalKg):null},scopes:{...scopes},source:structuredClone(r)}});
- return {formula:PRIORITY_FORMULA,at,persons,instant:context.instant,arrive:context.arrive,label:context.label||'',scopes,contextValid:reasons.length===0,reasons,rows:copy};
+ const copy=rows.map(r=>{const c=r.emission,complete=c?.status==='complete'&&c.scope==='construction-energy'&&c.persons===persons&&known(c.groupTotalKg);return {id:r.key,label:r.label,status:r.status,reason:r.status==='ready'?'':r.reason||'',values:{duration:known(r.elapsed)?Math.ceil(r.elapsed/60):null,cost:costs.get(r.key)==null?null:costs.get(r.key)/100,carbon:complete?carbon(c.groupTotalKg):null},scopes:{...scopes},source:structuredClone(r)}});
+ return {formula:PRIORITY_FORMULA,at,persons,instant:context.instant,arrive:context.arrive,label:context.label||'',scopes,contextValid:reasons.length===0,reasons,rows:copy,...(budget?{budgets:budget}:{})};
 }
 // END MODAL PRIORITIES MODEL
 
@@ -3971,7 +4045,7 @@ function renderTransitTimes(routes,roads,q){
  transitComparisonData={routes,roads,q,signature:transitLimitContextSignature()};const c=transitComparedCycle,shown={...roads};if(c&&roads.cycle)shown.cycle=c.criteriaError?{...roads.cycle,status:'excluded',reason:'Critères de distance invalides : '+c.criteriaError}:cycleConstrainedTiming(roads.cycle,c.view.route.distance,c);
  const rows=transitTimeRows(routes,shown,q),sourceLinks={ign:'<a href="https://cartes.gouv.fr/" target="_blank" rel="noopener noreferrer">IGN · BD TOPO</a>',osrm:'<a href="https://project-osrm.org/" target="_blank" rel="noopener noreferrer">OSRM · OpenStreetMap</a>',ors:'<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">openrouteservice.org by HeiGIT · OpenStreetMap</a>'};
  const sources=[...new Set(Object.values(roads).filter(r=>r.status==='ready').map(r=>sourceLinks[r.provider]).filter(Boolean))];
- $('transitCompareResults').innerHTML=`<h3>Comparer les temps</h3><p class="note">Même départ et même arrivée, pour une personne. Heure commune : ${transitClock(q.instant)} (Paris). ${q.arrive?'Comparaison entre le départ et l’heure limite, marge d’arrivée comprise.':'Comparaison depuis l’heure demandée, attente avant départ comprise.'} Places, accessibilité et disponibilité à bord non vérifiées.</p><div class="transit-table-scroll" role="region" aria-label="Comparaison des temps de déplacement" tabindex="0"><table><thead><tr><th scope="col">Mode</th><th scope="col">Temps comparé</th><th scope="col">Horaires et durée en chemin</th></tr></thead><tbody>${rows.map(r=>`<tr data-transit-mode="${r.mode}" data-transit-state="${r.status}"><th scope="row">${escapeHtml(r.label)}</th>${r.status==='ready'?`<td>${transitMinutes(r.elapsed)}</td><td>${transitClock(r.start)} → ${transitClock(r.end)}<br>${transitMinutes(r.duration)} en chemin</td>`:`<td>${r.status==='excluded'?'Écarté':'Indisponible'}</td><td>${escapeHtml(r.reason)}</td>`}</tr>`).join('')}</tbody></table></div><p class="note">Tri par minutes affichées, égalités conservées. Voiture et marche : estimations hors trafic et pauses, sans contrainte de calendrier routier. Les évitements et le profil saisis sont respectés ou le mode est déclaré indisponible. Prix totaux et empreintes non comparés dans ce tableau de temps ; aucun coût absent ne devient zéro. La carte représente toujours l’option collective choisie.</p>${sources.length?`<p class="note">Sources routières : ${sources.join(' · ')}.</p>`:''}${roads.cycle?transitCycleDescription():''}<button type="button" class="ghost" data-modal-carbon-open ${transitJob?'disabled':''}>Comparer les empreintes</button>`;
+ $('transitCompareResults').innerHTML=`<h3>Comparer les temps</h3><p class="note">Même départ et même arrivée, pour une personne. Heure commune : ${transitClock(q.instant)} (Paris). ${q.arrive?'Comparaison entre le départ et l’heure limite, marge d’arrivée comprise.':'Comparaison depuis l’heure demandée, attente avant départ comprise.'} Places, accessibilité et disponibilité à bord non vérifiées.</p><div class="transit-table-scroll" role="region" aria-label="Comparaison des temps de déplacement" tabindex="0"><table><thead><tr><th scope="col">Mode</th><th scope="col">Temps comparé</th><th scope="col">Horaires et durée en chemin</th></tr></thead><tbody>${rows.map(r=>`<tr data-transit-mode="${r.mode}" data-transit-state="${r.status}"><th scope="row">${escapeHtml(r.label)}</th>${r.status==='ready'?`<td>${transitMinutes(r.elapsed)}</td><td>${transitClock(r.start)} → ${transitClock(r.end)}<br>${transitMinutes(r.duration)} en chemin</td>`:`<td>${r.status==='excluded'?'Écarté':'Indisponible'}</td><td>${escapeHtml(r.reason)}</td>`}</tr>`).join('')}</tbody></table></div><p class="note">Tri par minutes affichées, égalités conservées. Voiture et marche : estimations hors trafic et pauses, sans contrainte de calendrier routier. Les évitements et le profil saisis sont respectés ou le mode est déclaré indisponible. Prix totaux et empreintes non comparés dans ce tableau de temps ; aucun coût absent ne devient zéro. La carte représente toujours l’option collective choisie.</p>${sources.length?`<p class="note">Sources routières : ${sources.join(' · ')}.</p>`:''}${roads.cycle?transitCycleDescription():''}<button type="button" class="ghost" data-modal-carbon-open ${transitJob?'disabled':''}>Comparer les empreintes et les budgets</button>`;
  renderTransitTimeNotice(q);refreshModalCarbon();transitTimeKey=transitTimeFingerprint(q);
  if(cycleContext?.returnFocus?.hasAttribute('data-transit-cycle')&&cycleContext.signature===transitInputSignature())cycleContext.returnFocus=document.querySelector('[data-transit-cycle]');
 }
@@ -4202,6 +4276,83 @@ async function loadTransitNetwork(index){
 function refreshTransitNetwork(){if(!transitNetworkView)return;const v=transitNetworkView,now=Date.now(),expiry=JSON.stringify([now-v.at>300000||now<v.at-60000,Boolean(v.alerts&&(now-v.alerts.generated>600000||now<v.alerts.generated-60000))]);if(expiry!==v.expiry)renderTransitNetwork()}
 
 
+let modalBudgetView=null,modalBudgetDraft=null;
+function clearModalBudgets(){modalBudgetView=null;modalBudgetDraft=null;$('modalBudgetSort').checked=false;$('modalBudgets').hidden=true;$('modalBudgetEditor').hidden=true;$('modalBudgetResults').replaceChildren();$('modalPriorityCost').disabled=true;$('modalPriorityCost').value='0';}
+function modalBudgetContext(){
+ const d=modalCarbonContext();if(!d||!modalCarbonView)return null;const raw=modalPriorityHypotheses(),rows=modalCarbonRows(d.routes,modalShownRoads(d),d.q,raw),persons=modalCarbonPersons(raw.persons);
+ const context={persons,instant:d.q.instant,arrive:d.q.arrive,label:`${transitContext.places.start} → ${transitContext.places.end}`};
+ return {rows,context,signature:JSON.stringify([d.signature,context,raw.car.occupants,rows.map(r=>[r.key,r.mode,r.distanceMeters,r.status,r.reason,r.elapsed])])};
+}
+function modalBudgetBundle(d){
+ if(!modalBudgetView)return null;if(modalBudgetView.signature!==d.signature)modalBudgetView.stale=true;
+ if(modalBudgetView.stale||modalBudgetDraft)return null;return validateModalBudgets(modalBudgetView.data);
+}
+function startModalBudgets(){
+ const d=modalBudgetContext();if(!d)return;if(d.context.persons===null){$('modalCarbonPeople').focus();$('modalCarbonPeopleError').textContent='Indiquer de 1 à 9 voyageurs avant de renseigner les budgets.';return}
+ modalBudgetView={signature:d.signature,stale:false,data:{version:1,scope:MODAL_BUDGET_SCOPE,...d.context,options:d.rows.map(r=>({id:r.key,mode:r.mode,distanceMeters:r.distanceMeters,entry:null}))}};modalBudgetDraft=null;
+ $('modalBudgets').hidden=false;$('modalBudgetEditor').hidden=true;$('modalPriorityCost').disabled=false;refreshModalBudgets();renderModalPriorities();$('modalBudgetsTitle').focus();
+}
+function refreshModalBudgets(){
+ if(!modalBudgetView)return;const d=modalBudgetContext();if(!d||!modalBudgetView)return;modalBudgetBundle(d);const v=modalBudgetView,h=escapeHtml,b=v.data;
+ $('modalBudgetContext').textContent=`${b.label} · ${b.persons} voyageur(s) · ${b.arrive?'arrivée au plus tard':'départ à partir de'} ${transitClock(b.instant)} (Paris).`;
+ $('modalBudgetReset').hidden=!v.stale;$('modalBudgetSort').disabled=v.stale||Boolean(modalBudgetDraft);
+ $('modalBudgetStatus').textContent=v.stale?'Contexte modifié : ces montants sont retirés du classement. Commencer un nouveau budget pour les lieux, la date et le groupe actuels.':modalBudgetDraft?'Saisie en cours : appliquer ou annuler avant de comparer ou d’enregistrer.':'Montants déclarés pour le groupe entier. Aucun tarif fournisseur ni disponibilité de réservation vérifiés.';
+ const ordered=v.stale?null:modalBudgetOrder(d.rows,b),rows=ordered&&$('modalBudgetSort').checked?[...ordered.group,...ordered.other]:b.options.map(o=>d.rows.find(r=>r.key===o.id)||{key:o.id,label:o.id,status:'unavailable'});
+ if(!v.stale&&!modalBudgetDraft)$('modalBudgetStatus').textContent+=` ${ordered.eligible} budget(s) complet(s) admissible(s). ${ordered.eligible<2?'Au moins deux sont nécessaires pour une comparaison.':'Les égalités au centime sont conservées.'}`;
+ $('modalBudgetResults').innerHTML=rows.map(r=>{const o=b.options.find(x=>x.id===r.key),t=modalBudgetTotal(o,b.persons),money=n=>fmt(n/100,2)+' €';return `<article class="road-card" data-budget-row="${h(o.id)}"><h4>${h(r.label)}</h4><p><strong>${t.totalCents!==null?'Budget renseigné : '+money(t.totalCents):t.subtotalCents!==null?'Sous-total partiel : '+money(t.subtotalCents):'Budget inconnu'}</strong>${r.budgetTied?' · Ex æquo au centime':''}</p>${v.stale||r.status!=='ready'||t.totalCents===null?'<p>Hors classement'+(v.stale?' · contexte modifié':r.status!=='ready'?' · '+h(r.reason||'Option indisponible'):' · postes inconnus')+'.</p>':''}<dl>${Object.entries(MODAL_BUDGET_COMPONENTS).map(([k,label])=>{const p=o.entry?.components[k];return `<div><dt>${label}</dt><dd>${!p?'Inconnu':p.kind==='declared'?money(p.cents)+' déclaré':money(modalBudgetRound(modalBudgetFuelRatio(p.basis,b.persons)))+' estimé pour le groupe'}</dd></div>`}).join('')}</dl>${o.entry?`<p class="note">Déclaration confirmée le ${h(new Date(o.entry.confirmedAt).toLocaleString('fr-FR'))}.</p><p>${h(o.entry.note)}</p>${o.entry.components.fuel?.kind==='fuel-estimate'?'<details><summary>Hypothèses du carburant consommé</summary><p>'+h((()=>{const f=o.entry.components.fuel.basis;return `${fmt(f.distanceMeters/1000,3)} km × ${fmt(f.litersPer100km,3)} L/100 km × ${fmt(f.pricePerLiter,3)} €/L × ${b.persons}/${f.occupants} occupants. Prix et consommation déclarés ; hors plein acheté. Calcul avant arrondi au centime.`})())+'</p></details>':''}`:''}<button type="button" class="ghost" data-budget-edit="${h(o.id)}" ${v.stale||modalBudgetDraft?'disabled':''}>${o.entry?'Modifier':'Renseigner'} · ${h(r.label)}</button></article>`}).join('');
+}
+function modalBudgetFormSignature(){return JSON.stringify([modalBudgetContext()?.signature,Array.from(document.querySelectorAll('[data-budget-input]'),e=>[e.id,e.value]),modalBudgetDraft?.basis]);}
+function editModalBudget(id){
+ const d=modalBudgetContext();if(!d||!modalBudgetBundle(d))return;const o=modalBudgetView.data.options.find(x=>x.id===id);if(!o)return;
+ modalBudgetDraft={id,basis:structuredClone(o.entry?.components.fuel?.basis||null),confirmation:null};
+ $('modalBudgetEditTitle').textContent='Budget · '+(d.rows.find(r=>r.key===id)?.label||id);
+ for(const key of Object.keys(MODAL_BUDGET_COMPONENTS)){const p=o.entry?.components[key];$('modalBudget-'+key).value=p?(p.kind==='declared'?p.cents/100:modalBudgetRound(modalBudgetFuelRatio(p.basis,d.context.persons))/100).toFixed(2):''}
+ $('modalBudget-fuel').readOnly=Boolean(modalBudgetDraft.basis);$('modalBudgetFuelTools').hidden=o.mode!=='car'||o.distanceMeters===null;
+ $('modalBudgetConsumption').value=modalBudgetDraft.basis?.litersPer100km??'';$('modalBudgetPrice').value=modalBudgetDraft.basis?.pricePerLiter??'';
+ $('modalBudgetNote').value=o.entry?.note||'';$('modalBudgetConfirm').checked=false;$('modalBudgetEditStatus').textContent='';$('modalBudgetEditor').hidden=false;renderModalBudgetFuel();refreshModalBudgets();renderModalPriorities();$('modalBudgetEditTitle').focus();
+}
+function renderModalBudgetFuel(){
+ const b=modalBudgetDraft?.basis,p=modalBudgetView?.data.persons;
+ $('modalBudgetFuelBasis').textContent=b?`${fmt(b.distanceMeters/1000,3)} km × ${fmt(b.litersPer100km,3)} L/100 km × ${fmt(b.pricePerLiter,3)} €/L × ${p}/${b.occupants} occupants. Prix et consommation déclarés. Calcul sans arrondi intermédiaire ; achat du plein exclu.`:'Estimation facultative à partir de la distance du trajet et des hypothèses renseignées. Le total des occupants est à préciser dans les hypothèses du véhicule ci-dessus.';
+ $('modalBudgetFuelManual').hidden=!b;
+}
+function changeModalBudget(e){
+ if(!modalBudgetDraft)return;$('modalBudgetConfirm').checked=false;modalBudgetDraft.confirmation=null;
+ if(['modalBudgetConsumption','modalBudgetPrice'].includes(e?.target?.id)&&modalBudgetDraft.basis){modalBudgetDraft.basis=null;$('modalBudget-fuel').value='';$('modalBudget-fuel').readOnly=false;renderModalBudgetFuel()}
+ renderModalPriorities();
+}
+function estimateModalBudgetFuel(){
+ if(!modalBudgetDraft)return;try{const d=modalBudgetContext();if(!d||d.signature!==modalBudgetView.signature||modalBudgetView.stale)throw new Error('Contexte modifié : commencer un nouveau budget.');const row=modalBudgetView.data.options.find(r=>r.id===modalBudgetDraft.id),occupants=modalCarbonPersons($('modalCarbonOccupants')?.value);
+ if(occupants===null||occupants<d.context.persons)throw new Error('Préciser le total des occupants du véhicule : de '+d.context.persons+' à 9, conducteur compris.');
+ const basis={distanceMeters:row.distanceMeters,litersPer100km:modalBudgetDecimal($('modalBudgetConsumption').value,3,1,100),pricePerLiter:modalBudgetDecimal($('modalBudgetPrice').value,3,.001,10),occupants};
+ changeModalBudget();modalBudgetDraft.basis=basis;$('modalBudget-fuel').value=(modalBudgetRound(modalBudgetFuelRatio(basis,d.context.persons))/100).toFixed(2);$('modalBudget-fuel').readOnly=true;renderModalBudgetFuel();$('modalBudgetEditStatus').textContent='Estimation ajoutée à la saisie ; relire les postes puis confirmer.';
+ }catch(e){$('modalBudgetEditStatus').textContent=e.message}
+}
+function applyModalBudget(){
+ if(!modalBudgetDraft)return;try{const d=modalBudgetContext();if(!d||!modalBudgetView||d.signature!==modalBudgetView.signature||modalBudgetView.stale)throw new Error('Contexte modifié : commencer un nouveau budget.');
+ if(!$('modalBudgetConfirm').checked||modalBudgetDraft.confirmation!==modalBudgetFormSignature())throw new Error('Relire et confirmer les montants pour ce groupe et ce trajet.');
+ if(modalBudgetDraft.basis){const b=modalBudgetDraft.basis;if(modalBudgetDecimal($('modalBudgetConsumption').value,3,1,100)!==b.litersPer100km||modalBudgetDecimal($('modalBudgetPrice').value,3,.001,10)!==b.pricePerLiter||modalBudgetCents($('modalBudget-fuel').value)!==modalBudgetRound(modalBudgetFuelRatio(b,d.context.persons)))throw new Error('Hypothèses du carburant modifiées : recalculer la part du groupe puis confirmer.');}
+ const components=Object.fromEntries(Object.keys(MODAL_BUDGET_COMPONENTS).map(k=>{const cents=modalBudgetCents($('modalBudget-'+k).value);return [k,k==='fuel'&&modalBudgetDraft.basis?{kind:'fuel-estimate',basis:structuredClone(modalBudgetDraft.basis)}:cents===null?null:{kind:'declared',cents}]}));
+ const copy=structuredClone(modalBudgetView.data),row=copy.options.find(r=>r.id===modalBudgetDraft.id);row.entry={confirmedAt:new Date().toISOString(),note:$('modalBudgetNote').value.trim(),components};modalBudgetView.data=validateModalBudgets(copy);finishModalBudget();
+ }catch(e){$('modalBudgetEditStatus').textContent=e.message}
+}
+function finishModalBudget(){const id=modalBudgetDraft?.id;modalBudgetDraft=null;$('modalBudgetEditor').hidden=true;refreshModalBudgets();renderModalPriorities();document.querySelector('[data-budget-edit="'+id+'"]')?.focus();}
+function bindModalBudgets(){
+ $('modalBudgetsOpen').addEventListener('click',()=>{if(modalBudgetView){$('modalBudgetsTitle').focus();return}startModalBudgets()});
+ $('modalBudgetReset').addEventListener('click',startModalBudgets);
+ $('modalBudgetsClose').addEventListener('click',()=>{clearModalBudgets();renderModalPriorities();$('modalBudgetsOpen').focus()});
+ $('modalBudgetSort').addEventListener('change',refreshModalBudgets);
+ $('modalBudgetResults').addEventListener('click',e=>{const b=e.target.closest('[data-budget-edit]');if(b)editModalBudget(b.dataset.budgetEdit)});
+ $('modalBudgetEditor').addEventListener('input',e=>{if(e.target.matches('[data-budget-input]'))changeModalBudget(e)});
+ $('modalBudgetEditor').addEventListener('change',e=>{if(e.target.matches('[data-budget-input]'))changeModalBudget(e)});
+ $('modalBudgetConfirm').addEventListener('change',()=>{if(modalBudgetDraft)modalBudgetDraft.confirmation=$('modalBudgetConfirm').checked?modalBudgetFormSignature():null});
+ $('modalBudgetZero').addEventListener('click',()=>{if(!modalBudgetDraft)return;changeModalBudget();modalBudgetDraft.basis=null;for(const k of Object.keys(MODAL_BUDGET_COMPONENTS))$('modalBudget-'+k).value='0.00';$('modalBudget-fuel').readOnly=false;renderModalBudgetFuel();$('modalBudgetEditStatus').textContent='Tous les postes sont déclarés à zéro. Relire puis confirmer pour appliquer.'});
+ $('modalBudgetFuelEstimate').addEventListener('click',estimateModalBudgetFuel);
+ $('modalBudgetFuelManual').addEventListener('click',()=>{if(!modalBudgetDraft)return;changeModalBudget();modalBudgetDraft.basis=null;$('modalBudget-fuel').readOnly=false;renderModalBudgetFuel();$('modalBudget-fuel').focus()});
+ $('modalBudgetApply').addEventListener('click',applyModalBudget);$('modalBudgetCancel').addEventListener('click',finishModalBudget);
+ $('modalBudgetEditTitle').addEventListener('keydown',e=>{if(e.key==='Tab'&&!e.shiftKey){e.preventDefault();$('modalBudget-travel').focus()}});
+}
+
 let modalPriorities=null;
 function clearModalPriorities(){document.querySelector('[data-comparison-save="modal"]').disabled=true;modalPriorities=null;$('modalPriorities').hidden=true;$('modalPriorityResults').replaceChildren();$('modalPriorityStatus').textContent='';$('modalPriorityGroup').textContent=''}
 function modalPriorityHypotheses(){
@@ -4216,20 +4367,21 @@ function modalPriorityData(){
  const raw=modalPriorityHypotheses(),rows=modalCarbonRows(d.routes,modalShownRoads(d),d.q,raw),hypotheses={persons:raw.persons,fuel:raw.fuel,vehicle:raw.vehicle,car:raw.car,cycle:raw.cycle,transit:raw.transit};
  const context={persons:raw.persons,instant:d.q.instant,arrive:d.q.arrive,label:`${transitContext.places.start} → ${transitContext.places.end}`};
  const constraints=['transitMaxTransfers','transitTransferRule','transitCycleLimit','transitCycleRule'].map(id=>$(id)?.value??null);
- return {rows,raw,context,signature:JSON.stringify([d.signature,context,hypotheses,constraints,d.q.excludedNetworks,d.q.networkError,rows])};
+ const budgetContext=modalBudgetView?modalBudgetContext():null,budgets=budgetContext?modalBudgetBundle(budgetContext):null;
+ return {rows,raw,context,budgets,budgetBlocked:Boolean(modalBudgetView&&!budgets),signature:JSON.stringify([d.signature,context,hypotheses,constraints,d.q.excludedNetworks,d.q.networkError,rows,budgets,Boolean(modalBudgetDraft),modalBudgetView?.stale])};
 }
 function modalPriorityWeights(){
- const raw={cost:Number($('modalPriorityCost').value)};if(raw.cost!==0)throw new Error('Coût total indisponible : poids à zéro.');
- for(const [key,id] of [['duration','modalPriorityDuration'],['carbon','modalPriorityCarbon']]){const e=$(id),valid=e.validity.valid&&e.value.trim()!=='';e.setAttribute('aria-invalid',String(!valid));raw[key]=valid?Number(e.value):NaN}return priorityWeights(raw);
+ const raw={};if(!modalBudgetView&&Number($('modalPriorityCost').value)!==0)throw new Error('Renseigner les budgets avant d’activer leur poids.');
+ for(const [key,id] of [['duration','modalPriorityDuration'],['carbon','modalPriorityCarbon'],['cost','modalPriorityCost']]){const e=$(id),valid=e.validity.valid&&e.value.trim()!=='';e.setAttribute('aria-invalid',String(!valid));raw[key]=valid?Number(e.value):NaN}return priorityWeights(raw);
 }
 function openModalPriorities(){
  if(!modalCarbonContext()||!modalCarbonView)return;if(modalPriorities){$('modalPrioritiesTitle').focus();return}
- modalPriorities={snapshot:null,signature:null,stale:false};for(const id of ['modalPriorityDuration','modalPriorityCarbon']){$(id).value='0';$(id).removeAttribute('aria-invalid')}$('modalPriorityCost').value='0';$('modalPriorities').hidden=false;renderModalPriorities();$('modalPrioritiesTitle').focus();$('modalPrioritiesTitle').scrollIntoView({block:'start'});
+ modalPriorities={snapshot:null,signature:null,stale:false};for(const id of ['modalPriorityDuration','modalPriorityCarbon','modalPriorityCost']){$(id).value='0';$(id).removeAttribute('aria-invalid')}$('modalPriorityCost').value='0';$('modalPriorities').hidden=false;renderModalPriorities();$('modalPrioritiesTitle').focus();$('modalPrioritiesTitle').scrollIntoView({block:'start'});
 }
 function captureModalPriorities(){
  const d=modalPriorityData();if(!d)return;
- try{modalPriorityWeights();Object.assign(modalCarbonView,{persons:d.raw.persons,fuel:d.raw.fuel,car:d.raw.car,cycle:d.raw.cycle,transit:d.raw.transit});refreshModalCarbon();
-  if(!modalPriorities)return;const fresh=modalPriorityData();if(!fresh)return;modalPriorities.snapshot=modalPrioritySnapshot(fresh.rows,fresh.context,new Date().toISOString());modalPriorities.signature=fresh.signature;modalPriorities.stale=false;renderModalPriorities();
+ try{modalPriorityWeights();if(d.budgetBlocked)throw new Error('Budgets en cours de saisie ou hors contexte : appliquer, annuler ou recommencer leur saisie.');Object.assign(modalCarbonView,{persons:d.raw.persons,fuel:d.raw.fuel,car:d.raw.car,cycle:d.raw.cycle,transit:d.raw.transit});refreshModalCarbon();
+  if(!modalPriorities)return;const fresh=modalPriorityData();if(!fresh)return;modalPriorities.snapshot=modalPrioritySnapshot(fresh.rows,fresh.context,new Date().toISOString(),fresh.budgets);modalPriorities.signature=fresh.signature;modalPriorities.stale=false;renderModalPriorities();
  }catch(e){$('modalPriorityResults').replaceChildren();$('modalPriorityStatus').textContent=e.message}
 }
 function renderModalPriorities(){
@@ -4240,24 +4392,24 @@ function renderModalPriorities(){
  let weights;try{weights=modalPriorityWeights()}catch(e){$('modalPriorityStatus').textContent=e.message;return}
  if(!s){$('modalPriorityStatus').textContent='Aucun indice au démarrage. Choisir les hypothèses et les poids, puis figer la comparaison.';return}
  if(v.stale){$('modalPriorityStatus').textContent='Hypothèses, contraintes ou admissibilité modifiées : indices retirés. Actualiser le groupe pour appliquer ces choix.';return}
- const result=priorityResult(s,weights),labels={duration:'Temps comparé',carbon:'Empreinte du groupe'},value=(n,k)=>n===null?'Inconnu / périmètre différent':k==='duration'?fmt(n,0)+' min':carbonAmount(n);
+ const result=priorityResult(s,weights),labels={duration:'Temps comparé',carbon:'Empreinte du groupe',cost:'Budget renseigné du groupe'},value=(n,k)=>n===null?'Inconnu / périmètre différent':k==='duration'?fmt(n,0)+' min':k==='cost'?fmt(n,2)+' €':carbonAmount(n);
  $('modalPriorityStatus').textContent={off:'Tous les poids sont à zéro : aucune recommandation pondérée. Les valeurs brutes restent disponibles.',context:'Groupe non comparable : aucun indice. Consulter les motifs ci-dessous.',insufficient:'Moins de deux options admissibles et complètes pour les critères actifs : aucun indice. Un critère incomplet peut être désactivé pour tout le groupe.',scored:'Indices relatifs aux modes complets de ce groupe et aux priorités choisies. Plus petit = plus proche de ces priorités. Aucun trajet sélectionné.'}[result.state];
  $('modalPriorityGroup').textContent=`Groupe figé le ${new Date(s.at).toLocaleString('fr-FR')} · ${s.label} · ${s.persons??'?'} voyageur(s) · ${s.arrive?'arrivée au plus tard':'départ à partir de'} ${transitClock(s.instant)} (Paris). ${result.eligible} option(s) complète(s) admissible(s). Formule ${result.formula}.`;
- $('modalPriorityResults').innerHTML=(s.reasons.length?'<ul>'+s.reasons.map(r=>'<li>'+h(r)+'</li>').join('')+'</ul>':'')+result.rows.map(r=>{const source=s.rows.find(x=>x.id===r.id).source,c=source.emission;return `<article class="road-card" data-modal-priority-id="${h(r.id)}" data-modal-priority-state="${r.status==='ready'?(r.missing.length?'incomplete':result.state):r.status}"><h4>${h(r.label)}</h4><p>${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p>${r.reason?'<p>'+h(r.reason)+'</p>':''}<dl><div><dt>Temps comparé · attente ou marge comprise</dt><dd>${value(r.values.duration,'duration')}</dd></div><div><dt>Empreinte du groupe · construction et énergie</dt><dd>${value(r.values.carbon,'carbon')}</dd></div></dl><p class="note">${h(c.reason||'')}${c.scope?' '+h(CARBON_SCOPES[c.scope])+'.':''} Valeurs brutes, modèles, allocations et sources dans les tableaux ci-dessus.</p>${r.missing.length?'<p>Critères actifs incomplets : '+r.missing.map(k=>labels[k]).join(', ')+'.</p>':''}${r.contributions.length?'<details><summary>Détail du score · '+h(r.label)+'</summary><ul>'+r.contributions.map(c=>'<li>'+labels[c.key]+' : '+value(c.value,c.key)+' ; bornes '+value(c.min,c.key)+' à '+value(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul><p>Calcul sur les minutes affichées et les millièmes de kg CO₂e. La classe positive « moins de 0,001 » est représentée par 0,0005 pour le calcul, sans devenir une mesure ni un zéro. Même indice au dixième : même rang.</p></details>':''}</article>`}).join('');
+ $('modalPriorityResults').innerHTML=(s.reasons.length?'<ul>'+s.reasons.map(r=>'<li>'+h(r)+'</li>').join('')+'</ul>':'')+result.rows.map(r=>{const source=s.rows.find(x=>x.id===r.id).source,c=source.emission;return `<article class="road-card" data-modal-priority-id="${h(r.id)}" data-modal-priority-state="${r.status==='ready'?(r.missing.length?'incomplete':result.state):r.status}"><h4>${h(r.label)}</h4><p>${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p>${r.reason?'<p>'+h(r.reason)+'</p>':''}<dl><div><dt>Temps comparé · attente ou marge comprise</dt><dd>${value(r.values.duration,'duration')}</dd></div><div><dt>Empreinte du groupe · construction et énergie</dt><dd>${value(r.values.carbon,'carbon')}</dd></div>${s.budgets?'<div><dt>Budget renseigné du groupe · frais directs</dt><dd>'+value(r.values.cost,'cost')+'</dd></div>':''}</dl><p class="note">${h(c.reason||'')}${c.scope?' '+h(CARBON_SCOPES[c.scope])+'.':''} Valeurs brutes, modèles, allocations et sources dans les tableaux ci-dessus.</p>${r.missing.length?'<p>Critères actifs incomplets : '+r.missing.map(k=>labels[k]).join(', ')+'.</p>':''}${r.contributions.length?'<details><summary>Détail du score · '+h(r.label)+'</summary><ul>'+r.contributions.map(c=>'<li>'+labels[c.key]+' : '+value(c.value,c.key)+' ; bornes '+value(c.min,c.key)+' à '+value(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul><p>Calcul sur les minutes affichées, les budgets au centime et les millièmes de kg CO₂e. La classe positive « moins de 0,001 » est représentée par 0,0005 pour le calcul, sans devenir une mesure ni un zéro. Même indice au dixième : même rang.</p></details>':''}</article>`}).join('');
  document.querySelector('[data-comparison-save="modal"]').disabled=false;
 }
 function bindModalPriorities(){
  $('modalPrioritiesOpen').addEventListener('click',openModalPriorities);$('modalPrioritiesApply').addEventListener('click',captureModalPriorities);
- $('modalPrioritiesReset').addEventListener('click',()=>{for(const id of ['modalPriorityDuration','modalPriorityCarbon'])$(id).value='0';renderModalPriorities()});
+ $('modalPrioritiesReset').addEventListener('click',()=>{for(const id of ['modalPriorityDuration','modalPriorityCarbon','modalPriorityCost'])$(id).value='0';renderModalPriorities()});
  $('modalPrioritiesClose').addEventListener('click',()=>{clearModalPriorities();$('modalPrioritiesOpen').focus()});
- for(const id of ['modalPriorityDuration','modalPriorityCarbon'])$(id).addEventListener('input',renderModalPriorities);
+ for(const id of ['modalPriorityDuration','modalPriorityCarbon','modalPriorityCost'])$(id).addEventListener('input',renderModalPriorities);
  $('modalPrioritiesTitle').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();e.stopPropagation();$(e.shiftKey?'modalPrioritiesOpen':'modalPriorityDuration').focus()}});
 }
 
 let modalCarbonView=null;
 function modalCarbonSignature(){return JSON.stringify([transitLimitContextSignature(),$('fuel').value,$('routeVehicle').value])}
 function clearModalCarbon(focus=false){
- clearModalPriorities();
+ clearModalPriorities();clearModalBudgets();
  modalCarbonView=null;$('modalCarbon').hidden=true;$('modalCarbonModels').replaceChildren();$('modalCarbonTables').replaceChildren();$('modalCarbonStatus').textContent='';
  if(focus)document.querySelector('[data-modal-carbon-open]')?.focus();
 }
@@ -4313,10 +4465,10 @@ function refreshModalCarbon(){
  $('modalCarbonContext').textContent=`${transitContext?.places?.start||'Départ'} → ${transitContext?.places?.end||'Arrivée'} · ${label} · ${transitClock(d.q.instant)} (Paris). ${d.q.arrive?'Arrivée au plus tard à cette heure.':'Départ à partir de cette heure.'} Les temps comparés incluent l’attente ou la marge d’arrivée ; distances propres à chaque parcours.`;
  $('modalCarbonStatus').textContent=`${result.eligible} estimation(s) complète(s) admissible(s) dans le périmètre construction et énergie, pour ${persons===null?'un groupe à préciser':persons===1?'une personne':`le même groupe de ${persons} personnes`}.${result.canSortCarbon?' Un tri sur la part du groupe est disponible.':' Tri carbone indisponible : au moins deux estimations complètes de même périmètre sont nécessaires.'} Les sous-totaux partiels, modes indisponibles, références hors critères et périmètres différents restent hors de ce groupe. Les valeurs brutes restent indépendantes de la pondération facultative.`;
  $('modalCarbonTables').innerHTML=modalCarbonTable(result.group,result.active?'Groupe comparable · construction et énergie':'Valeurs des modes admissibles')+(result.other.length?`<h4>${result.active?'Hors du groupe comparable':'Références hors critères ou modes indisponibles'}</h4>`+modalCarbonTable(result.other,'Valeurs hors du groupe'):'');
- renderModalPriorities();
+ refreshModalBudgets();renderModalPriorities();
 }
 function bindModalCarbon(){
- bindModalPriorities();
+ bindModalPriorities();bindModalBudgets();
  $('transitCompareResults').addEventListener('click',e=>{if(e.target.closest('[data-modal-carbon-open]'))openModalCarbon()});
  $('modalCarbonClose').addEventListener('click',()=>clearModalCarbon(true));
  const change=e=>{
