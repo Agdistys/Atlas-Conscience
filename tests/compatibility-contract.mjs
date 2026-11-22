@@ -46,6 +46,9 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "péages modes : proposition sourcée, confirmation et allocation sans appel ni écriture",
+  "péages modes : conservation volontaire V4 et sources intactes après rechargement",
+  "péages modes : clavier et texte doublé conservent relecture et fermeture",
   'budgets routiers : accès hors pilote collectif sans appel ni adoption',
   'budgets routiers : sauvegarde volontaire V3 et relecture conservant les composantes',
   "budgets modes : postes inconnus, déclaration du groupe et classement sans appel ni écriture",
