@@ -277,6 +277,7 @@
           <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
             <nav id="stationResultLinks" class="preparation-links" aria-label="Accès aux résultats des stations" hidden>
               <button id="jumpStationResult" class="ghost" type="button" data-preparation-target="stationResultsTitle" hidden>Voir les stations</button>
+              <button id="multiOpen" type="button" class="ghost navigation-button">Préparer plusieurs arrêts</button>
             </nav>
           </section>
           <details id="samplingOptions"><summary>Zone de recherche autour du trajet</summary>
@@ -290,7 +291,6 @@
           <details class="explanation"><summary>Méthode et couverture de la recherche</summary><p id="samplingNote" class="note" role="status">Calculer un trajet pour connaître le nombre de points à consulter.</p></details>
           <label for="stopMinutes">Temps prévu à la station (min, facultatif)</label><input id="stopMinutes" type="number" min="0" max="1440" step="any" inputmode="decimal" placeholder="Non renseigné" aria-describedby="stopMinutesHelp stopMinutesStatus">
           <details class="explanation"><summary>Renseigner le temps du plein</summary><p id="stopMinutesHelp" class="note">De 0 à 1 440 minutes. Prévoir le plein et l’attente sur place. Laisser vide si la durée est inconnue ; zéro signifie une pause explicitement nulle. Les autres pauses ne sont pas incluses.</p></details>
-          <button id="multiOpen" type="button" class="ghost navigation-button">Préparer plusieurs arrêts</button>
           <p id="stopMinutesStatus" class="note" role="status">Cette durée sera ajoutée uniquement après le choix d’une station.</p>
           <label for="liters">Litres à acheter</label><input id="liters" type="number" min="1" max="2000" step="1" value="40">
           <details id="rangeOptions"><summary>Autonomie et réserve</summary>
