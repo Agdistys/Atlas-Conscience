@@ -1,0 +1,7 @@
+Mobilités M / SMMAG — ODbL.
+Réponse publique du 22 novembre 2026, Grenoble Gares → Polesud, demande du 23 novembre 10 h (Paris).
+https://data.mobilites-m.fr/api/routers/default/plan
+Paramètres : TRANSIT,WALK ; wheelchair=true ; ignoreRealtimeUpdates=true ; maxWalkDistance=1500.
+Le paramètre reçu et les parcours sont conservés ; aucun attribut complet d’accessibilité.
+Cette fixture ne certifie ni terrain, ni véhicule, ni disponibilité.
+Documentation : https://data.mobilites-m.fr/donnees ; licence https://www.mobilites-m.fr/pdf/ODbL_fr_VF_1.pdf

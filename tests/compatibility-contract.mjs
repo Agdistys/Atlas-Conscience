@@ -23,6 +23,8 @@ export const compatibilityRoadCases = [
 ];
 // Additional autonomous-mode flows use the same assertions as Chromium.
 export const compatibilityModeCases = [
+  "fauteuil : pistes reçues et limites lisibles, aucun classement compatible ni routage standard",
+  "fauteuil : conservation, lecture hors ligne et reprise gardent le besoin sans nouvelle requête",
   "accès modes : cinq entrées avant le véhicule, limites visibles et aucun effet externe",
   "accès modes : commandes accessibles en paysage, texte agrandi et petit écran",
   "accès modes : cycleBtn au clavier, lieux communs et retour du focus",
