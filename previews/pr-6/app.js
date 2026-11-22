@@ -1553,14 +1553,19 @@ function serviceWaitExtend(previous,delay,mono,status){const until=mono+delay.ms
 // END SERVICE WAIT MODEL
 const serviceWaits=new Map();
 function serviceWaitError(service,state){
- const seconds=Math.ceil(serviceWaitRemaining(state,performance.now())/1000),label=service==='fuel'?'carburants':'de transports',reason=state.status===429?`Limite du service ${label} atteinte.`:`Service ${label} temporairement indisponible.`,delay=Number.isFinite(seconds)&&seconds<86400?`Réessayer dans ${seconds} s.`:Number.isFinite(seconds)?`Réessayer après environ ${Math.ceil(seconds/86400)} jour(s).`:'Délai du service trop long pour être affiché.';
- return Object.assign(new Error(reason+' '+delay+(state.source==='fallback'?' Délai du service absent ou illisible ; attente locale initiale de 60 s.':state.source==='minimum-local'?' Attente minimale locale de 5 s.':'')+' Aucune relance automatique.'),{status:state.status,serviceWait:true});
+ const seconds=Math.ceil(serviceWaitRemaining(state,performance.now())/1000),label=({fuel:'carburants',transit:'de transports','routing:ign':'IGN','routing:osrm':'routier','routing:ors':'public'})[service],reason=state.status===429?`Limite du service ${label} atteinte.`:`Service ${label} temporairement indisponible.`,delay=Number.isFinite(seconds)&&seconds<86400?`Réessayer dans ${seconds} s.`:Number.isFinite(seconds)?`Réessayer après environ ${Math.ceil(seconds/86400)} jour(s).`:'Délai du service trop long pour être affiché.';
+ return Object.assign(new Error(reason+' '+delay+(state.source==='fallback'?' Délai du service absent ou illisible ; attente locale initiale de 60 s.':state.source==='minimum-local'?' Attente minimale locale de 5 s.':'')+' Aucune relance automatique.'+(service.startsWith('routing:')?' Le critère et les contraintes sont conservés.':'')),{status:state.status,serviceWait:true,retryAfterMs:seconds*1000});
 }
 function serviceWaitGuard(service){const state=serviceWaits.get(service);if(serviceWaitRemaining(state,performance.now())>0)throw serviceWaitError(service,state);}
+function serviceWaitFromResponse(response){
+ const raw=response.headers.get('Retry-After');if(response.status!==429&&!(response.status===503&&raw!==null))return null;
+ return {delay:serviceWaitDelay(raw,Date.now(),response.headers.get('Date')),received:performance.now(),status:response.status};
+}
+function serviceWaitRemember(service,info){
+ const state=serviceWaitExtend(serviceWaits.get(service),info.delay,info.received,info.status);serviceWaits.set(service,state);return state;
+}
 function serviceWaitResponse(service,response){
- if(!service)return;
- const raw=response.headers.get('Retry-After');if(response.status!==429&&!(response.status===503&&raw!==null))return;
- const state=serviceWaitExtend(serviceWaits.get(service),serviceWaitDelay(raw,Date.now(),response.headers.get('Date')),performance.now(),response.status);serviceWaits.set(service,state);throw serviceWaitError(service,state);
+ if(!service)return;const info=serviceWaitFromResponse(response);if(info)throw serviceWaitError(service,serviceWaitRemember(service,info));
 }
 
 async function getJSON(url,label,ms=16000,signal=activeAbort?.signal,classifyError=null,service=null){
@@ -1573,7 +1578,7 @@ async function getJSON(url,label,ms=16000,signal=activeAbort?.signal,classifyErr
     serviceWaitResponse(service,r);
     if(!r.ok){
       const error=new Error(`${label} : HTTP ${r.status}`);
-      error.status=r.status;
+      error.status=r.status;error.serviceWaitInfo=serviceWaitFromResponse(r);
       const retry=r.headers.get("Retry-After");
       error.retryAfterMs=retry==null?0:/^\d+$/.test(retry)?Number(retry)*1000:Date.parse(retry)-Date.now();
       if(classifyError&&r.status===404){
@@ -1840,12 +1845,10 @@ function hasRouteGeometry(r){
   return r?.geometry?.type==="LineString"&&Array.isArray(r.geometry.coordinates)&&r.geometry.coordinates.length>1&&r.geometry.coordinates.every(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90);
 }
 function hasRouteMetrics(r){return [r?.distance,r?.duration].every(n=>Number.isFinite(n)&&n>=0)}
-const routingBlockedUntil=new Map();
 function checkRouteRequest(isCurrent,signal){if(signal?.aborted||!isCurrent())throw new DOMException('Recherche interrompue.','AbortError')}
 function routingCooldown(provider,error){
- if(error?.status===429)routingBlockedUntil.set(provider,Math.max(routingBlockedUntil.get(provider)||0,performance.now()+Math.max(5000,Number.isFinite(error.retryAfterMs)?error.retryAfterMs:0)));
- const remaining=Math.ceil(((routingBlockedUntil.get(provider)||0)-performance.now())/1000);
- if(remaining>0)throw Object.assign(new Error(`Limite du service ${provider==='ign'?'IGN':provider==='ors'?'public':'routier'} atteinte. Réessayer dans ${remaining} s. Le critère et les contraintes sont conservés.`),{status:429,retryAfterMs:remaining*1000});
+ const key='routing:'+provider;if(error?.serviceWaitInfo)serviceWaitRemember(key,error.serviceWaitInfo);
+ try{serviceWaitGuard(key)}catch(e){health('hRoute','err','routage en attente');throw e}
 }
 async function orsRoutes(points,settings,alternatives=false,isCurrent=()=>true,signal=activeAbort?.signal){
   checkRouteRequest(isCurrent,signal);routingCooldown("ors");
@@ -1857,9 +1860,10 @@ async function orsRoutes(points,settings,alternatives=false,isCurrent=()=>true,s
   const body={coordinates:points.map(([lat,lon])=>[lon,lat]),avoid:[...settings.avoid],vehicle:settings.vehicle,alternatives};
   try{
     const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/geo+json"},body:JSON.stringify(body),signal:t.signal,cache:"no-store",credentials:"omit",redirect:"error",referrerPolicy:"no-referrer"});
+    checkRouteRequest(isCurrent,signal);if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");
+    const waitInfo=serviceWaitFromResponse(response);if(waitInfo)routingCooldown("ors",{serviceWaitInfo:waitInfo});
     const data=await response.json().catch(()=>null);
     checkRouteRequest(isCurrent,signal);if(t.signal.aborted)throw new DOMException("Recherche interrompue.","AbortError");
-    if(response.status===429){const retry=response.headers.get("Retry-After");routingCooldown("ors",{status:429,retryAfterMs:retry==null?0:/^\d+$/.test(retry)?Number(retry)*1000:Date.parse(retry)-Date.now()})}
     if(!response.ok||data?.error){
       const noRoute=data?.error?.code==="NO_ROUTE";
       const message=response.status===401||response.status===403?"Accès au service public refusé.":response.status===429?"Limite du service public atteinte. Réessayer plus tard.":noRoute?"Aucun trajet accessible avec ces options.":`Service public indisponible ou demande refusée (HTTP ${response.status}).`;
@@ -1934,7 +1938,7 @@ async function route(points,overview=true,alternatives=false,settings=trip?.rout
     let base=(await orsRoutes(points,settings,false,isCurrent,signal))[0];
     if(alternatives&&base.distance<=100000){
       try{const all=await orsRoutes(points,settings,true,isCurrent,signal);base={...all[0],alternatives:all.slice(1)}}
-      catch{checkRouteRequest(isCurrent,signal);base.alternativeNotice="Recherche d’alternatives indisponible. Le trajet calculé avec les exclusions est conservé."}
+      catch(e){checkRouteRequest(isCurrent,signal);base.alternativeNotice="Recherche d’alternatives indisponible. Le trajet calculé avec les exclusions est conservé."+(e.serviceWait?" "+e.message:"")}
     }else if(alternatives)base.alternativeNotice="Alternatives non recherchées : limite OpenRouteService de 100 km dépassée.";
     health("hRoute","ok","routage ✓");
     return base;
@@ -1953,12 +1957,15 @@ async function route(points,overview=true,alternatives=false,settings=trip?.rout
   health("hRoute","ok","routage ✓");
   return {...d.routes[0],alternatives:alternatives?d.routes.slice(1).filter(r=>hasRouteGeometry(r)&&hasRouteMetrics(r)):[]};
 }
-async function matrix(points){
+async function matrix(points,isCurrent=()=>true,signal=activeAbort?.signal){
+  checkRouteRequest(isCurrent,signal);routingCooldown('osrm');health('hRoute','busy','routage…');
   const coords=points.map(p=>`${p[1]},${p[0]}`).join(";");
   const u=`${C.osrm}/table/v1/driving/${coords}?annotations=distance,duration`;
-  const d=await getJSON(u,"Matrice routière",25000);
-  if(d.code!=="Ok"||!d.distances||!d.durations) throw new Error("Matrice routière indisponible");
-  return d;
+  try{
+    const d=await getJSON(u,"Matrice routière",25000,signal);checkRouteRequest(isCurrent,signal);
+    if(d.code!=="Ok"||!d.distances||!d.durations)throw new Error("Matrice routière indisponible");
+    health('hRoute','ok','routage ✓');return d;
+  }catch(e){checkRouteRequest(isCurrent,signal);health('hRoute','err','routage ✕');routingCooldown('osrm',e);throw e}
 }
 // BEGIN STATION SAMPLING MODEL
 function samplingSettings(raw){
@@ -4871,7 +4878,7 @@ async function searchStations(more=false){
  let session=more?stationSearch:null;
  if(more&&(!session||session.cursor>=session.queue.length))return;
  if(more&&(session.trip!==trip||session.base!==trip.base||session.signature!==stationSearchSignature())){clearStations();$('fuelStatus').textContent='Critères modifiés : relancer la recherche des stations.';return}
- if(!more){try{serviceWaitGuard('fuel')}catch(e){$('fuelStatus').textContent=e.message+' Les résultats datés déjà reçus restent consultables.';return}clearStations();}
+ if(!more){try{serviceWaitGuard('fuel');routingCooldown(trip.routing.provider)}catch(e){$('fuelStatus').textContent=e.message+' Les résultats datés déjà reçus restent consultables.';return}clearStations();}
  const job={controller:new AbortController(),trip,base:trip.base,signature:stationSearchSignature(),invalid:false};stationJob=job;activeAbort=job.controller;lock(true);
  const context=()=>stationJob===job&&!job.invalid&&trip===job.trip&&trip?.base===job.base&&job.signature===stationSearchSignature(),current=()=>context()&&!job.controller.signal.aborted;
  $('cancelStationsBtn').hidden=false;$('cancelStationsBtn').disabled=false;updateStationCoverage();let problem='';
@@ -4893,7 +4900,7 @@ async function searchStations(more=false){
    }
   }else{
    $('fuelStatus').textContent=`Calcul des accès et détours de ${cands.length} stations…`;
-   const mat=await matrix([trip.a,...cands.map(s=>[s.lat,s.lon]),trip.b]);if(!current())throw new Error('Recherche interrompue.');
+   const mat=await matrix([trip.a,...cands.map(s=>[s.lat,s.lon]),trip.b],current,job.controller.signal);if(!current())throw new Error('Recherche interrompue.');
    const scored=scoreCandidates(cands,trip.base,mat,session.liters,session.cons);accept(cands,scored,{matrix:cands.length-scored.length});
   }
  }catch(e){problem=job.controller.signal.aborted?'Recherche interrompue.':e.message;dbg(e.stack||e.message);health('hFuel','err','carburants ✕')}
