@@ -202,7 +202,7 @@
         </dl>
         <details id="tariffCalculator">
           <summary>Calculer les péages — réseaux couverts</summary>
-          <p class="note">APRR, AREA et périphérique nord de Lyon : sélectionner les tronçons ou le passage payant réellement empruntés. Ce calcul ne les déduit pas de la carte et ne vérifie pas que le véhicule peut circuler sur ces routes.</p>
+          <p class="note">APRR, AREA, périphérique nord de Lyon et ponts de Normandie et de Tancarville : sélectionner les tronçons ou passages réellement empruntés. Ce calcul ne les déduit pas de la carte et ne vérifie pas que le véhicule peut circuler sur ces routes.</p>
           <details id="tollLocator"><summary>Repérer les gares proches du trajet</summary>
             <p class="note">Inventaire du 1er janvier 2025. Les points P sont des gares candidates, pas des passages confirmés ni des montants à payer.</p>
             <label for="tollGuideRadius">Distance maximale au tracé, à vol d’oiseau</label><select id="tollGuideRadius"><option value="0.1">100 mètres</option><option value="0.3" selected>300 mètres</option><option value="1">1 kilomètre</option></select>
@@ -215,13 +215,13 @@
           </details>
           <fieldset id="tariffFields" class="tariff-fields">
             <legend>Prix du tronçon choisi</legend>
-            <label for="tariffNetwork">Réseau</label><select id="tariffNetwork"><option value="APRR">APRR</option><option value="AREA">AREA</option><option value="BPNL">Périphérique nord de Lyon (BPNL)</option></select>
+            <label for="tariffNetwork">Réseau ou ouvrage</label><select id="tariffNetwork"><option value="APRR">APRR</option><option value="AREA">AREA</option><option value="BPNL">Périphérique nord de Lyon (BPNL)</option><option value="PNOR">Pont de Normandie</option><option value="PTAN">Pont de Tancarville</option></select>
             <label for="tariffClass">Classe tarifaire du véhicule</label><select id="tariffClass"><option value="">Choisir la classe</option><option value="1">Classe 1</option><option value="2">Classe 2</option><option value="3">Classe 3</option><option value="4">Classe 4</option><option value="5">Classe 5</option></select>
             <p class="note">La classe dépend notamment de la hauteur, du PTAC et des essieux. Caravane ne signifie pas automatiquement poids lourd. <a href="https://www.autoroutes.fr/FCKeditor/UserFiles/File/ASFA_classes_vehicules_2022.pdf" target="_blank" rel="noopener noreferrer">Identifier sa classe de péage</a>.</p>
             <label for="tariffDate">Date du trajet</label><input id="tariffDate" type="date" min="2026-02-01" max="2026-12-31">
             <div id="tariffPairFields"><label for="tariffEntry">Gare d’entrée</label><select id="tariffEntry"><option value="">Choisir une entrée</option></select>
             <label for="tariffExit">Gare de sortie</label><select id="tariffExit" disabled><option value="">Choisir une sortie</option></select></div>
-            <div id="tariffPassageFields" hidden><p class="note">Plein tarif pour un passage payant du périphérique nord de Lyon. Pas de réduction ni d’abonnement. Un seul passage par budget ; un retour nécessite un nouveau trajet.</p><label class="check-label"><input id="tariffPassageConfirmed" type="checkbox"> Mon trajet comprend ce passage payant.</label></div>
+            <div id="tariffPassageFields" hidden><p id="tariffPassageNote" class="note"></p><label class="check-label"><input id="tariffPassageConfirmed" type="checkbox"> Mon trajet comprend ce passage payant.</label></div>
             <p id="tariffResult" class="tariff-result" role="status">Choisir une classe, une entrée et une sortie.</p>
             <div id="tariffRecall" hidden><p id="tariffRecallNote" class="note" role="status"></p><label class="check-label"><input id="tariffRecallConfirmed" type="checkbox"> J’ai revérifié ce péage, sa classe et son passage sur le nouveau trajet.</label><button id="tariffRecallCancel" class="ghost" type="button">Annuler le réexamen</button></div>
             <label id="tariffGateConfirmation" class="check-label" hidden><input id="tariffGateConfirmed" type="checkbox"> Ces gares proposées sont bien celles de mon passage.</label>
@@ -377,7 +377,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 8460cd4 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · d2b5bdb · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
