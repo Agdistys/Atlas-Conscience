@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  'budgets routiers : accès hors pilote collectif sans appel ni adoption',
+  'budgets routiers : sauvegarde volontaire V3 et relecture conservant les composantes',
   "budgets modes : postes inconnus, déclaration du groupe et classement sans appel ni écriture",
   "budgets modes : clavier et texte doublé gardent saisie et confirmation accessibles",
   "délais modes : Vélo’v partiel conservé, clavier et reprise volontaire après attente",

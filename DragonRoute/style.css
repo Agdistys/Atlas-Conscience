@@ -234,3 +234,5 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 /* Historical comparison evidence remains inert text, readable at narrow widths. */
 .comparison-evidence{white-space:pre-wrap;overflow-wrap:anywhere}
 #comparisonLibraryDialog,#comparisonSaveDialog{max-width:800px}
+
+#roadModesDialog{width:min(980px,calc(100% - 24px))}#roadModesDialog p{overflow-wrap:anywhere}#roadModesDialog button{min-height:44px}

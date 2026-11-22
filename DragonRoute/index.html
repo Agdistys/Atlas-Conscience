@@ -165,7 +165,8 @@
         <p id="comparisonStatus" class="station-selection" role="status" aria-live="polite"></p>
         <p id="comparisonContext" class="note"></p>
         <div id="comparisonSortWrap" hidden><label for="comparisonSort">Trier les valeurs</label><select id="comparisonSort"><option value="duration">Durée croissante</option><option value="distance">Distance croissante</option><option value="cost" disabled>Coût total · incomplet</option><option value="carbon" disabled>CO₂e · comparaison incomplète</option></select><p class="note">Égalités conservées à la précision affichée. Aucun score pondéré ; les modes indisponibles restent distincts.</p></div>
-        <div id="comparisonCards" class="comparison-cards"></div>
+        <button id="roadModesOpen" type="button" class="ghost" hidden>Comparer les budgets et les empreintes</button><p id="roadModesNotice" role="status"></p>
+    <div id="comparisonCards" class="comparison-cards"></div>
         <details id="comparisonExcludedWrap" hidden><summary>Consulter les trajets écartés par les limites</summary><div id="comparisonExcluded" class="comparison-cards"></div></details>
         <button id="comparisonClose" class="ghost navigation-button" type="button">Fermer la comparaison</button>
       </section>
@@ -715,7 +716,7 @@
   <section id="transitMapWrap" hidden aria-labelledby="transitMapTitle"><h3 id="transitMapTitle"></h3><div id="transitMap" aria-label="Carte du parcours collectif"></div><svg id="transitSketch" role="img" aria-label="Schéma du parcours collectif, sans fond de carte" hidden></svg><p id="transitMapNote" class="note"></p></section>
   <section id="transitCompareResults" aria-label="Comparaison des modes" aria-live="polite"></section>
   <div id="transitResults"></div>
-  <section id="modalCarbon" hidden aria-labelledby="modalCarbonTitle">
+  <span id="modalCarbonHome" hidden></span><section id="modalCarbon" hidden aria-labelledby="modalCarbonTitle">
    <h3 id="modalCarbonTitle" tabindex="-1">Comparer les empreintes et les budgets</h3>
    <p id="modalCarbonContext"></p>
    <p>Choisir les modèles pour les options à comparer. Les choix décrivent des hypothèses moyennes ; ils ne confirment pas les véhicules réellement utilisés.</p>
@@ -824,5 +825,6 @@
   <div class="dialog-actions"><button id="sourcesRefresh" class="ghost" type="button">Relire l’inventaire local</button></div><p id="sourcesMessage" role="status" class="note"></p>
 </dialog>
 <script src="./config.js"></script><script src="./app.js" defer></script>
+<dialog id="roadModesDialog" aria-labelledby="roadModesTitle"><div class="dialog-heading"><h2 id="roadModesTitle">Comparer les modes</h2><button id="roadModesClose" type="button" class="icon-btn" aria-label="Fermer la comparaison des modes">×</button></div><div id="roadModesHost"></div></dialog>
 </body>
 </html>
