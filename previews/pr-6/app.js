@@ -3380,15 +3380,48 @@ function modalBudgetFuelRatio(basis,persons){
  return {n:a.n*b.n*c.n*BigInt(persons),d:a.d*b.d*c.d*1000n*BigInt(basis.occupants)};
 }
 function modalBudgetRound(r){return Number(r.n/r.d+(2n*(r.n%r.d)>=r.d?1n:0n));}
+function modalTollDay(instant){return new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(instant);}
+function modalTollDate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFinite(Date.parse(s+'T12:00:00Z'))&&new Date(s+'T12:00:00Z').toISOString().slice(0,10)===s;}
+function modalTollInstant(s){return typeof s==='string'&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString()===s;}
+function modalBudgetTollRatio(b,persons){return {n:BigInt(b.segments.reduce((n,s)=>n+s.cents,0))*BigInt(persons),d:BigInt(b.occupants)};}
+function modalTollRouteIdentity(route,settings,a,b){
+ const points=route?.geometry?.coordinates;
+ if(settings?.vehicle?.type!=='car'||!['ign','osrm','ors'].includes(settings.provider)||!Array.isArray(points)||points.length<2||points.length>100000||points.some(p=>!Array.isArray(p)||p.length!==2||!p.every(Number.isFinite)||Math.abs(p[0])>180||Math.abs(p[1])>90)||![a,b].every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite))||!Number.isFinite(route.distance)||route.distance<0||route.distance>20000000||!Number.isFinite(route.duration)||route.duration<0||route.duration>31536000)throw new Error('Tracé automobile non vérifiable.');
+ const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
+ return JSON.stringify(canonical({a,b,settings,points,distance:route.distance,duration:route.duration,resourceVersion:route.resourceVersion??null}));
+}
+function modalBudgetPartRatio(part,persons){return part.kind==='declared'?{n:BigInt(part.cents),d:1n}:part.kind==='toll-estimate'?modalBudgetTollRatio(part.basis,persons):modalBudgetFuelRatio(part.basis,persons);}
+function validateModalTollBasis(b,raw,row,entry){
+ modalBudgetKeys(b,['date','vehicleClass','occupants','coverage','reviewedAt','route','segments']);
+ if(raw.version!==3||raw.origin!=='road'||row.mode!=='car'||!modalTollDate(b.date)||b.date!==modalTollDay(raw.instant)||!/^\d$/.test(b.vehicleClass)||!['1','2','3','4','5'].includes(b.vehicleClass)||!Number.isInteger(b.occupants)||b.occupants<raw.persons||b.occupants>9||!['partial','declared-complete'].includes(b.coverage)||!modalTollInstant(b.reviewedAt)||Date.parse(b.reviewedAt)>Date.parse(entry.confirmedAt))throw new Error('Contexte des péages incompatible avec ce groupe.');
+ const r=b.route;modalBudgetKeys(r,['sha256','provider','resourceVersion','distanceMeters','durationSeconds','calculatedAt','comparedAt']);
+ if(typeof r.sha256!=='string'||!/^[a-f0-9]{64}$/.test(r.sha256)||!['ign','osrm','ors'].includes(r.provider)||r.distanceMeters!==row.distanceMeters||r.distanceMeters===null||typeof r.durationSeconds!=='number'||!Number.isFinite(r.durationSeconds)||r.durationSeconds<0||r.durationSeconds>31536000||![r.calculatedAt,r.comparedAt].every(t=>modalTollInstant(t)&&Date.parse(t)<=Date.parse(b.reviewedAt)))throw new Error('Référence du tracé des péages invalide.');
+ if(r.resourceVersion!==null)modalBudgetText(r.resourceVersion,150);
+ if(!Array.isArray(b.segments)||!b.segments.length||b.segments.length>10)throw new Error('Tronçons tarifaires manquants ou trop nombreux.');const ids=new Set();
+ for(const s of b.segments){
+  modalBudgetKeys(s,['network','kind','entry','exit','cents','source']);modalBudgetText(s.network,80);
+  if(!['pair','passage'].includes(s.kind)||!Number.isSafeInteger(s.cents)||s.cents<0||s.cents>10000000)throw new Error('Tronçon tarifaire invalide.');
+  if(s.kind==='passage'){if(s.entry!==null||s.exit!==null)throw new Error('Passage tarifaire incohérent.');}else{modalBudgetText(s.entry,300);modalBudgetText(s.exit,300);}
+  const id=JSON.stringify([s.network,s.kind,s.entry,s.exit]);if(ids.has(id))throw new Error('Péage répété dans la proposition.');ids.add(id);
+  const p=s.source;modalBudgetKeys(p,['url','title','effectiveFrom','lastReviewed','consultationUntil']);modalBudgetText(p.url,2000);modalBudgetText(p.title,500);
+  const u=new URL(p.url);if(u.protocol!=='https:'||u.username||u.password||![p.effectiveFrom,p.lastReviewed,p.consultationUntil].every(modalTollDate)||b.date<p.effectiveFrom||b.date>p.consultationUntil||modalTollDay(Date.parse(b.reviewedAt))>p.consultationUntil||p.lastReviewed>modalTollDay(Date.parse(b.reviewedAt)))throw new Error('Source ou période tarifaire invalide.');
+ }
+ if(b.segments.reduce((n,s)=>n+s.cents,0)>10000000)throw new Error('Somme tarifaire hors limite du budget.');
+ return b;
+}
+function modalBudgetTollDescription(b,persons,reference=true){
+ const total=b.segments.reduce((n,s)=>n+s.cents,0),money=n=>(n/100).toFixed(2)+' EUR';
+ return [`Grilles examinées : ${money(total)} pour le véhicule ; part du groupe ${persons}/${b.occupants} = ${money(modalBudgetRound(modalBudgetTollRatio(b,persons)))}. Calcul avant arrondi.`,`${b.coverage==='declared-complete'?'Couverture complète déclarée':'Couverture partielle ; autres péages inconnus'}. Classe ${b.vehicleClass}, aller simple du ${b.date}. Occupation constante déclarée, passage et absence de chevauchement à vérifier ; aucune validation cartographique.`,...(reference?[`Réexaminé le ${b.reviewedAt}. Tracé ${b.route.provider}, ${b.route.distanceMeters} m, ${b.route.durationSeconds} s ; calcul ${b.route.calculatedAt}, comparaison ${b.route.comparedAt}, données ${b.route.resourceVersion||'date inconnue'}. Empreinte SHA-256 ${b.route.sha256}.`]:[]),...b.segments.map(s=>`${s.network} · ${s.kind==='passage'?'un passage':s.entry+' → '+s.exit} · ${money(s.cents)} véhicule · ${s.source.title} · ${s.source.url} · effet ${s.source.effectiveFrom}, source consultée ${s.source.lastReviewed}, consultation jusqu’au ${s.source.consultationUntil}.`),'Référence conservée, sans authentification d’un fichier importé. Aucun maintien du tarif garanti.'].join('\n');
+}
 function validateModalBudgets(raw){
- modalBudgetKeys(raw,['version','scope','persons','instant','arrive','label','options',...(raw?.version===2?['origin']:[])]);
- if(raw.version===2&&(raw.origin!=='road'||raw.arrive!==false||raw.options?.some(r=>!['car','walk','cycle'].includes(r.mode))))throw new Error('Origine du budget routier invalide.');
- if(![1,2].includes(raw.version)||raw.scope!==MODAL_BUDGET_SCOPE||!Number.isInteger(raw.persons)||raw.persons<1||raw.persons>9||typeof raw.instant!=='number'||!Number.isFinite(raw.instant)||raw.instant<946684800000||raw.instant>4102444800000||typeof raw.arrive!=='boolean')throw new Error('Groupe, date ou périmètre du budget non vérifiable.');
+ modalBudgetKeys(raw,['version','scope','persons','instant','arrive','label','options',...([2,3].includes(raw?.version)?['origin']:[])]);
+ if([2,3].includes(raw.version)&&(raw.origin!=='road'||raw.arrive!==false||raw.options?.some(r=>!['car','walk','cycle'].includes(r.mode))))throw new Error('Origine du budget routier invalide.');
+ if(![1,2,3].includes(raw.version)||raw.scope!==MODAL_BUDGET_SCOPE||!Number.isInteger(raw.persons)||raw.persons<1||raw.persons>9||typeof raw.instant!=='number'||!Number.isFinite(raw.instant)||raw.instant<946684800000||raw.instant>4102444800000||typeof raw.arrive!=='boolean')throw new Error('Groupe, date ou périmètre du budget non vérifiable.');
  modalBudgetText(raw.label,4000);if(!Array.isArray(raw.options)||!raw.options.length||raw.options.length>20)throw new Error('Options du budget invalides.');const ids=new Set();
  for(const row of raw.options){
   modalBudgetKeys(row,['id','mode','distanceMeters','entry']);
   if(typeof row.id!=='string'||!/^(car|walk|cycle|transit-\d+)$/.test(row.id)||ids.has(row.id)||!['car','walk','cycle','transit'].includes(row.mode)||(row.mode==='transit'?!row.id.startsWith('transit-'):row.id!==row.mode))throw new Error('Identité du budget non vérifiable.');ids.add(row.id);
-  if(row.distanceMeters!==null&&(typeof row.distanceMeters!=='number'||!Number.isFinite(row.distanceMeters)||row.distanceMeters<0||row.distanceMeters>(raw.version===2?20000000:150000)))throw new Error('Distance du budget invalide.');
+  if(row.distanceMeters!==null&&(typeof row.distanceMeters!=='number'||!Number.isFinite(row.distanceMeters)||row.distanceMeters<0||row.distanceMeters>(raw.version>=2?20000000:150000)))throw new Error('Distance du budget invalide.');
   const e=row.entry;if(e===null)continue;modalBudgetKeys(e,['confirmedAt','note','components']);modalBudgetText(e.note,1000,true);
   if(typeof e.confirmedAt!=='string'||!Number.isFinite(Date.parse(e.confirmedAt))||new Date(e.confirmedAt).toISOString()!==e.confirmedAt)throw new Error('Date de confirmation invalide.');
   modalBudgetKeys(e.components,Object.keys(MODAL_BUDGET_COMPONENTS));
@@ -3399,14 +3432,17 @@ function validateModalBudgets(raw){
     modalBudgetKeys(part,['kind','basis']);const b=part.basis;modalBudgetKeys(b,['distanceMeters','litersPer100km','pricePerLiter','occupants']);
     if(key!=='fuel'||row.mode!=='car'||row.distanceMeters===null||b.distanceMeters!==row.distanceMeters||!Number.isInteger(b.occupants)||b.occupants<raw.persons||b.occupants>9)throw new Error('Répartition ou distance du carburant incompatible avec le groupe.');
     for(const [name,min,max] of [['litersPer100km',1,100],['pricePerLiter',.001,10]]){const v=b[name];if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max||Number(v.toFixed(3))!==v)throw new Error('Hypothèse de carburant invalide.');}
+   }else if(part.kind==='toll-estimate'){
+    modalBudgetKeys(part,['kind','basis']);if(key!=='tolls')throw new Error('Montant tarifaire réservé au poste péages.');validateModalTollBasis(part.basis,raw,row,e);
    }else throw new Error('Origine du montant non prise en charge.');
   }
+  if(e.components.tolls?.kind==='toll-estimate'&&e.components.fuel?.kind==='fuel-estimate'&&e.components.tolls.basis.occupants!==e.components.fuel.basis.occupants)throw new Error('Occupants différents entre carburant et péages du même trajet.');
  }
  return structuredClone(raw);
 }
 function modalBudgetTotal(row,persons){
  let n=0n,d=1n,known=0;const missing=[];
- for(const key of Object.keys(MODAL_BUDGET_COMPONENTS)){const part=row.entry?.components[key];if(!part){missing.push(key);continue}known++;const r=part.kind==='declared'?{n:BigInt(part.cents),d:1n}:modalBudgetFuelRatio(part.basis,persons);n=n*r.d+r.n*d;d*=r.d;}
+ for(const key of Object.keys(MODAL_BUDGET_COMPONENTS)){const part=row.entry?.components[key];if(!part){missing.push(key);continue}known++;if(part.kind==='toll-estimate'&&part.basis.coverage!=='declared-complete')missing.push(key);const r=modalBudgetPartRatio(part,persons);n=n*r.d+r.n*d;d*=r.d;}
  const subtotalCents=known?modalBudgetRound({n,d}):null;return {known,missing,subtotalCents,totalCents:missing.length?null:subtotalCents,status:!known?'unknown':missing.length?'partial':'complete'};
 }
 function modalBudgetOrder(rows,budgets){
@@ -3420,7 +3456,7 @@ function modalBudgetOrder(rows,budgets){
 function modalBudgetDescription(budgets){
  const b=validateModalBudgets(budgets),money=n=>(n/100).toFixed(2)+' EUR',lines=[`Budget renseigné pour ${b.persons} voyageur(s) ; ${b.label} ; ${b.arrive?'arrivée au plus tard':'départ à partir de'} ${new Date(b.instant).toISOString()}.`, 'Frais directs de cet aller simple, hors achat, entretien, assurance et amortissement du matériel. Déclarations et estimations, sans devis ni disponibilité de réservation.'];
  for(const r of b.options){const t=modalBudgetTotal(r,b.persons);lines.push('',r.id+' : '+(t.totalCents!==null?'Budget complet dans ce périmètre '+money(t.totalCents):t.subtotalCents!==null?'Sous-total partiel '+money(t.subtotalCents):'Budget inconnu'));
-  if(r.entry){lines.push('Confirmé le '+r.entry.confirmedAt,r.entry.note);for(const [key,p] of Object.entries(r.entry.components))lines.push(MODAL_BUDGET_COMPONENTS[key]+' : '+(!p?'inconnu':p.kind==='declared'?money(p.cents)+' déclaré':money(modalBudgetRound(modalBudgetFuelRatio(p.basis,b.persons)))+` estimé ; ${p.basis.distanceMeters} m × ${p.basis.litersPer100km} L/100 km × ${p.basis.pricePerLiter} EUR/L × ${b.persons}/${p.basis.occupants} occupants. Prix et consommation déclarés ; carburant consommé, hors plein acheté. Total calculé avant arrondi.`));}
+  if(r.entry){lines.push('Confirmé le '+r.entry.confirmedAt,r.entry.note);for(const [key,p] of Object.entries(r.entry.components))lines.push(MODAL_BUDGET_COMPONENTS[key]+' : '+(!p?'inconnu':p.kind==='declared'?money(p.cents)+' déclaré':p.kind==='toll-estimate'?modalBudgetTollDescription(p.basis,b.persons):money(modalBudgetRound(modalBudgetFuelRatio(p.basis,b.persons)))+` estimé ; ${p.basis.distanceMeters} m × ${p.basis.litersPer100km} L/100 km × ${p.basis.pricePerLiter} EUR/L × ${b.persons}/${p.basis.occupants} occupants. Prix et consommation déclarés ; carburant consommé, hors plein acheté. Total calculé avant arrondi.`));}
  }
  return lines.join('\n');
 }
@@ -3454,13 +3490,14 @@ function validateComparisonRecord(raw){
  return structuredClone(raw);
 }
 function validateComparisonRecords(raw){
- comparisonKeys(raw,['version','entries']);if(![1,2,3].includes(raw.version)||!Array.isArray(raw.entries)||raw.entries.length>20)throw new Error('Version inconnue ou plus de 20 comparaisons.');
+ comparisonKeys(raw,['version','entries']);if(![1,2,3,4].includes(raw.version)||!Array.isArray(raw.entries)||raw.entries.length>20)throw new Error('Version inconnue ou plus de 20 comparaisons.');
  if(raw.version===1&&raw.entries.some(e=>Object.hasOwn(e||{},'budgets')))throw new Error('Les budgets détaillés exigent le format de comparaisons 2.');
- if(raw.version<3&&raw.entries.some(e=>e?.budgets?.version===2))throw new Error('Les budgets routiers exigent le format de comparaisons 3.');
+ if(raw.version<3&&raw.entries.some(e=>e?.budgets?.version>=2))throw new Error('Les budgets routiers exigent le format de comparaisons 3.');
+ if(raw.version<4&&raw.entries.some(e=>e?.budgets?.version===3))throw new Error('Les péages sourcés exigent le format de comparaisons 4.');
  const entries=raw.entries.map(validateComparisonRecord);if(new Set(entries.map(e=>e.id)).size!==entries.length)throw new Error('Identités de comparaison répétées.');
  if(new TextEncoder().encode(JSON.stringify(raw)).length>2000000)throw new Error('Sauvegarde supérieure à 2 Mo.');return {version:raw.version,entries};
 }
-function comparisonVersion(entries,current=1){return current===3||entries.some(e=>e.budgets?.version===2)?3:current===2||entries.some(e=>Object.hasOwn(e,'budgets'))?2:1}
+function comparisonVersion(entries,current=1){return current===4||entries.some(e=>e.budgets?.version===3)?4:current===3||entries.some(e=>e.budgets?.version===2)?3:current===2||entries.some(e=>Object.hasOwn(e,'budgets'))?2:1}
 function parseComparisonRecords(text){if(typeof text!=='string'||new TextEncoder().encode(text).length>2000000)throw new Error('Fichier supérieur à 2 Mo.');return validateComparisonRecords(JSON.parse(text))}
 function comparisonReadable(e){
  e=validateComparisonRecord(e);const lines=['OùQuandQui — Comparaison historique',e.name,COMPARISON_LABELS[e.kind],`Enregistrée : ${e.savedAt}`,`Groupe figé : ${e.snapshot.at}`,`Formule : ${e.snapshot.formula}`,'Document daté et déclaratif. Aucune donnée actualisée, réservation, trajet effectué ou disponibilité attestés. Les indices ne se comparent pas entre groupes.',e.context,'','Priorités : '+PRIORITY_KEYS.map(k=>k+'='+e.weights[k]).join(' ; '),'Périmètres : '+JSON.stringify(e.snapshot.scopes),'État du résultat : '+e.result.state];
@@ -4303,6 +4340,66 @@ function refreshTransitNetwork(){if(!transitNetworkView)return;const v=transitNe
 
 
 let modalBudgetView=null,modalBudgetDraft=null;
+function modalTollInput(){
+ const d=modalCarbonView?.source==='road'?roadModalContext(modalCarbonView.op):null,op=d?.op,car=op?.entries.find(e=>e.mode==='car'&&e.status==='ready');
+ if(!d||!car||d.rows.find(r=>r.mode==='car')?.status!=='ready'||!trip||busy)throw new Error('Péages proposés uniquement pour un trajet automobile actuel dans cette comparaison.');
+ if(selectedStop||trip.meetings)throw new Error('Le trajet affiché comprend un arrêt ou des rencontres ; cette comparaison porte sur un aller direct.');
+ if(!tableTolls.segments.length||tollState.quote||tollState.enabled)throw new Error('Ajouter et examiner les grilles de péage dans le budget du trajet avant cette comparaison.');
+ const key=JSON.stringify([trip.calculatedAt,trip.routing,trip.base.geometry.coordinates,trip.base.distance,undefined]);
+ if(key!==tableTolls.key)throw new Error('Les péages ne sont plus liés au trajet affiché.');
+ const identity=modalTollRouteIdentity(trip.base,trip.routing,trip.a,trip.b);
+ if(identity!==modalTollRouteIdentity(car.route,car.settings,op.source.a,op.source.b))throw new Error('Le tracé automobile comparé diffère du trajet portant les péages. Aucun montant repris.');
+ if($('stationDeparture').value!==$('comparisonDeparture').value||$('tariffDate').value!==modalTollDay(d.q.instant)||tableTolls.segments.some(s=>s.date!==modalTollDay(d.q.instant))||!tariffBudgetValid())throw new Error('Départ ou date des péages différents : les vérifier dans le budget du trajet.');
+ const vehicleClass=$('tariffClass').value,persons=modalCarbonPersons($('modalCarbonPeople').value),occupants=modalCarbonPersons($('modalCarbonOccupants').value);
+ if(!persons||!occupants||occupants<persons)throw new Error('Préciser le groupe et le total des occupants du véhicule, conducteur compris.');
+ if(tableTolls.segments.some(s=>s.vehicleClass!==vehicleClass)||!['1','2','3','4','5'].includes(vehicleClass))throw new Error('Classe tarifaire différente ou non vérifiable.');
+ const segments=tableTolls.segments.map(s=>{
+  const n=tariffData.networks[s.network],price=n.kind==='passage'?n.amountsCents?.[Number(vehicleClass)-1]:n.rows.find(r=>r[0]===s.entry&&r[1]===s.exit)?.[Number(vehicleClass)+1];
+  if(n.kind!==s.kind||price!==s.amount)throw new Error('Montant ou tronçon différent de la grille consultée.');
+  return {network:s.network,kind:n.kind,entry:n.kind==='passage'?null:n.gates[s.entry],exit:n.kind==='passage'?null:n.gates[s.exit],cents:s.amount,source:{url:n.source,title:n.sourceTitle||n.label||s.network,effectiveFrom:n.effectiveFrom,lastReviewed:n.lastReviewed,consultationUntil:n.consultationUntil}};
+ });
+ const basis={date:modalTollDay(d.q.instant),vehicleClass,occupants,coverage:$('tariffComplete').checked?'declared-complete':'partial',route:{provider:car.settings.provider,resourceVersion:car.route.resourceVersion??null,distanceMeters:car.route.distance,durationSeconds:car.route.duration,calculatedAt:trip.calculatedAt,comparedAt:op.at},segments};
+ return {basis,identity,persons,instant:d.q.instant,signature:JSON.stringify([key,identity,basis,persons,d.q.instant,$('tariffDate').value])};
+}
+function syncModalTollBinding(){
+ if(!modalBudgetView)return;
+ const binding=modalBudgetView.tollBinding||modalBudgetDraft?.tollBinding,proposal=modalBudgetDraft?.proposal;
+ if(!binding&&!proposal)return;
+ let current;try{current=modalTollInput()}catch{}
+ if(binding&&binding!==current?.signature)modalBudgetView.stale=true;
+ if(proposal&&proposal.signature!==current?.signature){modalBudgetDraft.proposal=null;$('modalBudgetTollReview').hidden=true;$('modalBudgetTollStatus').textContent='Source ou contexte modifié : examiner à nouveau les péages.';}
+}
+async function proposeModalTolls(){
+ const draft=modalBudgetDraft;if(!draft)return;const request=(draft.request||0)+1;draft.request=request;
+ draft.proposal=null;$('modalBudgetTollReview').hidden=true;
+ try{
+  const d=modalBudgetContext();if(!d||d.signature!==modalBudgetView?.signature||modalBudgetView.stale)throw new Error('Contexte modifié : commencer un nouveau budget.');
+  if(draft.id!=='car')throw new Error('Proposition réservée au véhicule léger.');
+  if($('modalBudget-tolls').value.trim())throw new Error('Le poste péages contient déjà un montant. Le retirer explicitement avant de proposer les grilles ; aucun montant ne sera écrasé.');
+  const input=modalTollInput();$('modalBudgetTollStatus').textContent='Vérification du lien avec le tracé…';
+  const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(input.identity));
+  if(modalBudgetDraft!==draft||draft.request!==request||modalBudgetView?.stale)return;
+  if(input.signature!==modalTollInput().signature)throw new Error('Source modifiée pendant la vérification. Examiner les péages à nouveau.');
+  const basis={...input.basis,route:{...input.basis.route,sha256:Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,'0')).join('')},reviewedAt:new Date().toISOString()};
+  validateModalTollBasis(basis,{version:3,origin:'road',instant:input.instant,persons:input.persons},{mode:'car',distanceMeters:basis.route.distanceMeters},{confirmedAt:basis.reviewedAt});
+  draft.proposal={basis,signature:input.signature};$('modalBudgetTollSummary').textContent=modalBudgetTollDescription(basis,input.persons,false);$('modalBudgetTollConfirm').checked=false;$('modalBudgetTollAdopt').disabled=true;$('modalBudgetTollReview').hidden=false;
+  $('modalBudgetTollStatus').textContent=basis.coverage==='partial'?'Sous-total proposé ; les péages manquants resteront inconnus.':'Montant proposé avec couverture déclarée complète. Vérifier les tronçons, la classe et le partage.';
+ }catch(e){if(modalBudgetDraft===draft&&draft.request===request)$('modalBudgetTollStatus').textContent=e.message}
+}
+function adoptModalTolls(){
+ if(!modalBudgetDraft)return;
+ try{syncModalTollBinding();const p=modalBudgetDraft.proposal;if(!p||modalBudgetView.stale||!$('modalBudgetTollConfirm').checked||p.signature!==modalTollInput().signature)throw new Error('Examiner et confirmer les péages pour ce trajet et ces occupants.');
+  if($('modalBudget-tolls').value.trim())throw new Error('Le poste péages contient déjà un montant : aucun remplacement automatique.');
+  changeModalBudget();modalBudgetDraft.tolls=structuredClone(p.basis);modalBudgetDraft.tollBinding=p.signature;modalBudgetDraft.proposal=null;
+  $('modalBudget-tolls').value=(modalBudgetRound(modalBudgetTollRatio(p.basis,modalBudgetView.data.persons))/100).toFixed(2);$('modalBudget-tolls').readOnly=true;renderModalBudgetTolls();
+  $('modalBudgetEditStatus').textContent='Péages proposés ajoutés à la saisie. Relire tous les postes et confirmer avant application.';
+ }catch(e){$('modalBudgetTollStatus').textContent=e.message}
+}
+function renderModalBudgetTolls(){
+ const b=modalBudgetDraft?.tolls;$('modalBudgetTollManual').hidden=!b;$('modalBudgetTollReview').hidden=true;
+ $('modalBudgetTollStatus').textContent=b?(b.coverage==='partial'?'Sous-total de péages adopté ; budget encore incomplet.':'Péages adoptés ; couverture complète déclarée.'):'Examiner les grilles déjà choisies pour le trajet affiché. Aucun montant ajouté sans confirmation.';
+ $('modalBudgetTollBasis').textContent=b?modalBudgetTollDescription(b,modalBudgetView.data.persons):'';$('modalBudgetTollDetails').hidden=!b;
+}
 function clearModalBudgets(){modalBudgetView=null;modalBudgetDraft=null;$('modalBudgetSort').checked=false;$('modalBudgets').hidden=true;$('modalBudgetEditor').hidden=true;$('modalBudgetResults').replaceChildren();$('modalPriorityCost').disabled=true;$('modalPriorityCost').value='0';}
 function modalBudgetContext(){
  const d=modalCarbonContext();if(!d||!modalCarbonView)return null;const raw=modalPriorityHypotheses(),rows=modalRowsFor(d,raw),persons=modalCarbonPersons(raw.persons);
@@ -4310,7 +4407,7 @@ function modalBudgetContext(){
  return {rows,context,signature:JSON.stringify([d.signature,d.constraints,context,raw.car.occupants,rows.map(r=>[r.key,r.mode,r.distanceMeters,r.status,r.reason,r.elapsed])])};
 }
 function modalBudgetBundle(d){
- if(!modalBudgetView)return null;if(modalBudgetView.signature!==d.signature)modalBudgetView.stale=true;
+ if(!modalBudgetView)return null;syncModalTollBinding();if(modalBudgetView.signature!==d.signature)modalBudgetView.stale=true;
  if(modalBudgetView.stale||modalBudgetDraft)return null;return validateModalBudgets(modalBudgetView.data);
 }
 function startModalBudgets(){
@@ -4322,18 +4419,18 @@ function refreshModalBudgets(){
  if(!modalBudgetView)return;const d=modalBudgetContext();if(!d||!modalBudgetView)return;modalBudgetBundle(d);const v=modalBudgetView,h=escapeHtml,b=v.data;
  $('modalBudgetContext').textContent=`${b.label} · ${b.persons} voyageur(s) · ${b.arrive?'arrivée au plus tard':'départ à partir de'} ${transitClock(b.instant)} (Paris).`;
  $('modalBudgetReset').hidden=!v.stale;$('modalBudgetSort').disabled=v.stale||Boolean(modalBudgetDraft);
- $('modalBudgetStatus').textContent=v.stale?'Contexte modifié : ces montants sont retirés du classement. Commencer un nouveau budget pour les lieux, la date et le groupe actuels.':modalBudgetDraft?'Saisie en cours : appliquer ou annuler avant de comparer ou d’enregistrer.':'Montants déclarés pour le groupe entier. Aucun tarif fournisseur ni disponibilité de réservation vérifiés.';
+ $('modalBudgetStatus').textContent=v.stale?'Contexte modifié : ces montants sont retirés du classement. Commencer un nouveau budget pour les lieux, la date et le groupe actuels.':modalBudgetDraft?'Saisie en cours : appliquer ou annuler avant de comparer ou d’enregistrer.':'Montants du groupe : déclarations et estimations selon les sources et hypothèses indiquées. Aucune disponibilité de réservation vérifiée.';
  const ordered=v.stale?null:modalBudgetOrder(d.rows,b),rows=ordered&&$('modalBudgetSort').checked?[...ordered.group,...ordered.other]:b.options.map(o=>d.rows.find(r=>r.key===o.id)||{key:o.id,label:o.id,status:'unavailable'});
  if(!v.stale&&!modalBudgetDraft)$('modalBudgetStatus').textContent+=` ${ordered.eligible} budget(s) complet(s) admissible(s). ${ordered.eligible<2?'Au moins deux sont nécessaires pour une comparaison.':'Les égalités au centime sont conservées.'}`;
- $('modalBudgetResults').innerHTML=rows.map(r=>{const o=b.options.find(x=>x.id===r.key),t=modalBudgetTotal(o,b.persons),money=n=>fmt(n/100,2)+' €';return `<article class="road-card" data-budget-row="${h(o.id)}"><h4>${h(r.label)}</h4><p><strong>${t.totalCents!==null?'Budget renseigné : '+money(t.totalCents):t.subtotalCents!==null?'Sous-total partiel : '+money(t.subtotalCents):'Budget inconnu'}</strong>${r.budgetTied?' · Ex æquo au centime':''}</p>${v.stale||r.status!=='ready'||t.totalCents===null?'<p>Hors classement'+(v.stale?' · contexte modifié':r.status!=='ready'?' · '+h(r.reason||'Option indisponible'):' · postes inconnus')+'.</p>':''}<dl>${Object.entries(MODAL_BUDGET_COMPONENTS).map(([k,label])=>{const p=o.entry?.components[k];return `<div><dt>${label}</dt><dd>${!p?'Inconnu':p.kind==='declared'?money(p.cents)+' déclaré':money(modalBudgetRound(modalBudgetFuelRatio(p.basis,b.persons)))+' estimé pour le groupe'}</dd></div>`}).join('')}</dl>${o.entry?`<p class="note">Déclaration confirmée le ${h(new Date(o.entry.confirmedAt).toLocaleString('fr-FR'))}.</p><p>${h(o.entry.note)}</p>${o.entry.components.fuel?.kind==='fuel-estimate'?'<details><summary>Hypothèses du carburant consommé</summary><p>'+h((()=>{const f=o.entry.components.fuel.basis;return `${fmt(f.distanceMeters/1000,3)} km × ${fmt(f.litersPer100km,3)} L/100 km × ${fmt(f.pricePerLiter,3)} €/L × ${b.persons}/${f.occupants} occupants. Prix et consommation déclarés ; hors plein acheté. Calcul avant arrondi au centime.`})())+'</p></details>':''}`:''}<button type="button" class="ghost" data-budget-edit="${h(o.id)}" ${v.stale||modalBudgetDraft?'disabled':''}>${o.entry?'Modifier':'Renseigner'} · ${h(r.label)}</button></article>`}).join('');
+ $('modalBudgetResults').innerHTML=rows.map(r=>{const o=b.options.find(x=>x.id===r.key),t=modalBudgetTotal(o,b.persons),money=n=>fmt(n/100,2)+' €';return `<article class="road-card" data-budget-row="${h(o.id)}"><h4>${h(r.label)}</h4><p><strong>${t.totalCents!==null?'Budget renseigné : '+money(t.totalCents):t.subtotalCents!==null?'Sous-total partiel : '+money(t.subtotalCents):'Budget inconnu'}</strong>${r.budgetTied?' · Ex æquo au centime':''}</p>${v.stale||r.status!=='ready'||t.totalCents===null?'<p>Hors classement'+(v.stale?' · contexte modifié':r.status!=='ready'?' · '+h(r.reason||'Option indisponible'):' · postes inconnus')+'.</p>':''}<dl>${Object.entries(MODAL_BUDGET_COMPONENTS).map(([k,label])=>{const p=o.entry?.components[k];return `<div><dt>${label}</dt><dd>${!p?'Inconnu':p.kind==='declared'?money(p.cents)+' déclaré':money(modalBudgetRound(modalBudgetPartRatio(p,b.persons)))+(p.kind==='toll-estimate'?(p.basis.coverage==='partial'?' · péages partiels du groupe':' · péages, couverture déclarée'):' estimé pour le groupe')}</dd></div>`}).join('')}</dl>${o.entry?`<p class="note">Déclaration confirmée le ${h(new Date(o.entry.confirmedAt).toLocaleString('fr-FR'))}.</p><p>${h(o.entry.note)}</p>${o.entry.components.tolls?.kind==='toll-estimate'?'<details><summary>Sources et partage des péages</summary><p class="comparison-evidence">'+h(modalBudgetTollDescription(o.entry.components.tolls.basis,b.persons))+'</p></details>':''}${o.entry.components.fuel?.kind==='fuel-estimate'?'<details><summary>Hypothèses du carburant consommé</summary><p>'+h((()=>{const f=o.entry.components.fuel.basis;return `${fmt(f.distanceMeters/1000,3)} km × ${fmt(f.litersPer100km,3)} L/100 km × ${fmt(f.pricePerLiter,3)} €/L × ${b.persons}/${f.occupants} occupants. Prix et consommation déclarés ; hors plein acheté. Calcul avant arrondi au centime.`})())+'</p></details>':''}`:''}<button type="button" class="ghost" data-budget-edit="${h(o.id)}" ${v.stale||modalBudgetDraft?'disabled':''}>${o.entry?'Modifier':'Renseigner'} · ${h(r.label)}</button></article>`}).join('');
 }
-function modalBudgetFormSignature(){return JSON.stringify([modalBudgetContext()?.signature,Array.from(document.querySelectorAll('[data-budget-input]'),e=>[e.id,e.value]),modalBudgetDraft?.basis]);}
+function modalBudgetFormSignature(){return JSON.stringify([modalBudgetContext()?.signature,Array.from(document.querySelectorAll('[data-budget-input]'),e=>[e.id,e.value]),modalBudgetDraft?.basis,modalBudgetDraft?.tolls,modalBudgetDraft?.tollBinding]);}
 function editModalBudget(id){
  const d=modalBudgetContext();if(!d||!modalBudgetBundle(d))return;const o=modalBudgetView.data.options.find(x=>x.id===id);if(!o)return;
- modalBudgetDraft={id,basis:structuredClone(o.entry?.components.fuel?.basis||null),confirmation:null};
+ modalBudgetDraft={id,basis:structuredClone(o.entry?.components.fuel?.basis||null),tolls:structuredClone(o.entry?.components.tolls?.kind==='toll-estimate'?o.entry.components.tolls.basis:null),tollBinding:o.entry?.components.tolls?.kind==='toll-estimate'?modalBudgetView.tollBinding:null,proposal:null,confirmation:null};
  $('modalBudgetEditTitle').textContent='Budget · '+(d.rows.find(r=>r.key===id)?.label||id);
- for(const key of Object.keys(MODAL_BUDGET_COMPONENTS)){const p=o.entry?.components[key];$('modalBudget-'+key).value=p?(p.kind==='declared'?p.cents/100:modalBudgetRound(modalBudgetFuelRatio(p.basis,d.context.persons))/100).toFixed(2):''}
- $('modalBudget-fuel').readOnly=Boolean(modalBudgetDraft.basis);$('modalBudgetFuelTools').hidden=o.mode!=='car'||o.distanceMeters===null;
+ for(const key of Object.keys(MODAL_BUDGET_COMPONENTS)){const p=o.entry?.components[key];$('modalBudget-'+key).value=p?(p.kind==='declared'?p.cents/100:modalBudgetRound(modalBudgetPartRatio(p,d.context.persons))/100).toFixed(2):''}
+ $('modalBudget-fuel').readOnly=Boolean(modalBudgetDraft.basis);$('modalBudget-tolls').readOnly=Boolean(modalBudgetDraft.tolls);$('modalBudgetTollTools').hidden=o.mode!=='car'||modalCarbonView.source!=='road';renderModalBudgetTolls();$('modalBudgetFuelTools').hidden=o.mode!=='car'||o.distanceMeters===null;
  $('modalBudgetConsumption').value=modalBudgetDraft.basis?.litersPer100km??'';$('modalBudgetPrice').value=modalBudgetDraft.basis?.pricePerLiter??'';
  $('modalBudgetNote').value=o.entry?.note||'';$('modalBudgetConfirm').checked=false;$('modalBudgetEditStatus').textContent='';$('modalBudgetEditor').hidden=false;renderModalBudgetFuel();refreshModalBudgets();renderModalPriorities();$('modalBudgetEditTitle').focus();
 }
@@ -4355,11 +4452,12 @@ function estimateModalBudgetFuel(){
  }catch(e){$('modalBudgetEditStatus').textContent=e.message}
 }
 function applyModalBudget(){
- if(!modalBudgetDraft)return;try{const d=modalBudgetContext();if(!d||!modalBudgetView||d.signature!==modalBudgetView.signature||modalBudgetView.stale)throw new Error('Contexte modifié : commencer un nouveau budget.');
+ if(!modalBudgetDraft)return;try{const d=modalBudgetContext();syncModalTollBinding();if(!d||!modalBudgetView||d.signature!==modalBudgetView.signature||modalBudgetView.stale)throw new Error('Contexte modifié : commencer un nouveau budget.');
  if(!$('modalBudgetConfirm').checked||modalBudgetDraft.confirmation!==modalBudgetFormSignature())throw new Error('Relire et confirmer les montants pour ce groupe et ce trajet.');
  if(modalBudgetDraft.basis){const b=modalBudgetDraft.basis;if(modalBudgetDecimal($('modalBudgetConsumption').value,3,1,100)!==b.litersPer100km||modalBudgetDecimal($('modalBudgetPrice').value,3,.001,10)!==b.pricePerLiter||modalBudgetCents($('modalBudget-fuel').value)!==modalBudgetRound(modalBudgetFuelRatio(b,d.context.persons)))throw new Error('Hypothèses du carburant modifiées : recalculer la part du groupe puis confirmer.');}
- const components=Object.fromEntries(Object.keys(MODAL_BUDGET_COMPONENTS).map(k=>{const cents=modalBudgetCents($('modalBudget-'+k).value);return [k,k==='fuel'&&modalBudgetDraft.basis?{kind:'fuel-estimate',basis:structuredClone(modalBudgetDraft.basis)}:cents===null?null:{kind:'declared',cents}]}));
- const copy=structuredClone(modalBudgetView.data),row=copy.options.find(r=>r.id===modalBudgetDraft.id);row.entry={confirmedAt:new Date().toISOString(),note:$('modalBudgetNote').value.trim(),components};modalBudgetView.data=validateModalBudgets(copy);finishModalBudget();
+ if(modalBudgetDraft.tolls&&(modalBudgetDraft.tollBinding!==modalTollInput().signature||modalBudgetCents($('modalBudget-tolls').value)!==modalBudgetRound(modalBudgetTollRatio(modalBudgetDraft.tolls,d.context.persons))))throw new Error('Montant ou source des péages modifié : examiner à nouveau la proposition.');
+ const components=Object.fromEntries(Object.keys(MODAL_BUDGET_COMPONENTS).map(k=>{const cents=modalBudgetCents($('modalBudget-'+k).value);return [k,k==='tolls'&&modalBudgetDraft.tolls?{kind:'toll-estimate',basis:structuredClone(modalBudgetDraft.tolls)}:k==='fuel'&&modalBudgetDraft.basis?{kind:'fuel-estimate',basis:structuredClone(modalBudgetDraft.basis)}:cents===null?null:{kind:'declared',cents}]}));
+ const copy=structuredClone(modalBudgetView.data),row=copy.options.find(r=>r.id===modalBudgetDraft.id);row.entry={confirmedAt:new Date().toISOString(),note:$('modalBudgetNote').value.trim(),components};if(modalBudgetDraft.tolls)copy.version=3;modalBudgetView.data=validateModalBudgets(copy);if(modalBudgetDraft.id==='car')modalBudgetView.tollBinding=modalBudgetDraft.tolls?modalBudgetDraft.tollBinding:null;finishModalBudget();
  }catch(e){$('modalBudgetEditStatus').textContent=e.message}
 }
 function finishModalBudget(){const id=modalBudgetDraft?.id;modalBudgetDraft=null;$('modalBudgetEditor').hidden=true;refreshModalBudgets();renderModalPriorities();document.querySelector('[data-budget-edit="'+id+'"]')?.focus();}
@@ -4372,7 +4470,11 @@ function bindModalBudgets(){
  $('modalBudgetEditor').addEventListener('input',e=>{if(e.target.matches('[data-budget-input]'))changeModalBudget(e)});
  $('modalBudgetEditor').addEventListener('change',e=>{if(e.target.matches('[data-budget-input]'))changeModalBudget(e)});
  $('modalBudgetConfirm').addEventListener('change',()=>{if(modalBudgetDraft)modalBudgetDraft.confirmation=$('modalBudgetConfirm').checked?modalBudgetFormSignature():null});
- $('modalBudgetZero').addEventListener('click',()=>{if(!modalBudgetDraft)return;changeModalBudget();modalBudgetDraft.basis=null;for(const k of Object.keys(MODAL_BUDGET_COMPONENTS))$('modalBudget-'+k).value='0.00';$('modalBudget-fuel').readOnly=false;renderModalBudgetFuel();$('modalBudgetEditStatus').textContent='Tous les postes sont déclarés à zéro. Relire puis confirmer pour appliquer.'});
+ $('modalBudgetZero').addEventListener('click',()=>{if(!modalBudgetDraft)return;changeModalBudget();modalBudgetDraft.basis=null;modalBudgetDraft.tolls=null;modalBudgetDraft.tollBinding=null;modalBudgetDraft.proposal=null;$('modalBudget-tolls').readOnly=false;renderModalBudgetTolls();for(const k of Object.keys(MODAL_BUDGET_COMPONENTS))$('modalBudget-'+k).value='0.00';$('modalBudget-fuel').readOnly=false;renderModalBudgetFuel();$('modalBudgetEditStatus').textContent='Tous les postes sont déclarés à zéro. Relire puis confirmer pour appliquer.'});
+ $('modalBudgetTollPropose').addEventListener('click',proposeModalTolls);
+ $('modalBudgetTollConfirm').addEventListener('change',()=>{$('modalBudgetTollAdopt').disabled=!$('modalBudgetTollConfirm').checked;});
+ $('modalBudgetTollAdopt').addEventListener('click',adoptModalTolls);
+ $('modalBudgetTollManual').addEventListener('click',()=>{if(!modalBudgetDraft)return;changeModalBudget();modalBudgetDraft.tolls=null;modalBudgetDraft.tollBinding=null;modalBudgetDraft.proposal=null;$('modalBudget-tolls').readOnly=false;renderModalBudgetTolls();$('modalBudget-tolls').focus();$('modalBudgetTollStatus').textContent='Montant devenu une déclaration manuelle ; références de grilles retirées. Relire et confirmer.';});
  $('modalBudgetFuelEstimate').addEventListener('click',estimateModalBudgetFuel);
  $('modalBudgetFuelManual').addEventListener('click',()=>{if(!modalBudgetDraft)return;changeModalBudget();modalBudgetDraft.basis=null;$('modalBudget-fuel').readOnly=false;renderModalBudgetFuel();$('modalBudget-fuel').focus()});
  $('modalBudgetApply').addEventListener('click',applyModalBudget);$('modalBudgetCancel').addEventListener('click',finishModalBudget);
@@ -4456,7 +4558,7 @@ function openRoadModes(){
 function refreshRoadModes(){
  if(modalCarbonView?.source!=='road')return;
  const d=roadModalContext(modalCarbonView.op);if(!d){clearModalCarbon();$('roadModesNotice').textContent='Contexte modifié : recalculer les modes avant d’ouvrir une nouvelle comparaison.';return}
- const key=JSON.stringify([d.rows,d.constraints]);if(key!==modalCarbonView.freshness){modalCarbonView.freshness=key;refreshModalCarbon()}
+ syncModalTollBinding();const key=JSON.stringify([d.rows,d.constraints,modalBudgetView?.stale]);if(key!==modalCarbonView.freshness){modalCarbonView.freshness=key;refreshModalCarbon()}
 }
 function modalCarbonSignature(source=modalCarbonView?.source){return JSON.stringify([source==='road'?comparison?.limitContextSignature:transitLimitContextSignature(),$('fuel').value,$('routeVehicle').value])}
 function clearModalCarbon(focus=false){
@@ -4710,6 +4812,7 @@ function bindSavedTransit(){
 }
 
 function updateBudget(){
+ if(modalCarbonView?.source==='road'&&(modalBudgetView?.tollBinding||modalBudgetDraft?.tollBinding||modalBudgetDraft?.proposal)){syncModalTollBinding();refreshModalBudgets();renderModalPriorities();}
   updateTransitContext();
   expireStationBudget();
   updateTripTiming();updateRouteCarbon();updateMeetings();
