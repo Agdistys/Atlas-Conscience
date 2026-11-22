@@ -164,7 +164,7 @@
         <button id="comparisonCancel" class="ghost navigation-button" type="button" hidden>Annuler le calcul</button>
         <p id="comparisonStatus" class="station-selection" role="status" aria-live="polite"></p>
         <p id="comparisonContext" class="note"></p>
-        <div id="comparisonSortWrap" hidden><label for="comparisonSort">Trier les valeurs</label><select id="comparisonSort"><option value="duration">Durée croissante</option><option value="distance">Distance croissante</option><option value="cost" disabled>Coût total · incomplet</option><option value="carbon" disabled>CO₂e · comparaison incomplète</option></select><p class="note">Égalités conservées à la précision affichée. Aucun score pondéré ; les modes indisponibles restent distincts.</p></div>
+        <div id="comparisonSortWrap" hidden><label for="comparisonSort">Trier les valeurs</label><select id="comparisonSort"><option value="duration">Durée croissante</option><option value="distance">Distance croissante</option><option value="cost" disabled>Coût total · incomplet</option><option value="carbon" disabled>CO₂e · comparaison incomplète</option></select><p class="note">Égalités conservées à la précision affichée. Cette vue présente les valeurs brutes ; les budgets et les priorités sont accessibles dans la comparaison ci-dessous. Les modes indisponibles restent distincts.</p></div>
         <button id="roadModesOpen" type="button" class="ghost" hidden>Comparer les budgets et les empreintes</button><p id="roadModesNotice" role="status"></p>
     <div id="comparisonCards" class="comparison-cards"></div>
         <details id="comparisonExcludedWrap" hidden><summary>Consulter les trajets écartés par les limites</summary><div id="comparisonExcluded" class="comparison-cards"></div></details>
@@ -721,7 +721,7 @@
    <p id="modalCarbonContext"></p>
    <p>Choisir les modèles pour les options à comparer. Les choix décrivent des hypothèses moyennes ; ils ne confirment pas les véhicules réellement utilisés.</p>
    <p class="note">Calcul local sans nouvel appel réseau. Hypothèses propres à cette comparaison, retirées à sa fermeture ou au changement de recherche. Aucun enregistrement dans le profil, les préparations ou le journal.</p>
-   <button type="button" id="modalCarbonClose" class="ghost">Retirer la comparaison d’empreintes</button>
+   <button type="button" id="modalCarbonClose" class="ghost">Fermer cette comparaison</button>
    <div id="modalCarbonModels"></div>
    <label for="modalCarbonSort">Trier les valeurs</label><select id="modalCarbonSort"><option value="mode">Ordre des modes et options</option><option value="time">Temps comparé croissant</option><option value="distance">Distance croissante</option><option value="carbon" disabled>CO₂e du groupe croissant · options comparables</option></select>
    <p id="modalCarbonStatus" role="status" aria-live="polite"></p>
