@@ -46,6 +46,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "délais modes : Vélo’v partiel conservé, clavier et reprise volontaire après attente",
+  "délais modes : quota du parcours partagé respecté par le calcul vélo autonome",
   "délais routiers : matrice partielle conservée et reprise volontaire sans nouvelle collecte",
   "délais routiers : accès IGN acquis conservé et reprise à la première candidate non calculée",
   "délais services : collecte partielle conservée et autres candidates comparables pendant le quota",
