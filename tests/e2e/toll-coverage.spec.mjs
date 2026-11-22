@@ -13,7 +13,7 @@ test('BPNL : cinq classes officielles et confirmation par passage sans appel ext
  const requests=[];page.on('request',r=>{if(/peripheriquenord|agora.grandlyon|api\/tolls|vinci-autoroutes/.test(r.url()))requests.push(r.url())});
  await setup(page);await expect(page.locator('#tariffPairFields')).toBeHidden();await expect(page.locator('#tariffAdd')).toBeDisabled();
  for(const [i,amount] of ['2,60','3,90','4,60','10,30','1,30'].entries()){
-  await page.locator('#tariffClass').selectOption(String(i+1));await expect(page.locator('#tariffResult')).toContainText(`${amount} € TTC · classe ${i+1} · BPNL · un passage payant`);
+  await page.locator('#tariffClass').selectOption(String(i+1));await expect(page.locator('#tariffResult')).toContainText(`${amount} € TTC · classe ${i+1} · Périphérique nord de Lyon · un passage payant`);
   await expect(page.locator('#tariffAdd')).toBeDisabled();
  }
  await choose(page);await expect(page.locator('#tariffAdd')).toBeEnabled();await expect(page.locator('#tariffSource')).toContainText('01/01/2026');await expect(page.locator('#tariffAttribution')).toContainText('2025-3243');await expect(page.locator('#tariffAttribution')).not.toContainText('Licence Ouverte');expect(requests).toEqual([]);
@@ -47,6 +47,6 @@ test('BPNL : classe et changement de route retirent montant et confirmation de p
 });
 test('BPNL : classe absente dans une source ne devient jamais un tarif nul',async({page})=>{
  await mockDragonRoute(page);await page.route('**/DragonRoute/config.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text())+'\nwindow.DRAGONROUTE_TARIFFS.networks.BPNL.amountsCents[1]=null;'})});
- await page.goto('/DragonRoute/');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await page.locator('#tariffCalculator > summary').click();await page.locator('#tariffNetwork').selectOption('BPNL');await choose(page,'2');
+ await page.goto('/DragonRoute/');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await page.locator('#tariffCalculator > summary').click();await page.locator('#tariffClass').selectOption('2');await page.locator('#tariffNetwork').selectOption('BPNL');await expect(page.locator('#tariffClass option[value="2"]')).toBeDisabled();await page.locator('#tariffPassageConfirmed').check();
  await expect(page.locator('#tariffResult')).toHaveText('Tarif indisponible pour cette classe.');await expect(page.locator('#tariffAdd')).toBeDisabled();await expect(page.locator('#tollAmount')).toHaveText('Tarif indisponible');
 });

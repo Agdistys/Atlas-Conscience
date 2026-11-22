@@ -82,6 +82,23 @@ def generate(qualify=None, qualify_bpnl=None):
         assert [cents(v) for i, v in prices] == bpnl['amountsCents']
         print('BPNL: all 5 full-price amounts match the public decision, page 59')
     data['networks']['BPNL'] = bpnl
+    bridges = ROOT / 'data/tariffs/2026-05-ponts'
+    proof = json.loads((bridges / 'provenance.json').read_text())
+    annex = (bridges / proof['annexFile']).read_bytes()
+    assert hashlib.sha256(annex).hexdigest() == proof['annexSha256']
+    text = annex.decode('utf-8')
+    assert 'TRAT2609535A' in text and '1ER MAI 2026' in text and 'EUROS TTC' in text
+    for network, label in [('PNOR', 'Pont de Normandie'), ('PTAN', 'Pont de Tancarville')]:
+        raw = (bridges / proof['networks'][network]['file']).read_bytes()
+        assert hashlib.sha256(raw).hexdigest() == proof['networks'][network]['sha256']
+        bridge = json.loads(raw)
+        lines = [line for line in text.splitlines() if line.startswith(label + ' |')]
+        assert len(lines) == 1
+        prices = [cents(v.strip()) for v in lines[0].split('|')[1:]]
+        assert len(prices) == 4 and bridge['amountsCents'] == prices + [None]
+        assert bridge['label'] == label and bridge['network'] == network and bridge['kind'] == 'passage'
+        assert bridge['effectiveFrom'] == '2026-05-01' and bridge['source'] == proof['normativeSource']
+        data['networks'][network] = bridge
     return START + 'window.DRAGONROUTE_TARIFFS = ' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';\n' + END
 
 

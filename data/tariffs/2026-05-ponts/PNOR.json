@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "network": "PNOR",
+  "label": "Pont de Normandie",
+  "kind": "passage",
+  "effectiveFrom": "2026-05-01",
+  "consultationUntil": "2026-12-31",
+  "lastReviewed": "2026-11-22",
+  "amountsCents": [
+    610,
+    710,
+    760,
+    1510,
+    null
+  ],
+  "unit": "Un passage payant au plein tarif",
+  "currency": "EUR",
+  "taxIncluded": true,
+  "source": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053916305",
+  "sourceTitle": "DILA · JORF du 21 avril 2026, texte 8 · arrêté TRAT2609535A du 30 mars 2026, annexe",
+  "publicationDate": "2026-04-21",
+  "licenseUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+  "classNote": "Classes 1 à 4 qualifiées. Classe 5 non qualifiée dans cette grille.",
+  "conditions": "Plein tarif sans abonnement ni remise. Un seul passage déclaré par budget ; un retour nécessite une nouvelle préparation. Ne certifie ni le passage ni le droit de circuler."
+}

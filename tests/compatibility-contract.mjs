@@ -48,6 +48,8 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "ponts : huit tarifs officiels, source datée et passage confirmé sans appel externe",
+  "ponts : préparation, export et reprise conservent les sources et renouvellent les confirmations",
   "péages modes : proposition sourcée, confirmation et allocation sans appel ni écriture",
   "péages modes : conservation volontaire V4 et sources intactes après rechargement",
   "péages modes : clavier et texte doublé conservent relecture et fermeture",
