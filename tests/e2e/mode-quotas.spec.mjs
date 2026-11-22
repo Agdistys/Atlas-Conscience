@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import {setup,cycle,bikes,headers,elapsed,advance,late,openCycle,calc,openBikes} from '../helpers/mode-quotas.mjs';
 import {geocodingPattern} from '../helpers/dragonroute.mjs';
 import {setup as shared,stations,calculate} from '../helpers/shared-bike-trip.mjs';
-import {setup as stationSetup,search,more} from '../helpers/service-stations.mjs';
+import {setup as stationSetup,search,more,fuel} from '../helpers/service-stations.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
 const status=p=>p.locator('#cycleStatus');
 
@@ -42,4 +42,8 @@ test('délais modes : quota du parcours partagé respecté par le calcul vélo a
 });
 test('délais modes : première matrice indisponible reste non concluante puis reprend les stations reçues',async({page})=>{
  const {calls}=await stationSetup(page);let limited=true;await page.route('https://router.project-osrm.org/table/v1/driving/**',r=>limited?r.fulfill({status:503,headers:headers('5'),json:{}}):r.fallback());await search(page);await expect(page.locator('#fuelStatus')).toContainText('Aucun accès aux stations');await expect(page.locator('#fuelStatus')).toContainText('non concluant');await expect(page.locator('#fuelStatus')).not.toContainText('Modifier la distance');const fuel=calls.fuel.length;limited=false;await elapsed(page,5100);await more(page);await expect(page.locator('.result-card')).toHaveCount(2);expect(calls.fuel).toHaveLength(fuel);
+});
+
+test('délais modes : collecte vide achevée distincte d’une comparaison interrompue',async({page})=>{
+ const {calls}=await stationSetup(page);await page.route(fuel,r=>r.fulfill({json:{total_count:0,results:[]}}));await search(page);await expect(page.locator('#fuelStatus')).toContainText('Aucune station E10 reçue');await expect(page.locator('#fuelStatus')).not.toContainText('non concluant');await expect(page.locator('#continueStationsBtn')).toBeHidden();await expect(page.locator('.result-card')).toHaveCount(0);expect(calls.matrix).toHaveLength(0);await expect(page.locator('#summary')).toBeVisible();
 });
