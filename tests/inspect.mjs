@@ -16,8 +16,8 @@ run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
 run('report-tests', 'npm', ['run', 'test:inspection']);
 run('toolchain', process.execPath, ['tests/toolchain.mjs']);
-// The 2,796-scenario suite took 54.7 minutes on the hosted runner.
-// Allow 65 minutes, with five minutes left for setup/report/upload in the job.
+// The 3,832-scenario run reached its 65-minute limit after 3,119 completed cases.
+// Allow 95 minutes, with five minutes left for setup/report/upload in the job.
 // Individual test timeouts and the requirement for a complete report are unchanged.
-run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 3_900_000);
+run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 5_700_000);
 process.exitCode = writeReport(process.cwd(), { publishSummary: false }).state === 'inspection' ? 0 : 1;

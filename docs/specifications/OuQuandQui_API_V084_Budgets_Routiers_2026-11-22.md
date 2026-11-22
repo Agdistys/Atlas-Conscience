@@ -36,4 +36,6 @@ Les imports refusent les versions futures, les origines ou composantes incohére
 
 La recette couvre l’accès routier hors du pilote collectif, les trajets longs simulés, les dates absentes/passées, les limites impératives ou souples, les modes non demandés/en échec, la conservation volontaire, les anciens formats, le clavier et le texte agrandi. L’inspection complète et la vérification de l’aperçu exact sont nécessaires avant livraison. Les montants de démonstration restent séparés des parcours reçus sur les services publics.
 
+La première inspection complète a atteint la limite de 65 minutes après 3 119 essais terminés sur 3 832, sans échec de scénario dans le journal disponible. Elle reste incomplète. Le budget de durée du navigateur passe à 95 minutes et celui du travail GitHub à 100 minutes, avec deux processus et les quatre formats conservés. Les délais individuels, assertions et exigences de rapport complet restent inchangés ; une nouvelle inspection complète est requise.
+
 Ce lot étend l’accès au budget commun ; il n’active aucun fournisseur, tarif automatique, abonnement, compte ou fusion vers le site principal. Il ne qualifie ni caravane/poids lourd, ni revêtement ou largeur réelle des routes, ni appareil physique. Les autres limites de couverture du cahier restent applicables.
