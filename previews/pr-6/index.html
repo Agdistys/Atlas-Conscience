@@ -278,6 +278,7 @@
           <p id="fuelStatus" class="note" role="status" aria-live="polite"></p>
             <nav id="stationResultLinks" class="preparation-links" aria-label="Accès aux résultats des stations" hidden>
               <button id="jumpStationResult" class="ghost" type="button" data-preparation-target="stationResultsTitle" hidden>Voir les stations</button>
+              <button id="multiOpen" type="button" class="ghost navigation-button">Préparer plusieurs arrêts</button>
             </nav>
           </section>
           <details id="samplingOptions"><summary>Zone de recherche autour du trajet</summary>
@@ -377,7 +378,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · d2b5bdb · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 035d1c3 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -386,7 +387,7 @@
   <p class="note">Préparations et tracés conservés sur ce navigateur, dans cet environnement. Aucun déplacement n’est ajouté au journal. Les lieux peuvent être personnels ; les exports sont des fichiers en clair. Conserver une copie avant d’effacer les données du navigateur.</p>
   <button type="button" class="ghost navigation-button" data-comparison-library>Mes comparaisons enregistrées</button>
   <div class="tabs" role="tablist" aria-label="Types de préparations"><button id="preparedRoadTab" type="button" role="tab" aria-selected="true" aria-controls="preparedRoadPanel">Route et marche</button><button id="preparedTransitTab" type="button" role="tab" aria-selected="false" aria-controls="savedTransitPanel" tabindex="-1">Transports collectifs</button><button id="preparedCycleTab" type="button" role="tab" aria-selected="false" aria-controls="savedCyclePanel" tabindex="-1">À vélo</button><button id="preparedSharedTab" type="button" role="tab" aria-selected="false" aria-controls="savedSharedPanel" tabindex="-1">Vélo partagé</button></div>
-  <div id="preparedRoadPanel" role="tabpanel" aria-labelledby="preparedRoadTab"><p class="note">Export, import et effacement limités aux préparations route/marche de cette rubrique.</p>
+  <div id="preparedRoadPanel" role="tabpanel" aria-labelledby="preparedRoadTab"><button id="multiLibraryOpen" type="button" class="ghost navigation-button">Mes trajets à plusieurs arrêts</button><p class="note">Export, import et effacement limités aux préparations route/marche de cette rubrique.</p>
   <p id="preparedMessage" class="note" role="status"></p>
   <section id="preparedEditor" class="detail-section" hidden aria-labelledby="preparedEditorTitle"><h3 id="preparedEditorTitle">Enregistrer cette préparation</h3>
     <form id="preparedForm"><label for="preparedName">Nom de la préparation</label><input id="preparedName" maxlength="80" required autocomplete="off">
@@ -833,6 +834,37 @@
   <section id="sourcesLocal" role="tabpanel" aria-labelledby="sourcesLocalTab" hidden><h3>Données sur ce navigateur et cet appareil</h3><p id="sourcesEnvironment"></p><dl id="sourcesLocalList"></dl><p class="note">Cet inventaire détecte seulement la présence des copies, y compris les anciens formats. Le contenu n’est pas affiché ici et sa validité n’est pas confirmée. Un profil par défaut peut exister en mémoire sans copie enregistrée.</p><div class="dialog-actions"><button id="sourcesProfile" class="ghost" type="button">Ouvrir mon profil</button><button id="sourcesPrepared" class="ghost" type="button">Ouvrir mes trajets</button><button id="sourcesJournal" class="ghost" type="button">Ouvrir mon journal</button></div><p>Ces rubriques permettent de consulter, exporter, importer ou effacer leurs propres données après les confirmations prévues. Aucun remplacement ni effacement n’est effectué par ce panneau.</p><h3>Conservation et exports</h3><p>Pas de compte distant ni de synchronisation automatique. Le stockage local n’est pas un coffre-fort chiffré. Une suppression des données du navigateur peut faire perdre les sauvegardes ; les exports restent des fichiers personnels à conserver et partager volontairement.</p><p>Les recherches et leurs caches datés restent en mémoire de la page, sauf sauvegarde explicite. Les préparations conservées sont des instantanés : reprendre un calcul nécessite les services en ligne. Les fichiers JSON et GPX peuvent contenir lieux, coordonnées et historique.</p><p>Le diagnostic « État des services » peut afficher des requêtes avec leurs lieux ou coordonnées. Vérifier son contenu avant de le copier ou de partager une capture.</p><h3>Interface hors connexion</h3><p id="sourcesOffline"></p><p class="note">Le cache de l’application est limité à ses fichiers statiques. Il ne contient pas les fiches personnelles, les réponses de calcul ou une cartographie hors ligne complète. Le cache ordinaire du navigateur reste régi par le navigateur et les serveurs.</p></section>
   <div class="dialog-actions"><button id="sourcesRefresh" class="ghost" type="button">Relire l’inventaire local</button></div><p id="sourcesMessage" role="status" class="note"></p>
 </dialog>
+
+<dialog id="multiDialog" aria-labelledby="multiTitle">
+ <div class="dialog-heading"><h2 id="multiTitle" tabindex="-1">Plusieurs arrêts carburant</h2><button type="button" class="icon-btn close-dialog" aria-label="Fermer les arrêts successifs">×</button></div>
+ <p>Préparer un parcours de deux ou trois stations, puis confirmer son aperçu. La préparation à un seul arrêt reste disponible sur l’écran principal. Chaque parcours conserve son propre tracé et ses données.</p>
+ <p id="multiContext" class="note"></p><p id="multiMessage" role="status"></p>
+ <div class="dialog-actions"><button id="multiNew" type="button" class="ghost">Partir du trajet affiché</button><button id="multiLibrary" type="button" class="ghost">Mes parcours enregistrés</button></div>
+ <section id="multiEditor" hidden aria-label="Préparer les étapes">
+  <label for="multiCandidate">Station parmi les résultats reçus pour ce trajet</label><select id="multiCandidate"></select><button id="multiAdd" type="button" class="ghost">Ajouter cette étape</button>
+  <p class="note">Les stations ajoutées restent dans ce brouillon en changeant la zone de recherche. Leur présence dans les résultats ne confirme ni leur accès ni leur ouverture. L’ordre des étapes est choisi ci-dessous ; aucun détour indépendant n’est additionné.</p>
+  <ol id="multiNodes" class="multi-nodes"></ol>
+  <fieldset><legend>Carburant au départ et réserve</legend><div class="multi-fields">
+   <div><label for="multiCons">Consommation (L/100 km)</label><input id="multiCons" type="number" min="1" max="100" step="any" required></div>
+   <div><label for="multiInitial">Carburant au départ (L, facultatif)</label><input id="multiInitial" type="number" min="0" max="1000" step="any"></div>
+   <div><label for="multiCapacity">Capacité du réservoir (L, facultatif)</label><input id="multiCapacity" type="number" min="1" max="1000" step="any"></div>
+   <div><label for="multiReserve">Réserve conservée (km)</label><input id="multiReserve" type="number" min="0" max="500" step="any" value="30" required></div>
+   <div><label for="multiPrice">Prix de référence (€/L, facultatif)</label><input id="multiPrice" type="number" min="0.001" max="10" step="any"></div>
+  </div><p class="note">Aucun plein automatique. Une quantité ou capacité manquante laisse l’autonomie inconnue ; un achat dépassant la capacité est signalé. La réserve reste dans le réservoir. Estimation déclarative, sans mesure du niveau ni suivi GPS.</p></fieldset>
+  <button id="multiCalculate" type="button" class="primary">Calculer l’aperçu complet</button><button id="multiCancel" type="button" class="ghost" hidden>Annuler le calcul</button>
+ </section>
+ <section id="multiPreview" hidden aria-labelledby="multiPreviewTitle"><h3 id="multiPreviewTitle" tabindex="-1">Aperçu à confirmer</h3><div id="multiPreviewBody"></div><label class="check-label"><input id="multiAccept" type="checkbox"> Conserver cette préparation avec les limites affichées ; l’autonomie et les horaires ne sont pas garantis</label><button id="multiConfirm" type="button" class="primary" disabled>Confirmer ce parcours</button></section>
+ <section id="multiConfirmed" hidden aria-labelledby="multiConfirmedTitle"><h3 id="multiConfirmedTitle" tabindex="-1">Parcours confirmé dans cette préparation</h3><div id="multiConfirmedBody"></div>
+  <div class="dialog-actions"><button id="multiEdit" type="button" class="ghost">Modifier une copie et recalculer</button><button id="multiGpx" type="button" class="ghost">Exporter ce tracé · GPX</button><button id="multiJson" type="button" class="ghost">Exporter ce parcours · JSON</button></div>
+  <form id="multiSaveForm"><label for="multiName">Nom du parcours</label><input id="multiName" maxlength="80" required><label class="check-label"><input id="multiSaveConsent" type="checkbox"> Enregistrer ce parcours daté sur ce navigateur</label><button type="submit" class="ghost">Enregistrer une copie</button></form>
+ </section>
+ <section id="multiSaved" hidden aria-labelledby="multiSavedTitle"><h3 id="multiSavedTitle" tabindex="-1">Mes parcours à plusieurs arrêts</h3><p class="note">Dix parcours maximum dans cet environnement. Les tracés, lieux, quantités, pauses et prix historiques sont conservés en clair sur ce navigateur. Les autres préparations sont conservées séparément. Lire une copie n’interroge aucun service.</p><p id="multiStorageMessage" role="status"></p><div id="multiSavedList"></div>
+  <button id="multiExportAll" type="button" class="ghost">Exporter la copie chargée · JSON</button><label for="multiImport">Importer des parcours · 3 Mo maximum</label><input id="multiImport" type="file" accept=".json,application/json">
+  <div id="multiImportPreview" hidden><p id="multiImportText"></p><label class="check-label"><input id="multiImportConsent" type="checkbox"> Remplacer uniquement les parcours à plusieurs arrêts de cet environnement</label><button id="multiImportApply" type="button" class="ghost">Confirmer le remplacement</button><button id="multiImportCancel" type="button" class="ghost">Annuler l’import</button></div>
+  <label class="check-label"><input id="multiEraseConsent" type="checkbox"> Effacer uniquement ces parcours de ce navigateur</label><button id="multiErase" type="button" class="ghost">Effacer ces parcours</button>
+ </section>
+</dialog>
+
 <script src="./config.js"></script><script src="./app.js" defer></script>
 <dialog id="roadModesDialog" aria-labelledby="roadModesTitle"><div class="dialog-heading"><h2 id="roadModesTitle">Comparer les modes</h2><button id="roadModesClose" type="button" class="icon-btn" aria-label="Fermer la comparaison des modes">×</button></div><div id="roadModesHost"></div></dialog>
 </body>
