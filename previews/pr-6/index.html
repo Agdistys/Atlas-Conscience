@@ -378,7 +378,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 035d1c3 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 4debc6e · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -855,6 +855,8 @@
  </section>
  <section id="multiPreview" hidden aria-labelledby="multiPreviewTitle"><h3 id="multiPreviewTitle" tabindex="-1">Aperçu à confirmer</h3><div id="multiPreviewBody"></div><label class="check-label"><input id="multiAccept" type="checkbox"> Conserver cette préparation avec les limites affichées ; l’autonomie et les horaires ne sont pas garantis</label><button id="multiConfirm" type="button" class="primary" disabled>Confirmer ce parcours</button></section>
  <section id="multiConfirmed" hidden aria-labelledby="multiConfirmedTitle"><h3 id="multiConfirmedTitle" tabindex="-1">Parcours confirmé dans cette préparation</h3><div id="multiConfirmedBody"></div>
+  <button id="multiNavigation" type="button" class="primary" aria-expanded="false" aria-controls="multiNavigationPanel">Préparer la navigation</button>
+  <section id="multiNavigationPanel" hidden aria-labelledby="multiNavigationTitle"><h4 id="multiNavigationTitle" tabindex="-1">Ouvrir un outil de navigation</h4><p id="multiNavigationContext"></p><p id="multiNavigationLimit"></p><p id="multiNavigationPreferences" class="multi-alert"></p><label class="check-label"><input id="multiNavigationConsent" type="checkbox"> J’ai vérifié l’ordre des étapes et les limites ; activer les liens qui transmettent les lieux au service choisi</label><div id="multiNavigationLinks"></div><p class="note">Le trajet exact reste disponible dans l’export GPX. L’ouverture d’un lien ne confirme ni une étape visitée ni un déplacement effectué.</p></section>
   <div class="dialog-actions"><button id="multiEdit" type="button" class="ghost">Modifier une copie et recalculer</button><button id="multiGpx" type="button" class="ghost">Exporter ce tracé · GPX</button><button id="multiJson" type="button" class="ghost">Exporter ce parcours · JSON</button></div>
   <form id="multiSaveForm"><label for="multiName">Nom du parcours</label><input id="multiName" maxlength="80" required><label class="check-label"><input id="multiSaveConsent" type="checkbox"> Enregistrer ce parcours daté sur ce navigateur</label><button type="submit" class="ghost">Enregistrer une copie</button></form>
  </section>
