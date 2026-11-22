@@ -1,3 +1,4 @@
+import {elapsed} from './mode-quotas.mjs';
 import {test,expect} from '@playwright/test';import fs from 'node:fs';import fsp from 'node:fs/promises';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from './dragonroute.mjs';import {checkAccessibility,checkOverflow} from './inspection.mjs';
 const endpoint='https://routing.openstreetmap.de/routed-bike/route/v1/driving/',ign='https://data.geopf.fr/navigation/itineraire?**',tc='https://data.mobilites-m.fr/api/routers/default/plan?**';
@@ -16,7 +17,7 @@ async function roadOpen(page,{cycle=true,walk=false}={}){if(walk)await page.loca
 async function roadRun(page,n=3){await page.locator('#comparisonCalculate').click();await expect(page.locator('#comparisonStatus')).toContainText(`${n}/3 trajets disponibles`);await expect(page.locator('#comparisonCalculate')).toBeEnabled()}
 async function tcOpen(page){await page.locator('#transitBtn').click();await page.locator('#transitWhen').fill('2026-11-19T10:00');await page.locator('#transitCompare').check();await page.locator('#transitCycle').check()}
 async function tcRun(page){await page.locator('#transitSearch').click();await expect(page.locator('[data-transit-mode=cycle]')).toBeVisible();await expect(page.locator('#transitSearch')).toBeEnabled()}
-const card=p=>p.locator('[data-compare-mode=cycle]');const now=(p,seconds)=>p.clock.setFixedTime(new Date(Date.parse('2026-11-18T12:00Z')+seconds*1000));
+const card=p=>p.locator('[data-compare-mode=cycle]');const now=async(p,seconds)=>{const target=Date.parse('2026-11-18T12:00Z')+seconds*1000,delta=Math.max(0,target-await p.evaluate(()=>Date.now()));await p.clock.setFixedTime(new Date(target));await elapsed(p,delta)};
 async function capture(page,info,name,locator){if(locator)await locator.scrollIntoViewIfNeeded();await checkOverflow(page);await page.screenshot({path:info.outputPath(name+'.png'),animations:'disabled'});await checkAccessibility(page,info,name)}
 async function ignoreAbort(page){await page.addInitScript(()=>{const f=fetch;window.fetch=(u,o)=>f(u,String(u).includes('routed-bike')?{...o,signal:undefined}:o)})}
 
