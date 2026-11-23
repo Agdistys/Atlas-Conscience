@@ -12,7 +12,7 @@ La marche totale maximale de la recherche collective est affichée explicitement
 
 ## Même périmètre pour la comparaison
 
-Le temps collectif comparé est l’arrivée moins le départ personnel demandé. Il comprend donc l’attente avant la première étape, les marches d’accès et de sortie, les parcours à bord et les attentes entre étapes. La durée en chemin, de la première à la dernière étape, reste présentée séparément. Les comparaisons utilisent les durées non arrondies avant leur présentation en minutes.
+Le temps collectif comparé est l’arrivée moins le départ personnel demandé. Il comprend donc l’attente avant la première étape, les marches d’accès et de sortie, les parcours à bord et les attentes entre étapes. La durée en chemin, de la première à la dernière étape, reste présentée séparément. Le calcul conserve les secondes reçues. L’affichage et le tri temporel suivent la précision en minutes du comparateur commun, avec les ex æquo signalés.
 
 Chaque option conserve un numéro stable dans les étapes, le tableau des modes, les modèles carbone, les budgets et les souvenirs. Le tri ne réassocie jamais les hypothèses à une autre option. Les détails présentent dates civiles et heures de Paris, lignes, directions, arrêts, distances de marche et correspondances. Les noms reçus sont du texte inerte, sans interprétation HTML.
 
