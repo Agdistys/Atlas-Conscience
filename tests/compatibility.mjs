@@ -14,7 +14,8 @@ for (const [name, type] of Object.entries({ firefox, webkit })) {
   finally { await browser?.close(); }
 }
 const result = errors.length ? { status: 1 } : spawnSync(process.execPath,
-  ['node_modules/@playwright/test/cli.js', 'test', '--config=playwright.compat.config.mjs'], { stdio: 'inherit', timeout: 780_000 });
+  // Let Playwright finish and write its report before the outer process is stopped.
+  ['node_modules/@playwright/test/cli.js', 'test', '--config=playwright.compat.config.mjs'], { stdio: 'inherit', timeout: 1_140_000 });
 let report;
 try { report = JSON.parse(fs.readFileSync('quality/compatibility-results.json', 'utf8')); }
 catch (error) { errors.push(error.message); }
