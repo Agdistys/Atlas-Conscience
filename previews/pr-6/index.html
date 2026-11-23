@@ -379,7 +379,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 72d8be8 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · a7d0229 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -856,6 +856,16 @@
  </section>
  <section id="multiPreview" hidden aria-labelledby="multiPreviewTitle"><h3 id="multiPreviewTitle" tabindex="-1">Aperçu à confirmer</h3><div id="multiPreviewBody"></div><label class="check-label"><input id="multiAccept" type="checkbox"> Conserver cette préparation avec les limites affichées ; l’autonomie et les horaires ne sont pas garantis</label><button id="multiConfirm" type="button" class="primary" disabled>Confirmer ce parcours</button></section>
  <section id="multiConfirmed" hidden aria-labelledby="multiConfirmedTitle"><h3 id="multiConfirmedTitle" tabindex="-1">Parcours confirmé dans cette préparation</h3><div id="multiConfirmedBody"></div>
+  <button id="multiTimingOpen" type="button" class="ghost" aria-expanded="false" aria-controls="multiTimingPanel">Préparer les horaires de ce parcours</button>
+  <section id="multiTimingPanel" hidden aria-labelledby="multiTimingTitle"><h4 id="multiTimingTitle" tabindex="-1">Départ et pauses du parcours</h4>
+   <p>Les portions déjà calculées sont réutilisées. Les horaires concernent la conduite et les pauses carburant renseignées, hors trafic en direct, autres pauses et embarquement.</p>
+   <label for="multiDeparture">Départ prévu — heure de Paris (facultatif)</label><input id="multiDeparture" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59" aria-describedby="multiDepartureHelp multiTimingMessage">
+   <p id="multiDepartureHelp" class="note">Sans départ, les heures restent inconnues. Au changement d’heure, une heure de départ inexistante ou double est refusée.</p><button id="multiDepartureNow" type="button" class="ghost">Partir maintenant</button>
+   <div id="multiTimingPauses" class="multi-fields"></div><p id="multiTimingEffect" class="note"></p><p id="multiTimingMessage" role="status"></p>
+   <button id="multiTimingPreview" type="button" class="primary">Examiner les horaires</button><div id="multiTimingProposal" hidden></div>
+   <label id="multiTimingAcceptLabel" class="check-label" hidden><input id="multiTimingAccept" type="checkbox"> Confirmer ces hypothèses de départ et de pauses pour cette préparation</label>
+   <div class="dialog-actions"><button id="multiTimingApply" type="button" class="primary" hidden disabled>Confirmer les horaires</button><button id="multiTimingCancel" type="button" class="ghost">Annuler les changements d’horaires</button></div>
+  </section>
   <button id="multiAdoptOpen" type="button" class="primary" aria-expanded="false" aria-controls="multiAdoptPanel">Adopter dans la vue du trajet</button>
   <section id="multiAdoptPanel" hidden aria-labelledby="multiAdoptTitle"><h4 id="multiAdoptTitle" tabindex="-1">Afficher ce parcours comme trajet principal</h4><p id="multiAdoptSummary"></p><p id="multiAdoptReference"></p><p>Les étapes, l’autonomie et le budget de cette préparation seront affichés ensemble. Les frais et contributions de la référence ne sont pas transférés. La conservation dans « Mes parcours » reste un enregistrement distinct.</p><label class="check-label"><input id="multiAdoptAccept" type="checkbox"> Adopter ce parcours et ses hypothèses avec les limites affichées</label><div class="dialog-actions"><button id="multiAdoptConfirm" class="primary" type="button" disabled>Confirmer l’adoption</button><button id="multiAdoptCancel" class="ghost" type="button">Garder la vue actuelle</button></div></section>
   <button id="multiNavigation" type="button" class="primary" aria-expanded="false" aria-controls="multiNavigationPanel">Préparer la navigation</button>
