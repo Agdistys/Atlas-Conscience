@@ -595,7 +595,7 @@ function writeJournal(next){
 function renderJournal(){
  $('journalCollectivePending').textContent=pendingCollectiveJournal?.mode==='shared'?'Examiner le brouillon marche et vélo partagé':'Examiner le brouillon collectif';
  $('journalEnable').checked=journal.enabled;$('journalEnable').disabled=journalBlocked;
- $('journalNew').disabled=!journal.enabled||journalBlocked;if($('journalCollectivePending'))$('journalCollectivePending').hidden=!pendingCollectiveJournal||!journal.enabled||journalBlocked;$('journalCyclePending').hidden=!pendingCycleJournal||!journal.enabled||journalBlocked;$('journalCopy').disabled=!journal.enabled||journalBlocked||!trip||busy;
+ $('journalNew').disabled=!journal.enabled||journalBlocked;if($('journalCollectivePending'))$('journalCollectivePending').hidden=!pendingCollectiveJournal||!journal.enabled||journalBlocked;$('journalCyclePending').hidden=!pendingCycleJournal||!journal.enabled||journalBlocked;$('journalCopy').disabled=!journal.enabled||journalBlocked||(!trip&&!multiActive)||busy;
  $('journalExport').disabled=journalBlocked;$('journalImportBtn').disabled=journalBlocked;$('journalExportLegacy').hidden=journalLegacySnapshot===null;$('journalExportV2').hidden=journalV2Snapshot===null;
  $('journalState').textContent=journal.enabled?'Journal activé. Chaque ajout reste volontaire.':'Journal désactivé. Les entrées déjà enregistrées restent consultables et exportables.';
  const month=$('journalMonth').value;if(!/^\d{4}-\d{2}$/.test(month)){$('journalSummary').textContent='Choisir un mois valide.';$('journalCarbonSummary').textContent='';$('journalModes').replaceChildren();$('journalEntries').replaceChildren();return}
@@ -639,7 +639,7 @@ function openJournal(){if(!$('journalMonth').value)$('journalMonth').value=journ
 function journalForm(entry=null,fromRoute=false,collectiveDraft=null){
  if(!journal.enabled||journalBlocked)return;
  const now=new Date().toISOString();let e=entry?structuredClone(entry):{id:crypto.randomUUID(),date:journalDay(),start:'',end:'',mode:'car',distanceMeters:null,distanceSource:'unknown',note:'',createdAt:now,updatedAt:now,revision:1,calculation:null,emissions:{version:'unavailable-v1',status:'unavailable',valueKg:null,factor:null}};
- if(fromRoute){if(!trip||busy)return;const r=selectedStop?.via||trip.base;e={...e,start:trip.places.start,end:trip.places.end,mode:trip.routing.vehicle.type,distanceMeters:r.distance,distanceSource:'route',calculation:{version:'route-snapshot-v1',engine:trip.routing.provider,start:trip.places.start,end:trip.places.end,resourceVersion:typeof r.resourceVersion==='string'?r.resourceVersion:null,calculatedAt:trip.calculatedAt,mode:trip.routing.vehicle.type,distanceMeters:r.distance,stop:selectedStop?selectedStop.station.address:null}}}
+ if(fromRoute){if((!trip&&!multiActive)||busy)return;if(multiActive){const c=multiJournalCalculation(multiActive.plan);e={...e,start:c.start,end:c.end,mode:c.mode,distanceMeters:c.distanceMeters,distanceSource:'route',calculation:c};}else{const r=selectedStop?.via||trip.base;e={...e,start:trip.places.start,end:trip.places.end,mode:trip.routing.vehicle.type,distanceMeters:r.distance,distanceSource:'route',calculation:{version:'route-snapshot-v1',engine:trip.routing.provider,start:trip.places.start,end:trip.places.end,resourceVersion:typeof r.resourceVersion==='string'?r.resourceVersion:null,calculatedAt:trip.calculatedAt,mode:trip.routing.vehicle.type,distanceMeters:r.distance,stop:selectedStop?selectedStop.station.address:null}}}}
  if(collectiveDraft)e=structuredClone(collectiveDraft);
  journalDraft={entry:e,editing:!!entry,lastMode:e.mode};$('journalEditor').hidden=false;$('journalFormTitle').textContent=entry?'Corriger le trajet':'Confirmer un trajet effectué';
  for(const [id,k] of [['journalDate','date'],['journalStart','start'],['journalEnd','end'],['journalMode','mode'],['journalNote','note']])$(id).value=e[k];
@@ -2445,6 +2445,7 @@ const stationLayoutObserver=new ResizeObserver(()=>{
 stationLayoutObserver.observe($('map'));stationLayoutObserver.observe($('sheet'));
 function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   if(!coords?.length)return;
+  const focusedVariant=$('routeVariantMarkers').contains(document.activeElement)?document.activeElement.dataset.routeIndex:null;
   const W=1000,H=700,pad=70;
   let minLat=Infinity,maxLat=-Infinity,minLon=Infinity,maxLon=-Infinity;
   const all=coords.concat(...alternatives,stations.map(s=>[s.lat,s.lon]));
@@ -2479,6 +2480,7 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   $('meetingDots').innerHTML=trip?.meetings?['pickup','dropoff'].map((key,i)=>{const place=trip.meetings[key],[x,y]=P([place.lat,place.lon]);return `<g><title>${escapeHtml((i?'Dépose : ':'Prise en charge : ')+place.label)}</title><circle cx="${x}" cy="${y}" r="18" fill="#5030a0" stroke="white" stroke-width="3"/><text x="${x}" y="${y+5}" text-anchor="middle" fill="white">${i?'D':'P'}</text></g>`}).join(''):'';
   tollGuide.projection=P;drawTollMarkers();
   $("fallbackLabel").textContent=label||"Visualisation autonome";queueStationPoints();
+  if(focusedVariant!=null&&!document.querySelector('dialog[open]'))document.querySelector(`.svg-route-variant[data-route-index="${focusedVariant}"]`)?.focus({preventScroll:true});
 }
 function showOnMap(coords,stations,best,start,end,label,fit=true){
   mapView=[coords,stations,best,start,end,label];updateStationMapTools();
@@ -4896,6 +4898,7 @@ function openNavigation(){
   $("navigationOptimizationNote").textContent=optimizationLabel(trip.routing.optimization)+". Les liens Google Maps et Waze ne transmettent pas ce critère : vérifier leur nouveau parcours. Le fichier GPX conserve le tracé et décrit le critère, sans imposer de réglage à l’application destinataire.";$("navigationMessage").textContent="";$("navigationDialog").showModal();
 }
 function gpxSnapshot(){
+  if(multiActive)return multiGpx(multiActive.plan);
   if(!trip)throw new Error("Calculer un trajet avant de l’exporter.");
   const r=selectedStop?.via||trip.base;
   if(!hasRouteGeometry(r)||!hasRouteMetrics(r))throw new Error("Tracé incomplet : export impossible.");
@@ -4961,7 +4964,13 @@ function renderRouteChoices(){
 }
 function closeRouteChoice(message=''){
  const op=routeChoiceProposal;routeChoiceProposal=null;if($('routeChoiceDialog').open)$('routeChoiceDialog').close();
- if(op){const target=op.focus?.isConnected?op.focus:document.querySelector(`[data-route-choice="${trip?.choice}"]`);if(target&&!target.disabled)target.focus();if(message)setStatus(message)}
+ if(op){
+  const visible=el=>el?.isConnected&&el.getClientRects().length&&!el.closest('[hidden],[inert]')&&!el.disabled;
+  const kind=['svg-route-variant','route-variant-marker','map-route-alternative'].find(c=>op.focus?.classList.contains(c));
+  const replacement=op.trip===trip?document.querySelector(kind?`.${kind}[data-route-index="${op.index}"]`:`[data-route-choice="${op.index}"]`):null;
+  const target=visible(op.focus)?op.focus:visible(replacement)?replacement:document.querySelector(`[data-route-choice="${trip?.choice}"]`);
+  if(visible(target)&&!document.querySelector('dialog[open]'))target.focus();if(message)setStatus(message);
+ }
 }
 function chooseRoute(index,focus=document.activeElement){
  if(busy||!trip||!Number.isInteger(index)||!trip.choices[index]||index===trip.choice)return;
@@ -5008,7 +5017,7 @@ function clearStations(){
   updateTripMetrics();updateBudget();
 }
 function clearResults(){
- closeRouteChoice();
+ multiLeaveActive(false);closeRouteChoice();
  clearRoadChoices();if($('roadCompareDialog').open)$('roadCompareDialog').close();
  budgetRecall=null;$("budgetMemoryMessage").textContent='';
   cancelGps();
@@ -5061,6 +5070,7 @@ function updateStationEmpty(count){
 function focusStationField(id){const el=$(id);for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;el.scrollIntoView({block:'center'});el.focus()}
 function changeStationWindow(){clearStations();updateWindow();$('fuelStatus').textContent='Zone modifiée. Lancer « Chercher les stations » pour recalculer les accès.';$('stationsBtn').focus()}
 function displayTrip(base,routing,a,b,ga,gb){
+    multiLeaveActive(false);
     const coords=base.geometry.coordinates.map(([lon,lat])=>[lat,lon]);
     const label=`${ga.label.split(",")[0]} → ${gb.label.split(",")[0]}`;
     const choices=distinctRouteChoices(base,C.routeChoiceLimit);
@@ -6237,6 +6247,18 @@ function multiBudgetCurrent(p,b,catalog,today){
 }
 // END MULTI BUDGET MODEL
 
+// BEGIN MULTI ADOPTION MODEL
+function multiAdoptionPlan(raw,{historical=false,budgetInvalid=false,now,today},catalog){
+ if(historical||raw?.savedAt!==null)throw Error('Copie historique : modifier une copie et recalculer avant de l’adopter.');
+ const p=multiValidatePlan(raw);multiBudgetStamp(now);if(Date.parse(p.calculatedAt)>Date.parse(now))throw Error('Horloge antérieure au calcul : recalculer avec une date cohérente.');
+ if(p.budget){if(budgetInvalid)throw Error('Budget à réexaminer avant adoption.');multiBudgetCurrent(p,p.budget,catalog,today);}
+ return p;
+}
+function multiJournalCalculation(raw){
+ const p=multiValidatePlan(raw);return {version:'route-snapshot-v1',engine:p.routing.provider,start:p.nodes[0].name,end:p.nodes.at(-1).name,resourceVersion:p.route.resourceVersion,calculatedAt:p.calculatedAt,mode:'car',distanceMeters:p.route.distance,stop:'Parcours à '+p.nodes.filter(n=>n.kind==='station').length+' stations'+(p.meeting?' avec rencontres':'')+' ; étapes détaillées dans la préparation'};
+}
+// END MULTI ADOPTION MODEL
+
 // END MULTI STOP MODEL
 
 // BEGIN MULTI MAP MODEL
@@ -6267,7 +6289,7 @@ function multiMapMarkup(p,view){
  return '<section class="multi-cartography" aria-label="Carte et étapes du parcours"><p id="'+prefix+'MapNote" class="note">Carte locale du tracé calculé. Le fond de carte est facultatif ; l’afficher contacte OpenStreetMap pour la zone consultée.</p><div class="dialog-actions"><button type="button" class="ghost" data-multi-fit>Voir tout le parcours</button><button type="button" class="ghost" data-multi-tiles aria-pressed="false">Afficher le fond OpenStreetMap</button></div><div id="'+prefix+'Map" class="multi-local-map" role="region" tabindex="0" aria-label="Carte interactive des étapes" aria-describedby="'+prefix+'MapNote"></div><p class="note" data-multi-map-status role="status">Tracé local, sans chargement du fond de carte.</p><div data-multi-nearby hidden><h4 tabindex="-1">Étapes proches sur la carte</h4><div class="multi-nearby-list"></div></div><div class="multi-leg" data-multi-detail role="status">Choisir une étape sur la carte ou dans la liste numérotée pour la situer et lire sa portion.</div><details class="multi-schema"><summary>Schéma du tracé sans fond de carte</summary>'+multiDraw(p)+'</details></section>';
 }
 function multiDisposeMap(view){const entry=multiMaps.get(view);if(!entry)return;multiMaps.delete(view);entry.observer?.disconnect();cancelAnimationFrame(entry.frame);entry.host.removeEventListener('click',entry.click);const m=entry.map;entry.map=null;entry.tile=null;if(m){m.off('moveend zoomend',entry.draw);try{m.remove()}catch(e){dbg('Carte successive : fermeture du fond indisponible.')}}}
-function multiDisposeMaps(){for(const view of [...multiMaps.keys()])multiDisposeMap(view)}
+function multiDisposeMaps(){for(const view of [...multiMaps.keys()])if(view!=='Active')multiDisposeMap(view)}
 function multiResetNavigation(){multiNavigationSnapshot=null;$('multiNavigationPanel').hidden=true;$('multiNavigationConsent').checked=false;$('multiNavigationLinks').replaceChildren();$('multiNavigation').setAttribute('aria-expanded','false')}
 function multiMapSelect(entry,index,zoom=true){
  const p=entry.plan,n=p.nodes[index];if(!n)return;entry.selected=index;
@@ -6330,16 +6352,17 @@ function bindMultiMap(){
 }
 
 let multiBudgetDraft=null,multiBudgetProposal=null;
-function multiResetBudget(){multiBudgetDraft=null;multiBudgetProposal=null;$('multiBudgetPanel').hidden=true;$('multiBudgetOpen').setAttribute('aria-expanded','false');$('multiBudgetProposal').replaceChildren();$('multiBudgetProposal').hidden=true;$('multiBudgetAcceptLabel').hidden=true;$('multiBudgetApply').hidden=true;$('multiBudgetAccept').checked=false;}
+function multiResetBudget(){multiDismissAdoption();multiBudgetDraft=null;multiBudgetProposal=null;$('multiBudgetPanel').hidden=true;$('multiBudgetOpen').setAttribute('aria-expanded','false');$('multiBudgetProposal').replaceChildren();$('multiBudgetProposal').hidden=true;$('multiBudgetAcceptLabel').hidden=true;$('multiBudgetApply').hidden=true;$('multiBudgetAccept').checked=false;}
 function multiBudgetInvalidate(){multiBudgetProposal=null;$('multiBudgetProposal').hidden=true;$('multiBudgetAccept').checked=false;$('multiBudgetAcceptLabel').hidden=true;$('multiBudgetApply').hidden=true;$('multiBudgetApply').disabled=true;}
 function multiBudgetLabel(s){return s.network+' · '+(s.kind==='passage'?'un passage':s.entry+' → '+s.exit);}
-function multiBudgetMarkup(p,historical=false){
- const b=p.budget,v=multiBudgetTotals(p,b),money=x=>x===null?'Inconnu':fmt(x/100)+' €';let valid=true,reason='';if(!historical){try{if(multiState.budgetInvalid)throw Error('Budget à réexaminer après changement de validité.');multiBudgetCurrent(p,b,tariffData,localDate());}catch(e){valid=false;reason=e.message;}}
+function multiBudgetMarkup(p,historical=false,invalid=multiState.budgetInvalid){
+ const b=p.budget,v=multiBudgetTotals(p,b),money=x=>x===null?'Inconnu':fmt(x/100)+' €';let valid=true,reason='';if(!historical){try{if(invalid)throw Error('Budget à réexaminer après changement de validité.');multiBudgetCurrent(p,b,tariffData,localDate());}catch(e){valid=false;reason=e.message;}}
  const status=historical?'Budget historique, sans actualisation':valid?'Budget confirmé pour ce parcours':'Budget à réexaminer';return '<section data-multi-budget-summary aria-label="Budget confirmé du parcours"><h4>'+status+'</h4><p>Aller simple du '+escapeHtml(b.date.split('-').reverse().join('/'))+' · confirmation le '+escapeHtml(arrivalLabel(Date.parse(b.confirmedAt)))+'.</p><p>Péages : '+money(b.tolls.cents)+' · '+({unknown:'montant inconnu',none:'absence de péage déclarée',declared:'montant déclaré',table:'grilles examinées'})[b.tolls.method]+' · '+(b.tolls.coverage==='complete'?'couverture complète déclarée':'couverture partielle')+'.</p><p>Stationnement : '+money(b.fees.parking)+' · ferry : '+money(b.fees.ferry)+' · autres frais directs : '+money(b.fees.other)+'.</p><p><strong>'+(valid?(v.complete?'Total estimé des postes renseignés : '+money(v.totalCents):'Budget incomplet · sous-total connu : '+money(v.knownCents)):'Total courant indisponible : '+escapeHtml(reason))+'</strong>. Carburant consommé inclus une fois ; achats aux stations exclus de ce total.</p><p>'+escapeHtml(b.tolls.reference)+' '+escapeHtml(b.note)+'</p>'+b.tolls.segments.map(s=>'<p>'+escapeHtml(multiBudgetLabel(s))+' · classe '+s.vehicleClass+' · '+money(s.cents)+'. <a href="'+escapeHtml(s.source.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(s.source.title)+'</a> · effet '+s.source.effectiveFrom+', consulté le '+s.source.lastReviewed+', réexamen au plus tard '+s.source.consultationUntil+'.</p>').join('')+'<p class="note">Dépenses prévues pour le véhicule, sans répartition entre voyageurs. Passage et couverture déclaratifs ; aucun déplacement ou tarif final attesté.</p></section>';
 }
 function multiRefreshBudget(){
- const p=multiState.confirmed;if(!p)return;$('multiBudgetOpen').disabled=!!multiState.confirmedHistorical;$('multiBudgetNotice').textContent=multiState.confirmedHistorical?'Copie historique : modifier une copie et recalculer avant de préparer un budget actuel.':'Le budget confirmé reste conservé pendant la préparation d’un remplacement. Enregistrer ensuite une nouvelle copie pour le retrouver.';
+ multiRefreshActive();const p=multiState.confirmed;$('multiAdoptOpen').disabled=!p||!!multiState.confirmedHistorical||!!multiState.budgetInvalid;if(!p)return;$('multiBudgetOpen').disabled=!!multiState.confirmedHistorical;$('multiBudgetNotice').textContent=multiState.confirmedHistorical?'Copie historique : modifier une copie et recalculer avant de préparer un budget actuel.':'Le budget confirmé reste conservé pendant la préparation d’un remplacement. Enregistrer ensuite une nouvelle copie pour le retrouver.';
  if(p.budget&&!multiState.confirmedHistorical){try{multiBudgetCurrent(p,p.budget,tariffData,localDate());}catch{multiState.budgetInvalid=true;multiBudgetInvalidate();}}
+ $('multiAdoptOpen').disabled=!!multiState.confirmedHistorical||!!multiState.budgetInvalid;
  const box=$('multiConfirmedBody').querySelector('[data-multi-budget-summary]');if(box)box.outerHTML=multiBudgetMarkup(p,multiState.confirmedHistorical);
 }
 function multiBudgetOptions(select,options){select.replaceChildren(new Option('Choisir…',''));for(const [value,label]of options)select.add(new Option(label,String(value)));}
@@ -6378,6 +6401,7 @@ function multiReadInputs(){return multiInputs({cons:$('multiCons').value,initial
 function multiFillInputs(v){for(const [id,key] of [['multiCons','cons'],['multiInitial','initial'],['multiCapacity','capacity'],['multiReserve','reserve'],['multiPrice','referencePrice']])$(id).value=v[key]===null?'':v[key]}
 function multiStation(s){return {kind:'station',id:'station:'+s.id,name:s.address||s.name||s.city||'Station',point:[s.lat,s.lon],liters:null,pause:null,price:Number.isFinite(s.price)?s.price:null,updated:s.updated==null?null:String(s.updated),receivedAt:s.receivedAt==null?null:String(s.receivedAt)}}
 function multiNew(){
+ if(!busy&&multiActive)return multiDraftFromActive();
  if(busy||!trip){multiMessage('Calculer un trajet routier avant de préparer ses étapes.');return}
  try{const routing=multiRouting(trip.routing),nodes=routePlanNodes().map(n=>({kind:n.kind,id:n.kind,name:n.kind==='start'?trip.places.start:n.kind==='end'?trip.places.end:n.kind==='pickup'?trip.meetings.pickup.label:trip.meetings.dropoff.label,point:n.point}));
   multiInvalidate();multiState.draft={version:1,id:crypto.randomUUID(),name:'Parcours à plusieurs arrêts',savedAt:null,calculatedAt:new Date().toISOString(),routing,reference:{distance:trip.base.distance,duration:trip.base.duration},meeting:trip.meetings?{distance:trip.meetings.reference.base.distance,duration:trip.meetings.reference.base.duration,...trip.meetings.limits}:null,nodes,inputs:{cons:Number($('cons').value),initial:$('rangeMode').value==='liters'&&$('rangeValue').value!==''?Number($('rangeValue').value):null,capacity:null,reserve:Number($('reserveKm').value),referencePrice:budgetReference?.stationId?null:$('budgetPrice').value===''?null:Number($('budgetPrice').value)},fuel:$('fuel').value,sourceKey:multiMainKey()};
@@ -6400,9 +6424,9 @@ function multiDraw(plan){
  const pts=plan.route.geometry.coordinates,nodes=plan.nodes,lons=pts.map(p=>p[0]),lats=pts.map(p=>p[1]);let minX=180,maxX=-180,minY=90,maxY=-90;for(let i=0;i<pts.length;i++){minX=Math.min(minX,lons[i]);maxX=Math.max(maxX,lons[i]);minY=Math.min(minY,lats[i]);maxY=Math.max(maxY,lats[i])}const scale=Math.min(520/Math.max(.001,maxX-minX),260/Math.max(.001,maxY-minY)),xy=p=>[(600-(maxX-minX)*scale)/2+(p[0]-minX)*scale,170+(maxY-minY)*scale/2-(p[1]-minY)*scale];
  return '<svg class="prepared-schema" viewBox="0 0 600 340" role="img" aria-label="Tracé du parcours avec étapes numérotées, schéma sans fond de carte"><polyline points="'+pts.map(p=>xy(p).map(x=>x.toFixed(2)).join(',')).join(' ')+'" fill="none" stroke="#fff" stroke-width="8"/><polyline points="'+pts.map(p=>xy(p).map(x=>x.toFixed(2)).join(',')).join(' ')+'" fill="none" stroke="#0758d9" stroke-width="5"/>'+nodes.map((n,i)=>{const [x,y]=xy([n.point[1],n.point[0]]);return '<g><circle cx="'+x+'" cy="'+y+'" r="12" fill="#fff" stroke="#111"/><text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" fill="#111">'+(i+1)+'</text></g>'}).join('')+'</svg>';
 }
-function multiDescription(p,historical=false,view='Preview'){
+function multiDescription(p,historical=false,view='Preview',budgetInvalid=multiState.budgetInvalid){
  const v=multiReview(p),esc=escapeHtml,signed=x=>(x>0?'+':'')+fmt(x,1),status={within:'Dans la portée théorique, réserve conservée',reserve:'Réserve entamée selon la déclaration',unreachable:'Carburant déclaré insuffisant pour atteindre cette étape',unknown:'Autonomie inconnue'};
- return '<p><strong>'+esc(p.name)+'</strong> · '+esc(routingLabel(p.routing))+' · '+esc(p.fuel)+'</p><p class="note">Calcul du '+esc(new Date(p.calculatedAt).toLocaleString('fr-FR'))+(p.savedAt?' · enregistré le '+esc(new Date(p.savedAt).toLocaleString('fr-FR')):'')+'. '+(historical?'Lecture datée, prix et trajet non actualisés. ':'Aperçu du calcul demandé. ')+'IGN / BD TOPO ou OpenStreetMap / OSRM selon le moteur indiqué. '+(p.route.resourceVersion?'Données : '+esc(p.route.resourceVersion)+'.':'')+'</p>'+multiMapMarkup(p,view)+'<p>Étapes numérotées dans l’ordre ci-dessous ; le schéma sans fond reste disponible. Accès, état des routes, ouverture et carburant disponible non garantis.</p><ol class="multi-map-list">'+p.nodes.map((n,i)=>'<li><button type="button" class="ghost" data-multi-focus="'+i+'" aria-pressed="false">'+(i+1)+'. '+esc(n.name)+'</button>'+(n.kind==='station'?' · achat '+(n.liters===null?'inconnu':fmt(n.liters,1)+' L')+' · pause '+(n.pause===null?'inconnue':fmt(n.pause,1)+' min'):'')+'</li>').join('')+'</ol><p><strong>'+fmt(p.route.distance/1000,1)+' km · '+fmt(p.route.duration/60,1)+' min de conduite</strong>. Pauses carburant : '+(v.pauses===null?'durée totale inconnue':fmt(v.pauses,1)+' min')+'. Conduite + pauses carburant : '+(v.totalSeconds===null?'inconnu':fmt(v.totalSeconds/60,1)+' min')+'. Hors autres pauses, embarquement et trafic en direct.</p><p>Écart au trajet de référence : '+signed((p.route.distance-p.reference.distance)/1000)+' km · '+signed((p.route.duration-p.reference.duration)/60)+' min de conduite.</p><h4>Autonomie par portion</h4><p>Consommation '+fmt(p.inputs.cons,1)+' L/100 km · départ '+(p.inputs.initial===null?'inconnu':fmt(p.inputs.initial,1)+' L')+' · capacité '+(p.inputs.capacity===null?'inconnue':fmt(p.inputs.capacity,1)+' L')+' · réserve '+fmt(p.inputs.reserve,1)+' km. Aucune quantité supposée remise à niveau.</p>'+v.legs.map((l,i)=>'<div class="multi-leg '+(l.status==='within'?'':'multi-alert')+'"><strong>'+(i+1)+' → '+(i+2)+' · '+esc(l.to)+'</strong><p>'+fmt(l.km,1)+' km · '+fmt(l.minutes,1)+' min · cumul '+fmt(l.totalKm,1)+' km.</p><p>'+status[l.status]+(l.arrival===null?'':' · reste théorique '+fmt(l.arrival,2)+' L')+'.'+(l.refill==='overflow'?' Achat prévu supérieur à la place disponible ; autonomie suivante inconnue.':l.refill==='unknown'?' Achat non renseigné ; autonomie suivante inconnue.':'')+'</p></div>').join('')+'<h4>Budget du parcours</h4><p>Carburant consommé estimé : '+fmt(v.consumed,2)+' L'+(v.fuelCost===null?' · prix de référence inconnu':' · '+fmt(v.fuelCost)+' € au prix déclaré de '+fmt(p.inputs.referencePrice,3)+' €/L')+'.</p><p>Achats aux stations : '+(v.allPurchases?fmt(v.subtotal)+' €':'incomplets · '+fmt(v.subtotal)+' € renseignés')+'. Prix reçus au calcul, soumis à actualisation. Ces achats ne sont pas ajoutés au coût du carburant consommé.</p>'+(p.budget?multiBudgetMarkup(p,historical):'<p class="multi-alert">Péages et autres frais non qualifiés pour ce parcours : budget total incomplet. Aucune ancienne confirmation de péage transférée.</p>')+''+(v.sharedDistance===null?'':'<p>Rencontres conservées : '+fmt(v.sharedDistance/1000,1)+' km partagés sur ce tracé. Contributions et péages partagés non recalculés dans cette préparation.</p>');
+ return '<p><strong>'+esc(p.name)+'</strong> · '+esc(routingLabel(p.routing))+' · '+esc(p.fuel)+'</p><p class="note">Calcul du '+esc(new Date(p.calculatedAt).toLocaleString('fr-FR'))+(p.savedAt?' · enregistré le '+esc(new Date(p.savedAt).toLocaleString('fr-FR')):'')+'. '+(historical?'Lecture datée, prix et trajet non actualisés. ':'Aperçu du calcul demandé. ')+'IGN / BD TOPO ou OpenStreetMap / OSRM selon le moteur indiqué. '+(p.route.resourceVersion?'Données : '+esc(p.route.resourceVersion)+'.':'')+'</p>'+multiMapMarkup(p,view)+'<p>Étapes numérotées dans l’ordre ci-dessous ; le schéma sans fond reste disponible. Accès, état des routes, ouverture et carburant disponible non garantis.</p><ol class="multi-map-list">'+p.nodes.map((n,i)=>'<li><button type="button" class="ghost" data-multi-focus="'+i+'" aria-pressed="false">'+(i+1)+'. '+esc(n.name)+'</button>'+(n.kind==='station'?' · achat '+(n.liters===null?'inconnu':fmt(n.liters,1)+' L')+' · pause '+(n.pause===null?'inconnue':fmt(n.pause,1)+' min'):'')+'</li>').join('')+'</ol><p><strong>'+fmt(p.route.distance/1000,1)+' km · '+fmt(p.route.duration/60,1)+' min de conduite</strong>. Pauses carburant : '+(v.pauses===null?'durée totale inconnue':fmt(v.pauses,1)+' min')+'. Conduite + pauses carburant : '+(v.totalSeconds===null?'inconnu':fmt(v.totalSeconds/60,1)+' min')+'. Hors autres pauses, embarquement et trafic en direct.</p><p>Écart au trajet de référence : '+signed((p.route.distance-p.reference.distance)/1000)+' km · '+signed((p.route.duration-p.reference.duration)/60)+' min de conduite.</p><h4>Autonomie par portion</h4><p>Consommation '+fmt(p.inputs.cons,1)+' L/100 km · départ '+(p.inputs.initial===null?'inconnu':fmt(p.inputs.initial,1)+' L')+' · capacité '+(p.inputs.capacity===null?'inconnue':fmt(p.inputs.capacity,1)+' L')+' · réserve '+fmt(p.inputs.reserve,1)+' km. Aucune quantité supposée remise à niveau.</p>'+v.legs.map((l,i)=>'<div class="multi-leg '+(l.status==='within'?'':'multi-alert')+'"><strong>'+(i+1)+' → '+(i+2)+' · '+esc(l.to)+'</strong><p>'+fmt(l.km,1)+' km · '+fmt(l.minutes,1)+' min · cumul '+fmt(l.totalKm,1)+' km.</p><p>'+status[l.status]+(l.arrival===null?'':' · reste théorique '+fmt(l.arrival,2)+' L')+'.'+(l.refill==='overflow'?' Achat prévu supérieur à la place disponible ; autonomie suivante inconnue.':l.refill==='unknown'?' Achat non renseigné ; autonomie suivante inconnue.':'')+'</p></div>').join('')+'<h4>Budget du parcours</h4><p>Carburant consommé estimé : '+fmt(v.consumed,2)+' L'+(v.fuelCost===null?' · prix de référence inconnu':' · '+fmt(v.fuelCost)+' € au prix déclaré de '+fmt(p.inputs.referencePrice,3)+' €/L')+'.</p><p>Achats aux stations : '+(v.allPurchases?fmt(v.subtotal)+' €':'incomplets · '+fmt(v.subtotal)+' € renseignés')+'. Prix reçus au calcul, soumis à actualisation. Ces achats ne sont pas ajoutés au coût du carburant consommé.</p>'+(p.budget?multiBudgetMarkup(p,historical,budgetInvalid):'<p class="multi-alert">Péages et autres frais non qualifiés pour ce parcours : budget total incomplet. Aucune ancienne confirmation de péage transférée.</p>')+''+(v.sharedDistance===null?'':'<p>Rencontres conservées : '+fmt(v.sharedDistance/1000,1)+' km partagés sur ce tracé. Contributions et péages partagés non recalculés dans cette préparation.</p>');
 }
 async function multiCalculate(){
  const d=multiState.draft;if(!d)return;multiInvalidate();const sequence=multiState.sequence,controller=new AbortController();multiState.controller=controller;
@@ -6445,7 +6469,56 @@ function bindMultiStops(){
  $('multiErase').addEventListener('click',()=>{try{if(!$('multiEraseConsent').checked)throw Error('Confirmer l’effacement de ces seuls parcours.');multiWrite({version:1,entries:[]});$('multiEraseConsent').checked=false;$('multiStorageMessage').textContent='Parcours à plusieurs arrêts effacés. Autres données conservées.'}catch(e){$('multiStorageMessage').textContent=e.message}});
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();
+let multiActive=null,multiAdoptProposal=null;
+function multiReferenceSignature(){return JSON.stringify([trip,selectedStop,...[...$('sheet').querySelectorAll('input,select')].map(e=>[e.id,e.value,e.checked])]);}
+function multiDismissAdoption(){multiAdoptProposal=null;$('multiAdoptPanel').hidden=true;$('multiAdoptAccept').checked=false;$('multiAdoptConfirm').disabled=true;$('multiAdoptOpen').setAttribute('aria-expanded','false');}
+function multiAdoptionOptions(){return {historical:multiState.confirmedHistorical,budgetInvalid:multiState.budgetInvalid,now:new Date().toISOString(),today:localDate()};}
+function multiOfferAdoption(){
+ try{multiDismissAdoption();if(busy||multiState.controller)throw Error('Terminer ou annuler le calcul en cours avant adoption.');const p=multiAdoptionPlan(multiState.confirmed,multiAdoptionOptions(),tariffData),v=multiReview(p);
+  multiAdoptProposal={plan:p,confirmed:JSON.stringify(multiState.confirmed),reference:multiReferenceSignature()};$('multiAdoptPanel').hidden=false;$('multiAdoptOpen').setAttribute('aria-expanded','true');
+  $('multiAdoptSummary').textContent=p.nodes[0].name+' → '+p.nodes.at(-1).name+' · '+p.nodes.filter(n=>n.kind==='station').length+' stations · '+fmt(p.route.distance/1000,1)+' km · '+(v.totalSeconds===null?'durée totale inconnue (pause non renseignée)':fmt(v.totalSeconds/60,1)+' min avec pauses carburant')+'. '+(p.budget?'Le budget propre à ce parcours sera affiché.':'Péages et autres frais inconnus : aucun budget complet.');
+  $('multiAdoptReference').textContent=multiActive?'Cette nouvelle version remplacera le parcours à plusieurs arrêts affiché. La préparation de référence reste conservée.':trip?'Préparation de référence conservée : '+trip.places.start+' → '+trip.places.end+' · '+fmt((selectedStop?.via||trip.base).distance/1000,1)+' km. Un bouton permettra de la retrouver avec ses réglages et ses sélections.':'Les réglages de départ restent conservés et accessibles par un bouton de retour.';
+  $('multiAdoptTitle').focus();
+ }catch(e){multiMessage(e.message)}
+}
+function multiActiveMarkup(p){
+ const description=multiDescription(p,false,'Active',false).replaceAll('<h4>','<h2>').replaceAll('</h4>','</h2>');const v=multiReview(p),summary='<div class="summary" aria-label="Résumé du parcours"><div class="metric"><b>'+fmt(p.route.distance/1000,1)+' km</b><small>'+p.nodes.filter(n=>n.kind==="station").length+' stations</small></div><div class="metric"><b>'+(v.totalSeconds===null?'Inconnue':fmt(v.totalSeconds/60,1)+' min')+'</b><small>conduite et pauses carburant</small></div></div>';
+ return '<section id="multiActiveSheet" class="sheet" aria-labelledby="multiActiveTitle"><h1 id="multiActiveTitle" tabindex="-1">Mon trajet à plusieurs arrêts</h1>'+summary+'<p class="note">Réglages et budget propres à ce parcours. Enregistrer une copie pour le conserver.</p><div class="dialog-actions"><button type="button" class="ghost" data-multi-active="map">Voir la carte des étapes</button><button type="button" class="ghost" data-multi-active="return">Revenir à la préparation de référence</button></div><p id="multiActiveStatus" role="status"></p><div class="dialog-actions"><button type="button" class="ghost" data-multi-active="prepare">Préparation et budget</button><button type="button" class="ghost" data-multi-active="navigation">Préparer la navigation</button><button type="button" class="ghost" data-multi-active="gpx">Exporter ce tracé · GPX</button><button type="button" class="ghost" data-multi-active="json">Exporter ce parcours · JSON</button><button type="button" class="ghost" data-multi-active="journal">Déclarer un déplacement effectué</button></div>'+description+'</section><section id="multiActiveMapArea" class="map-area" aria-labelledby="multiActiveMapTitle"><div class="map-navigation"><h2 id="multiActiveMapTitle" tabindex="-1">Carte du parcours à plusieurs arrêts</h2><button type="button" class="ghost" data-multi-active="list">Revenir aux étapes et au budget</button></div></section>';
+}
+function multiRenderActive(markup){
+ const host=$('multiActiveBody');multiDisposeMap('Active');host.innerHTML=markup;host.querySelector('#multiActiveMapArea').append(host.querySelector('.multi-cartography'));
+ $('sheet').hidden=true;$('sheet').inert=true;$('mapArea').hidden=true;$('mapArea').inert=true;host.hidden=false;multiMountMap('Active',multiActive.plan);multiRefreshActive();$('multiActiveTitle').focus();
+}
+function multiAdoptConfirmed(){
+ try{const op=multiAdoptProposal;if(!op||!$('multiAdoptAccept').checked||busy||multiState.controller)return;
+  if(op.confirmed!==JSON.stringify(multiState.confirmed)||op.reference!==multiReferenceSignature())throw Error('Contexte modifié : examiner à nouveau l’adoption.');
+  const p=multiAdoptionPlan(multiState.confirmed,multiAdoptionOptions(),tariffData),markup=multiActiveMarkup(p);multiDismissAdoption();cancelGps();clearNavigation();
+  multiActive={plan:multiClone(p),budgetInvalid:false,clockInvalid:false};if($('preparedDialog').open)$('preparedDialog').close();$('multiDialog').close();multiRenderActive(markup);
+ }catch(e){multiDismissAdoption();multiMessage(e.message)}
+}
+function multiLeaveActive(focus=true){
+ if(!multiActive)return;multiDisposeMap('Active');multiActive=null;$('multiActiveBody').hidden=true;$('multiActiveBody').replaceChildren();$('sheet').hidden=false;$('sheet').inert=false;$('mapArea').hidden=false;$('mapArea').inert=false;
+ if(map)map.invalidateSize({pan:false});if(focus){const el=trip?$('summary'):$('start');if(trip)el.setAttribute('tabindex','-1');el.scrollIntoView({block:'nearest'});el.focus();setStatus('Préparation de référence retrouvée. Ses réglages, stations et péages ont été conservés.','ok');}
+}
+function multiRefreshActive(){
+ const a=multiActive;if(!a)return;const p=a.plan;if(Date.now()<Date.parse(p.calculatedAt)){a.clockInvalid=true;a.budgetInvalid=true;}
+ if(p.budget){try{multiBudgetCurrent(p,p.budget,tariffData,localDate());}catch{a.budgetInvalid=true;}const box=$('multiActiveBody').querySelector('[data-multi-budget-summary]');if(box)box.outerHTML=multiBudgetMarkup(p,false,a.budgetInvalid).replaceAll('<h4>','<h2>').replaceAll('</h4>','</h2>');}
+ $('multiActiveStatus').textContent=a.clockInvalid?'Calcul à réexaminer après recul de l’horloge. Le tracé affiché reste une référence datée.':a.budgetInvalid?'Budget à réexaminer : le tracé daté reste affiché, son total actuel est retiré.':'Parcours adopté dans cette vue. Modifier, recalculer ou enregistrer depuis « Préparation et budget ».';
+}
+function multiOpenActive(navigation=false){
+ if(!multiActive)return;const a=multiActive;multiDismissAdoption();multiInvalidate();$('multiEditor').hidden=true;$('multiSaved').hidden=true;if(!$('multiDialog').open)$('multiDialog').showModal();multiShowConfirmed(a.plan);multiState.budgetInvalid=a.budgetInvalid||a.clockInvalid;multiRefreshBudget();multiMessage('Parcours affiché repris. Toute modification reste dans la préparation jusqu’à une nouvelle adoption. Pour ajouter des stations issues d’une autre recherche, revenir à la préparation de référence.');if(navigation)multiOpenNavigation();
+}
+function multiDraftFromActive(){
+ const p=multiClone(multiActive.plan);p.version=1;delete p.budget;p.id=crypto.randomUUID();p.savedAt=null;p.sourceKey=null;multiInvalidate();multiResetBudget();multiResetNavigation();multiDisposeMap('Confirmed');multiState.draft=p;$('multiConfirmed').hidden=true;multiFillInputs(p.inputs);multiRenderEditor();multiMessage('Copie du parcours affiché à modifier puis recalculer. Son budget sera à préparer à nouveau. Le parcours adopté reste affiché jusqu’à une nouvelle confirmation d’adoption.');
+}
+function bindMultiAdoption(){
+ $('multiAdoptOpen').addEventListener('click',multiOfferAdoption);$('multiAdoptAccept').addEventListener('change',()=>{$('multiAdoptConfirm').disabled=!multiAdoptProposal||!$('multiAdoptAccept').checked});$('multiAdoptConfirm').addEventListener('click',multiAdoptConfirmed);$('multiAdoptCancel').addEventListener('click',()=>{multiDismissAdoption();$('multiAdoptOpen').focus()});
+ $('multiActiveBody').addEventListener('click',e=>{const b=e.target.closest('[data-multi-active]');if(!b||!multiActive)return;const action=b.dataset.multiActive,p=multiActive.plan;
+  if(action==='return')multiLeaveActive();else if(action==='prepare')multiOpenActive();else if(action==='navigation')multiOpenActive(true);else if(action==='gpx')downloadCycleText(multiGpx(p),'DragonRoute-parcours.gpx','application/gpx+xml');else if(action==='json')downloadProfile({version:p.version,entries:[p]},'DragonRoute-parcours-multiples.json');else if(action==='journal'){openJournal();if(journal.enabled)journalForm(null,true);else $('journalMessage').textContent='Activer volontairement le journal, puis reprendre le parcours affiché. Aucun trajet ajouté automatiquement.';}else{const target=action==='map'?$('multiActiveMapTitle'):$('multiActiveTitle');target.scrollIntoView({block:'start'});target.focus();}
+ });
+}
+
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
