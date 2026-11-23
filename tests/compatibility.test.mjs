@@ -18,7 +18,7 @@ test('compatibility needs exactly one passing attempt per case and project, same
 
 test('compatibility requires autonomous modes in every engine and format; the old road-only proof is insufficient', () => {
   const sha='a'.repeat(40), proof=passingCompatibility(sha);
-  assert.equal(compatibilityRoadCases.length,40);
+  assert.equal(compatibilityRoadCases.length,42);
   assert.equal(compatibilityModeCases.length,22);
   for(const row of proof.matrix)row.cases=row.cases.filter(c=>compatibilityRoadCases.includes(c.title));
   assert.equal(validCompatibility(proof,sha),false);

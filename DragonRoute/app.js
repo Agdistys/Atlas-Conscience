@@ -1679,7 +1679,7 @@ function geocodedPlace(feature){
   for(const detail of details)if(!parts.some(part=>part.toLocaleLowerCase("fr-FR").includes(detail.toLocaleLowerCase("fr-FR"))))parts.push(detail);
   return {lat:coordinates[1],lon:coordinates[0],label:parts.join(" · ")};
 }
-async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal){
+async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false){
   if(!isCurrent())throw new Error("Recherche du lieu annulée.");
   if(temporaryAddress(q)&&field!=='start')throw new Error('Ce libellé GPS ne désigne pas une arrivée confirmée. Renseigner une adresse fixe.');
   if(q==="__CURRENT__"){
@@ -1688,7 +1688,7 @@ async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal){
   }
   const query=q.trim().replace(/\s+/g," "),key=query.toLocaleLowerCase("fr-FR");
   const cached=geoCache.get(key);
-  let places=cached&&performance.now()-cached.at<300000?cached.places:null;
+  let places=!forceFresh&&cached&&performance.now()-cached.at<300000?cached.places:null;
   if(!places){
     serviceWaitGuard('geo');
     await sleep(Math.max(0,250-(performance.now()-geoLastRequest)));
@@ -1882,12 +1882,12 @@ async function orsRoutes(points,settings,alternatives=false,isCurrent=()=>true,s
   }finally{t.done()}
 }
 function ignNoPath(status,data){return status===404&&typeof data?.error?.message==='string'&&data.error.message.trim()==='No path found'}
-async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.signal){
+async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false){
   ensureRouting(settings);
   const walking=settings.vehicle.type==='walk',profileName=walking?'pedestrian':'car',snapKm=walking?.15:1;
   const key=JSON.stringify([points,settings.avoid,profileName,settings.optimization]),cached=ignCache.get(key);
   checkRouteRequest(isCurrent,signal);
-  if(cached&&performance.now()-cached.at<300000)return structuredClone(cached.route);
+  if(!forceFresh&&cached&&performance.now()-cached.at<300000)return structuredClone(cached.route);
   // Calls are sequential in run/scoreConstrainedCandidates. Below 5 requests/s/IP;
   // other tabs/users on the same IP may still trigger a quota: never auto-retry.
   routingCooldown("ign");await sleep(Math.max(0,550-(performance.now()-ignLastRequest)));
@@ -1924,12 +1924,12 @@ async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.s
   ignCache.set(key,{at:performance.now(),route:structuredClone(r)});
   return r;
 }
-async function route(points,overview=true,alternatives=false,settings=trip?.routing||routingPreferences(),isCurrent=()=>true,signal=activeAbort?.signal){
+async function route(points,overview=true,alternatives=false,settings=trip?.routing||routingPreferences(),isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false){
   checkRouteRequest(isCurrent,signal);
   health("hRoute","busy","routage…");
   ensureRouting(settings);
   if(settings.provider==="ign"){
-    const r=await ignRoute(points,settings,isCurrent,signal);
+    const r=await ignRoute(points,settings,isCurrent,signal,forceFresh);
     health("hRoute","ok","routage ✓");return r;
   }
   if(settings.provider==="ors"){
@@ -3257,7 +3257,7 @@ async function runComparison(){
  if(modalCarbonView?.source==='road')clearModalCarbon();
  let hypotheses,cycleChoice;try{if(multiModes)multiModesCheck();hypotheses=comparisonHypotheses({...comparisonRaw(),...(multiModes?.basis?.passenger&&!passengerAccessRaw().enabled?{departure:multiModes.basis.plan.timing.departure}:{})});if(multiModes){if(!passengerAccessRaw().enabled)hypotheses.departure=multiModes.basis.departure;if(hypotheses.arriveBy!==null&&hypotheses.arriveBy<hypotheses.departure)throw Error('L’heure limite doit suivre le départ commun de cette comparaison.');}cycleChoice=$('comparisonCycle').checked?{enabled:true,...readCycleCriteria('comparisonCycle')}:cycleComparisonChoice(false)}catch(e){clearComparison('Vérifier les hypothèses : '+e.message);return}
  const source=multiModes?multiClone(multiModes.basis.source):{a:[...trip.a],b:[...trip.b],places:{...trip.places}},car=multiModes?multiClone(multiModes.basis.plan.routing):comparisonCarSettings();
- const op={source,hypotheses,fuel:$('fuel').value,signature:comparisonSignature(),at:new Date().toISOString(),running:true,cancelled:false,entries:[{mode:'car',settings:car,status:'pending'},{mode:'walk',settings:routingSettings('walk',[]),status:'pending'}],controller:new AbortController()};
+ const op={source,hypotheses,freshPassengerAccess:!!multiModes?.resumedScenario&&passengerAccessRaw().enabled,fuel:$('fuel').value,signature:comparisonSignature(),at:new Date().toISOString(),running:true,cancelled:false,entries:[{mode:'car',settings:car,status:'pending'},{mode:'walk',settings:routingSettings('walk',[]),status:'pending'}],controller:new AbortController()};
  if(multiModes){op.multi=multiClone(multiModes.basis);if(!passengerAccessRaw().enabled)op.hypotheses.departure=op.multi.departure;else{op.accessInput=passengerAccessRaw();op.preparingAccess=true;}op.fuel=op.multi.plan.fuel;op.entries[0]=multiClone(op.multi.car);}
  op.cycleChoice=cycleChoice;op.limitContextSignature=comparisonSignature(false);if(cycleChoice.enabled)op.entries.push({mode:'cycle',status:'pending'});
  comparison=op;activeAbort=op.controller;lock(true);renderComparison(op);$('comparisonCancel').disabled=false;
@@ -3272,7 +3272,7 @@ async function runComparison(){
     if(entry.mode==='car'&&car.vehicle.type!=='car')throw new Error('Comparaison véhicule léger indisponible pour le profil choisi. Aucun poids lourd ou caravane remplacé par une voiture.');
     if(ignQuota&&entry.settings.provider==='ign')throw new Error('Quota IGN atteint : ce second calcul n’a pas été demandé. Relancer plus tard.');
     ensureRouting(entry.settings);
-    const r=await route([source.a,source.b],true,false,entry.settings,()=>comparison===op&&!op.cancelled&&op.signature===comparisonSignature());
+    const r=await route([source.a,source.b],true,false,entry.settings,()=>comparison===op&&!op.cancelled&&op.signature===comparisonSignature(),op.controller.signal,op.freshPassengerAccess);
     if(op.cancelled||comparison!==op)break;
     if(op.signature!==comparisonSignature()){clearComparison('Paramètres modifiés pendant le calcul : relancer la comparaison.');break}
     entry.route=r;entry.status='ready';
@@ -3484,9 +3484,40 @@ function comparisonSame(a,b){const canonical=v=>Array.isArray(v)?v.map(canonical
 function comparisonKeys(v,keys){if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).length!==keys.length||keys.some(k=>!Object.hasOwn(v,k)))throw new Error('Format de comparaison inconnu ou incomplet.');}
 function comparisonText(v,max,empty=false){if(typeof v!=='string'||v.length>max||(!empty&&!v.trim())||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(v))throw new Error('Texte de comparaison invalide ou trop long.');return v}
 function comparisonDate(v){if(typeof v!=='string'||!Number.isFinite(Date.parse(v))||new Date(v).toISOString()!==v)throw new Error('Date de comparaison invalide.');return v}
+function passengerScenarioPlace(v,personal=false){
+ comparisonKeys(v,personal?['query','label','point','same']:['label','point']);comparisonText(v.label,1024);
+ if(!Array.isArray(v.point)||v.point.length!==2||v.point.some((n,i)=>typeof n!=='number'||!Number.isFinite(n)||Math.abs(n)>(i===0?90:180)))throw Error('Coordonnées du scénario invalides.');
+ if(personal){if(typeof v.same!=='boolean')throw Error('Déclaration de même lieu invalide.');comparisonText(v.query,250,v.same);}
+ return structuredClone(v);
+}
+function validatePassengerScenario(v){
+ comparisonKeys(v,['version','start','end','pickup','dropoff','departure','persons','boarding','alighting','walk','cycle','arrival']);
+ if(v.version!==1)throw Error('Version de scénario inconnue.');
+ for(const [key,meeting] of [['start','pickup'],['end','dropoff']]){const p=passengerScenarioPlace(v[key],true),m=passengerScenarioPlace(v[meeting]);if(p.same&&!comparisonSame(p.point,m.point))throw Error('Même lieu déclaré avec des coordonnées différentes.');}
+ comparisonDate(v.departure);const at=Date.parse(v.departure);
+ if(at<946684800000||at>=4102444800000||!Number.isInteger(v.persons)||v.persons<1||v.persons>8)throw Error('Départ ou groupe du scénario invalide.');
+ for(const key of ['boarding','alighting'])if(v[key]!==null&&(typeof v[key]!=='number'||!Number.isFinite(v[key])||v[key]<0||v[key]>1440))throw Error('Temps des passagers invalide.');
+ for(const [key,max] of [['walk',500],['cycle',300]]){
+  const c=v[key];comparisonKeys(c,key==='cycle'?['enabled','maxKm','strict']:['maxKm','strict']);
+  if(typeof c.strict!=='boolean'||key==='cycle'&&typeof c.enabled!=='boolean'||c.maxKm!==null&&(typeof c.maxKm!=='number'||!Number.isFinite(c.maxKm)||c.maxKm<0||c.maxKm>max)||c.strict&&c.maxKm===null)throw Error('Limite de distance du scénario invalide.');
+ }
+ comparisonKeys(v.arrival,['at','strict']);if(typeof v.arrival.strict!=='boolean'||v.arrival.strict&&v.arrival.at===null)throw Error('Limite horaire du scénario invalide.');
+ if(v.arrival.at!==null){comparisonDate(v.arrival.at);if(Date.parse(v.arrival.at)<at||Date.parse(v.arrival.at)>=4102444800000)throw Error('Heure d’arrivée du scénario incohérente.');}
+ return structuredClone(v);
+}
+function passengerScenarioResume(raw,pickup,dropoff){
+ const s=validatePassengerScenario(raw);passengerScenarioPlace(pickup);passengerScenarioPlace(dropoff);
+ const changedStart=!comparisonSame(s.pickup,pickup),changedEnd=!comparisonSame(s.dropoff,dropoff);
+ return {scenario:s,changedStart,changedEnd,start:s.start.same&&changedStart?'':s.start.query,end:s.end.same&&changedEnd?'':s.end.query,sameStart:s.start.same&&!changedStart,sameEnd:s.end.same&&!changedEnd};
+}
+function passengerScenarioReadable(raw){
+ const s=validatePassengerScenario(raw),place=p=>p.label+' ('+p.point.join(', ')+')',minutes=n=>n===null?'inconnu':n+' min',limit=c=>c.maxKm===null?'aucune':c.maxKm+' km · '+(c.strict?'impérative':'préférence');
+ return ['Scénario porte à porte réutilisable — hypothèses historiques',`Départ personnel : ${place(s.start)} ; saisie : ${s.start.query||'même lieu déclaré'}`,`Destination personnelle : ${place(s.end)} ; saisie : ${s.end.query||'même lieu déclaré'}`,`Prise en charge : ${place(s.pickup)} ; dépose : ${place(s.dropoff)}`,`Départ historique : ${s.departure} ; ${s.persons} passagers, conducteur exclu`,`Attente et embarquement : ${minutes(s.boarding)} ; dépose et sortie : ${minutes(s.alighting)}`,`Marche : ${limit(s.walk)} ; vélo demandé : ${s.cycle.enabled?'oui':'non'} ; limite vélo : ${limit(s.cycle)}`,`Arrivée limite historique : ${s.arrival.at??'aucune'} ; impérative : ${s.arrival.strict?'oui':'non'}`,'La reprise prépare un nouveau formulaire sur le parcours adopté. Dates, confirmations, prix, budgets, empreintes et résultats ne sont pas réutilisés. Aucun appel ni enregistrement au simple retour dans ce formulaire.'].join('\n');
+}
 function comparisonProjection(s){return {formula:s.formula,at:s.at,contextValid:s.contextValid,scopes:{...s.scopes},rows:s.rows.map(r=>({id:r.id,label:r.label,status:r.status,reason:r.reason||'',values:{...r.values},scopes:{...r.scopes}}))}}
 function validateComparisonRecord(raw){
- const hasBudgets=Object.hasOwn(raw||{},'budgets');comparisonKeys(raw,['id','name','savedAt','kind','snapshot','weights','result','context','evidence',...(hasBudgets?['budgets']:[])]);
+ const hasBudgets=Object.hasOwn(raw||{},'budgets'),hasScenario=Object.hasOwn(raw||{},'passengerScenario');comparisonKeys(raw,['id','name','savedAt','kind','snapshot','weights','result','context','evidence',...(hasBudgets?['budgets']:[]),...(hasScenario?['passengerScenario']:[])]);
+ if(hasScenario){if(raw.kind!=='modal')throw Error('Scénario passagers réservé aux comparaisons de modes.');const scenario=validatePassengerScenario(raw.passengerScenario);if(hasBudgets&&(raw.budgets?.version!==4||raw.budgets.persons!==scenario.persons||raw.budgets.instant!==Date.parse(scenario.departure)))throw Error('Scénario et budget de groupe incohérents.');}
  if(hasBudgets&&raw.kind!=='modal')throw new Error('Budget de groupe réservé aux modes.');
  if(typeof raw.id!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(raw.id)||!Object.hasOwn(COMPARISON_SCOPES,raw.kind))throw new Error('Identité ou type de comparaison invalide.');
  comparisonText(raw.name,80);comparisonDate(raw.savedAt);comparisonText(raw.context,8000);
@@ -3505,7 +3536,8 @@ function validateComparisonRecord(raw){
  return structuredClone(raw);
 }
 function validateComparisonRecords(raw){
- comparisonKeys(raw,['version','entries']);if(![1,2,3,4,5].includes(raw.version)||!Array.isArray(raw.entries)||raw.entries.length>20)throw new Error('Version inconnue ou plus de 20 comparaisons.');
+ comparisonKeys(raw,['version','entries']);if(![1,2,3,4,5,6].includes(raw.version)||!Array.isArray(raw.entries)||raw.entries.length>20)throw new Error('Version inconnue ou plus de 20 comparaisons.');
+ if(raw.version<6&&raw.entries.some(e=>Object.hasOwn(e||{},'passengerScenario')))throw Error('La reprise des scénarios exige le format de comparaisons 6.');
  if(raw.version===1&&raw.entries.some(e=>Object.hasOwn(e||{},'budgets')))throw new Error('Les budgets détaillés exigent le format de comparaisons 2.');
  if(raw.version<3&&raw.entries.some(e=>e?.budgets?.version>=2))throw new Error('Les budgets routiers exigent le format de comparaisons 3.');
  if(raw.version<4&&raw.entries.some(e=>e?.budgets?.version===3))throw new Error('Les péages sourcés exigent le format de comparaisons 4.');
@@ -3513,12 +3545,12 @@ function validateComparisonRecords(raw){
  const entries=raw.entries.map(validateComparisonRecord);if(new Set(entries.map(e=>e.id)).size!==entries.length)throw new Error('Identités de comparaison répétées.');
  if(new TextEncoder().encode(JSON.stringify(raw)).length>2000000)throw new Error('Sauvegarde supérieure à 2 Mo.');return {version:raw.version,entries};
 }
-function comparisonVersion(entries,current=1){return current===5||entries.some(e=>e.budgets?.version===4)?5:current===4||entries.some(e=>e.budgets?.version===3)?4:current===3||entries.some(e=>e.budgets?.version===2)?3:current===2||entries.some(e=>Object.hasOwn(e,'budgets'))?2:1}
+function comparisonVersion(entries,current=1){return current===6||entries.some(e=>Object.hasOwn(e,'passengerScenario'))?6:current===5||entries.some(e=>e.budgets?.version===4)?5:current===4||entries.some(e=>e.budgets?.version===3)?4:current===3||entries.some(e=>e.budgets?.version===2)?3:current===2||entries.some(e=>Object.hasOwn(e,'budgets'))?2:1}
 function parseComparisonRecords(text){if(typeof text!=='string'||new TextEncoder().encode(text).length>2000000)throw new Error('Fichier supérieur à 2 Mo.');return validateComparisonRecords(JSON.parse(text))}
 function comparisonReadable(e){
  e=validateComparisonRecord(e);const lines=['OùQuandQui — Comparaison historique',e.name,COMPARISON_LABELS[e.kind],`Enregistrée : ${e.savedAt}`,`Groupe figé : ${e.snapshot.at}`,`Formule : ${e.snapshot.formula}`,'Document daté et déclaratif. Aucune donnée actualisée, réservation, trajet effectué ou disponibilité attestés. Les indices ne se comparent pas entre groupes.',e.context,'','Priorités : '+PRIORITY_KEYS.map(k=>k+'='+e.weights[k]).join(' ; '),'Périmètres : '+JSON.stringify(e.snapshot.scopes),'État du résultat : '+e.result.state];
  for(const r of e.result.rows){lines.push('',r.label,`${r.status} — ${r.reason}`,r.score===null?'Sans indice':`Indice ${r.score} / 100 ; rang ${r.rank}${r.tied?' ; ex æquo':''}`,`Durée (min) : ${r.values.duration??'inconnue'} ; coût (EUR) : ${r.values.cost??'inconnu'} ; empreinte (kg CO₂e) : ${r.values.carbon??'inconnue'}`,...r.contributions.map(c=>`${c.key} : valeur ${c.value}, bornes ${c.min}–${c.max}, poids ${c.weight}, contribution ${c.points} points.`));}
- if(e.budgets)lines.push('',modalBudgetDescription(e.budgets));for(const x of e.evidence)lines.push('',x.label,x.text);return lines.join('\n')+'\n';
+ if(e.passengerScenario)lines.push('',passengerScenarioReadable(e.passengerScenario));if(e.budgets)lines.push('',modalBudgetDescription(e.budgets));for(const x of e.evidence)lines.push('',x.label,x.text);return lines.join('\n')+'\n';
 }
 // END COMPARISON RECORD MODEL
 
@@ -3526,6 +3558,13 @@ const COMPARISON_KEY='dragonroute.comparisons.v1.'+PROFILE_SCOPE;
 let comparisonStore={version:1,entries:[]},comparisonRecordsRaw=null,comparisonBlocked=false,comparisonDraft=null,comparisonReturn=null,comparisonSelected=null,comparisonImport=null,comparisonSequence=0;
 function comparisonPlain(id){const node=$(id),copy=node.cloneNode(true);for(const a of copy.querySelectorAll('a[href]')){const raw=a.getAttribute('href');if(raw&&/^https:\/\//.test(raw)&&!new URL(raw).search)a.append(' ('+raw+')');}for(const e of copy.querySelectorAll('button,input,select,script,style'))e.remove();return copy.textContent.replace(/\s+/g,' ').trim()}
 function comparisonEvidence(ids){return ids.map(id=>({label:({roadContext:'Lieux et véhicule',roadPriorityFactorNote:'Portée du modèle',roadCards:'Valeurs routières reçues',roadPriorityResults:'Résultat et modèle retenu',preparedCompareResultBody:'Préparations, budgets et sources',preparedPriorityStatus:'État de la comparaison',preparedPriorityResults:'Résultats des préparations',modalCarbonContext:'Lieux, heure et intention',modalCarbonStatus:'Périmètre comparable',modalCarbonTables:'Valeurs et modèles par option',modalCarbonSource:'Sources et limites communes',modalPriorityResults:'Résultats des modes'})[id],text:comparisonPlain(id)})).filter(e=>e.text)}
+function currentPassengerScenario(){
+ const op=modalCarbonView?.source==='road'?modalCarbonView.op:null;if(!op?.multi?.access)return null;
+ if(!roadModalContext(op))throw Error('Recalculer les accès des passagers avant de les conserver.');
+ const b=op.multi,v=op.accessInput,w=readWalkingCriteria(true),c=op.cycleChoice.enabled?readCycleCriteria('comparisonCycle'):{maxKm:null,strict:false};
+ const personal=(key,query,same)=>({query:same?'':query,label:op.source.places[key==='a'?'start':'end'],point:[...op.source[key]],same});
+ return validatePassengerScenario({version:1,start:personal('a',v.start,v.sameStart),end:personal('b',v.end,v.sameEnd),pickup:{label:b.nodes[0].name,point:[...b.nodes[0].point]},dropoff:{label:b.nodes.at(-1).name,point:[...b.nodes.at(-1).point]},departure:new Date(op.hypotheses.departure).toISOString(),persons:op.hypotheses.travelers,boarding:b.passenger.boarding,alighting:b.passenger.alighting,walk:{maxKm:w.maxWalkKm,strict:w.walkStrict},cycle:{enabled:op.cycleChoice.enabled,maxKm:c.maxKm,strict:c.strict},arrival:{at:op.hypotheses.arriveBy===null?null:new Date(op.hypotheses.arriveBy).toISOString(),strict:op.hypotheses.onlyBefore}});
+}
 function comparisonCurrent(kind){
  let view,weights,context,evidence;
  if(kind==='road'){renderRoadPriorities();view=roadPriorities;if(!roadPriorityContext())throw new Error('Relancer la comparaison routière.');weights=roadPriorityValues();context=$('roadPriorityGroup').textContent;evidence=comparisonEvidence(['roadContext','roadPriorityFactorNote','roadCards','roadPriorityResults']);}
@@ -3535,17 +3574,18 @@ function comparisonCurrent(kind){
  if(!view?.snapshot||view.stale||!context)throw new Error('Comparaison modifiée ou non figée. Actualiser le groupe avant de conserver ce résultat.');
  const snapshot=comparisonProjection(view.snapshot),result=priorityResult(snapshot,weights);
  if(kind==='road')evidence.push({label:'Hypothèses routières figées',text:(()=>{const s=view.snapshot;return `Départ : ${s.departure===null?'inconnu':new Date(s.departure).toISOString()} ; limite d’arrivée : ${s.arriveBy===null?'aucune':new Date(s.arriveBy).toISOString()} ; impérative : ${s.onlyBefore?'oui':'non'} ; catalogue : ${s.dataset}. `+s.rows.map(r=>`${r.label} : ${r.distanceMeters??'inconnue'} m ; calcul ${r.at===null?'non daté':new Date(r.at).toISOString()} ; ${r.routing}.`).join(' ')})()});
- return {kind,snapshot,weights,result,context,evidence,...(kind==='modal'&&view.snapshot.budgets?{budgets:structuredClone(view.snapshot.budgets)}:{})};
+ const passengerScenario=kind==='modal'?currentPassengerScenario():null;
+ return {kind,snapshot,weights,result,context,evidence,...(kind==='modal'&&view.snapshot.budgets?{budgets:structuredClone(view.snapshot.budgets)}:{}),...(passengerScenario?{passengerScenario}:{})};
 }
 function loadComparisons(){comparisonBlocked=false;comparisonStore={version:1,entries:[]};comparisonRecordsRaw=null;try{comparisonRecordsRaw=localStorage.getItem(COMPARISON_KEY);if(comparisonRecordsRaw!==null)comparisonStore=parseComparisonRecords(comparisonRecordsRaw)}catch{comparisonBlocked=true;$('comparisonLibraryMessage').textContent='Comparaisons non chargées : stockage inaccessible, données invalides ou version inconnue. L’original reste protégé.'}}
 function comparisonStorageFresh(){if(comparisonBlocked)throw new Error('Stockage protégé : fermer puis rouvrir Mes comparaisons.');if(localStorage.getItem(COMPARISON_KEY)!==comparisonRecordsRaw)throw new Error('Comparaisons modifiées dans un autre onglet. Fermer puis rouvrir cette fenêtre avant de réessayer.');}
 function writeComparisons(data){comparisonStorageFresh();const clean=validateComparisonRecords(data),raw=JSON.stringify(clean);localStorage.setItem(COMPARISON_KEY,raw);comparisonRecordsRaw=raw;comparisonStore=clean;}
 function comparisonRecordHtml(e){
  const h=escapeHtml,labels={duration:e.kind==='modal'?'Temps avec attente ou marge':e.kind==='prepared'?'Conduite + pause station':'Conduite',cost:e.budgets?'Budget renseigné du groupe':e.kind==='prepared'?'Budget historique carburant + péages':'Coût total',carbon:e.kind==='modal'?'Empreinte du groupe':'Empreinte du véhicule'};
- return `<h3>${h(e.name)}</h3><p><strong>Comparaison historique · ${COMPARISON_LABELS[e.kind]}</strong></p><p>Enregistrée le ${h(new Date(e.savedAt).toLocaleString('fr-FR'))}. Groupe figé le ${h(new Date(e.snapshot.at).toLocaleString('fr-FR'))}. Dates déclarées ; aucune actualisation des données, réservation ou déplacement attestés.</p><p>${h(e.context)}</p>${e.budgets?'<details><summary>Composantes et hypothèses du budget du groupe</summary><p class="comparison-evidence">'+h(modalBudgetDescription(e.budgets))+'</p></details>':''}<p>Formule : ${h(e.snapshot.formula)}. ${PRIORITY_KEYS.map(k=>labels[k]+' : poids '+e.weights[k]).join(' ; ')}.</p><p>Les indices sont propres à ce groupe historique et ne se comparent pas aux recherches actuelles.</p>${e.result.state==='off'?'<p>Poids nuls : aucun indice.</p>':e.result.state!=='scored'?'<p>Comparaison incomplète ou non admissible : aucun indice.</p>':''}${e.result.rows.map(r=>`<article class="road-card" data-comparison-row="${h(r.id)}"><h4>${h(r.label)}</h4><p>${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p><p>${h(r.reason)}${r.status==='excluded'?' · Référence exclue':r.status==='unavailable'?' · Mode indisponible':''}</p><dl>${PRIORITY_KEYS.map(k=>`<div><dt>${labels[k]}</dt><dd>${priorityValue(r.values[k],k)}</dd></div>`).join('')}</dl>${r.contributions.length?'<details><summary>Contributions conservées</summary><ul>'+r.contributions.map(c=>'<li>'+labels[c.key]+' : '+priorityValue(c.value,c.key)+' ; bornes '+priorityValue(c.min,c.key)+' à '+priorityValue(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul></details>':''}</article>`).join('')}<details><summary>Valeurs brutes, périmètres, sources et hypothèses conservés</summary><p>${h(JSON.stringify(e.snapshot.scopes))}</p>${e.evidence.map(x=>'<h4>'+h(x.label)+'</h4><p class="comparison-evidence">'+h(x.text)+'</p>').join('')}</details>`;
+ return `<h3>${h(e.name)}</h3><p><strong>Comparaison historique · ${COMPARISON_LABELS[e.kind]}</strong></p><p>Enregistrée le ${h(new Date(e.savedAt).toLocaleString('fr-FR'))}. Groupe figé le ${h(new Date(e.snapshot.at).toLocaleString('fr-FR'))}. Dates déclarées ; aucune actualisation des données, réservation ou déplacement attestés.</p><p>${h(e.context)}</p>${e.passengerScenario?'<details><summary>Lieux et réglages réutilisables</summary><p class="comparison-evidence">'+h(passengerScenarioReadable(e.passengerScenario))+'</p></details>':''}${e.budgets?'<details><summary>Composantes et hypothèses du budget du groupe</summary><p class="comparison-evidence">'+h(modalBudgetDescription(e.budgets))+'</p></details>':''}<p>Formule : ${h(e.snapshot.formula)}. ${PRIORITY_KEYS.map(k=>labels[k]+' : poids '+e.weights[k]).join(' ; ')}.</p><p>Les indices sont propres à ce groupe historique et ne se comparent pas aux recherches actuelles.</p>${e.result.state==='off'?'<p>Poids nuls : aucun indice.</p>':e.result.state!=='scored'?'<p>Comparaison incomplète ou non admissible : aucun indice.</p>':''}${e.result.rows.map(r=>`<article class="road-card" data-comparison-row="${h(r.id)}"><h4>${h(r.label)}</h4><p>${r.score===null?'Sans indice':`Indice ${fmt(r.score,1)} / 100 · rang ${r.rank}${r.tied?' · Ex æquo':''}`}</p><p>${h(r.reason)}${r.status==='excluded'?' · Référence exclue':r.status==='unavailable'?' · Mode indisponible':''}</p><dl>${PRIORITY_KEYS.map(k=>`<div><dt>${labels[k]}</dt><dd>${priorityValue(r.values[k],k)}</dd></div>`).join('')}</dl>${r.contributions.length?'<details><summary>Contributions conservées</summary><ul>'+r.contributions.map(c=>'<li>'+labels[c.key]+' : '+priorityValue(c.value,c.key)+' ; bornes '+priorityValue(c.min,c.key)+' à '+priorityValue(c.max,c.key)+' ; poids '+c.weight+' ; contribution '+fmt(c.points,2)+' points / 100.</li>').join('')+'</ul></details>':''}</article>`).join('')}<details><summary>Valeurs brutes, périmètres, sources et hypothèses conservés</summary><p>${h(JSON.stringify(e.snapshot.scopes))}</p>${e.evidence.map(x=>'<h4>'+h(x.label)+'</h4><p class="comparison-evidence">'+h(x.text)+'</p>').join('')}</details>`;
 }
 function offerComparison(kind,button){
- try{const data=comparisonCurrent(kind);loadComparisons();comparisonStorageFresh();if(comparisonStore.entries.length>=20)throw new Error('20 comparaisons conservées : exporter puis supprimer un souvenir avant d’en ajouter un.');comparisonDraft={data,kind,fingerprint:JSON.stringify(data)};comparisonReturn=button;$('comparisonName').value=COMPARISON_LABELS[kind]+' · '+new Date(data.snapshot.at).toLocaleDateString('fr-FR');$('comparisonConsent').checked=false;$('comparisonSaveMessage').textContent='';$('comparisonSaveSubmit').disabled=true;const e=validateComparisonRecord({id:'preview',name:$('comparisonName').value,savedAt:new Date().toISOString(),...data});$('comparisonSavePreview').innerHTML=comparisonRecordHtml(e);$('comparisonSaveDialog').showModal();$('comparisonName').focus();}catch(e){const id={road:'roadPriorityStatus',prepared:'preparedPriorityStatus',modal:'modalPriorityStatus'}[kind];$(id).textContent='Enregistrement indisponible. '+e.message;}
+ try{const data=comparisonCurrent(kind);loadComparisons();comparisonStorageFresh();if(comparisonStore.entries.length>=20)throw new Error('20 comparaisons conservées : exporter puis supprimer un souvenir avant d’en ajouter un.');comparisonDraft={data,kind,fingerprint:JSON.stringify(data)};comparisonReturn=button;$('comparisonName').value=COMPARISON_LABELS[kind]+' · '+new Date(data.snapshot.at).toLocaleDateString('fr-FR');$('comparisonConsent').checked=false;$('comparisonSaveMessage').textContent='';$('comparisonScenarioSaveNote').hidden=!data.passengerScenario;$('comparisonSaveSubmit').disabled=true;const e=validateComparisonRecord({id:'preview',name:$('comparisonName').value,savedAt:new Date().toISOString(),...data});$('comparisonSavePreview').innerHTML=comparisonRecordHtml(e);$('comparisonSaveDialog').showModal();$('comparisonName').focus();}catch(e){const id={road:'roadPriorityStatus',prepared:'preparedPriorityStatus',modal:'modalPriorityStatus'}[kind];$(id).textContent='Enregistrement indisponible. '+e.message;}
 }
 function renderComparisonLibrary(){
  const h=escapeHtml;$('comparisonLibraryDetail').hidden=true;comparisonSelected=null;
@@ -3554,12 +3594,13 @@ function renderComparisonLibrary(){
 }
 function openComparisonLibrary(button){comparisonSequence++;comparisonImport=null;comparisonReturn=button;$('comparisonLibraryMessage').textContent='';$('comparisonImportPanel').hidden=true;loadComparisons();renderComparisonLibrary();$('comparisonLibraryDialog').showModal();$('comparisonLibraryTitle').focus()}
 function bindComparisonRecords(){
+ $('comparisonResumePassenger').addEventListener('click',resumePassengerScenario);
  for(const b of document.querySelectorAll('[data-comparison-save]'))b.addEventListener('click',()=>offerComparison(b.dataset.comparisonSave,b));
  for(const b of document.querySelectorAll('[data-comparison-library]'))b.addEventListener('click',()=>openComparisonLibrary(b));
  $('comparisonConsent').addEventListener('change',()=>$('comparisonSaveSubmit').disabled=!$('comparisonConsent').checked);
  $('comparisonName').addEventListener('input',()=>{$('comparisonConsent').checked=false;$('comparisonSaveSubmit').disabled=true});
  $('comparisonSaveForm').addEventListener('submit',ev=>{ev.preventDefault();if(!comparisonDraft||!$('comparisonConsent').checked)return;try{const fresh=comparisonCurrent(comparisonDraft.kind);if(JSON.stringify(fresh)!==comparisonDraft.fingerprint)throw new Error('La comparaison a changé. Fermer cet aperçu, actualiser le groupe puis préparer un nouvel enregistrement.');const name=$('comparisonName').value.trim();if(comparisonStore.entries.some(e=>e.name.toLocaleLowerCase('fr-FR')===name.toLocaleLowerCase('fr-FR')))throw new Error('Ce nom existe déjà : choisir un autre nom. Aucun souvenir remplacé.');const record=validateComparisonRecord({id:crypto.randomUUID(),name,savedAt:new Date().toISOString(),...comparisonDraft.data});writeComparisons({version:comparisonVersion([record,...comparisonStore.entries],comparisonStore.version),entries:[record,...comparisonStore.entries]});const kind=comparisonDraft.kind;$('comparisonSaveDialog').close();$({road:'roadPriorityStatus',prepared:'preparedPriorityStatus',modal:'modalPriorityStatus'}[kind]).textContent='Comparaison conservée sur ce navigateur. La retrouver dans Mes comparaisons.';}catch(e){$('comparisonSaveMessage').textContent='Enregistrement impossible. '+e.message}});
- $('comparisonLibraryList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.comparisonShow||b.dataset.comparisonDelete,e=comparisonStore.entries.find(x=>x.id===id);if(!e)return;try{comparisonStorageFresh();if(b.dataset.comparisonShow){comparisonSelected=id;$('comparisonLibraryContent').innerHTML=comparisonRecordHtml(e);$('comparisonLibraryDetail').hidden=false;$('comparisonDetailTitle').focus();$('comparisonDetailTitle').scrollIntoView({block:'start'});}else if(confirm('Supprimer la comparaison « '+e.name+' » de cet environnement ? Les préparations et le journal restent conservés.')){writeComparisons({version:comparisonStore.version,entries:comparisonStore.entries.filter(x=>x.id!==id)});renderComparisonLibrary();$('comparisonLibraryMessage').textContent='Comparaison supprimée.';$('comparisonLibraryTitle').focus();}}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
+ $('comparisonLibraryList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.comparisonShow||b.dataset.comparisonDelete,e=comparisonStore.entries.find(x=>x.id===id);if(!e)return;try{comparisonStorageFresh();if(b.dataset.comparisonShow){comparisonSelected=id;$('comparisonLibraryContent').innerHTML=comparisonRecordHtml(e);$('comparisonLibraryDetail').hidden=false;showPassengerScenarioResume(e);$('comparisonDetailTitle').focus();$('comparisonDetailTitle').scrollIntoView({block:'start'});}else if(confirm('Supprimer la comparaison « '+e.name+' » de cet environnement ? Les préparations et le journal restent conservés.')){writeComparisons({version:comparisonStore.version,entries:comparisonStore.entries.filter(x=>x.id!==id)});renderComparisonLibrary();$('comparisonLibraryMessage').textContent='Comparaison supprimée.';$('comparisonLibraryTitle').focus();}}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
  for(const [id,format] of [['comparisonExportJson','json'],['comparisonExportText','text']])$(id).addEventListener('click',()=>{try{comparisonStorageFresh();const e=comparisonStore.entries.find(x=>x.id===comparisonSelected);if(!e)throw new Error('Choisir une comparaison.');if(format==='json')downloadProfile({version:comparisonVersion([e]),entries:[e]},'OuQuandQui-comparaison.json');else downloadCycleText(comparisonReadable(e),'OuQuandQui-comparaison.txt','text/plain;charset=utf-8');}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
  $('comparisonExportAll').addEventListener('click',()=>{try{comparisonStorageFresh();downloadProfile(comparisonStore,'OuQuandQui-comparaisons.json')}catch(e){$('comparisonLibraryMessage').textContent=e.message}});
  $('comparisonExportOriginal').addEventListener('click',()=>{if(comparisonRecordsRaw!==null)downloadCycleText(comparisonRecordsRaw,'OuQuandQui-comparaisons-original.json')});
@@ -5961,7 +6002,7 @@ function bindCycle(){
 async function loadComparedCycle(a,b,owner,current){
  const q=cycleRequest([a[1],a[0]],[b[1],b[0]],C.cyclingApi),now=Date.now();
  if(!current()||owner.controller.signal.aborted)throw new DOMException('Calcul vélo annulé.','AbortError');
- const cached=cycleCache.get(q.url);if(cached&&now>=cached.at&&now-cached.at<300000)return {route:cached.route,q,at:cached.at,cached:true};
+ const cached=cycleCache.get(q.url);if(!owner.freshPassengerAccess&&cached&&now>=cached.at&&now-cached.at<300000)return {route:cached.route,q,at:cached.at,cached:true};
  modeRequestGuard('cycle',cycleNext,'un nouveau calcul vélo');
  const job={controller:new AbortController()};let timer,abort;cycleNext=performance.now()+5000;
  try{
@@ -6782,6 +6823,45 @@ function bindMultiAdoption(){
  });
 }
 
+function setPassengerDepartureLabel(access){
+ document.querySelector('label[for="comparisonDeparture"]').textContent=access?'Départ des passagers (heure de Paris, obligatoire)':multiModes?.basis?.passenger?'Prise en charge estimée (heure de Paris)':'Départ du parcours adopté (heure de Paris)';
+ $('comparisonDeparture').required=access;
+}
+function passengerResumeBasis(){
+ if(busy)throw Error('Terminer ou annuler la recherche en cours avant de reprendre ce scénario.');
+ if(!multiActive)throw Error('Adopter d’abord un parcours actuel avec prise en charge et dépose. Le souvenir reste consultable.');
+ const b=multiPassengerBasis(multiActive.plan),now=Date.now();
+ if(b.departure<now-60000||now<Date.parse(b.plan.calculatedAt)-60000)throw Error('Revoir les horaires et adopter un parcours actuel avant de reprendre les accès.');
+ return b;
+}
+function showPassengerScenarioResume(e){
+ $('comparisonPassengerResume').hidden=!e.passengerScenario;if(!e.passengerScenario)return;
+ $('comparisonResumePassenger').disabled=true;
+ const s=validatePassengerScenario(e.passengerScenario),history='Ancien départ : '+multiTimeLabel(Date.parse(s.departure))+'. ';
+ try{
+  const b=passengerResumeBasis(),draft=passengerScenarioResume(s,{label:b.nodes[0].name,point:b.nodes[0].point},{label:b.nodes.at(-1).name,point:b.nodes.at(-1).point});
+  $('comparisonResumeNote').textContent=history+'Reprendre dans un nouveau formulaire du parcours adopté : '+b.nodes[0].name+' → '+b.nodes.at(-1).name+'. '+(draft.changedStart||draft.changedEnd?'Les rencontres ont changé : les déclarations de même lieu correspondantes seront retirées. ':'')+'Vérifier les lieux et réglages, saisir de nouvelles dates puis confirmer le groupe et les recherches. Les résultats, prix et accords historiques restent dans cette copie ; aucun appel ni enregistrement à la reprise.';
+  $('comparisonResumePassenger').disabled=false;
+ }catch(error){$('comparisonResumeNote').textContent=history+error.message;}
+}
+function resumePassengerScenario(){
+ try{
+  comparisonStorageFresh();const e=comparisonStore.entries.find(x=>x.id===comparisonSelected);if(!e?.passengerScenario)throw Error('Ce souvenir ne contient pas de scénario réutilisable.');
+  const b=passengerResumeBasis(),r=passengerScenarioResume(e.passengerScenario,{label:b.nodes[0].name,point:b.nodes[0].point},{label:b.nodes.at(-1).name,point:b.nodes.at(-1).point}),s=r.scenario;
+  // Only the editable inputs are copied. Opening the new form does not query a service.
+  if(multiModes)closeMultiModes(false);openMultiModes();openMultiPassengerModes();
+  if(!multiModes?.basis?.passenger)throw Error('Le parcours ne permet plus de préparer les accès.');
+  multiModes.returnToComparison=true;multiModes.resumedScenario=true;
+  $('passengerAccessEnabled').checked=true;$('passengerAccessStart').value=r.start;$('passengerAccessEnd').value=r.end;$('passengerAccessSameStart').checked=r.sameStart;$('passengerAccessSameEnd').checked=r.sameEnd;
+  $('multiPassengerWait').value=s.boarding??'';$('multiPassengerExit').value=s.alighting??'';$('comparisonTravelers').value=s.persons;
+  $('comparisonWalkLimit').value=s.walk.maxKm??'';$('comparisonWalkRule').value=s.walk.strict?'strict':'soft';
+  $('comparisonCycleLimit').value=s.cycle.maxKm??'';$('comparisonCycleRule').value=s.cycle.strict?'strict':'soft';
+  // Dates, budgets, carbon choices, group confirmation and network consent start anew.
+  passengerAccessChanged({target:$('passengerAccessEnabled')});changeMultiPassengerModes();
+  $('comparisonStatus').textContent='Lieux et réglages repris de « '+e.name+' ». Vérifier le formulaire, renseigner le départ et confirmer les recherches. '+(r.changedStart||r.changedEnd?'Rencontres modifiées ; vérifier les extrémités et redéclarer les mêmes lieux si nécessaire. ':'')+'La date limite d’arrivée est à ressaisir si nécessaire. Le vélo facultatif est à réactiver. Aucun résultat ni prix ancien repris ; le souvenir et le parcours restent conservés.';
+  $('passengerAccessStart').disabled?$('comparisonDeparture').focus():$('passengerAccessStart').focus();
+ }catch(error){$('comparisonLibraryMessage').textContent='Reprise indisponible. '+error.message;}
+}
 function multiModesDescription(b){
  if(b.access){const a=b.access,m=x=>x===null?'inconnue':x<0?'rendez-vous manqué de '+fmt(-x/60,1)+' min':fmt(x/60,1)+' min',leg=x=>x.status==='ready'?fmt(x.distance/1000,3)+' km, '+m(x.duration)+(x.same?' (même lieu déclaré)':'')+(x.resourceVersion?' · données '+x.resourceVersion:''):x.error;return 'Porte à porte des passagers : '+b.source.places.start+' → '+b.source.places.end+'. Conducteur exclu. Départ commun '+multiTimeLabel(b.departure)+'. Accès à pied : '+leg(a.approach)+'. Rendez-vous '+b.nodes[0].name+' à '+multiTimeLabel(a.pickup)+'. Attente avant rendez-vous : '+m(a.waiting)+'. Portion automobile '+fmt(b.distance/1000,3)+' km, conduite '+m(b.drivingSeconds)+', pauses '+m(b.pauses===null?null:b.pauses*60)+', attente et embarquement '+m(b.passenger.boarding===null?null:b.passenger.boarding*60)+', sortie '+m(b.passenger.alighting===null?null:b.passenger.alighting*60)+'. Dépose '+b.nodes.at(-1).name+'. Accès final à pied : '+leg(a.egress)+'. Durée porte à porte '+m(a.totalSeconds)+'. Coordonnées de départ '+b.source.a.join(', ')+', arrivée '+b.source.b.join(', ')+'. Calcul automobile du '+multiTimeLabel(Date.parse(b.plan.calculatedAt))+'. Même groupe, lieux et départ pour la marche et le vélo directs. Présence, rendez-vous réel et terrain non attestés.';}
  if(b.passenger){const v=b.passenger,minutes=n=>n===null?'inconnus':fmt(n,1)+' min';return 'Portion des passagers : '+b.source.places.start+' → '+b.source.places.end+'. Conducteur exclu du groupe comparé. Référence commune : arrivée estimée du véhicule au point de prise en charge, '+multiTimeLabel(b.departure)+'. Voiture sur cette portion : '+fmt(b.distance/1000,3)+' km, '+fmt(b.drivingSeconds/60,1)+' min de conduite ; '+minutes(b.pauses)+' de pauses carburant ; attente et embarquement '+minutes(v.boarding)+' ; dépose et sortie '+minutes(v.alighting)+'. '+(b.totalSeconds===null?'Durée totale inconnue. ':fmt(b.totalSeconds/60,1)+' min au total. ')+'Étapes comparées : '+b.nodes.map(n=>n.name).join(' → ')+'. Marche et vélo directs entre ces deux rencontres à la même heure. Accès avant la prise en charge, après la dépose et trajet du conducteur hors portion exclus. Calcul automobile du '+multiTimeLabel(Date.parse(b.plan.calculatedAt))+'. Présence, synchronisation réelle, capacité et terrain non attestés.';}
@@ -6802,29 +6882,29 @@ function passengerAccessRaw(){return {enabled:!!multiModes?.basis?.passenger&&$(
 async function preparePassengerAccess(op){
  const v=op.accessInput,current=()=>comparison===op&&!op.cancelled&&op.signature===comparisonSignature(),b=op.multi,source={places:{}};
  let quota=false;
- for(const [key,same,label,index] of [['a',v.sameStart,v.start,0],['b',v.sameEnd,v.end,b.nodes.length-1]]){if(!current())throw Error('Recherche annulée.');const n=b.nodes[index],p=same?{lat:n.point[0],lon:n.point[1],label:n.name}:await geocode(label,key==='a'?'start':'end',current,op.controller.signal);if(!current())throw Error('Recherche annulée.');source[key]=[p.lat,p.lon];source.places[key==='a'?'start':'end']=p.label;}
+ for(const [key,same,label,index] of [['a',v.sameStart,v.start,0],['b',v.sameEnd,v.end,b.nodes.length-1]]){if(!current())throw Error('Recherche annulée.');const n=b.nodes[index],p=same?{lat:n.point[0],lon:n.point[1],label:n.name}:await geocode(label,key==='a'?'start':'end',current,op.controller.signal,op.freshPassengerAccess);if(!current())throw Error('Recherche annulée.');source[key]=[p.lat,p.lon];source.places[key==='a'?'start':'end']=p.label;}
  const legs=[];
  for(const [same,points] of [[v.sameStart,[source.a,b.source.a]],[v.sameEnd,[b.source.b,source.b]]]){
   if(!current())throw Error('Recherche annulée.');if(same){legs.push({status:'ready',same:true,distance:0,duration:0});continue}
-  try{if(quota)throw Error('Quota IGN atteint : accès non demandé.');const settings=routingSettings('walk',[]);ensureRouting(settings);const r=await route(points,true,false,settings,current);if(!current())throw Error('Recherche annulée.');legs.push({status:'ready',same:false,distance:r.distance,duration:r.duration,resourceVersion:r.resourceVersion||null});}
+  try{if(quota)throw Error('Quota IGN atteint : accès non demandé.');const settings=routingSettings('walk',[]);ensureRouting(settings);const r=await route(points,true,false,settings,current,op.controller.signal,op.freshPassengerAccess);if(!current())throw Error('Recherche annulée.');legs.push({status:'ready',same:false,distance:r.distance,duration:r.duration,resourceVersion:r.resourceVersion||null});}
   catch(e){if(!current())throw e;if(e.message.includes('Limite du service IGN'))quota=true;legs.push({status:'unavailable',error:e.message});}
  }
  if(!current())throw Error('Recherche annulée.');op.multi=multiPassengerAccess(b,{departure:op.hypotheses.departure,source,approach:legs[0],egress:legs[1]});op.source=source;op.entries[0]=multiClone(op.multi.car);return quota;
 }
 function passengerAccessChanged(e){
  if(!multiModes?.basis?.passenger)return;comparisonChanged();$('multiModeGroup').checked=false;if(e?.target?.id!=='passengerAccessConsent')$('passengerAccessConsent').checked=false;
- const v=passengerAccessRaw();$('passengerAccessFields').hidden=!v.enabled;$('passengerAccessStart').disabled=v.sameStart;$('passengerAccessEnd').disabled=v.sameEnd;$('comparisonDeparture').readOnly=!v.enabled;
+ const v=passengerAccessRaw();setPassengerDepartureLabel(v.enabled);$('passengerAccessFields').hidden=!v.enabled;$('passengerAccessStart').disabled=v.sameStart;$('passengerAccessEnd').disabled=v.sameEnd;$('comparisonDeparture').readOnly=!v.enabled;
  if(e?.target?.id==='passengerAccessEnabled')$('comparisonDeparture').value=v.enabled?'':parisLocal(multiModes.basis.departure);
  $('comparisonScopeNote').textContent=v.enabled?'Déplacement complet des passagers : accès à pied, voiture avec les pauses, puis accès final. Même départ et mêmes adresses pour les alternatives directes.':'Portion entre prise en charge et dépose ; accès personnels exclus.';
  $('multiModeGroupText').textContent=v.enabled?'Les mêmes passagers effectuent tout le déplacement porte à porte pour chacun des modes ; les stations servent uniquement au ravitaillement':'Les mêmes passagers sont prévus au point de prise en charge à l’heure indiquée ; les stations servent uniquement au ravitaillement';
 }
 function multiPassengerInputs(){return {wait:$('multiPassengerWait').value,exit:$('multiPassengerExit').value}}
 function setMultiModesBasis(b){
- multiModes.basis=b;$('comparisonPanel').hidden=false;$('multiModesNotice').textContent=multiModesDescription(b);$('comparisonDeparture').value=b.passenger?parisLocal(b.departure):b.plan.timing.departure;$('comparisonCons').value=b.plan.inputs.cons;$('comparisonDeparture').readOnly=true;$('comparisonCons').readOnly=true;$('comparisonTravelers').value='';$('comparisonTravelers').max=b.passenger?'8':'9';document.querySelector('label[for="comparisonTravelers"]').textContent=b.passenger?'Passagers comparés, conducteur exclu':'Personnes dans le groupe';$('comparisonPrice').value='';$('comparisonArriveBy').value='';$('comparisonOnlyBefore').checked=false;$('comparisonWalkLimit').value='';$('comparisonWalkRule').value='soft';$('comparisonCycle').checked=false;$('comparisonCycleLimit').value='';$('comparisonCycleRule').value='soft';$('comparisonCycleFields').hidden=true;$('comparisonCarbonEnabled').checked=false;fillProspectiveChoices('comparisonCarbon');$('comparisonCarbonFactor').value='';$('comparisonCarbonOccupants').value='';updateProspectiveControls('comparisonCarbon',prospectiveFactors(b.plan.fuel).length>0);$('comparisonCarbonAvailability').textContent=b.passenger?'Pour les allocations, les occupants comprennent les passagers et au moins le conducteur, qui reste hors du groupe comparé.':'Hypothèses propres à la comparaison ; occupants et modèle non repris des frais partagés.';$('comparisonCalculate').disabled=false;$('comparisonStatus').textContent='Indiquer les voyageurs puis confirmer le groupe. Calculer demande seulement la marche et, si choisi, le vélo ; le tracé automobile adopté reste conservé.';
+ multiModes.basis=b;setPassengerDepartureLabel(false);$('comparisonPanel').hidden=false;$('multiModesNotice').textContent=multiModesDescription(b);$('comparisonDeparture').value=b.passenger?parisLocal(b.departure):b.plan.timing.departure;$('comparisonCons').value=b.plan.inputs.cons;$('comparisonDeparture').readOnly=true;$('comparisonCons').readOnly=true;$('comparisonTravelers').value='';$('comparisonTravelers').max=b.passenger?'8':'9';document.querySelector('label[for="comparisonTravelers"]').textContent=b.passenger?'Passagers comparés, conducteur exclu':'Personnes dans le groupe';$('comparisonPrice').value='';$('comparisonArriveBy').value='';$('comparisonOnlyBefore').checked=false;$('comparisonWalkLimit').value='';$('comparisonWalkRule').value='soft';$('comparisonCycle').checked=false;$('comparisonCycleLimit').value='';$('comparisonCycleRule').value='soft';$('comparisonCycleFields').hidden=true;$('comparisonCarbonEnabled').checked=false;fillProspectiveChoices('comparisonCarbon');$('comparisonCarbonFactor').value='';$('comparisonCarbonOccupants').value='';updateProspectiveControls('comparisonCarbon',prospectiveFactors(b.plan.fuel).length>0);$('comparisonCarbonAvailability').textContent=b.passenger?'Pour les allocations, les occupants comprennent les passagers et au moins le conducteur, qui reste hors du groupe comparé.':'Hypothèses propres à la comparaison ; occupants et modèle non repris des frais partagés.';$('comparisonCalculate').disabled=false;$('comparisonStatus').textContent='Indiquer les voyageurs puis confirmer le groupe. Calculer demande seulement la marche et, si choisi, le vélo ; le tracé automobile adopté reste conservé.';
  $('multiModeGroupText').textContent=b.passenger?'Les mêmes passagers sont prévus au point de prise en charge à l’heure indiquée ; les stations intermédiaires servent uniquement au ravitaillement, sans visite à réaliser dans les autres modes':'Le même groupe effectue tout le trajet pour chaque mode ; les arrêts carburant ne sont pas des destinations à visiter';
 }
 function openMultiModes(){
- if(busy||!multiActive||multiModes)return;const panel=$('comparisonPanel'),prior={op:comparison,hidden:panel.hidden,fields:[...panel.querySelectorAll('input,select')].map(e=>({id:e.id,value:e.value,checked:e.checked,readOnly:e.readOnly,disabled:e.disabled})),note:$('comparisonScopeNote').textContent};
+ if(busy||!multiActive||multiModes)return;const panel=$('comparisonPanel'),prior={op:comparison,hidden:panel.hidden,fields:[...panel.querySelectorAll('input,select')].map(e=>({id:e.id,value:e.value,checked:e.checked,readOnly:e.readOnly,required:e.required,disabled:e.disabled})),note:$('comparisonScopeNote').textContent,departureLabel:document.querySelector('label[for="comparisonDeparture"]').textContent};
  clearComparison();multiModes={binding:JSON.stringify(multiActive.plan),prior,basis:null};$('multiModesHost').append(panel);panel.hidden=false;$('multiModeControls').hidden=false;$('multiPassengerFields').hidden=true;$('multiPassengerOpen').hidden=!multiActive.plan.nodes.some(n=>n.kind==='pickup');$('comparisonScopeNote').textContent='La voiture conserve les arrêts du parcours adopté. Les autres modes sont directs, entre les mêmes lieux. Confirmer le même groupe sur tout le trajet ; les rencontres intermédiaires ne sont pas assimilées à un trajet direct.';$('multiModeGroup').checked=false;$('multiModesNotice').textContent='';$('multiModesDialog').showModal();
  try{setMultiModesBasis(multiModesBasis(multiActive.plan))}catch(e){panel.hidden=true;$('multiModesNotice').textContent=e.message}
  $('multiModesTitle').focus();
@@ -6839,11 +6919,11 @@ function changeMultiPassengerModes(){
  try{multiModes.basis=multiPassengerBasis(multiActive.plan,multiPassengerInputs());$('multiModesNotice').textContent=multiModesDescription(multiModes.basis)}catch(e){$('multiModesNotice').textContent=e.message}
 }
 function closeMultiModes(focus=true){
- const c=multiModes;if(!c)return;clearComparison();multiModes=null;$('comparisonHome').after($('comparisonPanel'));$('multiModeControls').hidden=true;$('comparisonTravelers').max='9';document.querySelector('label[for="comparisonTravelers"]').textContent='Personnes dans le groupe';$('comparisonScopeNote').textContent=c.prior.note;updateProspectiveControls('comparisonCarbon',$('routeVehicle').value==='car'&&prospectiveFactors($('fuel').value).length>0);
- for(const v of c.prior.fields){const e=$(v.id);e.value=v.value;e.checked=v.checked;if(v.readOnly!==undefined)e.readOnly=v.readOnly;e.disabled=v.disabled}
+ const c=multiModes;if(!c)return;clearComparison();multiModes=null;$('comparisonHome').after($('comparisonPanel'));$('multiModeControls').hidden=true;$('comparisonTravelers').max='9';document.querySelector('label[for="comparisonTravelers"]').textContent='Personnes dans le groupe';$('comparisonScopeNote').textContent=c.prior.note;document.querySelector('label[for="comparisonDeparture"]').textContent=c.prior.departureLabel;updateProspectiveControls('comparisonCarbon',$('routeVehicle').value==='car'&&prospectiveFactors($('fuel').value).length>0);
+ for(const v of c.prior.fields){const e=$(v.id);e.value=v.value;e.checked=v.checked;if(v.readOnly!==undefined)e.readOnly=v.readOnly;if(v.required!==undefined)e.required=v.required;e.disabled=v.disabled}
  $('comparisonCycleFields').hidden=!$('comparisonCycle').checked;updateProspectiveControls('comparisonCarbon',$('routeVehicle').value==='car'&&prospectiveFactors($('fuel').value).length>0);$('comparisonPanel').hidden=c.prior.hidden;
  if(c.prior.op&&c.prior.op.signature===comparisonSignature()){comparison=c.prior.op;renderComparison(comparison)}
- $('compareBtn').setAttribute('aria-expanded',String(!$('comparisonPanel').hidden));if($('multiModesDialog').open)$('multiModesDialog').close();if(focus)document.querySelector('[data-multi-active="modes"]')?.focus();
+ $('compareBtn').setAttribute('aria-expanded',String(!$('comparisonPanel').hidden));if($('multiModesDialog').open)$('multiModesDialog').close();if(focus){if(c.returnToComparison&&$('comparisonLibraryDialog').open)$('comparisonResumePassenger').focus();else document.querySelector('[data-multi-active="modes"]')?.focus();}
 }
 function bindMultiModes(){
  for(const id of ['passengerAccessEnabled','passengerAccessStart','passengerAccessEnd','passengerAccessSameStart','passengerAccessSameEnd','passengerAccessConsent'])$(id).addEventListener(['passengerAccessStart','passengerAccessEnd'].includes(id)?'input':'change',passengerAccessChanged);
