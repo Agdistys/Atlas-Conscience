@@ -379,7 +379,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 3a7643f · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 164cb45 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -871,6 +871,15 @@
   <button id="multiNavigation" type="button" class="primary" aria-expanded="false" aria-controls="multiNavigationPanel">Préparer la navigation</button>
   <section id="multiNavigationPanel" hidden aria-labelledby="multiNavigationTitle"><h4 id="multiNavigationTitle" tabindex="-1">Ouvrir un outil de navigation</h4><p id="multiNavigationContext"></p><p id="multiNavigationLimit"></p><p id="multiNavigationPreferences" class="multi-alert"></p><label class="check-label"><input id="multiNavigationConsent" type="checkbox"> J’ai vérifié l’ordre des étapes et les limites ; activer les liens qui transmettent les lieux au service choisi</label><div id="multiNavigationLinks"></div><p class="note">Le trajet exact reste disponible dans l’export GPX. L’ouverture d’un lien ne confirme ni une étape visitée ni un déplacement effectué.</p></section>
   <div class="dialog-actions"><button id="multiEdit" type="button" class="ghost">Modifier une copie et recalculer</button><button id="multiGpx" type="button" class="ghost">Exporter ce tracé · GPX</button><button id="multiJson" type="button" class="ghost">Exporter ce parcours · JSON</button></div>
+  <button id="multiOpeningOpen" type="button" class="ghost" aria-expanded="false" aria-controls="multiOpeningPanel">Consulter les horaires et services des stations</button>
+  <section id="multiOpeningPanel" hidden aria-labelledby="multiOpeningTitle">
+   <h4 id="multiOpeningTitle" tabindex="-1">Stations aux heures d’arrivée</h4>
+   <p>La consultation envoie uniquement les identifiants des stations au service officiel des carburants. Elle lit les horaires habituels du guichet, l’automate déclaré et les services, sans modifier les prix ni le parcours.</p>
+   <p id="multiOpeningMessage" role="status"></p>
+   <button id="multiOpeningRefresh" type="button" class="ghost">Actualiser les horaires et services</button>
+   <div id="multiOpeningProposal"></div>
+   <div class="dialog-actions"><button id="multiOpeningApply" type="button" class="ghost" hidden disabled>Conserver dans la préparation</button><button id="multiOpeningCancel" type="button" class="ghost">Annuler la consultation</button></div>
+  </section>
   <button id="multiBudgetOpen" type="button" class="ghost" aria-expanded="false" aria-controls="multiBudgetPanel">Préparer le budget de ce parcours</button><p id="multiBudgetNotice" class="note"></p>
   <section id="multiBudgetPanel" hidden aria-labelledby="multiBudgetTitle"><h4 id="multiBudgetTitle" tabindex="-1">Budget de cet aller simple</h4><p>Carburant consommé calculé avec les hypothèses du parcours. Les achats en station restent séparés. Une case vide signifie « inconnu » ; saisir 0 seulement pour un frais nul déclaré. Aucun montant du trajet principal n’est repris. Confirmer un nouveau budget retire la répartition des frais de cette préparation ; elle sera à préparer à nouveau.</p>
    <div class="multi-fields"><div><label for="multiBudgetDate">Date prévue du trajet</label><input id="multiBudgetDate" type="date" required></div><div><label for="multiBudgetClass">Classe de péage déclarée</label><select id="multiBudgetClass"><option value="">Non renseignée</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div></div><p class="note">La classe tarifaire ne qualifie pas l’accès d’une caravane ou d’un poids lourd.</p>
