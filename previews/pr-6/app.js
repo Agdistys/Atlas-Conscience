@@ -3196,13 +3196,13 @@ function comparisonCost(mode,distance,h){
 }
 function orderComparison(entries,criterion){
  if(!['duration','distance'].includes(criterion))throw new Error('Critère de comparaison indisponible.');
- const value=e=>e.status==='ready'&&Number.isFinite(e.route?.[criterion])?Math.round(e.route[criterion]/(criterion==='duration'?60:100)):Infinity;
+ const value=e=>e.status==='ready'&&Number.isFinite(e.route?.[criterion])?Math.round((criterion==='distance'?(e.route.totalDistance??e.route.distance):e.route.duration)/(criterion==='duration'?60:100)):Infinity;
  return [...entries].sort((a,b)=>value(a)-value(b)||a.mode.localeCompare(b.mode));
 }
 // END COMPARISON MODEL
 const comparisonFields=['comparisonTravelers','comparisonDeparture','comparisonCons','comparisonPrice','comparisonWalkLimit','comparisonArriveBy'];
 function comparisonRaw(){return {...Object.fromEntries(['travelers','departure','cons','price','maxWalkKm','arriveBy'].map((k,i)=>[k,$(comparisonFields[i]).value])),onlyBefore:$('comparisonOnlyBefore').checked,walkStrict:walkingRule('comparisonWalkRule'),carbon:prospectiveRaw('comparisonCarbon')}}
-function comparisonSignature(includeLimits=true){return JSON.stringify({multi:multiModes?[multiModes.binding,JSON.stringify(multiActive?.plan),$('multiModeGroup').checked,...(multiModes.basis?.passenger?[$('multiPassengerWait').value,$('multiPassengerExit').value]:[])]:null,a:trip?.a,b:trip?.b,fields:['start','end','routeOptimization','routeVehicle','cons','fuel','budgetPrice','maxWalkKm','walkRule','stationDeparture','routeArriveBy',...comparisonFields.filter(id=>includeLimits||id!=='comparisonWalkLimit'),...(includeLimits?['comparisonWalkRule']:[])].map(id=>$(id).value),onlyBefore:$('routeOnlyBefore').checked,cycle:[$('comparisonCycle').checked,...(includeLimits?[$('comparisonCycleLimit').value,$('comparisonCycleRule').value]:[])],carbon:['routeCarbon','comparisonCarbon'].map(p=>prospectiveRaw(p)),avoid:[...document.querySelectorAll('.avoid-options input')].map(el=>[el.value,el.checked])})}
+function comparisonSignature(includeLimits=true){return JSON.stringify({multi:multiModes?[multiModes.binding,JSON.stringify(multiActive?.plan),$('multiModeGroup').checked,...(multiModes.basis?.passenger?[$('multiPassengerWait').value,$('multiPassengerExit').value,passengerAccessRaw()]:[])]:null,a:trip?.a,b:trip?.b,fields:['start','end','routeOptimization','routeVehicle','cons','fuel','budgetPrice','maxWalkKm','walkRule','stationDeparture','routeArriveBy',...comparisonFields.filter(id=>includeLimits||id!=='comparisonWalkLimit'),...(includeLimits?['comparisonWalkRule']:[])].map(id=>$(id).value),onlyBefore:$('routeOnlyBefore').checked,cycle:[$('comparisonCycle').checked,...(includeLimits?[$('comparisonCycleLimit').value,$('comparisonCycleRule').value]:[])],carbon:['routeCarbon','comparisonCarbon'].map(p=>prospectiveRaw(p)),avoid:[...document.querySelectorAll('.avoid-options input')].map(el=>[el.value,el.checked])})}
 function comparisonCarSettings(){const avoid=[...document.querySelectorAll('.avoid-options input:checked')].map(el=>el.value);return routingSettings($('routeVehicle').value,avoid)}
 function clearComparison(message=''){
  if(modalCarbonView?.source==='road')clearModalCarbon();$('roadModesOpen').hidden=true;$('roadModesNotice').textContent='';
@@ -3227,6 +3227,7 @@ function openComparison(){
 }
 function renderComparison(op){
  if(comparison!==op)return;
+ if(op.preparingAccess){$('comparisonStatus').textContent='Recherche des lieux et des accès à pied…';$('comparisonCards').replaceChildren();$('comparisonExcluded').replaceChildren();$('comparisonExcludedWrap').hidden=true;$('roadModesOpen').hidden=true;$('comparisonCalculate').disabled=true;$('comparisonCancel').hidden=false;return}
  if(op.multi){op.clockInvalid=Boolean(op.clockInvalid||Date.now()<Date.parse(op.multi.plan.calculatedAt)-60000);op.departurePast=Boolean(op.departurePast||op.hypotheses.departure<Date.now()-60000);}
  $('roadModesOpen').hidden=op.running||op.cancelled||!op.entries.some(e=>e.status==='ready');refreshRoadModes();
  const available=op.entries.filter(e=>e.status==='ready').length;
@@ -3236,12 +3237,12 @@ function renderComparison(op){
  $('comparisonContext').textContent=`${op.source.places.start} → ${op.source.places.end}. Aller simple, sans arrêt. Groupe de ${h.travelers} personne(s), capacité du véhicule non vérifiée. ${h.departure===null?'Départ non renseigné.':`Départ souhaité : ${arrivalLabel(h.departure)} (Paris).`} ${h.arriveBy===null?'Heure limite non renseignée.':`Heure limite : ${arrivalLabel(h.arriveBy)} (Paris).`} ${h.departure!==null&&h.departure<Date.now()-60000?'Départ passé : actualiser pour un trajet à venir.':''} Estimations sans garantie d’arrivée. Calculs hors trafic temps réel et pauses ; la date et le nombre de personnes ne sont pas transmis aux moteurs. Résultats obtenus le ${new Date(op.at).toLocaleString('fr-FR')}, cache de calcul possible.`;
  const cards=[],excluded=[];let compatible=0;
  orderComparison(op.entries,$('comparisonSort').value).forEach(e=>{
-  const title=e.mode==='car'?'Véhicule léger':e.mode==='cycle'?'À vélo classique':'À pied';
+  const title=e.mode==='car'?(op.multi?.access?'Marche + voiture + marche':'Véhicule léger'):e.mode==='cycle'?'À vélo classique':'À pied';
   if(e.status!=='ready'){cards.push(`<article class="comparison-card" data-compare-mode="${e.mode}"><h3>${title}</h3><p>${escapeHtml(e.status==='pending'?'Calcul en attente…':e.error)}</p></article>`);return}
   if(e.mode==='cycle'){const time=timingEstimate(e.route.duration,h),distanceOk=!op.cycleError&&cycleLimitReview(e.route.distance,op.cycleChoice).admissible,hidden=h.onlyBefore&&!time.admissible||!distanceOk;if(time.admissible&&distanceOk)compatible++;(hidden?excluded:cards).push(cycleComparisonCard(e,op,time));return}
-  const emission=prospectiveCarbon(e.mode,e.route.distance,op.fuel,h.carbon,h.travelers,!!op.multi?.passenger),cost=comparisonCost(e.mode,e.route.distance,h),w=e.mode==='walk'?walkReview(e.route.distance,h):null;
+  const emission=prospectiveCarbon(e.mode,e.route.distance,op.fuel,h.carbon,h.travelers,!!op.multi?.passenger),cost=comparisonCost(e.mode,e.route.distance,h),w=e.mode==='walk'?walkReview(e.route.distance,h):op.multi?.access&&e.mode==='car'?walkReview(e.route.walkingDistance,h):null;
   const time=timingEstimate(e.route.duration,h),distanceOk=!w||!op.walkError&&w.admissible,hidden=h.onlyBefore&&!time.admissible||!distanceOk;if(time.admissible&&distanceOk)compatible++;
-  const html=`<article class="comparison-card" data-compare-mode="${e.mode}" data-timing-state="${time.state}"><h3>${title}</h3><p class="station-selection">${escapeHtml(timingText(time))}</p><dl class="budget-lines"><div><dt>Distance</dt><dd>${fmt(e.route.distance/1000,1)} km</dd></div><div><dt>Durée estimée</dt><dd>${Math.round(e.route.duration/60)} min</dd></div><div><dt>Carburant du véhicule</dt><dd>${e.mode==='walk'?'Sans objet':cost.fuel===null?'Prix non renseigné':`${fmt(cost.fuel)} € · partiel`}</dd></div><div><dt>Coût total du groupe</dt><dd>${cost.status==='partial'?'Incomplet':'Non estimé'}</dd></div><div><dt>CO₂e du groupe (allocation)</dt><dd>${emission.status==='estimated'?carbonAmount(emission.groupKg):'Non estimée'}</dd></div></dl><div class="prospective-carbon" data-carbon-state="${emission.status}">${prospectiveMarkup(emission)}</div><p class="note">${e.mode==='car'?`${fmt(cost.liters)} L estimés · ${escapeHtml(op.fuel)} · ${h.price===null?'prix absent':`${fmt(h.price,3)} €/L saisi`}. Péages, stationnement et autres frais inconnus. Aucun prix de station ni péage d’un autre tracé repris.`:'Budget de marche non estimé. Pente, escaliers, revêtement et accessibilité non vérifiés.'}</p>${w?`<p class="station-selection">${op.walkError?'Critères invalides : '+escapeHtml(op.walkError):escapeHtml(walkingPreference(e.route.distance,h))}</p>`:''}<p class="note">${escapeHtml(routingLabel(e.settings))}${e.route.resourceVersion?' · données '+escapeHtml(e.route.resourceVersion):''}</p><button type="button" class="ghost navigation-button" data-compare-select="${e.mode}" aria-pressed="${op.selected===e.mode}" ${op.running||(h.onlyBefore&&!time.admissible)||(w&&op.walkError)?'disabled':''}>${op.selected===e.mode?(!distanceOk?'Tracé de référence affiché':'Trajet affiché'):!distanceOk?'Consulter ce tracé à pied (hors limite)':'Afficher ce trajet'}</button></article>`;
+  const html=`<article class="comparison-card" data-compare-mode="${e.mode}" data-timing-state="${time.state}"><h3>${title}</h3><p class="station-selection">${escapeHtml(timingText(time))}</p><dl class="budget-lines"><div><dt>Distance</dt><dd>${fmt((e.route.totalDistance??e.route.distance)/1000,1)} km</dd></div><div><dt>Durée estimée</dt><dd>${Math.round(e.route.duration/60)} min</dd></div><div><dt>Carburant du véhicule</dt><dd>${e.mode==='walk'?'Sans objet':cost.fuel===null?'Prix non renseigné':`${fmt(cost.fuel)} € · partiel`}</dd></div><div><dt>Coût total du groupe</dt><dd>${cost.status==='partial'?'Incomplet':'Non estimé'}</dd></div><div><dt>CO₂e du groupe (allocation)</dt><dd>${op.multi?.access?.walking>0&&e.mode==='car'?'Incomplète · accès à pied sans modèle':emission.status==='estimated'?carbonAmount(emission.groupKg):'Non estimée'}</dd></div></dl>${e.mode==='car'&&op.multi?.access?passengerAccessTimeline(op.multi):''}<div class="prospective-carbon" data-carbon-state="${emission.status}">${op.multi?.access?.walking>0&&e.mode==='car'?'<p>Estimation ci-dessous limitée à la portion automobile ; empreinte porte à porte inconnue.</p>':''}${prospectiveMarkup(emission)}</div><p class="note">${e.mode==='car'?`${fmt(cost.liters)} L estimés · ${escapeHtml(op.fuel)} · ${h.price===null?'prix absent':`${fmt(h.price,3)} €/L saisi`}. Péages, stationnement et autres frais inconnus. Aucun prix de station ni péage d’un autre tracé repris.`:'Budget de marche non estimé. Pente, escaliers, revêtement et accessibilité non vérifiés.'}</p>${w?`<p class="station-selection">${op.walkError?'Critères invalides : '+escapeHtml(op.walkError):escapeHtml(walkingPreference(e.route.walkingDistance??e.route.distance,h))}</p>`:''}<p class="note">${escapeHtml(routingLabel(e.settings))}${e.route.resourceVersion?' · données '+escapeHtml(e.route.resourceVersion):''}</p><button type="button" class="ghost navigation-button" data-compare-select="${e.mode}" aria-pressed="${op.selected===e.mode}" ${op.running||(h.onlyBefore&&!time.admissible)||(w&&op.walkError)?'disabled':''}>${op.selected===e.mode?(!distanceOk?'Tracé de référence affiché':'Trajet affiché'):!distanceOk?'Consulter ce tracé à pied (hors limite)':'Afficher ce trajet'}</button></article>`;
  (hidden?excluded:cards).push(html);
  });
  if(op.multi){$('comparisonContext').textContent=multiModesDescription(op.multi)+(op.multi.passenger?' Groupe de passagers confirmé sur cette portion : ':' Groupe confirmé sur tout le trajet : ')+h.travelers+' personne(s). '+(h.departure<Date.now()-60000?'Départ passé : référence historique. ':'')+(op.clockInvalid?'Horloge incohérente : références hors classement. ':'')+'La comparaison ne remplace pas le parcours adopté. Les budgets du groupe restent à renseigner séparément.';}
@@ -3254,14 +3255,15 @@ function renderComparison(op){
 async function runComparison(){
  if(busy||(!trip&&!multiModes))return;
  if(modalCarbonView?.source==='road')clearModalCarbon();
- let hypotheses,cycleChoice;try{if(multiModes)multiModesCheck();hypotheses=comparisonHypotheses({...comparisonRaw(),...(multiModes?.basis?.passenger?{departure:multiModes.basis.plan.timing.departure}:{})});if(multiModes){hypotheses.departure=multiModes.basis.departure;if(hypotheses.arriveBy!==null&&hypotheses.arriveBy<hypotheses.departure)throw Error('L’heure limite doit suivre le départ commun de cette comparaison.');}cycleChoice=$('comparisonCycle').checked?{enabled:true,...readCycleCriteria('comparisonCycle')}:cycleComparisonChoice(false)}catch(e){clearComparison('Vérifier les hypothèses : '+e.message);return}
+ let hypotheses,cycleChoice;try{if(multiModes)multiModesCheck();hypotheses=comparisonHypotheses({...comparisonRaw(),...(multiModes?.basis?.passenger&&!passengerAccessRaw().enabled?{departure:multiModes.basis.plan.timing.departure}:{})});if(multiModes){if(!passengerAccessRaw().enabled)hypotheses.departure=multiModes.basis.departure;if(hypotheses.arriveBy!==null&&hypotheses.arriveBy<hypotheses.departure)throw Error('L’heure limite doit suivre le départ commun de cette comparaison.');}cycleChoice=$('comparisonCycle').checked?{enabled:true,...readCycleCriteria('comparisonCycle')}:cycleComparisonChoice(false)}catch(e){clearComparison('Vérifier les hypothèses : '+e.message);return}
  const source=multiModes?multiClone(multiModes.basis.source):{a:[...trip.a],b:[...trip.b],places:{...trip.places}},car=multiModes?multiClone(multiModes.basis.plan.routing):comparisonCarSettings();
  const op={source,hypotheses,fuel:$('fuel').value,signature:comparisonSignature(),at:new Date().toISOString(),running:true,cancelled:false,entries:[{mode:'car',settings:car,status:'pending'},{mode:'walk',settings:routingSettings('walk',[]),status:'pending'}],controller:new AbortController()};
- if(multiModes){op.multi=multiClone(multiModes.basis);op.hypotheses.departure=op.multi.departure;op.fuel=op.multi.plan.fuel;op.entries[0]=multiClone(op.multi.car);}
+ if(multiModes){op.multi=multiClone(multiModes.basis);if(!passengerAccessRaw().enabled)op.hypotheses.departure=op.multi.departure;else{op.accessInput=passengerAccessRaw();op.preparingAccess=true;}op.fuel=op.multi.plan.fuel;op.entries[0]=multiClone(op.multi.car);}
  op.cycleChoice=cycleChoice;op.limitContextSignature=comparisonSignature(false);if(cycleChoice.enabled)op.entries.push({mode:'cycle',status:'pending'});
  comparison=op;activeAbort=op.controller;lock(true);renderComparison(op);$('comparisonCancel').disabled=false;
  let ignQuota=false;
  try{
+  if(op.accessInput){ignQuota=await preparePassengerAccess(op);Object.assign(source,op.source);if(op.cancelled||comparison!==op||op.signature!==comparisonSignature())return;op.preparingAccess=false;renderComparison(op);}
   for(const entry of op.entries){
    if(op.cancelled||comparison!==op)break;
    if(op.multi&&entry.mode==='car')continue;
@@ -3276,8 +3278,8 @@ async function runComparison(){
     entry.route=r;entry.status='ready';
    }catch(e){if(op.cancelled||comparison!==op)break;entry.status='unavailable';entry.error=e.message;if(e.message.includes('Limite du service IGN'))ignQuota=true}
   }
- }finally{
-  op.running=false;op.at=new Date().toISOString();if(activeAbort===op.controller)activeAbort=null;lock(false);
+ }catch(e){if(comparison===op&&!op.cancelled){op.preparingAccess=false;op.entries=op.entries.map(x=>({...x,status:'unavailable',route:undefined,error:e.message}));}}finally{
+  op.running=false;op.preparingAccess=false;op.at=new Date().toISOString();if(activeAbort===op.controller)activeAbort=null;lock(false);
   if(comparison===op){if(op.signature!==comparisonSignature())comparisonChanged();else{if(op.cancelled)op.entries=[];renderComparison(op)}}
   $('comparisonCancel').hidden=true;
  }
@@ -3425,12 +3427,13 @@ function modalBudgetTollDescription(b,persons,reference=true){
  return [`Grilles examinées : ${money(total)} pour le véhicule ; part du groupe ${persons}/${b.occupants} = ${money(modalBudgetRound(modalBudgetTollRatio(b,persons)))}. Calcul avant arrondi.`,`${b.coverage==='declared-complete'?'Couverture complète déclarée':'Couverture partielle ; autres péages inconnus'}. Classe ${b.vehicleClass}, aller simple du ${b.date}. Occupation constante déclarée, passage et absence de chevauchement à vérifier ; aucune validation cartographique.`,...(reference?[`Réexaminé le ${b.reviewedAt}. Tracé ${b.route.provider}, ${b.route.distanceMeters} m, ${b.route.durationSeconds} s ; calcul ${b.route.calculatedAt}, comparaison ${b.route.comparedAt}, données ${b.route.resourceVersion||'date inconnue'}. Empreinte SHA-256 ${b.route.sha256}.`]:[]),...b.segments.map(s=>`${s.network} · ${s.kind==='passage'?'un passage':s.entry+' → '+s.exit} · ${money(s.cents)} véhicule · ${s.source.title} · ${s.source.url} · effet ${s.source.effectiveFrom}, source consultée ${s.source.lastReviewed}, consultation jusqu’au ${s.source.consultationUntil}.`),'Référence conservée, sans authentification d’un fichier importé. Aucun maintien du tarif garanti.'].join('\n');
 }
 function validateModalBudgets(raw){
- modalBudgetKeys(raw,['version','scope','persons','instant','arrive','label','options',...([2,3].includes(raw?.version)?['origin']:[])]);
- if([2,3].includes(raw.version)&&(raw.origin!=='road'||raw.arrive!==false||raw.options?.some(r=>!['car','walk','cycle'].includes(r.mode))))throw new Error('Origine du budget routier invalide.');
- if(![1,2,3].includes(raw.version)||raw.scope!==MODAL_BUDGET_SCOPE||!Number.isInteger(raw.persons)||raw.persons<1||raw.persons>9||typeof raw.instant!=='number'||!Number.isFinite(raw.instant)||raw.instant<946684800000||raw.instant>4102444800000||typeof raw.arrive!=='boolean')throw new Error('Groupe, date ou périmètre du budget non vérifiable.');
+ modalBudgetKeys(raw,['version','scope','persons','instant','arrive','label','options',...([2,3,4].includes(raw?.version)?['origin']:[])]);
+ if([2,3,4].includes(raw.version)&&(raw.origin!=='road'||raw.arrive!==false||raw.options?.some(r=>!['car','walk','cycle'].includes(r.mode))))throw new Error('Origine du budget routier invalide.');
+ if(![1,2,3,4].includes(raw.version)||raw.scope!==MODAL_BUDGET_SCOPE||!Number.isInteger(raw.persons)||raw.persons<1||raw.persons>9||typeof raw.instant!=='number'||!Number.isFinite(raw.instant)||raw.instant<946684800000||raw.instant>4102444800000||typeof raw.arrive!=='boolean')throw new Error('Groupe, date ou périmètre du budget non vérifiable.');
  modalBudgetText(raw.label,4000);if(!Array.isArray(raw.options)||!raw.options.length||raw.options.length>20)throw new Error('Options du budget invalides.');const ids=new Set();
  for(const row of raw.options){
-  modalBudgetKeys(row,['id','mode','distanceMeters','entry']);
+  modalBudgetKeys(row,['id','mode','distanceMeters','entry',...(raw.version===4?['vehicleDistanceMeters']:[])]);
+  if(raw.version===4&&(row.mode==='car'?(row.vehicleDistanceMeters!==null&&(!Number.isFinite(row.vehicleDistanceMeters)||row.distanceMeters===null||row.vehicleDistanceMeters<0||row.vehicleDistanceMeters>row.distanceMeters)):row.vehicleDistanceMeters!==null))throw Error('Distance automobile distincte invalide.');
   if(typeof row.id!=='string'||!/^(car|walk|cycle|transit-\d+)$/.test(row.id)||ids.has(row.id)||!['car','walk','cycle','transit'].includes(row.mode)||(row.mode==='transit'?!row.id.startsWith('transit-'):row.id!==row.mode))throw new Error('Identité du budget non vérifiable.');ids.add(row.id);
   if(row.distanceMeters!==null&&(typeof row.distanceMeters!=='number'||!Number.isFinite(row.distanceMeters)||row.distanceMeters<0||row.distanceMeters>(raw.version>=2?20000000:150000)))throw new Error('Distance du budget invalide.');
   const e=row.entry;if(e===null)continue;modalBudgetKeys(e,['confirmedAt','note','components']);modalBudgetText(e.note,1000,true);
@@ -3441,10 +3444,10 @@ function validateModalBudgets(raw){
    if(part.kind==='declared'){modalBudgetKeys(part,['kind','cents']);if(!Number.isSafeInteger(part.cents)||part.cents<0||part.cents>10000000)throw new Error('Montant déclaré invalide.');}
    else if(part.kind==='fuel-estimate'){
     modalBudgetKeys(part,['kind','basis']);const b=part.basis;modalBudgetKeys(b,['distanceMeters','litersPer100km','pricePerLiter','occupants']);
-    if(key!=='fuel'||row.mode!=='car'||row.distanceMeters===null||b.distanceMeters!==row.distanceMeters||!Number.isInteger(b.occupants)||b.occupants<raw.persons||b.occupants>9)throw new Error('Répartition ou distance du carburant incompatible avec le groupe.');
+    if(key!=='fuel'||row.mode!=='car'||row.distanceMeters===null||(raw.version===4&&(row.vehicleDistanceMeters===null||b.occupants<=raw.persons)||b.distanceMeters!==(raw.version===4?row.vehicleDistanceMeters:row.distanceMeters))||!Number.isInteger(b.occupants)||b.occupants<raw.persons||b.occupants>9)throw new Error('Répartition ou distance du carburant incompatible avec le groupe.');
     for(const [name,min,max] of [['litersPer100km',1,100],['pricePerLiter',.001,10]]){const v=b[name];if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max||Number(v.toFixed(3))!==v)throw new Error('Hypothèse de carburant invalide.');}
    }else if(part.kind==='toll-estimate'){
-    modalBudgetKeys(part,['kind','basis']);if(key!=='tolls')throw new Error('Montant tarifaire réservé au poste péages.');validateModalTollBasis(part.basis,raw,row,e);
+    modalBudgetKeys(part,['kind','basis']);if(raw.version===4||key!=='tolls')throw new Error('Montant tarifaire réservé au poste péages.');validateModalTollBasis(part.basis,raw,row,e);
    }else throw new Error('Origine du montant non prise en charge.');
   }
   if(e.components.tolls?.kind==='toll-estimate'&&e.components.fuel?.kind==='fuel-estimate'&&e.components.tolls.basis.occupants!==e.components.fuel.basis.occupants)throw new Error('Occupants différents entre carburant et péages du même trajet.');
@@ -3467,6 +3470,7 @@ function modalBudgetOrder(rows,budgets){
 function modalBudgetDescription(budgets){
  const b=validateModalBudgets(budgets),money=n=>(n/100).toFixed(2)+' EUR',lines=[`Budget renseigné pour ${b.persons} voyageur(s) ; ${b.label} ; ${b.arrive?'arrivée au plus tard':'départ à partir de'} ${new Date(b.instant).toISOString()}.`, 'Frais directs de cet aller simple, hors achat, entretien, assurance et amortissement du matériel. Déclarations et estimations, sans devis ni disponibilité de réservation.'];
  for(const r of b.options){const t=modalBudgetTotal(r,b.persons);lines.push('',r.id+' : '+(t.totalCents!==null?'Budget complet dans ce périmètre '+money(t.totalCents):t.subtotalCents!==null?'Sous-total partiel '+money(t.subtotalCents):'Budget inconnu'));
+  if(b.version===4)lines.push('Distance porte à porte : '+(r.distanceMeters??'inconnue')+' m ; portion automobile : '+(r.vehicleDistanceMeters??'sans objet ou inconnue')+' m.');
   if(r.entry){lines.push('Confirmé le '+r.entry.confirmedAt,r.entry.note);for(const [key,p] of Object.entries(r.entry.components))lines.push(MODAL_BUDGET_COMPONENTS[key]+' : '+(!p?'inconnu':p.kind==='declared'?money(p.cents)+' déclaré':p.kind==='toll-estimate'?modalBudgetTollDescription(p.basis,b.persons):money(modalBudgetRound(modalBudgetFuelRatio(p.basis,b.persons)))+` estimé ; ${p.basis.distanceMeters} m × ${p.basis.litersPer100km} L/100 km × ${p.basis.pricePerLiter} EUR/L × ${b.persons}/${p.basis.occupants} occupants. Prix et consommation déclarés ; carburant consommé, hors plein acheté. Total calculé avant arrondi.`));}
  }
  return lines.join('\n');
@@ -3501,14 +3505,15 @@ function validateComparisonRecord(raw){
  return structuredClone(raw);
 }
 function validateComparisonRecords(raw){
- comparisonKeys(raw,['version','entries']);if(![1,2,3,4].includes(raw.version)||!Array.isArray(raw.entries)||raw.entries.length>20)throw new Error('Version inconnue ou plus de 20 comparaisons.');
+ comparisonKeys(raw,['version','entries']);if(![1,2,3,4,5].includes(raw.version)||!Array.isArray(raw.entries)||raw.entries.length>20)throw new Error('Version inconnue ou plus de 20 comparaisons.');
  if(raw.version===1&&raw.entries.some(e=>Object.hasOwn(e||{},'budgets')))throw new Error('Les budgets détaillés exigent le format de comparaisons 2.');
  if(raw.version<3&&raw.entries.some(e=>e?.budgets?.version>=2))throw new Error('Les budgets routiers exigent le format de comparaisons 3.');
  if(raw.version<4&&raw.entries.some(e=>e?.budgets?.version===3))throw new Error('Les péages sourcés exigent le format de comparaisons 4.');
+ if(raw.version<5&&raw.entries.some(e=>e?.budgets?.version===4))throw Error('Les accès des passagers exigent le format de comparaisons 5.');
  const entries=raw.entries.map(validateComparisonRecord);if(new Set(entries.map(e=>e.id)).size!==entries.length)throw new Error('Identités de comparaison répétées.');
  if(new TextEncoder().encode(JSON.stringify(raw)).length>2000000)throw new Error('Sauvegarde supérieure à 2 Mo.');return {version:raw.version,entries};
 }
-function comparisonVersion(entries,current=1){return current===4||entries.some(e=>e.budgets?.version===3)?4:current===3||entries.some(e=>e.budgets?.version===2)?3:current===2||entries.some(e=>Object.hasOwn(e,'budgets'))?2:1}
+function comparisonVersion(entries,current=1){return current===5||entries.some(e=>e.budgets?.version===4)?5:current===4||entries.some(e=>e.budgets?.version===3)?4:current===3||entries.some(e=>e.budgets?.version===2)?3:current===2||entries.some(e=>Object.hasOwn(e,'budgets'))?2:1}
 function parseComparisonRecords(text){if(typeof text!=='string'||new TextEncoder().encode(text).length>2000000)throw new Error('Fichier supérieur à 2 Mo.');return validateComparisonRecords(JSON.parse(text))}
 function comparisonReadable(e){
  e=validateComparisonRecord(e);const lines=['OùQuandQui — Comparaison historique',e.name,COMPARISON_LABELS[e.kind],`Enregistrée : ${e.savedAt}`,`Groupe figé : ${e.snapshot.at}`,`Formule : ${e.snapshot.formula}`,'Document daté et déclaratif. Aucune donnée actualisée, réservation, trajet effectué ou disponibilité attestés. Les indices ne se comparent pas entre groupes.',e.context,'','Priorités : '+PRIORITY_KEYS.map(k=>k+'='+e.weights[k]).join(' ; '),'Périmètres : '+JSON.stringify(e.snapshot.scopes),'État du résultat : '+e.result.state];
@@ -3914,19 +3919,19 @@ function estimateTransitCarbon(route,choices){
 function roadModeRows(op,now){
  const h=op.hypotheses,clockBad=!Number.isFinite(now)||now<Date.parse(op.at)-60000,past=h.departure===null||h.departure<now-60000;
  return ['car','walk','cycle'].map((mode,index)=>{
-  const e=op.entries.find(e=>e.mode===mode),base={mode,index,label:mode==='car'?(op.multi?(op.multi.passenger?'Voiture · portion des passagers':'Voiture · '+op.multi.stations+' arrêts carburant'):'Véhicule léger'):mode==='walk'?'Marche directe':'Vélo classique',price:null,carbon:null};
+  const e=op.entries.find(e=>e.mode===mode),base={mode,index,label:mode==='car'?(op.multi?(op.multi.access?'Marche + voiture + marche':op.multi.passenger?'Voiture · portion des passagers':'Voiture · '+op.multi.stations+' arrêts carburant'):'Véhicule léger'):mode==='walk'?'Marche directe':'Vélo classique',price:null,carbon:null};
   if(!e||e.status!=='ready')return {...base,status:'unavailable',reason:!e?'Mode non demandé.':e.status==='pending'?'Calcul en attente.':e.error||'Mode indisponible.'};
   const r=e.route,valid=r&&Number.isFinite(r.distance)&&r.distance>=0&&r.distance<=20000000&&Number.isFinite(r.duration)&&r.duration>=0&&r.duration<=31536000;
   if(!valid)return {...base,status:'unavailable',reason:'Distance ou durée non vérifiable.'};
-  const t=timingEstimate(r.duration,h),limits=mode==='walk'?walkReview(r.distance,h):mode==='cycle'?cycleLimitReview(r.distance,op.cycleChoice):null;
-  const error=mode==='walk'?op.walkError:mode==='cycle'?op.cycleError:null,reasons=[];
+  const t=timingEstimate(r.duration,h),limits=mode==='car'&&op.multi?.access?walkReview(r.walkingDistance,h):mode==='walk'?walkReview(r.distance,h):mode==='cycle'?cycleLimitReview(r.distance,op.cycleChoice):null;
+  const error=mode==='walk'||mode==='car'&&op.multi?.access?op.walkError:mode==='cycle'?op.cycleError:null,reasons=[];
   if(clockBad||op.clockInvalid||op.multi&&now<Date.parse(op.multi.plan.calculatedAt)-60000)reasons.push('Horloge reculée : ouvrir une nouvelle comparaison.');
   if(past||op.departurePast)reasons.push('Départ absent ou passé : référence historique, hors classement.');
   if(error)reasons.push('Critères de distance invalides : '+error);
   else if(limits&&!limits.admissible)reasons.push('Limite de distance impérative dépassée ou inconnue.');
   if(h.onlyBefore&&!t.admissible)reasons.push('Heure limite impérative non satisfaite.');
   const note=limits?.status==='over'&&limits.admissible?'Distance souhaitée dépassée ; préférence non impérative.':'';
-  return {...base,status:reasons.length?'excluded':'ready',reason:reasons.join(' '),note,distance:r.distance,duration:r.duration,elapsed:r.duration,start:h.departure,end:t.arrival};
+  return {...base,status:reasons.length?'excluded':'ready',reason:reasons.join(' '),note,distance:r.totalDistance??r.distance,...(mode==='car'&&op.multi?.access?{vehicleDistance:r.distance,walkingDistance:r.walkingDistance}:{}),duration:r.duration,elapsed:r.duration,start:h.departure,end:t.arrival};
  });
 }
 // END ROAD MODES MODEL
@@ -3951,9 +3956,10 @@ function modalCarbonRows(routes,roads,q,raw,directRows=null){
     emission={...c,reason:c.status==='complete'?'Toutes les étapes sont estimées dans le périmètre du modèle.':c.status==='partial'?'Étapes manquantes : empreinte totale indisponible.':'Choisir les modèles disponibles ; les étapes sans facteur restent inconnues.',details:c.rows};
    }catch{emission=absent('Étapes ou hypothèses incompatibles ; estimation indisponible.')}
   }else if(row.mode==='car'){
-   const c=prospectiveCarbon(raw.vehicle==='car'?'car':'unqualified',meters,raw.fuel,{enabled:true,...raw.car},persons,raw.excludeDriver===true);
-   if(c.status==='estimated')emission={status:'complete',scope:c.factor.scope,totalKg:c.individualKg,subtotalKg:c.individualKg,vehicleKg:c.vehicleKg,occupants:c.occupants,dataset:c.dataset,reason:'Part individuelle, selon les occupants saisis.',details:[{index:0,status:'estimated',distanceMeters:meters,factor:c.factor,valueKg:c.individualKg}]};
+   const c=prospectiveCarbon(raw.vehicle==='car'?'car':'unqualified',row.vehicleDistance??meters,raw.fuel,{enabled:true,...raw.car},persons,raw.excludeDriver===true);
+   if(c.status==='estimated')emission={status:'complete',scope:c.factor.scope,totalKg:c.individualKg,subtotalKg:c.individualKg,vehicleKg:c.vehicleKg,occupants:c.occupants,dataset:c.dataset,reason:'Part individuelle, selon les occupants saisis.',details:[{index:0,status:'estimated',distanceMeters:row.vehicleDistance??meters,factor:c.factor,valueKg:c.individualKg}]};
    else emission=absent(c.reason);
+   if(row.walkingDistance>0&&emission.status==='complete')emission={...emission,status:'partial',totalKg:null,reason:'Portion automobile estimée ; accès à pied sans modèle qualifié. Empreinte porte à porte inconnue.',details:[...emission.details,{index:1,status:'unavailable',distanceMeters:row.walkingDistance,reason:'Accès à pied sans modèle qualifié.',valueKg:null}]};
   }else if(row.mode==='cycle'){
    const f=CARBON_DATA.factors.find(f=>f.id==='velo'&&f.unit==='kgCO2e/person-km'&&f.scope==='construction'&&Number.isFinite(f.construction)&&f.construction>=0&&f.energy===0);
    if(raw.cycle===true&&f&&meters!==null){const valueKg=meters/1000*f.construction;emission={status:'complete',scope:f.scope,totalKg:valueKg,subtotalKg:valueKg,dataset:CARBON_DATA.version,reason:'Construction seule ; hors du groupe construction et énergie.',details:[{index:0,status:'estimated',distanceMeters:meters,factor:{...f},valueKg}]}}
@@ -4442,7 +4448,7 @@ function modalBudgetBundle(d){
 }
 function startModalBudgets(){
  const d=modalBudgetContext();if(!d)return;if(d.context.persons===null){$('modalCarbonPeople').focus();$('modalCarbonPeopleError').textContent='Indiquer de 1 à 9 voyageurs avant de renseigner les budgets.';return}
- modalBudgetView={signature:d.signature,stale:false,data:{version:modalCarbonView.source==='road'?2:1,...(modalCarbonView.source==='road'?{origin:'road'}:{}),scope:MODAL_BUDGET_SCOPE,...d.context,options:d.rows.map(r=>({id:r.key,mode:r.mode,distanceMeters:r.distanceMeters,entry:null}))}};modalBudgetDraft=null;
+ modalBudgetView={signature:d.signature,stale:false,data:{version:modalCarbonView.op?.multi?.access?4:modalCarbonView.source==='road'?2:1,...(modalCarbonView.source==='road'?{origin:'road'}:{}),scope:MODAL_BUDGET_SCOPE,...d.context,options:d.rows.map(r=>({id:r.key,mode:r.mode,distanceMeters:r.distanceMeters,...(modalCarbonView.op?.multi?.access?{vehicleDistanceMeters:r.mode==='car'?r.vehicleDistance??null:null}:{}),entry:null}))}};modalBudgetDraft=null;
  $('modalBudgets').hidden=false;$('modalBudgetEditor').hidden=true;$('modalPriorityCost').disabled=false;refreshModalBudgets();renderModalPriorities();$('modalBudgetsTitle').focus();
 }
 function refreshModalBudgets(){
@@ -4478,8 +4484,8 @@ function estimateModalBudgetFuel(){
  if(!modalBudgetDraft)return;try{const d=modalBudgetContext();if(!d||d.signature!==modalBudgetView.signature||modalBudgetView.stale)throw new Error('Contexte modifié : commencer un nouveau budget.');const row=modalBudgetView.data.options.find(r=>r.id===modalBudgetDraft.id),occupants=modalCarbonPersons($('modalCarbonOccupants')?.value);
  if(occupants===null||occupants<d.context.persons)throw new Error('Préciser le total des occupants du véhicule : de '+d.context.persons+' à 9, conducteur compris.');
  if(modalCarbonView?.op?.multi?.passenger&&occupants<=d.context.persons)throw new Error('Le conducteur est hors du groupe : indiquer au moins '+(d.context.persons+1)+' occupants pour estimer la part des passagers.');
- const basis={distanceMeters:row.distanceMeters,litersPer100km:modalBudgetDecimal($('modalBudgetConsumption').value,3,1,100),pricePerLiter:modalBudgetDecimal($('modalBudgetPrice').value,3,.001,10),occupants};
- changeModalBudget();modalBudgetDraft.basis=basis;$('modalBudget-fuel').value=(modalBudgetRound(modalBudgetFuelRatio(basis,d.context.persons))/100).toFixed(2);$('modalBudget-fuel').readOnly=true;renderModalBudgetFuel();$('modalBudgetEditStatus').textContent='Estimation ajoutée à la saisie ; relire les postes puis confirmer.';
+ const basis={distanceMeters:modalBudgetView.data.version===4?row.vehicleDistanceMeters:row.distanceMeters,litersPer100km:modalBudgetDecimal($('modalBudgetConsumption').value,3,1,100),pricePerLiter:modalBudgetDecimal($('modalBudgetPrice').value,3,.001,10),occupants};
+ if(basis.distanceMeters===null)throw Error('Distance automobile inconnue.');changeModalBudget();modalBudgetDraft.basis=basis;$('modalBudget-fuel').value=(modalBudgetRound(modalBudgetFuelRatio(basis,d.context.persons))/100).toFixed(2);$('modalBudget-fuel').readOnly=true;renderModalBudgetFuel();$('modalBudgetEditStatus').textContent='Estimation ajoutée à la saisie ; relire les postes puis confirmer.';
  }catch(e){$('modalBudgetEditStatus').textContent=e.message}
 }
 function applyModalBudget(){
@@ -6370,6 +6376,18 @@ function multiPassengerBasis(raw,{wait='',exit=''}={}){
  const totalSeconds=pauses===null||boarding===null||alighting===null?null:drivingSeconds+(pauses+boarding+alighting)*60;
  return {plan:p,passenger:{from,to,boarding,alighting},departure,distance,stations:stations.length,drivingSeconds,pauses,totalSeconds,nodes,source:{a:[...nodes[0].point],b:[...nodes.at(-1).point],places:{start:nodes[0].name,end:nodes.at(-1).name}},car:{mode:'car',settings:structuredClone(p.routing),...(totalSeconds===null?{status:'unavailable',error:'Durée totale de la portion inconnue : préciser les pauses, l’attente et l’embarquement, puis la dépose. Aucun temps absent ne vaut zéro.'}:{status:'ready',route:{distance,duration:totalSeconds,legs:structuredClone(legs),resourceVersion:p.route.resourceVersion}})}};
 }
+
+function multiPassengerAccess(b,{departure,source,approach,egress}){
+ if(!b?.passenger||!Number.isFinite(departure)||departure<946684800000||departure>4102444800000)throw Error('Départ des passagers requis.');
+ const leg=l=>{if(!l||!['ready','unavailable'].includes(l.status))throw Error('Accès non vérifiable.');if(l.status==='ready'&&(!Number.isFinite(l.distance)||l.distance<0||l.distance>20000000||!Number.isFinite(l.duration)||l.duration<0||l.duration>31536000||l.same===true&&(l.distance!==0||l.duration!==0)))throw Error('Distance ou durée d’accès invalide.');return structuredClone(l)};
+ const a=leg(approach),z=leg(egress),arrival=a.status==='ready'?departure+a.duration*1000:null,waiting=arrival===null?null:(b.departure-arrival)/1000;
+ const errors=[];if(a.status!=='ready')errors.push('Accès à la prise en charge inconnu : '+a.error);if(z.status!=='ready')errors.push('Accès après la dépose inconnu : '+z.error);if(waiting!==null&&waiting<0)errors.push('Arrivée à pied après la prise en charge estimée. Le conducteur ne sera pas retardé automatiquement.');if(b.totalSeconds===null)errors.push('Durée de la portion automobile inconnue.');
+ const walking=a.status==='ready'&&z.status==='ready'?a.distance+z.distance:null;
+ if(walking!==null&&b.distance+walking>20000000)errors.push('Distance complète hors limites.');
+ if(!errors.length&&a.duration+waiting+b.totalSeconds+z.duration>31536000)errors.push('Durée complète hors limites.');
+ const total=errors.length?null:a.duration+waiting+b.totalSeconds+z.duration;
+ return {...structuredClone(b),departure,source:structuredClone(source),access:{pickup:b.departure,approach:a,egress:z,arrival,waiting,walking,vehicleSeconds:b.totalSeconds,totalSeconds:total},car:{...structuredClone(b.car),...(errors.length?{status:'unavailable',route:undefined,error:errors.join(' ')}:{status:'ready',route:{...structuredClone(b.car.route),duration:total,totalDistance:b.distance+walking,walkingDistance:walking}})}};
+}
 // END MULTI MODES MODEL
 
 // BEGIN MULTI ADOPTION MODEL
@@ -6765,14 +6783,40 @@ function bindMultiAdoption(){
 }
 
 function multiModesDescription(b){
+ if(b.access){const a=b.access,m=x=>x===null?'inconnue':x<0?'rendez-vous manqué de '+fmt(-x/60,1)+' min':fmt(x/60,1)+' min',leg=x=>x.status==='ready'?fmt(x.distance/1000,3)+' km, '+m(x.duration)+(x.same?' (même lieu déclaré)':'')+(x.resourceVersion?' · données '+x.resourceVersion:''):x.error;return 'Porte à porte des passagers : '+b.source.places.start+' → '+b.source.places.end+'. Conducteur exclu. Départ commun '+multiTimeLabel(b.departure)+'. Accès à pied : '+leg(a.approach)+'. Rendez-vous '+b.nodes[0].name+' à '+multiTimeLabel(a.pickup)+'. Attente avant rendez-vous : '+m(a.waiting)+'. Portion automobile '+fmt(b.distance/1000,3)+' km, conduite '+m(b.drivingSeconds)+', pauses '+m(b.pauses===null?null:b.pauses*60)+', attente et embarquement '+m(b.passenger.boarding===null?null:b.passenger.boarding*60)+', sortie '+m(b.passenger.alighting===null?null:b.passenger.alighting*60)+'. Dépose '+b.nodes.at(-1).name+'. Accès final à pied : '+leg(a.egress)+'. Durée porte à porte '+m(a.totalSeconds)+'. Coordonnées de départ '+b.source.a.join(', ')+', arrivée '+b.source.b.join(', ')+'. Calcul automobile du '+multiTimeLabel(Date.parse(b.plan.calculatedAt))+'. Même groupe, lieux et départ pour la marche et le vélo directs. Présence, rendez-vous réel et terrain non attestés.';}
  if(b.passenger){const v=b.passenger,minutes=n=>n===null?'inconnus':fmt(n,1)+' min';return 'Portion des passagers : '+b.source.places.start+' → '+b.source.places.end+'. Conducteur exclu du groupe comparé. Référence commune : arrivée estimée du véhicule au point de prise en charge, '+multiTimeLabel(b.departure)+'. Voiture sur cette portion : '+fmt(b.distance/1000,3)+' km, '+fmt(b.drivingSeconds/60,1)+' min de conduite ; '+minutes(b.pauses)+' de pauses carburant ; attente et embarquement '+minutes(v.boarding)+' ; dépose et sortie '+minutes(v.alighting)+'. '+(b.totalSeconds===null?'Durée totale inconnue. ':fmt(b.totalSeconds/60,1)+' min au total. ')+'Étapes comparées : '+b.nodes.map(n=>n.name).join(' → ')+'. Marche et vélo directs entre ces deux rencontres à la même heure. Accès avant la prise en charge, après la dépose et trajet du conducteur hors portion exclus. Calcul automobile du '+multiTimeLabel(Date.parse(b.plan.calculatedAt))+'. Présence, synchronisation réelle, capacité et terrain non attestés.';}
  return b.source.places.start+' → '+b.source.places.end+'. Voiture : '+b.stations+' arrêts carburant, '+fmt(b.plan.route.distance/1000,3)+' km, '+fmt(b.drivingSeconds/60,1)+' min de conduite, '+(b.pauses===null?'pauses inconnues ; durée totale inconnue':fmt(b.pauses,1)+' min de pauses ; '+fmt(b.totalSeconds/60,1)+' min au total')+'. Départ commun : '+multiTimeLabel(b.departure)+'. Calcul automobile conservé du '+multiTimeLabel(Date.parse(b.plan.calculatedAt))+'. Étapes : '+b.plan.nodes.map(n=>n.name).join(' → ')+'. Marche et vélo directs entre les mêmes extrémités, sans ravitaillement. Trafic, terrain et allure réelle du groupe non attestés.';
 }
 function multiModesCheck(){
  if(!multiModes?.basis||multiModes.binding!==JSON.stringify(multiActive?.plan))throw Error('Parcours adopté modifié : fermer puis rouvrir la comparaison.');
+ const access=passengerAccessRaw();if(access.enabled){if(!access.sameStart&&!access.start||!access.sameEnd&&!access.end)throw Error('Renseigner les deux lieux des passagers ou déclarer explicitement le même point de rencontre.');if(!$('comparisonDeparture').value)throw Error('Renseigner le départ porte à porte des passagers.');if(!access.consent)throw Error('Confirmer la recherche des lieux et des accès à pied.');}
  if(!$('multiModeGroup').checked)throw Error('Confirmer que le même groupe effectue tout le trajet pour chacun des modes.');
  if(multiModes.basis.passenger){const n=Number($('comparisonTravelers').value);if(!Number.isInteger(n)||n<1||n>8)throw Error('Indiquer de 1 à 8 passagers, conducteur exclu.');multiModes.basis=multiPassengerBasis(multiActive.plan,multiPassengerInputs());}
- if($('comparisonDeparture').value!==(multiModes.basis.passenger?parisLocal(multiModes.basis.departure):multiModes.basis.plan.timing.departure)||Number($('comparisonCons').value)!==multiModes.basis.plan.inputs.cons)throw Error('Départ ou consommation modifiés : les reprendre depuis le parcours adopté.');
+ if(!passengerAccessRaw().enabled&&$('comparisonDeparture').value!==(multiModes.basis.passenger?parisLocal(multiModes.basis.departure):multiModes.basis.plan.timing.departure)||Number($('comparisonCons').value)!==multiModes.basis.plan.inputs.cons)throw Error('Départ ou consommation modifiés : les reprendre depuis le parcours adopté.');
+}
+function passengerAccessTimeline(b){
+ const a=b.access,m=x=>x===null?'Inconnu':fmt(x/60,1)+' min';
+ return '<ol aria-label="Étapes porte à porte">'+[['Marche jusqu’au rendez-vous',a.approach.duration??null],['Attente avant le rendez-vous',a.waiting],['Attente et embarquement supplémentaires',b.passenger.boarding===null?null:b.passenger.boarding*60],['Conduite',b.drivingSeconds],['Pauses carburant',b.pauses===null?null:b.pauses*60],['Dépose et sortie',b.passenger.alighting===null?null:b.passenger.alighting*60],['Marche jusqu’à destination',a.egress.duration??null]].map(([label,n])=>'<li>'+label+' : '+m(n)+'</li>').join('')+'</ol>';
+}
+function passengerAccessRaw(){return {enabled:!!multiModes?.basis?.passenger&&$('passengerAccessEnabled').checked,start:$('passengerAccessStart').value.trim(),end:$('passengerAccessEnd').value.trim(),sameStart:$('passengerAccessSameStart').checked,sameEnd:$('passengerAccessSameEnd').checked,consent:$('passengerAccessConsent').checked}}
+async function preparePassengerAccess(op){
+ const v=op.accessInput,current=()=>comparison===op&&!op.cancelled&&op.signature===comparisonSignature(),b=op.multi,source={places:{}};
+ let quota=false;
+ for(const [key,same,label,index] of [['a',v.sameStart,v.start,0],['b',v.sameEnd,v.end,b.nodes.length-1]]){if(!current())throw Error('Recherche annulée.');const n=b.nodes[index],p=same?{lat:n.point[0],lon:n.point[1],label:n.name}:await geocode(label,key==='a'?'start':'end',current,op.controller.signal);if(!current())throw Error('Recherche annulée.');source[key]=[p.lat,p.lon];source.places[key==='a'?'start':'end']=p.label;}
+ const legs=[];
+ for(const [same,points] of [[v.sameStart,[source.a,b.source.a]],[v.sameEnd,[b.source.b,source.b]]]){
+  if(!current())throw Error('Recherche annulée.');if(same){legs.push({status:'ready',same:true,distance:0,duration:0});continue}
+  try{if(quota)throw Error('Quota IGN atteint : accès non demandé.');const settings=routingSettings('walk',[]);ensureRouting(settings);const r=await route(points,true,false,settings,current);if(!current())throw Error('Recherche annulée.');legs.push({status:'ready',same:false,distance:r.distance,duration:r.duration,resourceVersion:r.resourceVersion||null});}
+  catch(e){if(!current())throw e;if(e.message.includes('Limite du service IGN'))quota=true;legs.push({status:'unavailable',error:e.message});}
+ }
+ if(!current())throw Error('Recherche annulée.');op.multi=multiPassengerAccess(b,{departure:op.hypotheses.departure,source,approach:legs[0],egress:legs[1]});op.source=source;op.entries[0]=multiClone(op.multi.car);return quota;
+}
+function passengerAccessChanged(e){
+ if(!multiModes?.basis?.passenger)return;comparisonChanged();$('multiModeGroup').checked=false;if(e?.target?.id!=='passengerAccessConsent')$('passengerAccessConsent').checked=false;
+ const v=passengerAccessRaw();$('passengerAccessFields').hidden=!v.enabled;$('passengerAccessStart').disabled=v.sameStart;$('passengerAccessEnd').disabled=v.sameEnd;$('comparisonDeparture').readOnly=!v.enabled;
+ if(e?.target?.id==='passengerAccessEnabled')$('comparisonDeparture').value=v.enabled?'':parisLocal(multiModes.basis.departure);
+ $('comparisonScopeNote').textContent=v.enabled?'Déplacement complet des passagers : accès à pied, voiture avec les pauses, puis accès final. Même départ et mêmes adresses pour les alternatives directes.':'Portion entre prise en charge et dépose ; accès personnels exclus.';
+ $('multiModeGroupText').textContent=v.enabled?'Les mêmes passagers effectuent tout le déplacement porte à porte pour chacun des modes ; les stations servent uniquement au ravitaillement':'Les mêmes passagers sont prévus au point de prise en charge à l’heure indiquée ; les stations servent uniquement au ravitaillement';
 }
 function multiPassengerInputs(){return {wait:$('multiPassengerWait').value,exit:$('multiPassengerExit').value}}
 function setMultiModesBasis(b){
@@ -6787,7 +6831,7 @@ function openMultiModes(){
 }
 function openMultiPassengerModes(){
  if(!multiModes||busy)return;
- try{$('multiPassengerWait').value='';$('multiPassengerExit').value='';const b=multiPassengerBasis(multiActive.plan);clearComparison();setMultiModesBasis(b);$('multiPassengerFields').hidden=false;$('multiPassengerOpen').hidden=true;$('comparisonScopeNote').textContent='Comparer uniquement la portion des passagers, du point de prise en charge au point de dépose. Aucun parcours complet du conducteur ni frais partagé n’est repris. Le départ commun est l’arrivée estimée du véhicule à la prise en charge ; présence et rendez-vous restent à convenir.';$('comparisonHeading').focus();}
+ try{$('passengerAccessEnabled').checked=false;$('passengerAccessConsent').checked=false;$('passengerAccessSameStart').checked=false;$('passengerAccessSameEnd').checked=false;$('passengerAccessStart').value='';$('passengerAccessEnd').value='';$('passengerAccessStart').disabled=false;$('passengerAccessEnd').disabled=false;$('passengerAccessFields').hidden=true;$('multiPassengerWait').value='';$('multiPassengerExit').value='';const b=multiPassengerBasis(multiActive.plan);clearComparison();setMultiModesBasis(b);$('multiPassengerFields').hidden=false;$('multiPassengerOpen').hidden=true;$('comparisonScopeNote').textContent='Comparer uniquement la portion des passagers, du point de prise en charge au point de dépose. Aucun parcours complet du conducteur ni frais partagé n’est repris. Le départ commun est l’arrivée estimée du véhicule à la prise en charge ; présence et rendez-vous restent à convenir.';$('comparisonHeading').focus();}
  catch(e){$('comparisonPanel').hidden=true;$('multiModesNotice').textContent=e.message}
 }
 function changeMultiPassengerModes(){
@@ -6802,6 +6846,7 @@ function closeMultiModes(focus=true){
  $('compareBtn').setAttribute('aria-expanded',String(!$('comparisonPanel').hidden));if($('multiModesDialog').open)$('multiModesDialog').close();if(focus)document.querySelector('[data-multi-active="modes"]')?.focus();
 }
 function bindMultiModes(){
+ for(const id of ['passengerAccessEnabled','passengerAccessStart','passengerAccessEnd','passengerAccessSameStart','passengerAccessSameEnd','passengerAccessConsent'])$(id).addEventListener(['passengerAccessStart','passengerAccessEnd'].includes(id)?'input':'change',passengerAccessChanged);
  $('multiPassengerOpen').addEventListener('click',openMultiPassengerModes);for(const id of ['multiPassengerWait','multiPassengerExit'])for(const event of ['input','change'])$(id).addEventListener(event,changeMultiPassengerModes);
  $('multiModesClose').addEventListener('click',()=>closeMultiModes());$('multiModesDialog').addEventListener('close',()=>{if(!$('multiModesDialog').open)closeMultiModes()});
  $('multiModeGroup').addEventListener('change',comparisonChanged);$('comparisonTravelers').addEventListener('input',()=>{if(multiModes)$('multiModeGroup').checked=false});
