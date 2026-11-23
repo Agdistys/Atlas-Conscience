@@ -1,5 +1,7 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  'horaires successifs : confirmation locale, étapes cohérentes et adoption explicite',
+  'horaires successifs : clavier, texte agrandi, rotation et carte indisponible',
   'adoption successive : confirmation, carte principale et référence conservée sans requête',
   'adoption successive : navigation et export reprennent tous les points du parcours affiché',
   'budget successif : grilles datées, passage explicite et couverture partielle',
