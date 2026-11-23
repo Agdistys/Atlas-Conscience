@@ -1,5 +1,7 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "collectif passagers : mêmes lieux, heure et groupe sans changer le conducteur",
+  "collectif passagers : clavier et texte agrandi conservent les étapes",
   "scénarios passagers : reprise explicite, nouveau calcul et souvenir intact",
   "scénarios passagers : clavier et texte agrandi gardent le souvenir accessible",
   "modes successifs : calcul volontaire sans recalcul automobile ni modification du parcours",
