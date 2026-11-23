@@ -59,5 +59,19 @@ for(const provider of ['osrm','ign','ors'])test(`annulation trajet : quota ${pro
 });
 
 test('annulation trajet : délai dépassé, absence de route et panne restent distincts',async({page})=>{
- await setup(page);await page.evaluate(()=>{const timer=window.setTimeout;window.setTimeout=(fn,ms,...args)=>timer(fn,ms===20000?80:ms,...args)});let mode='timeout',releaseTimeout;await page.route(osrm,async r=>{if(mode==='timeout'){await new Promise(resolve=>releaseTimeout=resolve);return r.fulfill({json:routeData()}).catch(()=>{})}if(mode==='none')return r.fulfill({json:{code:'NoRoute',routes:[]}});if(mode==='down')return r.fulfill({status:503,json:{}});return r.fulfill({json:routeData()})});await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('délai dépassé');releaseTimeout();for(const [next,message] of [['none','Aucun itinéraire'],['down','HTTP 503']]){mode=next;await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText(message);await cancelled(page)}mode='ok';await go(page);
+ await page.clock.install({time:new Date('2026-09-17T10:00:00Z')});const calls=await setup(page);
+ let mode='timeout',releaseTimeout;
+ await page.route(osrm,async r=>{
+  if(mode==='timeout'){await new Promise(resolve=>releaseTimeout=resolve);return r.fulfill({json:routeData()}).catch(()=>{})}
+  if(mode==='none')return r.fulfill({json:{code:'NoRoute',routes:[]}});
+  if(mode==='down')return r.fulfill({status:503,json:{}});
+  // A healthy response need not arrive within the old test's artificial 80 ms deadline.
+  await new Promise(resolve=>setTimeout(resolve,150));return r.fulfill({json:routeData()});
+ });
+ await page.locator('#goBtn').click();await expect.poll(()=>typeof releaseTimeout==='function').toBe(true);
+ await expect(page.locator('#status')).toContainText('Calcul du trajet');
+ // Advance only the deliberately held request past the real 20 s deadline.
+ await page.clock.fastForward(20001);await expect(page.locator('#status')).toContainText('délai dépassé');await cancelled(page);releaseTimeout();
+ for(const [next,message] of [['none','Aucun itinéraire'],['down','HTTP 503']]){mode=next;await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText(message);await cancelled(page)}
+ mode='ok';await go(page);expect(calls.filter(u=>u.includes('/route/'))).toHaveLength(4);
 });
