@@ -15,5 +15,6 @@ Référence : [V091](../specifications/OuQuandQui_API_V091_Trajet_Arrets_2026-11
 | Lire/enregistrer dans la bibliothèque | Vue adoptée indépendante ; seule la sauvegarde explicite écrit une copie. |
 | Revenir à la référence | Distance, station, résultats, réglages et péages restaurés sans calcul ni transfert de budget. |
 | Carte indisponible, clavier ou écran étroit | Schéma et liste utilisables, focus identifiable, pas de débordement horizontal des panneaux. |
+| Redessin du schéma de référence pendant une comparaison de variantes, puis annulation | Retour au même repère de variante ; un nouveau redimensionnement conserve le focus, sans changement de trajet ni requête. |
 
 Contrôles : `tests/multi-adopt.test.mjs`, `tests/e2e/multi-adopt.spec.mjs`, régressions des budgets, cartes, variantes et journal ; inspection complète et matrice de compatibilité sur le commit exact. Une recette sur lieux publics doit aussi vérifier les ressources servies et les données d'inspection, puis l'adoption, les exports, la navigation et le retour à la référence. Aucun guidage réel ni paiement attesté par ces essais.

@@ -38,6 +38,8 @@ L'adoption et le retour n'interrogent ni le routage ni les prix. La carte peut c
 
 ## Réception et limites
 
+Le retour au trajet de référence conserve aussi la navigation au clavier entre ses variantes. Après l'annulation d'une comparaison, le focus revient au même repère, même si le schéma a été redessiné pendant l'ouverture. Un redimensionnement avec un repère actif conserve ce repère comme point de reprise.
+
 La réception vérifie confirmation et annulation, conservation de la référence, modification en attente, échec de recalcul, copie historique puis revalidation, budget périmé, exports de tous les points, reprise volontaire dans le journal, bibliothèque indépendante, clavier, texte agrandi, rotation et quatre formats. La compatibilité Firefox/WebKit couvre l'adoption et la navigation depuis la vue principale. Les preuves de l'inspection et de la recette publiée sont rattachées au commit livré dans le suivi central.
 
 Les frais partagés, les horaires détaillés des étapes et la comparaison de ce parcours avec les autres modes restent des intégrations distinctes. La couverture tarifaire demeure partielle et déclarative. Aucun nouveau fournisseur, compte, abonnement, hébergement, qualification poids lourd/caravane ou déplacement réel n'est introduit dans ce lot.

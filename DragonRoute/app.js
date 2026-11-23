@@ -2445,6 +2445,7 @@ const stationLayoutObserver=new ResizeObserver(()=>{
 stationLayoutObserver.observe($('map'));stationLayoutObserver.observe($('sheet'));
 function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   if(!coords?.length)return;
+  const focusedVariant=$('routeVariantMarkers').contains(document.activeElement)?document.activeElement.dataset.routeIndex:null;
   const W=1000,H=700,pad=70;
   let minLat=Infinity,maxLat=-Infinity,minLon=Infinity,maxLon=-Infinity;
   const all=coords.concat(...alternatives,stations.map(s=>[s.lat,s.lon]));
@@ -2479,6 +2480,7 @@ function projectSvg(coords,stations=[],best=null,label="",alternatives=[]){
   $('meetingDots').innerHTML=trip?.meetings?['pickup','dropoff'].map((key,i)=>{const place=trip.meetings[key],[x,y]=P([place.lat,place.lon]);return `<g><title>${escapeHtml((i?'Dépose : ':'Prise en charge : ')+place.label)}</title><circle cx="${x}" cy="${y}" r="18" fill="#5030a0" stroke="white" stroke-width="3"/><text x="${x}" y="${y+5}" text-anchor="middle" fill="white">${i?'D':'P'}</text></g>`}).join(''):'';
   tollGuide.projection=P;drawTollMarkers();
   $("fallbackLabel").textContent=label||"Visualisation autonome";queueStationPoints();
+  if(focusedVariant!=null&&!document.querySelector('dialog[open]'))document.querySelector(`.svg-route-variant[data-route-index="${focusedVariant}"]`)?.focus({preventScroll:true});
 }
 function showOnMap(coords,stations,best,start,end,label,fit=true){
   mapView=[coords,stations,best,start,end,label];updateStationMapTools();
@@ -4962,7 +4964,13 @@ function renderRouteChoices(){
 }
 function closeRouteChoice(message=''){
  const op=routeChoiceProposal;routeChoiceProposal=null;if($('routeChoiceDialog').open)$('routeChoiceDialog').close();
- if(op){const target=op.focus?.isConnected?op.focus:document.querySelector(`[data-route-choice="${trip?.choice}"]`);if(target&&!target.disabled)target.focus();if(message)setStatus(message)}
+ if(op){
+  const visible=el=>el?.isConnected&&el.getClientRects().length&&!el.closest('[hidden],[inert]')&&!el.disabled;
+  const kind=['svg-route-variant','route-variant-marker','map-route-alternative'].find(c=>op.focus?.classList.contains(c));
+  const replacement=op.trip===trip?document.querySelector(kind?`.${kind}[data-route-index="${op.index}"]`:`[data-route-choice="${op.index}"]`):null;
+  const target=visible(op.focus)?op.focus:visible(replacement)?replacement:document.querySelector(`[data-route-choice="${trip?.choice}"]`);
+  if(visible(target)&&!document.querySelector('dialog[open]'))target.focus();if(message)setStatus(message);
+ }
 }
 function chooseRoute(index,focus=document.activeElement){
  if(busy||!trip||!Number.isInteger(index)||!trip.choices[index]||index===trip.choice)return;
