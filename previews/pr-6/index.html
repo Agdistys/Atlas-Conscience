@@ -381,7 +381,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 0921633 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · c7ccad1 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -817,6 +817,7 @@
  <p>Copie datée des lieux, valeurs, priorités, sources et hypothèses affichés. Les lieux peuvent être personnels. Conservation sur ce navigateur et cet environnement seulement, sans synchronisation ; aucun trajet ni journal modifié.</p>
  <form id="comparisonSaveForm"><label for="comparisonName">Nom de la comparaison</label><input id="comparisonName" maxlength="80" required autocomplete="off">
  <details><summary>Relire les données qui seront conservées</summary><div id="comparisonSavePreview"></div></details>
+ <p id="comparisonScenarioSaveNote" class="note" hidden>Les lieux et réglages porte à porte sont aussi conservés pour préparer un nouveau calcul. Les dates, confirmations, prix et résultats devront être réexaminés à la reprise.</p>
  <label class="check-label"><input id="comparisonConsent" type="checkbox">Conserver cette comparaison historique sur cet appareil</label><button id="comparisonSaveSubmit" type="submit" class="ghost" disabled>Enregistrer la comparaison</button></form><p id="comparisonSaveMessage" role="status"></p>
 </dialog>
 <dialog id="comparisonLibraryDialog" aria-labelledby="comparisonLibraryTitle">
@@ -825,7 +826,7 @@
  <div class="dialog-actions"><button id="comparisonExportAll" type="button" class="ghost">Exporter toutes les comparaisons</button><button id="comparisonExportOriginal" type="button" class="ghost">Exporter la copie originale chargée</button><button id="comparisonErase" type="button" class="ghost">Effacer les comparaisons</button></div>
  <label for="comparisonImportFile">Restaurer un fichier de comparaisons · 2 Mo maximum</label><input id="comparisonImportFile" type="file" accept="application/json,.json"><p id="comparisonLibraryMessage" role="status"></p>
  <section id="comparisonImportPanel" hidden aria-label="Aperçu avant remplacement"><h3>Relire le remplacement</h3><p id="comparisonImportSummary" tabindex="-1"></p><div id="comparisonImportDetails"></div><label class="check-label"><input id="comparisonImportConsent" type="checkbox">Remplacer uniquement les comparaisons de cet environnement par ce fichier</label><div class="dialog-actions"><button id="comparisonImportApply" type="button" class="ghost" disabled>Confirmer le remplacement</button><button id="comparisonImportCancel" type="button" class="ghost">Annuler l’import</button></div></section>
- <div id="comparisonLibraryList"></div><section id="comparisonLibraryDetail" hidden aria-labelledby="comparisonDetailTitle"><h3 id="comparisonDetailTitle" tabindex="-1">Lecture historique</h3><div class="dialog-actions"><button id="comparisonExportJson" type="button" class="ghost">Exporter cette comparaison · JSON</button><button id="comparisonExportText" type="button" class="ghost">Exporter le document lisible · TXT</button></div><div id="comparisonLibraryContent"></div></section>
+ <div id="comparisonLibraryList"></div><section id="comparisonLibraryDetail" hidden aria-labelledby="comparisonDetailTitle"><h3 id="comparisonDetailTitle" tabindex="-1">Lecture historique</h3><div class="dialog-actions"><button id="comparisonExportJson" type="button" class="ghost">Exporter cette comparaison · JSON</button><button id="comparisonExportText" type="button" class="ghost">Exporter le document lisible · TXT</button></div><section id="comparisonPassengerResume" hidden aria-label="Reprendre les accès des passagers"><p id="comparisonResumeNote" class="note"></p><button id="comparisonResumePassenger" type="button" class="ghost" aria-describedby="comparisonResumeNote">Reprendre les lieux et réglages</button></section><div id="comparisonLibraryContent"></div></section>
 </dialog>
 
 <dialog id="sourcesDialog" aria-labelledby="sourcesTitle">
