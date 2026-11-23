@@ -22,7 +22,7 @@ async function checkUpdate(page){await page.locator('#appAvailability').evaluate
 async function activeRelease(context,release){await expect.poll(async()=>{for(const w of context.serviceWorkers()){try{if(await w.evaluate(r=>RELEASE===r&&self.registration.active?.state==='activated','test-'+release))return true}catch{}}return false}).toBe(true)}
 
 suite('PWA : réouverture hors ligne, instantané daté, profil et journal intacts',async({pwa},info)=>{
- const {page,origin,context}=pwa;await mockDragonRoute(page,{origin});await ready(page,origin);
+ const {page,origin,context}=pwa,dataRequests=[];context.on('request',r=>{if(['fetch','xhr'].includes(r.resourceType())&&r.url()!==origin+'/DragonRoute/service-worker.js')dataRequests.push(r.url())});await mockDragonRoute(page,{origin});await ready(page,origin);
  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
  await page.locator('#savePreparationBtn').click();await page.locator('#preparedName').fill('Lyon — Valence hors ligne');await page.locator('#preparedConfirm').check();await page.locator('#preparedSave').click();await page.getByRole('button',{name:'Fermer les trajets préparés'}).click();
  await page.locator('#journalRecordBtn').click();await page.locator('#journalEnable').check();await page.locator('#journalCopy').click();await page.locator('#journalConfirm').check();await page.locator('#journalSave').click();await page.getByRole('button',{name:'Fermer le journal'}).click();
@@ -34,7 +34,11 @@ suite('PWA : réouverture hors ligne, instantané daté, profil et journal intac
  await offline.locator('#profileBtn').click();await expect(offline.locator('#vehicleName')).toHaveValue('Véhicule conservé');await offline.getByRole('button',{name:'Fermer le profil'}).click();
  await offline.locator('#journalBtn').click();await offline.locator('#journalMonth').fill(JSON.parse(before[journal]).entries[0].date.slice(0,7));await expect(offline.locator('#journalEntries')).toContainText('Lyon');await offline.getByRole('button',{name:'Fermer le journal'}).click();
  await offline.locator('#goBtn').click();await expect(offline.locator('#status')).toContainText('⚠️');await expect(offline.locator('#summary')).toBeHidden();expect(await storage(offline)).toEqual(before);
- const requests=pwa.state.requests.length;await context.setOffline(false);await expect(offline.locator('#connectionNotice')).toBeHidden();await expect(offline.locator('#status')).toContainText('⚠️');expect(pwa.state.requests.length).toBe(requests);expect(pwa.errors).toEqual([]);
+ const requests=pwa.state.requests.length,dataCount=dataRequests.length;await context.setOffline(false);await expect(offline.locator('#connectionNotice')).toBeHidden();
+ // Browsers may check the worker after reconnection; force that legitimate check without allowing any data recalculation.
+ await offline.evaluate(async()=>{const registration=await navigator.serviceWorker.getRegistration();await registration.update()});
+ const extraShell=pwa.state.requests.slice(requests),extraData=dataRequests.slice(dataCount);await info.attach('pwa-reconnexion-requetes',{body:JSON.stringify({extraShell,extraData}),contentType:'application/json'});
+ expect(extraShell.filter(path=>path!=='/DragonRoute/service-worker.js')).toEqual([]);expect(extraData).toEqual([]);await expect(offline.locator('#status')).toContainText('⚠️');expect(await storage(offline)).toEqual(before);expect(pwa.errors).toEqual([]);
 });
 
 suite('PWA : cache borné, données réseau absentes et aucun HTML de remplacement',async({pwa})=>{

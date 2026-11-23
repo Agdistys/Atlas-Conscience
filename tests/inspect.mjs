@@ -16,8 +16,8 @@ run('contract', process.execPath, ['tests/repo-contract.mjs']);
 run('syntax', process.execPath, ['tests/syntax.mjs']);
 run('report-tests', 'npm', ['run', 'test:inspection']);
 run('toolchain', process.execPath, ['tests/toolchain.mjs']);
-// The 3,832-scenario run reached its 65-minute limit after 3,119 completed cases.
-// Allow 95 minutes, with five minutes left for setup/report/upload in the job.
-// Individual test timeouts and the requirement for a complete report are unchanged.
-run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 5_700_000);
+// The 4,100-scenario run reached 95 minutes with 3,931 cases finished on a slow runner.
+// CI uses up to four workers; reserve ten job minutes for setup, reports and artifacts.
+// Per-case limits, retries and the complete-report requirement are unchanged.
+run('browser', process.execPath, ['node_modules/@playwright/test/cli.js', 'test'], 6_600_000);
 process.exitCode = writeReport(process.cwd(), { publishSummary: false }).state === 'inspection' ? 0 : 1;
