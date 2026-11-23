@@ -2,6 +2,8 @@
 export const compatibilityRoadCases = [
   "modes successifs : calcul volontaire sans recalcul automobile ni modification du parcours",
   "modes successifs : clavier, texte agrandi et fermeture rendent la préparation intacte",
+  "portion passagers : choix explicite, seules les rencontres transmises et parcours préservé",
+  "portion passagers : clavier, texte agrandi et carte absente conservent la fermeture",
   "stations successives : consultation volontaire, frais conservés et adoption explicite",
   "stations successives : clavier, texte agrandi, rotation et schéma sans carte",
   'partage successif : confirmation locale, total conservé et adoption explicite',

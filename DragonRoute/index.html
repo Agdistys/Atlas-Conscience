@@ -141,7 +141,7 @@
       <section id="comparisonPanel" class="stops-section" hidden aria-labelledby="comparisonHeading">
         <h2 id="comparisonHeading" tabindex="-1">Comparer les modes</h2>
         <p id="comparisonScopeNote" class="note">Même départ et même arrivée, sans arrêt. Les évitements du véhicule sont conservés. Chaque mode utilise son propre moteur ; les services reçoivent les coordonnées seulement au lancement du calcul.</p>
-        <div id="multiModeControls" hidden><label class="check-label"><input id="multiModeGroup" type="checkbox"> Le même groupe effectue tout le trajet pour chaque mode ; les arrêts carburant ne sont pas des destinations à visiter</label></div>
+        <div id="multiModeControls" hidden><label class="check-label"><input id="multiModeGroup" type="checkbox"> <span id="multiModeGroupText">Le même groupe effectue tout le trajet pour chaque mode ; les arrêts carburant ne sont pas des destinations à visiter</span></label></div>
         <div class="settings">
           <div><label for="comparisonTravelers">Personnes dans le groupe</label><input id="comparisonTravelers" type="number" min="1" max="9" step="1" value="1"></div>
           <div><label for="comparisonDeparture">Départ souhaité (heure de Paris, facultatif)</label><input id="comparisonDeparture" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59"></div>
@@ -913,7 +913,7 @@
 </dialog>
 
 <script src="./config.js"></script><script src="./app.js" defer></script>
-<dialog id="multiModesDialog" aria-labelledby="multiModesTitle"><div class="dialog-heading"><h2 id="multiModesTitle" tabindex="-1">Autres modes pour ce parcours</h2><button id="multiModesClose" type="button" class="icon-btn" aria-label="Fermer les autres modes">×</button></div><p id="multiModesNotice" role="status"></p><button id="multiModesTiming" type="button" class="ghost">Revoir le départ et les pauses</button><div id="multiModesHost"></div></dialog>
+<dialog id="multiModesDialog" aria-labelledby="multiModesTitle"><div class="dialog-heading"><h2 id="multiModesTitle" tabindex="-1">Autres modes pour ce parcours</h2><button id="multiModesClose" type="button" class="icon-btn" aria-label="Fermer les autres modes">×</button></div><p id="multiModesNotice" role="status"></p><button id="multiModesTiming" type="button" class="ghost">Revoir le départ et les pauses</button><button id="multiPassengerOpen" type="button" class="ghost" hidden>Comparer la portion des passagers</button><fieldset id="multiPassengerFields" hidden><legend>Temps prévus pour les passagers</legend><p class="note">Temps propres à cette comparaison. Laisser vide signifie inconnu ; saisir 0 déclare aucune attente ou manipulation prévue. Les autres pauses restent celles des stations de cette portion.</p><label for="multiPassengerWait">Attente et embarquement à la prise en charge (min)</label><input id="multiPassengerWait" type="number" min="0" max="1440" step="any"><label for="multiPassengerExit">Dépose et sortie du véhicule (min)</label><input id="multiPassengerExit" type="number" min="0" max="1440" step="any"></fieldset><div id="multiModesHost"></div></dialog>
 <dialog id="roadModesDialog" aria-labelledby="roadModesTitle"><div class="dialog-heading"><h2 id="roadModesTitle">Comparer les modes</h2><button id="roadModesClose" type="button" class="icon-btn" aria-label="Fermer la comparaison des modes">×</button></div><div id="roadModesHost"></div></dialog>
 </body>
 </html>
