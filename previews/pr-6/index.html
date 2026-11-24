@@ -170,7 +170,8 @@
         <p id="comparisonContext" class="note"></p>
         <div id="comparisonSortWrap" hidden><label for="comparisonSort">Trier les valeurs</label><select id="comparisonSort"><option value="duration">Durée croissante</option><option value="distance">Distance croissante</option><option value="cost" disabled>Coût total · incomplet</option><option value="carbon" disabled>CO₂e · comparaison incomplète</option></select><p class="note">Égalités conservées à la précision affichée. Cette vue présente les valeurs brutes ; les budgets et les priorités sont accessibles dans la comparaison ci-dessous. Les modes indisponibles restent distincts.</p></div>
         <button id="roadModesOpen" type="button" class="ghost" hidden>Comparer les budgets et les empreintes</button><p id="roadModesNotice" role="status"></p>
-    <div id="comparisonCards" class="comparison-cards"></div>
+    <section id="passengerTransitResults" aria-label="Transports collectifs des passagers" hidden></section>
+        <div id="comparisonCards" class="comparison-cards"></div>
         <details id="comparisonExcludedWrap" hidden><summary>Consulter les trajets écartés par les limites</summary><div id="comparisonExcluded" class="comparison-cards"></div></details>
         <button id="comparisonClose" class="ghost navigation-button" type="button">Fermer la comparaison</button>
       </section>
@@ -381,7 +382,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · c7ccad1 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 9310e72 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -922,6 +923,11 @@
 <label class="check"><input id="passengerAccessSameStart" type="checkbox"> Le départ est déjà le point de prise en charge</label>
 <label for="passengerAccessEnd">Destination des passagers</label><input id="passengerAccessEnd" type="text" maxlength="250" autocomplete="off">
 <label class="check"><input id="passengerAccessSameEnd" type="checkbox"> La destination est déjà le point de dépose</label>
+<fieldset class="prospective-options"><legend>Alternative en transports collectifs</legend>
+<label class="check"><input id="passengerTransitEnabled" type="checkbox"> Inclure les transports du pilote Grenoble</label>
+<p class="note">Au calcul demandé, Mobilités M reçoit les coordonnées des deux lieux des passagers, la date, l’heure et la limite de marche. Aucun nom, profil ni effectif transmis. Les deux lieux doivent être dans le secteur pilote Grenoble ; la France entière n’est pas couverte.</p>
+<div id="passengerTransitFields" hidden><label for="passengerTransitWalk">Marche totale maximale pour la recherche collective (m)</label><input id="passengerTransitWalk" type="number" min="100" max="5000" step="any" value="1000"><p class="note">De 100 à 5 000 m, tous les accès compris. La limite impérative commune de marche reste applicable si elle est plus basse.</p><label for="passengerTransitTransfers">Correspondances au maximum (facultatif)</label><input id="passengerTransitTransfers" type="number" min="0" max="29" step="1"><label class="check"><input id="passengerTransitStrict" type="checkbox"> Appliquer ce maximum comme limite impérative</label></div>
+</fieldset>
 <label class="check"><input id="passengerAccessConsent" type="checkbox"> Rechercher ces lieux et calculer leurs accès à pied avec IGN</label>
 <p class="note">Les adresses renseignées sont transmises au géocodeur IGN, puis les coordonnées aux moteurs de calcul choisis. Aucun lieu personnel n’est enregistré sans l’action de conservation. La limite de marche s’applique au cumul des deux accès. Pentes, escaliers et état réel des chemins non vérifiés.</p>
 </div></fieldset><div id="multiModesHost"></div></dialog>
