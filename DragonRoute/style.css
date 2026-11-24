@@ -249,3 +249,13 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 /* Adopted multi-stop view shares the main stage while preserving its reference. */
 .multi-active{grid-column:1/-1;grid-row:1;min-width:0;min-height:0;display:grid;grid-template-columns:420px minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden}#multiActiveSheet p,#multiActiveSheet li{overflow-wrap:anywhere}#multiActiveSheet .dialog-actions{display:grid;grid-template-columns:minmax(0,1fr)}#multiActiveSheet h2{margin-top:20px}#multiActiveTitle:focus,#multiActiveMapTitle:focus,#multiAdoptTitle:focus{outline:2px solid var(--gold);outline-offset:3px}#multiActiveMapArea .multi-cartography{padding:12px;margin:0;display:flex;flex-direction:column;flex:1;min-height:0}#multiActiveMap{flex:1 0 300px;height:auto}#multiActiveMapArea .multi-cartography>.dialog-actions{flex:none}#multiActiveMapArea .multi-schema{flex:none}#multiActiveSheet .multi-map-list button{min-height:44px}#multiAdoptPanel{border:1px solid var(--blue);padding:14px;margin-top:14px}#multiAdoptPanel .dialog-actions{display:flex;flex-wrap:wrap}
 @media(max-width:800px){.multi-active{display:flex;flex-direction:column;overflow:visible;width:100%}#multiActiveSheet{order:0;overflow:visible;border-right:0}#multiActiveMapArea{order:1;overflow:visible}#multiActiveMap{flex:none;height:360px}#multiActiveMapArea .multi-cartography{flex:none}}
+#passengerViewDialog{width:min(760px,calc(100% - 32px));overflow-wrap:anywhere}
+#passengerViewDialog .dialog-heading{z-index:1100}
+#passengerViewMap,#passengerViewSvg{height:300px;width:100%;background:#142030;border:1px solid var(--line);border-radius:8px}
+#passengerViewSvg{display:block}
+#passengerViewMap .leaflet-tooltip{color:#172b46;background:#fff}
+#passengerViewSteps{display:grid;gap:8px;margin-block:16px}
+#passengerViewSteps button{white-space:normal;text-align:left;overflow-wrap:anywhere}
+#passengerViewSteps [aria-pressed="true"]{border:2px solid #80bdff}
+#passengerViewDialog .passenger-transit-details{margin-block:20px}
+@media(max-width:600px){#passengerViewMap,#passengerViewSvg{height:240px}}

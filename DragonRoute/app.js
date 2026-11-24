@@ -3205,6 +3205,7 @@ function comparisonRaw(){return {...Object.fromEntries(['travelers','departure',
 function comparisonSignature(includeLimits=true){return JSON.stringify({multi:multiModes?[multiModes.binding,JSON.stringify(multiActive?.plan),$('multiModeGroup').checked,...(multiModes.basis?.passenger?[$('multiPassengerWait').value,$('multiPassengerExit').value,passengerAccessRaw(),passengerTransitRaw()]:[])]:null,a:trip?.a,b:trip?.b,fields:['start','end','routeOptimization','routeVehicle','cons','fuel','budgetPrice','maxWalkKm','walkRule','stationDeparture','routeArriveBy',...comparisonFields.filter(id=>includeLimits||id!=='comparisonWalkLimit'),...(includeLimits?['comparisonWalkRule']:[])].map(id=>$(id).value),onlyBefore:$('routeOnlyBefore').checked,cycle:[$('comparisonCycle').checked,...(includeLimits?[$('comparisonCycleLimit').value,$('comparisonCycleRule').value]:[])],carbon:['routeCarbon','comparisonCarbon'].map(p=>prospectiveRaw(p)),avoid:[...document.querySelectorAll('.avoid-options input')].map(el=>[el.value,el.checked])})}
 function comparisonCarSettings(){const avoid=[...document.querySelectorAll('.avoid-options input:checked')].map(el=>el.value);return routingSettings($('routeVehicle').value,avoid)}
 function clearComparison(message=''){
+ closePassengerView(false);
  if(modalCarbonView?.source==='road')clearModalCarbon();$('roadModesOpen').hidden=true;$('roadModesNotice').textContent='';
  if(comparison?.running){comparison.cancelled=true;comparison.controller?.abort()}
  comparison=null;$('passengerTransitResults').replaceChildren();$('passengerTransitResults').hidden=true;$('comparisonCards').replaceChildren();$('comparisonExcluded').replaceChildren();$('comparisonExcludedWrap').hidden=true;$('comparisonTimingStatus').textContent='';$('comparisonContext').textContent='';$('comparisonSortWrap').hidden=true;
@@ -4399,31 +4400,37 @@ function clearTransitNetwork(message=''){
  transitNetworkView=null;$('transitNetwork').hidden=!message;$('transitNetworkStatus').textContent=message;$('transitNetworkBody').replaceChildren();$('transitNetworkCancel').hidden=true;
  for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=Boolean(transitJob);
 }
-function renderTransitNetwork(){
- const v=transitNetworkView;if(!v)return;const now=Date.now(),old=now-v.at>300000||now<v.at-60000,alertsOld=v.alerts&&(now-v.alerts.generated>600000||now<v.alerts.generated-60000);
+function renderTransitNetwork(v=transitNetworkView,prefix='transitNetwork'){
+ if(!v)return;const now=Date.now(),old=now-v.at>300000||now<v.at-60000,alertsOld=v.alerts&&(now-v.alerts.generated>600000||now<v.alerts.generated-60000);
  v.expiry=JSON.stringify([old,Boolean(alertsOld)]);
- $('transitNetworkStatus').textContent=`Option ${v.index+1} · consultation du ${transitClock(v.at)}. Les horaires et le classement restent théoriques.${v.waitNotice?' '+v.waitNotice:''}`;
+ $(prefix+'Status').textContent=`Option ${v.index+1} · consultation du ${transitClock(v.at)}. Les horaires et le classement restent théoriques.${v.waitNotice?' '+v.waitNotice:''}`;
  const boards=v.boards.map(b=>`<article class="network-board"><h4>${escapeHtml(b.leg.fromName)} · ligne ${escapeHtml(b.leg.line)}</h4><p class="note">Étape prévue le ${transitClock(b.leg.start)} vers ${escapeHtml(b.leg.direction)}.</p>${old?'<p class="network-warning">Consultation ancienne : passages retirés. Relancer volontairement la vérification.</p>':b.error?`<p class="network-warning">${escapeHtml(b.error)} Les horaires théoriques restent disponibles.</p>`:`<p class="network-warning">Actualisation non datée. Les estimations ci-dessous sont annoncées par le réseau ; leur fraîcheur n’est pas vérifiable.</p><p>${b.data.rows.some(r=>r.exact)?'Le service prévu est présent dans cette réponse.':'Le service prévu n’est pas identifié dans les prochains passages reçus. Cela ne prouve ni annulation ni circulation.'}</p><details><summary>Prochains passages reçus à cet arrêt (${b.data.rows.length}) · distincts du trajet prévu</summary>${b.data.rows.length?`<ul>${b.data.rows.map(r=>`<li><strong>${r.cancelled?'Annulation annoncée':r.predicted!==null?'Passage annoncé':'Horaire théorique'} · ${transitClock(r.predicted??r.scheduled)}</strong><br>Prévu : ${transitClock(r.scheduled)} · direction ${escapeHtml(r.direction)}${r.exact?'<br>Même service et même horaire que l’étape prévue.':''}${r.delay!==null&&r.delay!==0?`<br>${r.delay>0?'Retard':'Avance'} annoncé : ${networkDelay(r.delay)}, actualisation non datée.`:''}${r.cancelled?'<br>Annulation à confirmer auprès du réseau, date de mise à jour non fournie.':''}</li>`).join('')}</ul>`:'<p>Aucun prochain passage exploitable dans la réponse. Aucun départ de remplacement inventé.</p>'}${b.data.extra?`<p class="note">${b.data.extra} autre(s) passage(s) non affiché(s).</p>`:''}${b.data.rejected?`<p class="note">${b.data.rejected} élément(s) non vérifiable(s) écarté(s).</p>`:''}</details>`}</article>`).join('');
  const list=items=>items.map(a=>`<article class="network-alert"><h4>${escapeHtml(a.title)}</h4><p>${escapeHtml(a.text)}</p>${a.link?`<a href="${escapeHtml(a.link)}" target="_blank" rel="noopener noreferrer">Annonce originale du réseau</a>`:''}</article>`).join('');
  let alerts=v.alertError?`<p class="network-warning">${escapeHtml(v.alertError)} Perturbations non vérifiées.</p>`:'';
  if(v.alerts){const matched=v.alerts.items.filter(x=>x.matched),others=v.alerts.items.filter(x=>!x.matched);alerts=alertsOld?'<p class="network-warning">Flux de perturbations ancien : annonces retirées. Relancer la consultation.</p>':`<p class="note">Flux généré le ${transitClock(v.alerts.generated)}. Les annonces ci-dessous recouvrent la période de l’option ; la date d’actualisation de chaque annonce n’est pas fournie.</p>${matched.length?`<h4>Annonces concernant une ligne ou un arrêt du trajet (${matched.length})</h4><p class="network-warning">Portée de l’annonce à vérifier ; aucune interruption ou correspondance recalculée automatiquement.</p>${list(matched)}`:'<p class="network-warning">Perturbations du trajet non vérifiées : aucune annonce ne peut lui être attribuée avec certitude. Cela ne signifie pas « aucune perturbation ».</p>'}<details><summary>Annonces du réseau pour cette période (${others.length}) · non attribuées au trajet</summary>${list(others)||'<p>Aucune annonce exploitable dans cette réponse pour cette période.</p>'}</details>${v.alerts.rejected?`<p class="note">${v.alerts.rejected} annonce(s) au format non qualifié écartée(s).</p>`:''}`}
- $('transitNetworkBody').innerHTML=`${v.more?`<p class="network-warning">Vérification limitée aux trois premières étapes collectives ; ${v.more} autre(s) étape(s) non vérifiée(s).</p>`:''}${boards}<h3>Perturbations du réseau</h3>${alerts}<p class="note">Source : <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · données ODbL</a>. Consultation ponctuelle, sans suivi automatique. <a href="https://www.mobilites-m.fr/" target="_blank" rel="noopener noreferrer">Vérifier auprès du réseau</a>.</p>`;
+ $(prefix+'Body').innerHTML=`${v.more?`<p class="network-warning">Vérification limitée aux trois premières étapes collectives ; ${v.more} autre(s) étape(s) non vérifiée(s).</p>`:''}${boards}<h3>Perturbations du réseau</h3>${alerts}<p class="note">Source : <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · données ODbL</a>. Consultation ponctuelle, sans suivi automatique. <a href="https://www.mobilites-m.fr/" target="_blank" rel="noopener noreferrer">Vérifier auprès du réseau</a>.</p>`;
 }
 async function loadTransitNetwork(index){
  const route=transitRoutes[index];if(!Number.isInteger(index)||!route||transitJob||busy||transitNetworkJob)return;
  try{serviceWaitGuard('transit')}catch(e){if(transitNetworkView?.index===index){transitNetworkView.waitNotice=e.message;renderTransitNetwork()}else{clearTransitNetwork();$('transitNetwork').hidden=false;$('transitNetworkStatus').textContent=`Option ${index+1} demandée. `+e.message}return}
  if(Date.now()<transitNetworkNext){clearTransitNetwork();$('transitNetwork').hidden=false;$('transitNetworkStatus').textContent='Patienter quelques secondes avant une nouvelle consultation.';return}
  clearTransitNetwork();const job={controller:new AbortController(),cancelled:false},current=()=>transitNetworkJob===job&&!job.cancelled&&transitRoutes[index]===route;
- transitNetworkJob=job;transitNetworkNext=Date.now()+10000;const v={index,at:Date.now(),boards:[],alerts:null,alertError:'',more:Math.max(0,route.legs.filter(l=>l.mode!=='WALK').length-3)};
- $('transitNetwork').hidden=false;$('transitNetworkStatus').textContent='Consultation du réseau…';$('transitNetworkCancel').hidden=false;for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=true;
- $('transitNetworkTitle').focus();let quota=null;const timer=setTimeout(()=>job.controller.abort(),30000);
+ transitNetworkJob=job;transitNetworkNext=Date.now()+10000;$('transitNetwork').hidden=false;$('transitNetworkStatus').textContent='Consultation du réseau…';$('transitNetworkCancel').hidden=false;for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=true;
+ $('transitNetworkTitle').focus();
+ try{const v=await readTransitNetwork(route,index,job,current);if(current()&&v){transitNetworkView=v;renderTransitNetwork()}}
+ finally{if(current()){transitNetworkJob=null;$('transitNetworkCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=false}}
+}
+async function readTransitNetwork(route,index,job,current){
+ const v={index,at:Date.now(),boards:[],alerts:null,alertError:'',more:Math.max(0,route.legs.filter(l=>l.mode!=='WALK').length-3)};
+
+ let quota=null;const timer=setTimeout(()=>job.controller.abort(),30000);
  async function get(path){
   if(quota)throw new Error(quota+' Aucun autre appel effectué.');
   serviceWaitGuard('transit');if(job.controller.signal.aborted||!current())throw new DOMException('Consultation interrompue.','AbortError');
   const r=await fetch('https://data.mobilites-m.fr/api/'+path,{signal:job.controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
   if(job.controller.signal.aborted||!current())throw new DOMException('Consultation interrompue.','AbortError');
   try{serviceWaitResponse('transit',r)}catch(e){quota=e.message;v.waitNotice=e.message;throw e}
-  if(!r.ok)throw new Error('Information du réseau indisponible.');const text=await r.text();if(text.length>2e6)throw new Error('Réponse du réseau trop volumineuse.');try{return JSON.parse(text)}catch{throw new Error('Réponse du réseau illisible.')}
+  if(!r.ok)throw new Error('Information du réseau indisponible.');const text=await r.text();if(job.controller.signal.aborted||!current())throw new DOMException('Consultation interrompue.','AbortError');if(text.length>2e6)throw new Error('Réponse du réseau trop volumineuse.');try{return JSON.parse(text)}catch{throw new Error('Réponse du réseau illisible.')}
  }
  try{
   let catalog,catalogError;try{catalog=await get('routers/default/index/routes')}catch(e){catalogError=e.name==='AbortError'?'Consultation interrompue ou délai dépassé.':e.message}
@@ -4432,8 +4439,8 @@ async function loadTransitNetwork(index){
    try{if(catalogError)throw new Error(catalogError);if(!leg.stopId)throw new Error('Identifiant d’arrêt non qualifié.');const line=networkLine(catalog,leg),raw=await get('routers/default/index/stops/'+encodeURIComponent(leg.stopId)+'/stoptimes?'+new URLSearchParams({route:line.id,showCancelledTrips:'true'}));if(!current())return;v.boards.push({leg,data:networkDepartures(raw,line,leg,Date.now())})}catch(e){if(!current())return;v.boards.push({leg,error:e.name==='AbortError'?'Le réseau n’a pas répondu à temps.':e.message})}
   }
   try{const raw=await get('gtfs/realtime/alert/SMA?json=true');if(!current())return;v.alerts=networkAlerts(raw,route,Date.now())}catch(e){v.alertError=e.name==='AbortError'?'Le réseau n’a pas répondu à temps.':e.message}
-  if(current()){transitNetworkView=v;renderTransitNetwork()}
- }finally{clearTimeout(timer);if(current()){transitNetworkJob=null;$('transitNetworkCancel').hidden=true;for(const b of document.querySelectorAll('[data-transit-network]'))b.disabled=false}}
+  return current()?v:null;
+ }finally{clearTimeout(timer)}
 }
 function refreshTransitNetwork(){if(!transitNetworkView)return;const v=transitNetworkView,now=Date.now(),expiry=JSON.stringify([now-v.at>300000||now<v.at-60000,Boolean(v.alerts&&(now-v.alerts.generated>600000||now<v.alerts.generated-60000))]);if(expiry!==v.expiry)renderTransitNetwork()}
 
@@ -4664,6 +4671,7 @@ function refreshRoadModes(){
 }
 function modalCarbonSignature(source=modalCarbonView?.source){return JSON.stringify([source==='road'?comparison?.limitContextSignature:transitLimitContextSignature(),$('fuel').value,$('routeVehicle').value])}
 function clearModalCarbon(focus=false){
+ if(passengerView?.fromCommon)closePassengerView(false);
  const road=modalCarbonView?.source==='road';
  clearModalPriorities();clearModalBudgets();
  modalCarbonView=null;
@@ -6923,9 +6931,9 @@ async function loadPassengerTransit(op){
  }catch(e){if(current()){t.status='unavailable';t.error=e.name==='AbortError'?'Le service collectif n’a pas répondu à temps. Les autres modes restent disponibles.':e.message;}}
  finally{clearTimeout(timer);op.controller.signal.removeEventListener('abort',abort);if(current()&&t.status==='pending'){t.status='unavailable';t.error='Recherche collective interrompue ; relancer volontairement.';}}
 }
-function passengerTransitDetails(r,q,index){
+function passengerTransitDetails(r,q,index,withMap=true){
  if(!r||!q)return '';const h=escapeHtml;
- return `<details class="passenger-transit-details" data-passenger-option="${index}"><summary>Étapes et horaires · option ${index+1}</summary><p>${transitClock(r.start)} → ${transitClock(r.end)} (Paris). ${r.transfers} correspondance(s), ${Math.ceil(r.walk)} m de marche au total.</p><p>Attente avant la première étape : ${transitMinutes((r.start-q.instant)/1000)}. En chemin : ${transitMinutes(r.duration)}, dont ${transitMinutes(r.waiting)} d’attente.</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${h(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${h(l.line)}`}</strong><br>${h(l.fromName)} → ${h(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${h(l.direction)} · ${h(l.agency)}`}</li>`).join('')}</ol><p>Prix total du groupe inconnu. Accessibilité, bagages, vélo à bord et places non vérifiés. Horaires théoriques ; retards et perturbations non consultés.</p><p class="note">Consultation : ${transitClock(q.now)}. <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · ODbL</a> · <a href="https://www.mobilites-m.fr/" target="_blank" rel="noopener noreferrer">Vérifier auprès du réseau</a>.</p></details>`;
+ return `<details class="passenger-transit-details" data-passenger-option="${index}"><summary>Étapes et horaires · option ${index+1}</summary><p>${transitClock(r.start)} → ${transitClock(r.end)} (Paris). ${r.transfers} correspondance(s), ${Math.ceil(r.walk)} m de marche au total.</p><p>Attente avant la première étape : ${transitMinutes((r.start-q.instant)/1000)}. En chemin : ${transitMinutes(r.duration)}, dont ${transitMinutes(r.waiting)} d’attente.</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${h(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${h(l.line)}`}</strong><br>${h(l.fromName)} → ${h(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${h(l.direction)} · ${h(l.agency)}`}</li>`).join('')}</ol><p>Prix total du groupe inconnu. Accessibilité, bagages, vélo à bord et places non vérifiés. Horaires théoriques. Les informations réseau se consultent séparément, à la demande.</p><p class="note">Consultation : ${transitClock(q.now)}. <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · ODbL</a> · <a href="https://www.mobilites-m.fr/" target="_blank" rel="noopener noreferrer">Vérifier auprès du réseau</a>.</p></details>${withMap?`<button type="button" class="secondary" data-passenger-map="${index}">Carte et infos réseau · option ${index+1}</button>`:''}`;
 }
 function renderPassengerTransit(op){
  const target=$('passengerTransitResults'),t=op.passengerTransit;target.hidden=!t?.enabled||op.cancelled;if(target.hidden){target.replaceChildren();return}
@@ -6935,7 +6943,85 @@ function renderPassengerTransit(op){
  target.innerHTML='<h3>Transports collectifs · mêmes passagers</h3><p>Départ commun, accès, attente initiale et correspondances inclus. Les tarifs ne sont pas fournis ; aucun billet ni place réservés.</p>'+rows.map(r=>'<article class="comparison-card" data-passenger-transit="'+r.index+'" data-state="'+r.status+'"><h4>'+escapeHtml(r.label)+'</h4><p>'+ (Number.isFinite(r.elapsed)?transitMinutes(r.elapsed)+' du départ demandé à l’arrivée. ':'')+escapeHtml(r.reason||'Horaires théoriques qualifiés pour cette demande.')+'</p>'+passengerTransitDetails(t.routes[r.index],t.q,r.index)+'</article>').join('')+(t.excluded?'<p>'+t.excluded+' proposition(s) écartée(s) : marche seule, doublon, limite ou données non qualifiées.</p>':'');
  for(const i of open){const d=target.querySelector('[data-passenger-transit="'+i+'"] details');if(d)d.open=true;}if(focus!==undefined)target.querySelector('[data-passenger-transit="'+focus+'"] summary')?.focus({preventScroll:true});
 }
-function refreshPassengerTransit(){const op=comparison;if(!op||op.running||op.cancelled||!op.passengerTransit?.enabled)return;if(op.signature!==comparisonSignature()){comparisonChanged();return}renderPassengerTransit(op);}
+function refreshPassengerTransit(){const op=comparison;if(!op||op.running||op.cancelled||!op.passengerTransit?.enabled)return;if(op.signature!==comparisonSignature()){comparisonChanged();return}renderPassengerTransit(op);refreshPassengerView();}
+
+
+// A passenger inspection owns its map and requests; it never replaces the driver or the standalone transit context.
+let passengerView=null;
+function passengerViewCurrent(v=passengerView){return !!v&&passengerView===v&&comparison===v.op&&!v.op.cancelled&&!v.op.running&&v.op.signature===comparisonSignature()&&v.op.passengerTransit.routes[v.index]===v.route}
+function cancelPassengerNetwork(message=''){
+ const v=passengerView;if(!v)return;if(v.job){v.job.cancelled=true;v.job.controller.abort();v.job=null}v.network=null;
+ $('passengerViewNetworkStatus').textContent=message;$('passengerViewNetworkBody').replaceChildren();$('passengerViewCancel').hidden=true;$('passengerViewConsult').disabled=false;
+}
+function disposePassengerMap(v){v.observer?.disconnect();v.observer=null;if(v.map){v.map.remove();v.map=null}v.tiles=null;v.layers=[];v.points=null;}
+function closePassengerView(focus=true){
+ const v=passengerView;if(!v)return;cancelPassengerNetwork();disposePassengerMap(v);passengerView=null;$('passengerViewDialog').close();
+ for(const id of ['passengerViewDetails','passengerViewSteps','passengerViewSvg'])$(id).replaceChildren();
+ if(focus){const parent=$(v.fromCommon?'modalCarbonTables':'passengerTransitResults'),button=v.trigger?.isConnected?v.trigger:parent.querySelector('[data-passenger-map="'+v.originIndex+'"]');button?.focus({preventScroll:true})}
+}
+function refreshPassengerView(){
+ const v=passengerView;if(!v)return;if(!passengerViewCurrent(v)){closePassengerView(false);return}
+ const row=passengerTransitRows(v.op,Date.now()).find(r=>r.index===v.index);
+ $('passengerViewReference').textContent=(row?.status==='ready'?'Option disponible pour cette demande. ':'Référence hors critères. ')+(row?.reason||'Horaires théoriques, correspondances non garanties.');
+ if(v.network){const n=v.network,now=Date.now(),expiry=JSON.stringify([now-n.at>300000||now<n.at-60000,Boolean(n.alerts&&(now-n.alerts.generated>600000||now<n.alerts.generated-60000))]);if(expiry!==n.expiry)renderTransitNetwork(n,'passengerViewNetwork')}
+}
+function passengerViewStep(index){
+ const v=passengerView;if(!passengerViewCurrent(v)){closePassengerView(false);return}const all=index===-1,l=v.route.legs[index];if(!all&&!l)return;v.step=index;
+ for(const b of $('passengerViewSteps').querySelectorAll('button'))b.setAttribute('aria-pressed',String(Number(b.dataset.passengerStep)===index));
+ $('passengerViewStepStatus').textContent=all?'Ensemble des étapes reçues.':`Étape ${index+1} : ${TRANSIT_MODES[l.mode]} · ${l.fromName} → ${l.toName}. ${transitClock(l.start)} — ${transitClock(l.end)}.`;
+ for(const [i,layer] of (v.layers||[]).entries())layer.setStyle({weight:all||i===index?6:4,opacity:all||i===index?1:.45});
+ for(const line of $('passengerViewSvg').querySelectorAll('polyline')){line.setAttribute('opacity',all||Number(line.dataset.leg)===index?'1':'.45');line.setAttribute('stroke-width',all||Number(line.dataset.leg)===index?'5':'3')}
+ if(v.map&&v.points)v.map.fitBounds(all?v.points:l.points,{padding:[24,24],maxZoom:17});
+}
+function drawPassengerMap(){
+ const v=passengerView,r=v.route;disposePassengerMap(v);v.step=-1;$('passengerViewTiles').checked=false;$('passengerViewTiles').disabled=true;
+ $('passengerViewMap').hidden=true;const svg=$('passengerViewSvg');svg.setAttribute('hidden','');svg.replaceChildren();
+ $('passengerViewSteps').innerHTML='<button type="button" data-passenger-step="-1" aria-pressed="true">Toutes les étapes</button>'+r.legs.map((l,i)=>`<button type="button" data-passenger-step="${i}" aria-pressed="false">${i+1}. ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?'':' '+escapeHtml(l.line)} · ${escapeHtml(l.fromName)} → ${escapeHtml(l.toName)}</button>`).join('');
+ $('passengerViewStepStatus').textContent='Ensemble des étapes reçues.';
+ const points=r.legs.every(l=>l.points?.length>1)?r.legs.flatMap(l=>l.points):null;
+ if(!points||points.length>16000){$('passengerViewMapNote').textContent='Tracé complet indisponible : une géométrie reçue manque ou dépasse la limite. Les étapes et horaires restent consultables ; aucun segment n’est inventé.';return}
+ v.points=points;
+ if(window.L){try{
+  $('passengerViewMap').hidden=false;v.map=L.map('passengerViewMap',{scrollWheelZoom:false});v.layers=[];
+  for(const l of r.legs){L.polyline(l.points,{color:'#fff',weight:10,opacity:1,interactive:false}).addTo(v.map);v.layers.push(L.polyline(l.points,{color:l.mode==='WALK'?'#6941c6':'#0966d5',weight:6,opacity:1,dashArray:l.mode==='WALK'?'5 7':null,interactive:false}).addTo(v.map));}
+  for(const [p,label]of [[r.legs[0].from,'Départ des passagers'],[r.legs.at(-1).to,'Arrivée des passagers']]){const labelNode=document.createElement('span');labelNode.textContent=label;L.circleMarker(p,{radius:7,color:'#142c4f',fillColor:'#fff',fillOpacity:1}).addTo(v.map).bindTooltip(labelNode);}
+  v.observer=new ResizeObserver(()=>{if(passengerView===v&&v.map){v.map.invalidateSize();v.map.fitBounds(v.step===-1?points:v.route.legs[v.step].points,{padding:[24,24],maxZoom:17})}});v.observer.observe($('passengerViewMap'));v.map.fitBounds(points,{padding:[24,24],maxZoom:17});
+  $('passengerViewTiles').disabled=false;$('passengerViewMapNote').textContent='Tracé reçu : bleu pour les transports, violet discontinu pour la marche. Fond de carte désactivé ; les étapes restent disponibles ci-dessous.';return;
+ }catch{disposePassengerMap(v);$('passengerViewMap').hidden=true;v.points=points}}
+ svg.removeAttribute('hidden');const xs=points.map(p=>p[1]),ys=points.map(p=>p[0]),minX=Math.min(...xs),minY=Math.min(...ys),dx=Math.max(...xs)-minX||.001,dy=Math.max(...ys)-minY||.001;
+ r.legs.forEach((l,i)=>{const line=document.createElementNS('http://www.w3.org/2000/svg','polyline');line.dataset.leg=i;line.setAttribute('points',l.points.map(p=>[20+(p[1]-minX)/dx*460,280-(p[0]-minY)/dy*260].join(',')).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke',l.mode==='WALK'?'#d2b8ff':'#80bdff');line.setAttribute('stroke-width','5');if(l.mode==='WALK')line.setAttribute('stroke-dasharray','5 7');svg.append(line)});
+ $('passengerViewMapNote').textContent='Fond de carte indisponible. Schéma des tracés reçus, sans échelle : bleu pour les transports, violet discontinu pour la marche.';
+}
+function selectPassengerView(index){
+ const v=passengerView;if(!passengerViewCurrent(v)){closePassengerView(false);return}const r=v.op.passengerTransit.routes[index];if(!Number.isInteger(index)||!r)return;
+ cancelPassengerNetwork();v.index=index;v.route=r;$('passengerViewOption').value=String(index);$('passengerViewTitle').textContent='Parcours collectif · option '+(index+1);
+ $('passengerViewDetails').innerHTML=passengerTransitDetails(r,v.op.passengerTransit.q,index,false);$('passengerViewDetails').querySelector('details').open=true;
+ drawPassengerMap();refreshPassengerView();
+}
+function openPassengerView(index,trigger){
+ const op=comparison,r=op?.passengerTransit?.routes[index];if(busy||op?.running||op?.cancelled||!r||!Number.isInteger(index)||op.signature!==comparisonSignature())return;
+ closePassengerView(false);passengerView={op,index,route:r,originIndex:index,trigger,fromCommon:!!trigger.closest('#roadModesDialog'),job:null,network:null,map:null};
+ $('passengerViewOption').innerHTML=op.passengerTransit.routes.map((_,i)=>`<option value="${i}">Option ${i+1}</option>`).join('');$('passengerViewDialog').showModal();selectPassengerView(index);$('passengerViewTitle').focus();
+}
+async function loadPassengerNetwork(){
+ const v=passengerView;if(!passengerViewCurrent(v)){closePassengerView(false);return}if(v.job||busy)return;
+ try{serviceWaitGuard('transit');if(Date.now()<transitNetworkNext)throw Error('Patienter quelques secondes avant une nouvelle consultation.');}
+ catch(e){$('passengerViewNetworkStatus').textContent=e.message;return}
+ cancelPassengerNetwork();const route=v.route,index=v.index,job={controller:new AbortController(),cancelled:false};v.job=job;transitNetworkNext=Date.now()+10000;
+ const current=()=>passengerViewCurrent(v)&&v.job===job&&!job.cancelled&&v.index===index&&v.route===route;
+ $('passengerViewConsult').disabled=true;$('passengerViewCancel').hidden=false;$('passengerViewNetworkStatus').textContent='Consultation du réseau…';$('passengerViewNetworkTitle').focus();
+ try{const n=await readTransitNetwork(route,index,job,current);if(current()&&n){v.network=n;renderTransitNetwork(n,'passengerViewNetwork')}}
+ finally{if(current()){v.job=null;$('passengerViewConsult').disabled=false;$('passengerViewCancel').hidden=true}}
+}
+function bindPassengerView(){
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-passenger-map]');if(b)openPassengerView(Number(b.dataset.passengerMap),b)});
+ $('passengerViewClose').addEventListener('click',()=>closePassengerView());$('passengerViewDialog').addEventListener('cancel',e=>{e.preventDefault();closePassengerView()});$('passengerViewDialog').addEventListener('close',()=>{if(!$('passengerViewDialog').open)closePassengerView()});
+ $('passengerViewOption').addEventListener('change',e=>selectPassengerView(Number(e.target.value)));
+ $('passengerViewSteps').addEventListener('click',e=>{const b=e.target.closest('[data-passenger-step]');if(b)passengerViewStep(Number(b.dataset.passengerStep))});
+ $('passengerViewConsult').addEventListener('click',loadPassengerNetwork);$('passengerViewCancel').addEventListener('click',()=>{cancelPassengerNetwork('Consultation annulée.');$('passengerViewConsult').focus()});
+ $('passengerViewTiles').addEventListener('change',()=>{const v=passengerView;if(!passengerViewCurrent(v)){closePassengerView(false);return}if(!v.map)return;if($('passengerViewTiles').checked){const tiles=L.tileLayer(C.tileUrl,{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'});v.tiles=tiles;tiles.on('tileerror',()=>{if(passengerView===v&&v.tiles===tiles)$('passengerViewMapNote').textContent='Fond OpenStreetMap indisponible en tout ou partie. Les tracés reçus restent affichés.'});tiles.addTo(v.map);}else if(v.tiles){v.map.removeLayer(v.tiles);v.tiles=null;$('passengerViewMapNote').textContent='Fond de carte désactivé. Les tracés reçus restent affichés.'}});
+ setInterval(refreshPassengerView,30000);document.addEventListener('visibilitychange',refreshPassengerView);window.addEventListener('focus',refreshPassengerView);
+}
 
 
 function passengerAccessRaw(){return {enabled:!!multiModes?.basis?.passenger&&$('passengerAccessEnabled').checked,start:$('passengerAccessStart').value.trim(),end:$('passengerAccessEnd').value.trim(),sameStart:$('passengerAccessSameStart').checked,sameEnd:$('passengerAccessSameEnd').checked,consent:$('passengerAccessConsent').checked}}
@@ -6993,7 +7079,7 @@ function bindMultiModes(){
  $('multiModesTiming').addEventListener('click',()=>{closeMultiModes(false);multiOpenActive();multiTimingStart()});
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();
+loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();bindPassengerView();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
