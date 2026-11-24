@@ -382,7 +382,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 9310e72 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 39c37f0 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -932,5 +932,21 @@
 <p class="note">Les adresses renseignées sont transmises au géocodeur IGN, puis les coordonnées aux moteurs de calcul choisis. Aucun lieu personnel n’est enregistré sans l’action de conservation. La limite de marche s’applique au cumul des deux accès. Pentes, escaliers et état réel des chemins non vérifiés.</p>
 </div></fieldset><div id="multiModesHost"></div></dialog>
 <dialog id="roadModesDialog" aria-labelledby="roadModesTitle"><div class="dialog-heading"><h2 id="roadModesTitle">Comparer les modes</h2><button id="roadModesClose" type="button" class="icon-btn" aria-label="Fermer la comparaison des modes">×</button></div><div id="roadModesHost"></div></dialog>
+<dialog id="passengerViewDialog" aria-labelledby="passengerViewTitle">
+<div class="dialog-heading"><h2 id="passengerViewTitle" tabindex="-1">Parcours collectif</h2><button type="button" id="passengerViewClose" class="icon-btn" aria-label="Fermer le parcours collectif">×</button></div>
+<p>Alternative des passagers · le trajet du conducteur reste inchangé.</p>
+<label for="passengerViewOption">Option collective à consulter</label><select id="passengerViewOption"></select>
+<p id="passengerViewReference" role="status"></p>
+<div id="passengerViewMap" role="region" aria-label="Tracé collectif des passagers" hidden></div>
+<svg id="passengerViewSvg" viewBox="0 0 500 300" role="img" aria-label="Schéma des étapes collectives reçues, sans échelle" hidden></svg>
+<p id="passengerViewMapNote" class="note"></p>
+<label class="check"><input type="checkbox" id="passengerViewTiles"> Afficher le fond OpenStreetMap</label><p class="note">Cette action transmet la zone affichée au serveur de cartes OpenStreetMap. Les horaires et les tracés reçus sont consultables sans ce fond.</p>
+<div id="passengerViewSteps" aria-label="Examiner les étapes sur la carte"></div><p id="passengerViewStepStatus" role="status"></p>
+<div id="passengerViewDetails"></div>
+<section aria-labelledby="passengerViewNetworkTitle"><h3 id="passengerViewNetworkTitle" tabindex="-1">Informations du réseau</h3>
+<p>À la demande, les identifiants des lignes et arrêts sont transmis à Mobilités M. Les prochains passages et annonces restent distincts des horaires théoriques. Ils ne modifient pas la comparaison et ne sont pas enregistrés dans les souvenirs.</p>
+<button type="button" id="passengerViewConsult" class="ghost">Consulter les infos réseau</button><button type="button" id="passengerViewCancel" class="ghost" hidden>Annuler la consultation</button>
+<p id="passengerViewNetworkStatus" role="status"></p><div id="passengerViewNetworkBody"></div></section>
+</dialog>
 </body>
 </html>
