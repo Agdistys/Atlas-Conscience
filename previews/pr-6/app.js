@@ -734,7 +734,7 @@ function bindJournal(){
  $('carbonCalculate').addEventListener('change',updateCarbonPreview);$('carbonFactor').addEventListener('change',updateCarbonPreview);$('journalMode').addEventListener('change',updateCarbonPreview);
  $('journalExportLegacy').addEventListener('click',()=>{if(journalLegacySnapshot!==null){try{downloadProfile(JSON.parse(journalLegacySnapshot),'DragonRoute-journal-origine.json')}catch{$('journalMessage').textContent='Ancienne copie illisible, conservée dans le navigateur.'}}});
  $('journalCancel').addEventListener('click',()=>{journalDraft=null;$('journalEditor').hidden=true;$('journalNew').focus()});
- $('journalDialog').addEventListener('close',()=>{pendingCollectiveJournal=null;pendingCycleJournal=null;journalDraft=null;$('journalEditor').hidden=true;if(!document.querySelector('dialog[open]'))$('journalBtn').focus()});
+ $('journalDialog').addEventListener('close',()=>{pendingCollectiveJournal=null;pendingCycleJournal=null;journalDraft=null;$('journalEditor').hidden=true;$('journalPassengerScope').hidden=true;if(!restorePassengerJournalFocus()&&!document.querySelector('dialog[open]'))$('journalBtn').focus()});
  $('journalEntries').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const e=journal.entries.find(x=>x.id===(b.dataset.journalEdit||b.dataset.journalDelete));if(!e)return;if(b.dataset.journalEdit)journalForm(e);else if(confirm('Supprimer ce trajet confirmé ? Le bilan sera recalculé.')&&writeJournal({...journal,entries:journal.entries.filter(x=>x.id!==e.id)})){journalDraft=null;$('journalEditor').hidden=true;renderJournal();$('journalMessage').textContent='Trajet supprimé. Bilan recalculé.'}});
  $('journalExport').addEventListener('click',()=>{if(!journalBlocked)downloadProfile(journal,'DragonRoute-journal.json')});
  $('journalErase').addEventListener('click',()=>{
@@ -6933,7 +6933,7 @@ async function loadPassengerTransit(op){
 }
 function passengerTransitDetails(r,q,index,withMap=true){
  if(!r||!q)return '';const h=escapeHtml;
- return `<details class="passenger-transit-details" data-passenger-option="${index}"><summary>Étapes et horaires · option ${index+1}</summary><p>${transitClock(r.start)} → ${transitClock(r.end)} (Paris). ${r.transfers} correspondance(s), ${Math.ceil(r.walk)} m de marche au total.</p><p>Attente avant la première étape : ${transitMinutes((r.start-q.instant)/1000)}. En chemin : ${transitMinutes(r.duration)}, dont ${transitMinutes(r.waiting)} d’attente.</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${h(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${h(l.line)}`}</strong><br>${h(l.fromName)} → ${h(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${h(l.direction)} · ${h(l.agency)}`}</li>`).join('')}</ol><p>Prix total du groupe inconnu. Accessibilité, bagages, vélo à bord et places non vérifiés. Horaires théoriques. Les informations réseau se consultent séparément, à la demande.</p><p class="note">Consultation : ${transitClock(q.now)}. <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · ODbL</a> · <a href="https://www.mobilites-m.fr/" target="_blank" rel="noopener noreferrer">Vérifier auprès du réseau</a>.</p></details>${withMap?`<button type="button" class="ghost" data-passenger-map="${index}">Carte et infos réseau · option ${index+1}</button>`:''}`;
+ return `<details class="passenger-transit-details" data-passenger-option="${index}"><summary>Étapes et horaires · option ${index+1}</summary><p>${transitClock(r.start)} → ${transitClock(r.end)} (Paris). ${r.transfers} correspondance(s), ${Math.ceil(r.walk)} m de marche au total.</p><p>Attente avant la première étape : ${transitMinutes((r.start-q.instant)/1000)}. En chemin : ${transitMinutes(r.duration)}, dont ${transitMinutes(r.waiting)} d’attente.</p><ol class="transit-legs">${r.legs.map(l=>`${l.wait?`<li>Attendre ${transitMinutes(l.wait)} à ${h(l.fromName)}</li>`:''}<li><strong>${transitClock(l.start)} — ${transitClock(l.end)} · ${TRANSIT_MODES[l.mode]}${l.mode==='WALK'?` · ${Math.ceil(l.distance)} m`:` ${h(l.line)}`}</strong><br>${h(l.fromName)} → ${h(l.toName)}${l.mode==='WALK'?'':`<br>Direction : ${h(l.direction)} · ${h(l.agency)}`}</li>`).join('')}</ol><p>Prix total du groupe inconnu. Accessibilité, bagages, vélo à bord et places non vérifiés. Horaires théoriques. Les informations réseau se consultent séparément, à la demande.</p><p class="note">Consultation : ${transitClock(q.now)}. <a href="https://data.mobilites-m.fr/donnees" target="_blank" rel="noopener noreferrer">Mobilités M / SMMAG · ODbL</a> · <a href="https://www.mobilites-m.fr/" target="_blank" rel="noopener noreferrer">Vérifier auprès du réseau</a>.</p></details>${withMap?`<button type="button" class="ghost" data-passenger-map="${index}">Carte et infos réseau · option ${index+1}</button>`:''}<button type="button" class="ghost" data-passenger-journal="${index}">Préparer mon journal · option ${index+1}</button>`;
 }
 function renderPassengerTransit(op){
  const target=$('passengerTransitResults'),t=op.passengerTransit;target.hidden=!t?.enabled||op.cancelled;if(target.hidden){target.replaceChildren();return}
@@ -6947,7 +6947,25 @@ function refreshPassengerTransit(){const op=comparison;if(!op||op.running||op.ca
 
 
 // A passenger inspection owns its map and requests; it never replaces the driver or the standalone transit context.
-let passengerView=null;
+let passengerView=null,passengerJournalReturn=null;
+function journalFromPassengerTransit(index,trigger){
+ const op=comparison,t=op?.passengerTransit,r=t?.routes[index];
+ if(busy||$('journalDialog').open||op?.running||op?.cancelled||!r||!Number.isInteger(index)||!t.at||!op.source?.places||op.signature!==comparisonSignature())return;
+ const v=passengerView,fromMap=!!trigger.closest('#passengerViewDialog');
+ if(fromMap&&(!passengerViewCurrent(v)||v.index!==index))return;
+ const draft=collectiveJournalDraft(r,op.source.places,t.at);
+ // Keep a return target, never the comparison group or its carbon estimates.
+ passengerJournalReturn={op,index:fromMap?v.originIndex:index,trigger:fromMap?v.trigger:trigger,
+  parent:fromMap?(v.fromCommon?'modalCarbonTables':'passengerTransitResults'):(trigger.closest('#modalCarbonTables')?'modalCarbonTables':'passengerTransitResults'),action:fromMap?'map':'journal'};
+ closePassengerView(false);offerCollectiveJournal(draft);$('journalPassengerScope').hidden=false;
+}
+function restorePassengerJournalFocus(){
+ const v=passengerJournalReturn;passengerJournalReturn=null;
+ if(!v||comparison!==v.op||v.op.cancelled)return false;
+ const target=v.trigger?.isConnected?v.trigger:$(v.parent).querySelector('[data-passenger-'+v.action+'="'+v.index+'"]');
+ if(!target||!target.closest('dialog')?.open)return false;
+ target.focus({preventScroll:true});return document.activeElement===target;
+}
 function passengerViewCurrent(v=passengerView){return !!v&&passengerView===v&&comparison===v.op&&!v.op.cancelled&&!v.op.running&&v.op.signature===comparisonSignature()&&v.op.passengerTransit.routes[v.index]===v.route}
 function cancelPassengerNetwork(message=''){
  const v=passengerView;if(!v)return;if(v.job){v.job.cancelled=true;v.job.controller.abort();v.job=null}v.network=null;
@@ -7014,7 +7032,7 @@ async function loadPassengerNetwork(){
  finally{if(current()){v.job=null;$('passengerViewConsult').disabled=false;$('passengerViewCancel').hidden=true}}
 }
 function bindPassengerView(){
- document.addEventListener('click',e=>{const b=e.target.closest('[data-passenger-map]');if(b)openPassengerView(Number(b.dataset.passengerMap),b)});
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-passenger-map]');if(b)openPassengerView(Number(b.dataset.passengerMap),b);const j=e.target.closest('[data-passenger-journal]');if(j)journalFromPassengerTransit(Number(j.dataset.passengerJournal),j)});
  $('passengerViewClose').addEventListener('click',()=>closePassengerView());$('passengerViewDialog').addEventListener('cancel',e=>{e.preventDefault();closePassengerView()});$('passengerViewDialog').addEventListener('close',()=>{if(!$('passengerViewDialog').open)closePassengerView()});
  $('passengerViewOption').addEventListener('change',e=>selectPassengerView(Number(e.target.value)));
  $('passengerViewSteps').addEventListener('click',e=>{const b=e.target.closest('[data-passenger-step]');if(b)passengerViewStep(Number(b.dataset.passengerStep))});
