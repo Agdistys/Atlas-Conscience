@@ -383,7 +383,7 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · b43deae · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · e0ee57a · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
 </div>
@@ -472,6 +472,7 @@
  <div class="guidance-instruction"><p id="guidanceDistance"></p><h3 id="guidanceInstruction">Prêt à préparer le guidage</h3></div>
  <p id="guidanceStatus" class="app-notice" role="status">Le GPS n’est pas activé.</p>
  <p id="guidanceGps" class="note"></p><p id="guidanceRemaining"></p>
+ <section id="guidanceRangeSummary" hidden><p id="guidanceRangeStatus"></p><p id="guidanceRangeEvidence" class="note"></p></section>
  <div id="guidanceMap" class="guidance-map" aria-label="Carte du trajet guidé" hidden></div>
  <div id="guidanceFallback" class="guidance-map" hidden></div>
  <div class="dialog-actions guidance-actions">
@@ -481,6 +482,7 @@
   <button id="guidanceContinue" class="primary" type="button" hidden>Reprendre après cette étape</button>
   <button id="guidanceFollow" class="ghost" type="button" aria-pressed="true" hidden>Suivre ma position</button>
   <button id="guidanceFuelOpen" class="primary" type="button" hidden>Trouver une station sur la suite du trajet</button>
+  <button id="guidanceRangeOpen" class="ghost" type="button" hidden>Actualiser mon autonomie</button>
   <button id="guidanceStop" class="ghost" type="button">Arrêter le guidage</button>
  </div>
  <details id="guidanceSettings" open><summary>Voix et écran</summary>
@@ -1005,6 +1007,7 @@
    <label>Réserve conservée (km)<input id="guidanceFuelReserve" type="number" min="0" max="500" step="1" value="30" required></label>
    <label>Horaires habituels à l’arrivée estimée<select id="guidanceFuelOpening"><option value="all">Toutes les informations</option><option value="compatible">Déclarations compatibles uniquement</option><option value="unknown">Inconnus, à vérifier</option><option value="outside">Hors guichet sans automate déclaré</option></select></label>
   </div><label class="check-label"><input id="guidanceFuelOnlyRange" type="checkbox"> Limiter à la portée estimée, réserve déduite</label>
+  <p id="guidanceFuelRangeSnapshot" class="note"></p><button id="guidanceFuelRangeReuse" class="ghost" type="button" hidden>Je confirme cette estimation actuelle et la reprends</button>
   <p class="note">L’autonomie du départ n’est pas réutilisée. Renseigner ici une estimation actuelle ; aucune jauge du véhicule n’est lue. Les horaires à l’arrivée ne comprennent ni pauses aux étapes précédentes, ni trafic, ni fermetures exceptionnelles.</p>
   <fieldset><legend>Services nécessaires, inconnus exclus</legend><div id="guidanceFuelServices"></div></fieldset></details>
   <button id="guidanceFuelSearch" class="primary" type="submit">Chercher depuis ma position actuelle</button>
@@ -1018,5 +1021,15 @@
  <p class="note">Le choix modifie uniquement cette session de guidage. La préparation et ses budgets datés restent conservés. Les prix et les services proviennent des <a href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener noreferrer">données officielles des carburants</a>. Disponibilité et accès physique à confirmer.</p>
 </dialog>
 
+<dialog id="guidanceRangeDialog" aria-labelledby="guidanceRangeTitle">
+ <div class="dialog-heading"><h2 id="guidanceRangeTitle" tabindex="-1">Autonomie actuelle</h2><button id="guidanceRangeClose" class="icon-btn" type="button" aria-label="Fermer la déclaration d’autonomie">×</button></div>
+ <form id="guidanceRangeForm"><div class="guidance-range-fields">
+ <label for="guidanceRangeMode">Estimation déclarée en</label><select id="guidanceRangeMode"><option value="km">Kilomètres</option><option value="liters">Litres restants</option></select>
+ <label id="guidanceRangeAmountLabel" for="guidanceRangeAmount">Autonomie restante estimée maintenant (km)</label><input id="guidanceRangeAmount" type="number" min="0" max="5000" step="0.1" required>
+ <label for="guidanceRangeCons">Consommation retenue (L/100 km)</label><input id="guidanceRangeCons" type="number" min="1" max="100" step="0.1" required>
+ <label for="guidanceRangeReserve">Réserve conservée (km)</label><input id="guidanceRangeReserve" type="number" min="0" max="500" step="1" required>
+ </div><p id="guidanceRangeNote" class="note" role="status"></p><p class="note">La confirmation demande une position GPS actuelle, puis reprend le suivi. Cette estimation reste dans la session ; aucun plein, budget ni déplacement n’est enregistré. Une interruption exige une nouvelle déclaration. Aucune lecture de jauge.</p>
+ <button id="guidanceRangeSave" class="primary" type="submit">Confirmer puis reprendre le guidage</button><button id="guidanceRangeClear" class="ghost" type="button">Effacer cette estimation</button></form>
+</dialog>
 </body>
 </html>
