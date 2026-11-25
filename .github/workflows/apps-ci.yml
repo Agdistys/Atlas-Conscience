@@ -67,7 +67,7 @@ jobs:
     needs: compatibility
     runs-on: ubuntu-24.04
     # Reserve setup and evidence-upload time around the bounded browser suite.
-    timeout-minutes: 120
+    timeout-minutes: 160
     env:
       INSPECTION_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
