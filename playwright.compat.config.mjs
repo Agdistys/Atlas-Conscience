@@ -3,9 +3,9 @@ import { compatibilityCases, compatibilityMatrix } from './tests/compatibility-c
 const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export default defineConfig({
   testDir: './tests/e2e',
-  testMatch: /(?:navigation-stations|navigation-guidance|route-validation|dragonroute|route-variants|map-stations|prepared-trips|reading-layout|mode-access|walking|cycling|cycling-saved|transit-direct|transit-saved|transit-freshness|shared-bike-trip|shared-bike-saved|road-choices|station-window|transit-comparison|carpool|journal|station-no-path|preparation-readability|station-pages|map-list|priorities|prepared-priorities|modal-priorities|comparison-records|service-quotas|routing-quotas|mode-quotas|modal-budgets|road-mode-budgets|modal-tolls|transit-accessibility|toll-bridges|multi-stops|multi-map|multi-budget|multi-adopt|multi-timing|multi-sharing|multi-opening|multi-modes|multi-passenger-modes|passenger-access|passenger-scenarios|passenger-transit|passenger-transit-map|passenger-transit-journal|passenger-transit-accessibility)\.spec\.mjs$/,
+  testMatch: /(?:navigation-range|navigation-stations|navigation-guidance|route-validation|dragonroute|route-variants|map-stations|prepared-trips|reading-layout|mode-access|walking|cycling|cycling-saved|transit-direct|transit-saved|transit-freshness|shared-bike-trip|shared-bike-saved|road-choices|station-window|transit-comparison|carpool|journal|station-no-path|preparation-readability|station-pages|map-list|priorities|prepared-priorities|modal-priorities|comparison-records|service-quotas|routing-quotas|mode-quotas|modal-budgets|road-mode-budgets|modal-tolls|transit-accessibility|toll-bridges|multi-stops|multi-map|multi-budget|multi-adopt|multi-timing|multi-sharing|multi-opening|multi-modes|multi-passenger-modes|passenger-access|passenger-scenarios|passenger-transit|passenger-transit-map|passenger-transit-journal|passenger-transit-accessibility)\.spec\.mjs$/,
   grep: new RegExp(`(?:${compatibilityCases.map(escape).join('|')})$`),
-  timeout: 60_000, expect: { timeout: 8_000 }, globalTimeout: 1_320_000,
+  timeout: 60_000, expect: { timeout: 8_000 }, globalTimeout: 1_500_000,
   retries: 0, workers: 2, fullyParallel: false,
   outputDir: 'quality/compatibility-results',
   reporter: [['list'], ['json', { outputFile: 'quality/compatibility-results.json' }],

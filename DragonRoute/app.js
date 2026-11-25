@@ -7187,6 +7187,30 @@ function guidanceTrack(model,state,raw,now){
 // END GUIDANCE MODEL
 
 
+// BEGIN GUIDANCE RANGE MODEL
+function guidanceRangeInput(raw){
+ const number=(v,min,max)=>{if(v==null||String(v).trim()==='')throw Error('Renseigner une valeur, y compris zéro si nécessaire.');const n=Number(v);if(!Number.isFinite(n)||n<min||n>max)throw Error('Valeur hors des limites indiquées.');return n};
+ if(!['km','liters'].includes(raw.mode))throw Error('Choisir kilomètres ou litres.');const amount=number(raw.amount,0,raw.mode==='km'?5000:2000),cons=number(raw.cons,1,100),reserve=number(raw.reserve,0,500),km=raw.mode==='km'?amount:100*amount/cons;
+ if(km>5000)throw Error('L’autonomie calculée dépasse 5 000 km. Vérifier les litres et la consommation.');return {mode:raw.mode,amount,cons,reserve,km};
+}
+function guidanceRangeDeclare(input,state,revision,now){
+ if(!Number.isFinite(now)||state.status!=='active'||!state.last||state.last.at>now||now-state.last.at>15000||!Number.isFinite(state.progress))throw Error('Position fiable sur la portion courante nécessaire. Reprendre ou recalculer le guidage avant cette déclaration.');
+ return {...input,remaining:input.km,consumedKm:0,consumedLiters:0,declaredAt:now,updatedAt:state.last.at,status:'current',reason:'',anchor:{progress:state.progress,at:state.last.at,revision,leg:state.leg}};
+}
+function guidanceRangeStale(r,reason){return r&&r.status!=='stale'?{...r,status:'stale',reason,anchor:null}:r}
+function guidanceRangeAdvance(r,state,revision,now){
+ if(!r||r.status!=='current'||state.ignored)return r;
+ if(now<r.declaredAt)return guidanceRangeStale(r,'Horloge incohérente.');
+ if(!['active','stop','arrived'].includes(state.status)||!state.last)return guidanceRangeStale(r,'Progression GPS non fiable.');
+ const a=r.anchor,at=state.last.at,delta=state.progress-a.progress;
+ if(revision!==a.revision||state.leg!==a.leg)return guidanceRangeStale(r,'Portion du trajet modifiée.');
+ if(at<=a.at)return r;
+ if(now-at>15000||at>now||at-a.at>15000||!Number.isFinite(delta)||delta< -1||delta>(at-a.at)/1000*70+100)return guidanceRangeStale(r,'Distance parcourue pendant cet intervalle non qualifiée.');
+ const km=Math.max(0,delta)/1000,consumedKm=r.consumedKm+km,consumedLiters=consumedKm*r.cons/100;
+ return {...r,remaining:Math.max(0,r.km-consumedKm),consumedKm,consumedLiters,updatedAt:at,anchor:{...a,progress:Math.max(a.progress,state.progress),at}};
+}
+// END GUIDANCE RANGE MODEL
+
 // BEGIN GUIDANCE FUEL MODEL
 function guidanceFuelOptions(raw){
  const number=(key,min,max,optional=false)=>{const v=raw[key];if(optional&&(v==null||String(v).trim()===''))return null;const n=Number(v);if(v==null||String(v).trim()===''||!Number.isFinite(n)||n<min||n>max)throw Error('Valeur à vérifier : '+({liters:'litres à acheter',cons:'consommation',target:'distance cible',tolerance:'tolérance',near:'zone proche',maxKm:'détour en kilomètres',maxMin:'détour en minutes',range:'autonomie restante',reserve:'réserve'}[key]||key)+'.');return n;};
@@ -7282,7 +7306,7 @@ async function guidanceWake(g){
  try{const lock=await navigator.wakeLock.request('screen');if(!guidanceCurrent(g)||g.paused||g.wakeEpoch!==epoch||!$('guidanceAwake').checked){await lock.release();return}g.wake=lock;$('guidanceScreenNote').textContent='Écran maintenu allumé pendant cette session.';lock.addEventListener('release',()=>{if(g.wake===lock){g.wake=null;$('guidanceScreenNote').textContent='Maintien de l’écran interrompu par l’appareil.'}})}catch{$('guidanceScreenNote').textContent='L’appareil n’a pas autorisé le maintien de l’écran.'}
 }
 function guidancePause(message='Guidage en pause. Reprendre à l’arrêt.'){
- const g=guidance;if(!g)return;g.paused=true;g.epoch++;g.controller?.abort();g.controller=null;g.loading=false;guidanceReleaseWatch(g);
+ const g=guidance;if(!g)return;g.rangeJob?.abort();g.rangeJob=null;guidanceRangeInvalidate(g,'Guidage interrompu.');g.paused=true;g.epoch++;g.controller?.abort();g.controller=null;g.loading=false;guidanceReleaseWatch(g);
  g.state={...(g.state||{}),status:'paused',next:null,remaining:null,message};guidanceRender(g);
 }
 function guidanceMapDraw(g,fit=false){
@@ -7299,7 +7323,7 @@ function guidanceMapDraw(g,fit=false){
  $('guidanceFallback').innerHTML='<svg viewBox="0 0 600 300" role="img" aria-label="Tracé du guidage sans fond de carte"><polyline points="'+line+'" fill="none" stroke="#fff" stroke-width="9"/><polyline points="'+line+'" fill="none" stroke="#82baff" stroke-width="5"/>'+(position?'<circle cx="'+position[0]+'" cy="'+position[1]+'" r="8" fill="#0758d9" stroke="#fff" stroke-width="3"/>':'')+'</svg>';
 }
 function guidanceRender(g){
- if(guidance!==g)return;const s=g.state;
+ if(guidance!==g)return;guidanceRangeRender(g);const s=g.state;
  $('guidanceFuelOpen').hidden=!g.model||['arrived','stop'].includes(s?.status);$('guidanceFuelOpen').disabled=g.loading||g.invalid||!!g.fuel;
  $('guidanceSetup').hidden=!!g.model;$('guidanceAuto').disabled=!!g.model||g.loading;
  $('guidanceStart').disabled=g.loading||g.invalid;$('guidanceStart').hidden=!g.paused||['arrived','stop'].includes(s?.status);
@@ -7321,16 +7345,16 @@ function guidanceWatch(g){
  g.paused=false;g.state={leg:0,progress:0,...g.state,status:'waiting',last:null,next:null,nearSince:null,offSince:null,offCount:0,message:'Recherche de la position GPS…'};const epoch=++g.watchEpoch;
  try{const watch=navigator.geolocation.watchPosition(raw=>{
   if(!guidanceCurrent(g)||g.paused||g.watchEpoch!==epoch)return;g.lastRaw=raw;
-  const s=guidanceTrack(g.model,g.state,raw,Date.now());if(s.ignored)return;g.state=s;
+  const s=guidanceTrack(g.model,g.state,raw,Date.now());if(s.ignored)return;g.range=guidanceRangeAdvance(g.range,s,g.rangeRevision||0,Date.now());g.state=s;
   if(s.status==='arrived'||s.status==='stop'){g.paused=true;g.epoch++;g.controller?.abort();g.controller=null;g.loading=false;guidanceReleaseWatch(g);}
   guidanceRender(g);
   if(s.status==='offroute'&&g.auto&&!g.recalculateFailed&&!g.loading&&performance.now()-g.lastRecalculate>=30000)guidanceRecalculate();
- },e=>{if(!guidanceCurrent(g)||g.paused||g.watchEpoch!==epoch)return;if(e.code===1){guidancePause('Accès GPS refusé. Autoriser la position dans le navigateur puis reprendre.');return}g.state={...(g.state||{}),status:'uncertain',next:null,remaining:null,message:e.code===3?'Position GPS non reçue à temps : indications suspendues.':'Position GPS indisponible : indications suspendues.'};guidanceRender(g);},{enableHighAccuracy:true,maximumAge:0,timeout:10000});if(g.paused||g.watchEpoch!==epoch||!guidanceCurrent(g)){navigator.geolocation.clearWatch(watch);return}g.watch=watch;guidanceWake(g);guidanceRender(g);
+ },e=>{if(!guidanceCurrent(g)||g.paused||g.watchEpoch!==epoch)return;if(e.code===1){guidancePause('Accès GPS refusé. Autoriser la position dans le navigateur puis reprendre.');return}guidanceRangeInvalidate(g,'Position GPS indisponible.');g.state={...(g.state||{}),status:'uncertain',next:null,remaining:null,message:e.code===3?'Position GPS non reçue à temps : indications suspendues.':'Position GPS indisponible : indications suspendues.'};guidanceRender(g);},{enableHighAccuracy:true,maximumAge:0,timeout:10000});if(g.paused||g.watchEpoch!==epoch||!guidanceCurrent(g)){navigator.geolocation.clearWatch(watch);return}g.watch=watch;guidanceWake(g);guidanceRender(g);
  }catch{guidancePause('Le navigateur n’a pas pu démarrer le suivi GPS.');}
 }
 async function guidanceStart(){
  const g=guidance;if(!g||g.loading||!guidanceCurrent(g)||g.state?.status==='stop')return;
- if(g.fuel)return;if(g.model){guidanceWatch(g);return}const controller=new AbortController(),epoch=++g.epoch;g.controller=controller;g.loading=true;g.auto=$('guidanceAuto').checked;guidanceRender(g);
+ if(g.fuel||g.rangeJob||$('guidanceRangeDialog').open)return;if(g.model){guidanceWatch(g);return}const controller=new AbortController(),epoch=++g.epoch;g.controller=controller;g.loading=true;g.auto=$('guidanceAuto').checked;guidanceRender(g);
  try{const data=await guidanceFetch(g,g.nodes,g.owner.route,controller.signal);if(!guidanceCurrent(g)||g.epoch!==epoch)return;Object.assign(g,data);g.spoken=null;$('guidanceSettings').open=false;$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');g.loading=false;guidanceMapDraw(g,true);guidanceWatch(g);}
  catch(e){if(guidance===g&&g.epoch===epoch){g.state={status:'error',message:e.message};g.paused=true;}}
  finally{if(guidance===g&&g.epoch===epoch){g.loading=false;g.controller=null;guidanceRender(g);}}
@@ -7340,12 +7364,12 @@ async function guidanceRecalculate(){
  let fix;try{fix=guidanceFix(g.lastRaw,Date.now())}catch(e){g.state={...g.state,status:'recalculation-error',next:null,message:e.message};guidanceRender(g);return}
  const nodes=[{kind:'start',name:'Position actuelle',point:[fix.point[1],fix.point[0]]},...g.nodes.slice((g.state.leg||0)+1)],controller=new AbortController(),epoch=++g.epoch;
  g.controller=controller;g.loading=true;g.lastRecalculate=performance.now();g.recalculateFailed=false;guidanceRender(g);
- try{const data=await guidanceFetch(g,nodes,null,controller.signal);if(!guidanceCurrent(g)||g.epoch!==epoch)return;Object.assign(g,data,{nodes,state:null,spoken:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · guidage recalculé depuis la dernière position. Préparation et budgets initiaux conservés, non actualisés.';guidanceMapDraw(g,true);}
+ try{const data=await guidanceFetch(g,nodes,null,controller.signal);if(!guidanceCurrent(g)||g.epoch!==epoch)return;guidanceRangeInvalidate(g,'Tracé recalculé ; distance hors suivi inconnue.');g.rangeRevision=(g.rangeRevision||0)+1;Object.assign(g,data,{nodes,state:null,spoken:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · guidage recalculé depuis la dernière position. Préparation et budgets initiaux conservés, non actualisés.';guidanceMapDraw(g,true);}
  catch(e){if(guidance===g&&g.epoch===epoch){g.recalculateFailed=true;g.state={...g.state,status:'recalculation-error',next:null,remaining:null,message:'Recalcul impossible. '+e.message+' Réessayer volontairement à l’arrêt.'};}}
  finally{if(guidance===g&&g.epoch===epoch){g.loading=false;g.controller=null;guidanceRender(g);}}
 }
 function guidanceClose(){
- guidanceFuelClose(false);const g=guidance;if(!g)return;guidance=null;g.epoch++;g.controller?.abort();guidanceReleaseWatch(g);clearInterval(g.timer);g.observer?.disconnect();g.map?.remove();
+ guidanceRangeClose(false);guidanceFuelClose(false);const g=guidance;if(!g)return;guidance=null;g.epoch++;g.controller?.abort();guidanceReleaseWatch(g);clearInterval(g.timer);g.observer?.disconnect();g.map?.remove();
  $('guidanceMap').hidden=true;$('guidanceFallback').hidden=true;$('guidanceFallback').replaceChildren();$('guidanceSteps').replaceChildren();if($('guidanceDialog').open)$('guidanceDialog').close();const target=g.trigger?.isConnected?g.trigger:$('guidanceOpen');target.focus({preventScroll:true});
 }
 function guidanceOpen(){
@@ -7354,7 +7378,8 @@ function guidanceOpen(){
  $('guidanceSettings').open=true;$('guidanceAuto').checked=false;$('guidanceVoice').checked=false;$('guidanceAwake').checked=true;$('guidanceSummary').textContent=owner.label+' · '+routingLabel(owner.routing);
  guidanceVoiceControls();$('guidanceDialog').showModal();guidanceRender(g);$('guidanceStart').focus();
  g.timer=setInterval(()=>{if(guidance!==g)return;
-  if(g.fuel&&!guidanceCurrent(g))guidanceFuelClose(false);
+  if(g.range?.status==='current'&&(Date.now()<g.range.declaredAt||Date.now()-g.range.updatedAt>15000)){guidanceRangeInvalidate(g,'Position ou horloge devenue incertaine.');guidanceRangeRender(g)}
+  if(g.fuel&&!guidanceCurrent(g))guidanceFuelClose(false);if($('guidanceRangeDialog').open&&!guidanceCurrent(g))guidanceRangeClose(false);
   if(g.fuel?.origin&&!g.fuel.busy){const f=g.fuel,key=JSON.stringify(f.rows.map(s=>priceFreshness(s.updated,Date.now(),s.receivedAt).state));if(f.priceKey!==key){f.priceKey=key;guidanceFuelRender(g,f)}}
   if(g.fuel&&g.fuel.origin&&(Date.now()<g.fuel.origin.at||Date.now()-g.fuel.origin.at>300000)&&!g.fuel.expiryShown){g.fuel.expiryShown=true;g.fuel.controller?.abort();g.fuel.busy=false;guidanceFuelRender(g,g.fuel);}
 if(!guidanceCurrent(g)&&!g.invalid){g.invalid=true;guidancePause('Trajet ou paramètres modifiés. Fermer puis préparer à nouveau le guidage.');return}
@@ -7365,12 +7390,12 @@ function bindGuidance(){
  $('guidanceOpen').addEventListener('click',guidanceOpen);$('guidanceClose').addEventListener('click',guidanceClose);$('guidanceStop').addEventListener('click',guidanceClose);
  $('guidanceDialog').addEventListener('cancel',e=>{e.preventDefault();guidanceClose()});$('guidanceDialog').addEventListener('close',()=>{if(!$('guidanceDialog').open)guidanceClose()});
  $('guidanceStart').addEventListener('click',guidanceStart);$('guidancePause').addEventListener('click',()=>guidancePause());$('guidanceRecalculate').addEventListener('click',guidanceRecalculate);
- $('guidanceContinue').addEventListener('click',()=>{const g=guidance;if(!g||g.state?.status!=='stop')return;g.state={...g.state,leg:g.state.leg+1,status:'waiting',last:null,nearSince:null};guidanceWatch(g)});
+ $('guidanceContinue').addEventListener('click',()=>{const g=guidance;if(!g||g.state?.status!=='stop')return;guidanceRangeInvalidate(g,'Reprise après une étape : quantité restante à réactualiser.');g.state={...g.state,leg:g.state.leg+1,status:'waiting',last:null,nearSince:null};guidanceWatch(g)});
  $('guidanceFollow').addEventListener('click',()=>{const g=guidance;if(g){g.follow=true;guidanceRender(g)}});
  $('guidanceVoice').addEventListener('change',()=>{window.speechSynthesis?.cancel();if(guidance)guidance.spoken=null;});
  $('guidanceAwake').addEventListener('change',()=>{const g=guidance;if(!g)return;if(!$('guidanceAwake').checked){g.wakeEpoch++;const lock=g.wake;g.wake=null;lock?.release().catch(()=>{});$('guidanceScreenNote').textContent='Maintien de l’écran désactivé.'}else if(!g.paused)guidanceWake(g)});
  window.speechSynthesis?.addEventListener('voiceschanged',guidanceVoiceControls);
- document.addEventListener('visibilitychange',()=>{if(document.hidden&&guidance){guidanceFuelClose(false);guidancePause('Application en arrière-plan : guidage en pause. Reprendre quand l’application est visible.')}});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&guidance){guidanceRangeClose(false);guidanceFuelClose(false);guidancePause('Application en arrière-plan : guidage en pause. Reprendre quand l’application est visible.')}});
  window.addEventListener('pagehide',guidanceClose);
 }
 // END GUIDANCE CONTROLLER
@@ -7398,7 +7423,7 @@ function guidanceFuelOpen(){
  for(const [a,b] of [['MaxKm','maxDetourKm'],['MaxMin','maxDetourMin'],['Opening','stationOpeningFilter']])$('guidanceFuel'+a).value=$(b).value;
  $('guidanceFuelRange').value='';$('guidanceFuelReserve').value='30';$('guidanceFuelOnlyRange').checked=false;
  $('guidanceFuelServices').innerHTML=serviceSelection().map(x=>'<label class="check-label"><input type="checkbox" data-guidance-service checked value="'+escapeHtml(x)+'"> '+escapeHtml(x)+'</label>').join('');
- $('guidanceFuelOrigin').textContent='Guidage en pause. Recherche volontaire depuis une nouvelle position GPS, à l’arrêt. '+nodes.length+' étape(s) restante(s) conservée(s).';$('guidanceFuelStatus').textContent='Choisir les critères puis lancer la recherche.';$('guidanceFuelDialog').showModal();guidanceFuelFieldsChanged();guidanceFuelRender(g,f);$('guidanceFuelTitle').focus();
+ guidanceRangeFuelSuggestion(g);$('guidanceFuelOrigin').textContent='Guidage en pause. Recherche volontaire depuis une nouvelle position GPS, à l’arrêt. '+nodes.length+' étape(s) restante(s) conservée(s).';$('guidanceFuelStatus').textContent='Choisir les critères puis lancer la recherche.';$('guidanceFuelDialog').showModal();guidanceFuelFieldsChanged();guidanceFuelRender(g,f);$('guidanceFuelTitle').focus();
 }
 function guidanceFuelClose(restore=true){
  const g=guidance,f=g?.fuel;if(!f)return;f.invalid=true;f.controller?.abort();f.map?.remove();f.observer?.disconnect();g.fuel=null;if($('guidanceFuelDialog').open)$('guidanceFuelDialog').close();$('guidanceFuelCards').replaceChildren();$('guidanceFuelChoiceBody').replaceChildren();if(restore&&$('guidanceDialog').open)$('guidanceFuelOpen').focus();
@@ -7463,7 +7488,7 @@ async function guidanceFuelApply(){
   const score=guidanceFuelScore(f.selected,data.route,baseline.route,f.options);if(!score||!guidanceFuelFilter([score],f.options,fix.at).rows.length)throw Error('L’accès ou les critères ne sont plus confirmés. Actualiser la recherche.');
   const changed=Math.abs(score.distanceFromStart-f.selected.distanceFromStart)>.1||Math.abs(score.extraKm-f.selected.extraKm)>.1||Math.abs(score.extraMin-f.selected.extraMin)>1||Math.round(score.real*100)!==Math.round(f.selected.real*100);
   if(changed||f.options.range!==null&&score.distanceFromStart>Math.max(0,f.options.range-f.options.reserve)&&!$('guidanceFuelRangeConsent').checked){f.rows=[score];f.queue=[score];f.cursor=1;f.rejected=0;f.selected=score;f.origin=fix;f.nodes=nodes;f.baseline=baseline;$('guidanceFuelRangeConsent').checked=false;$('guidanceFuelStatus').textContent='L’estimation a changé. Les autres comparaisons sont retirées. Relire cet arrêt et confirmer de nouveau, ou actualiser toute la recherche.';return}
-  Object.assign(g,data,{nodes:added,state:null,spoken:null,recalculateFailed:false,lastRaw:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · station ajoutée : '+score.address+'. Étapes restantes conservées. Préparation, prix et budgets antérieurs non actualisés.';guidanceFuelClose(false);guidanceMapDraw(g,true);guidanceWatch(g);$('guidanceInstruction').setAttribute('tabindex','-1');$('guidanceInstruction').focus();
+  guidanceRangeInvalidate(g,'Station ajoutée ; guidage à réactualiser après le plein.');g.rangeRevision=(g.rangeRevision||0)+1;Object.assign(g,data,{nodes:added,state:null,spoken:null,recalculateFailed:false,lastRaw:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · station ajoutée : '+score.address+'. Étapes restantes conservées. Préparation, prix et budgets antérieurs non actualisés.';guidanceFuelClose(false);guidanceMapDraw(g,true);guidanceWatch(g);$('guidanceInstruction').setAttribute('tabindex','-1');$('guidanceInstruction').focus();
  }catch(e){if(current())$('guidanceFuelStatus').textContent=e.message+' Aucun arrêt ajouté ; le guidage précédent reste en pause.';else if(guidanceFuelCurrent(g,f)&&controller.signal.aborted)$('guidanceFuelStatus').textContent='Vérification interrompue. Aucun arrêt ajouté.';}
  finally{if(guidanceFuelCurrent(g,f)&&f.controller===controller){f.busy=false;f.controller=null;guidanceFuelRender(g,f)}}
 }
@@ -7475,9 +7500,47 @@ function bindGuidanceFuel(){
 }
 // END GUIDANCE FUEL CONTROLLER
 
+// BEGIN GUIDANCE RANGE CONTROLLER
+function guidanceRangeInvalidate(g,reason){if(g)g.range=guidanceRangeStale(g.range,reason)}
+function guidanceRangeRender(g){
+ const r=g.range;$('guidanceRangeSummary').hidden=!g.model;$('guidanceRangeOpen').hidden=!g.model||g.state?.status==='arrived';$('guidanceRangeOpen').disabled=g.loading||g.invalid||!!g.rangeJob||!!g.fuel;
+ if(!r){$('guidanceRangeStatus').textContent='Autonomie inconnue.';$('guidanceRangeEvidence').textContent='Estimation facultative, distincte des litres à acheter.';return}
+ const current=r.status==='current',useful=Math.max(0,r.remaining-r.reserve);
+ $('guidanceRangeStatus').textContent=(current?'Autonomie estimée : ':'Dernière estimation, à réactualiser : ')+fmt(r.remaining,1)+' km · réserve '+fmt(r.reserve,1)+' km'+(current?' · portée estimée '+fmt(useful,1)+' km.':'.');
+ $('guidanceRangeEvidence').textContent='Déclaration du '+new Date(r.declaredAt).toLocaleString('fr-FR')+' · dernière progression '+new Date(r.updatedAt).toLocaleTimeString('fr-FR')+'. '+fmt(r.consumedKm,2)+' km de progression estimée, soit '+(r.consumedLiters>0&&r.consumedLiters<.01?'<0,01':fmt(r.consumedLiters,2))+' L à '+fmt(r.cons,1)+' L/100 km. '+(current?(useful===0?'Réserve atteinte selon cette estimation. ':''):r.reason+' Distance depuis l’interruption inconnue. ')+'Aucune lecture de jauge ni garantie de portée.';
+}
+function guidanceRangeRead(){return guidanceRangeInput({mode:$('guidanceRangeMode').value,amount:$('guidanceRangeAmount').value,cons:$('guidanceRangeCons').value,reserve:$('guidanceRangeReserve').value})}
+function guidanceRangeOpen(){
+ const g=guidance;if(!g?.model||g.loading||g.rangeJob||g.fuel||g.state?.status==='arrived'||!guidanceCurrent(g))return;
+ if(g.state?.status!=='stop')guidancePause('Guidage en pause pendant la déclaration d’autonomie.');else guidanceRangeInvalidate(g,'Arrêt à une étape.');
+ $('guidanceRangeMode').value='km';$('guidanceRangeAmount').value='';$('guidanceRangeCons').value=String(g.range?.cons||Number($('cons').value)||6.2);$('guidanceRangeReserve').value=String(g.range?.reserve??30);$('guidanceRangeAmount').max='5000';$('guidanceRangeAmountLabel').textContent='Autonomie restante estimée maintenant (km)';
+ $('guidanceRangeNote').textContent='Déclarer la quantité restante actuelle, après le plein le cas échéant. Les litres achetés et l’autonomie du départ ne sont pas repris.';$('guidanceRangeSave').textContent=g.state?.status==='stop'?'Confirmer puis reprendre après cette étape':'Confirmer puis reprendre le guidage';$('guidanceRangeSave').disabled=false;$('guidanceRangeDialog').showModal();$('guidanceRangeTitle').focus();guidanceRangeRender(g);
+}
+function guidanceRangeClose(restore=true){const g=guidance;if(g){g.rangeJob?.abort();g.rangeJob=null}if($('guidanceRangeDialog').open)$('guidanceRangeDialog').close();if(g){$('guidanceRangeSave').disabled=false;guidanceRangeRender(g);if(restore)$('guidanceRangeOpen').focus()}}
+async function guidanceRangeSave(){
+ const g=guidance;if(!g||g.rangeJob||!g.paused||!guidanceCurrent(g)||!$('guidanceRangeDialog').open)return;let input;try{input=guidanceRangeRead()}catch(e){$('guidanceRangeNote').textContent=e.message;return}
+ const controller=new AbortController();g.rangeJob=controller;const current=()=>guidanceCurrent(g)&&g.rangeJob===controller&&!controller.signal.aborted&&$('guidanceRangeDialog').open;const key=JSON.stringify(input);$('guidanceRangeSave').disabled=true;$('guidanceRangeNote').textContent='Vérification ponctuelle de la position avant reprise…';guidanceRangeRender(g);
+ try{const fix=await guidanceFuelPosition(controller.signal);if(!current())return;if(JSON.stringify(guidanceRangeRead())!==key)throw Error('Déclaration modifiée. Confirmer de nouveau.');
+  const previous=g.state,leg=(previous?.leg||0)+(previous?.status==='stop'?1:0),progress=previous?.status==='stop'?g.model.ends[previous.leg].at:previous?.progress||0,raw={coords:{longitude:fix.point[0],latitude:fix.point[1],accuracy:fix.accuracy},timestamp:fix.at};
+  const s=guidanceTrack(g.model,{leg,progress:0,last:null,nearSince:null},raw,Date.now());if(s.progress<progress-50)throw Error('Position en amont de la progression connue. Recalculer le guidage avant cette déclaration.');const range=guidanceRangeDeclare(input,s,g.rangeRevision||0,Date.now());if(!current())return;
+  g.range=range;g.state=s;g.lastRaw=raw;g.rangeJob=null;guidanceRangeClose(false);guidanceWatch(g);$('guidanceInstruction').setAttribute('tabindex','-1');$('guidanceInstruction').focus();
+ }catch(e){if(current())$('guidanceRangeNote').textContent=e.message+' Aucune nouvelle estimation enregistrée ; guidage en pause.';}
+ finally{if(guidance===g&&g.rangeJob===controller){g.rangeJob=null;$('guidanceRangeSave').disabled=false;guidanceRangeRender(g)}}
+}
+function guidanceRangeFuelSuggestion(g){const r=g.range;$('guidanceFuelRangeReuse').hidden=!r;$('guidanceFuelRangeSnapshot').textContent=r?'Dernière estimation du guidage : '+fmt(r.remaining,1)+' km, réserve '+fmt(r.reserve,1)+' km, datée du '+new Date(r.updatedAt).toLocaleString('fr-FR')+'. '+(r.status==='stale'?r.reason+' Distance depuis l’interruption inconnue. ':'')+'Ne la reprendre que si elle correspond encore à la situation actuelle.':'';}
+function bindGuidanceRange(){
+ $('guidanceRangeOpen').addEventListener('click',guidanceRangeOpen);$('guidanceRangeClose').addEventListener('click',()=>guidanceRangeClose());$('guidanceRangeDialog').addEventListener('cancel',e=>{e.preventDefault();guidanceRangeClose()});$('guidanceRangeDialog').addEventListener('close',()=>{if(!$('guidanceRangeDialog').open)guidanceRangeClose(false)});
+ $('guidanceRangeForm').addEventListener('submit',e=>{e.preventDefault();guidanceRangeSave()});$('guidanceRangeForm').addEventListener('input',()=>{const g=guidance;if(g?.rangeJob){g.rangeJob.abort();g.rangeJob=null;$('guidanceRangeSave').disabled=false;$('guidanceRangeNote').textContent='Déclaration modifiée. Confirmer de nouveau.';guidanceRangeRender(g)}});
+ $('guidanceRangeMode').addEventListener('change',()=>{$('guidanceRangeAmount').value='';const liters=$('guidanceRangeMode').value==='liters';$('guidanceRangeAmount').max=liters?'2000':'5000';$('guidanceRangeAmountLabel').textContent=liters?'Litres restants estimés maintenant':'Autonomie restante estimée maintenant (km)'});
+ $('guidanceRangeClear').addEventListener('click',()=>{const g=guidance;if(!g)return;g.range=null;guidanceRangeClose();guidanceRender(g)});
+ $('guidanceFuelRangeReuse').addEventListener('click',()=>{const g=guidance,f=g?.fuel;if(!g?.range||!f||f.busy||!guidanceFuelCurrent(g,f))return;const r=g.range;$('guidanceFuelRange').value=String(Math.floor(r.remaining*10)/10);$('guidanceFuelReserve').value=String(r.reserve);$('guidanceFuelCons').value=String(r.cons);$('guidanceFuelForm').querySelector('details').open=true;guidanceFuelFieldsChanged();$('guidanceFuelRangeSnapshot').textContent='Estimation reprise sur confirmation personnelle. Vérifier la valeur avant la recherche ; le suivi d’autonomie du guidage reste à réactualiser.';$('guidanceFuelRange').focus();});
+}
+// END GUIDANCE RANGE CONTROLLER
 
 
-bindGuidance();bindGuidanceFuel();loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();bindPassengerView();
+
+
+bindGuidance();bindGuidanceFuel();bindGuidanceRange();loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();bindPassengerView();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
