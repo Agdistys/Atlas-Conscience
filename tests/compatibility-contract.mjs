@@ -1,5 +1,7 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "stations guidées : recherche volontaire, confirmation et reprise sans changer la préparation",
+  "stations guidées : exclusions IGN conservées jusqu’à la reprise",
   "guidage : démarrage volontaire, progression, pause et préparation intacte",
   "guidage : clavier, texte doublé et schéma sans fond restent utilisables",
   "fauteuil passagers : demande volontaire, pistes hors classement et conducteur conservé",

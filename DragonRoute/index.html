@@ -479,6 +479,7 @@
   <button id="guidanceRecalculate" class="primary" type="button" hidden>Recalculer depuis ma position</button>
   <button id="guidanceContinue" class="primary" type="button" hidden>Reprendre après cette étape</button>
   <button id="guidanceFollow" class="ghost" type="button" aria-pressed="true" hidden>Suivre ma position</button>
+  <button id="guidanceFuelOpen" class="primary" type="button" hidden>Trouver une station sur la suite du trajet</button>
   <button id="guidanceStop" class="ghost" type="button">Arrêter le guidage</button>
  </div>
  <details id="guidanceSettings" open><summary>Voix et écran</summary>
@@ -983,5 +984,38 @@
 <button type="button" id="passengerViewConsult" class="ghost">Consulter les infos réseau</button><button type="button" id="passengerViewCancel" class="ghost" hidden>Annuler la consultation</button>
 <p id="passengerViewNetworkStatus" role="status"></p><div id="passengerViewNetworkBody"></div></section>
 </dialog>
+<dialog id="guidanceFuelDialog" class="guidance-fuel-dialog" aria-labelledby="guidanceFuelTitle">
+ <div class="dialog-heading"><h2 id="guidanceFuelTitle" tabindex="-1">Une station sur la suite du trajet</h2><button id="guidanceFuelClose" type="button" class="icon-btn" aria-label="Fermer les stations et revenir au guidage en pause">×</button></div>
+ <p id="guidanceFuelOrigin" class="app-notice">Guidage en pause. La recherche utilisera une nouvelle position GPS, à l’arrêt.</p>
+ <form id="guidanceFuelForm">
+  <div class="guidance-fuel-fields">
+   <label>Carburant<select id="guidanceFuelType"><option>E10</option><option>Gazole</option><option>SP98</option><option>SP95</option><option>E85</option><option>GPLc</option></select></label>
+   <label>Litres à acheter<input id="guidanceFuelLiters" type="number" min="0.1" max="2000" step="0.1" required></label>
+   <label>Consommation (L/100 km)<input id="guidanceFuelCons" type="number" min="1" max="100" step="0.1" required></label>
+   <label>Quand faire le plein ?<select id="guidanceFuelMode"><option value="soon">Au plus tôt</option><option value="near">Bon compromis proche</option><option value="around">Vers une distance choisie</option></select></label>
+   <label id="guidanceFuelNearField" hidden>Zone proche (km)<input id="guidanceFuelNear" type="number" min="0.1" max="40000" step="0.1" value="50"></label>
+   <label id="guidanceFuelTargetField" hidden>Dans environ (km)<input id="guidanceFuelTarget" type="number" min="0.1" max="40000" step="0.1" value="100"></label>
+   <label id="guidanceFuelToleranceField" hidden>Tolérance autour de la cible (km)<input id="guidanceFuelTolerance" type="number" min="0.1" max="40000" step="0.1" value="20"></label>
+  </div>
+  <details><summary>Détour, autonomie et services</summary><div class="guidance-fuel-fields">
+   <label>Détour maximal (km), facultatif<input id="guidanceFuelMaxKm" type="number" min="0" max="1000" step="0.1"></label>
+   <label>Détour maximal (min), facultatif<input id="guidanceFuelMaxMin" type="number" min="0" max="1440" step="0.1"></label>
+   <label>Autonomie restante estimée maintenant (km), facultative<input id="guidanceFuelRange" type="number" min="0" max="5000" step="0.1"></label>
+   <label>Réserve conservée (km)<input id="guidanceFuelReserve" type="number" min="0" max="500" step="1" value="30" required></label>
+   <label>Horaires habituels à l’arrivée estimée<select id="guidanceFuelOpening"><option value="all">Toutes les informations</option><option value="compatible">Déclarations compatibles uniquement</option><option value="unknown">Inconnus, à vérifier</option><option value="outside">Hors guichet sans automate déclaré</option></select></label>
+  </div><label class="check-label"><input id="guidanceFuelOnlyRange" type="checkbox"> Limiter à la portée estimée, réserve déduite</label>
+  <p class="note">L’autonomie du départ n’est pas réutilisée. Renseigner ici une estimation actuelle ; aucune jauge du véhicule n’est lue. Les horaires à l’arrivée ne comprennent ni pauses aux étapes précédentes, ni trafic, ni fermetures exceptionnelles.</p>
+  <fieldset><legend>Services nécessaires, inconnus exclus</legend><div id="guidanceFuelServices"></div></fieldset></details>
+  <button id="guidanceFuelSearch" class="primary" type="submit">Chercher depuis ma position actuelle</button>
+ </form>
+ <p id="guidanceFuelStatus" role="status"></p><button id="guidanceFuelCancel" class="ghost" type="button" hidden>Interrompre la recherche</button>
+ <p id="guidanceFuelCoverage" class="note"></p>
+ <div id="guidanceFuelMap" class="guidance-fuel-map" aria-label="Carte des stations comparées" hidden></div>
+ <div id="guidanceFuelCards" class="guidance-fuel-cards"></div>
+ <button id="guidanceFuelMore" class="ghost" type="button" hidden>Comparer les stations suivantes</button>
+ <section id="guidanceFuelChoice" hidden aria-labelledby="guidanceFuelChoiceTitle"><h3 id="guidanceFuelChoiceTitle" tabindex="-1">Arrêt proposé</h3><div id="guidanceFuelChoiceBody"></div><label id="guidanceFuelRangeWarning" class="check-label" hidden><input id="guidanceFuelRangeConsent" type="checkbox"> Cette station dépasse la portée estimée avec réserve ; je confirme ce choix.</label><button id="guidanceFuelApply" class="primary" type="button">Ajouter cette station puis reprendre le guidage</button><button id="guidanceFuelBack" class="ghost" type="button">Revenir aux stations</button></section>
+ <p class="note">Le choix modifie uniquement cette session de guidage. La préparation et ses budgets datés restent conservés. Les prix et les services proviennent des <a href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener noreferrer">données officielles des carburants</a>. Disponibilité et accès physique à confirmer.</p>
+</dialog>
+
 </body>
 </html>
