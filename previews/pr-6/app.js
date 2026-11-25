@@ -2041,16 +2041,16 @@ function stationFrom(r,fuel){
     city:r.ville||"",...stationInfo(r),fuel
   };
 }
-async function stationsAround(p,fuel,radius=C.corridorRadiusKm){
+async function stationsAround(p,fuel,radius=C.corridorRadiusKm,signal=activeAbort?.signal){
   const f=fuelField[fuel],[lat,lon]=p;
   const where=`within_distance(geom, geom'POINT(${lon} ${lat})', ${radius} km) and ${f}_prix is not null`;
   const select=`id,adresse,cp,ville,geom,horaires,horaires_automate_24_24,services_service,${f}_prix,${f}_maj,${f}_rupture_type`;
   const q=new URLSearchParams({limit:"100",where,select});
-  const d=await getJSON(`${C.fuelApi}?${q}`,"Carburants",18000,undefined,null,"fuel");
+  const d=await getJSON(`${C.fuelApi}?${q}`,"Carburants",18000,signal,null,"fuel");
   const rows=Array.isArray(d.results)?d.results:[];
   return {stations:rows.map(r=>stationFrom(r,fuel)).filter(Boolean),limited:rows.length>=100||Number(d.total_count)>rows.length};
 }
-async function collectStations(coords,fuel,settings,plan,isCurrent=()=>true){
+async function collectStations(coords,fuel,settings,plan,isCurrent=()=>true,signal=activeAbort?.signal){
   health("hFuel","busy","carburants…");
   const pts=plan.points,all=[];let failed=0,limited=0,unrequested=0,waitMessage='';
   dbg("Échantillons du corridor",pts.length);
@@ -2058,7 +2058,7 @@ async function collectStations(coords,fuel,settings,plan,isCurrent=()=>true){
     if(!isCurrent())throw new Error("Recherche interrompue.");
     try{serviceWaitGuard('fuel')}catch(e){unrequested=pts.length-i;waitMessage=e.message;break}
     const batch=pts.slice(i,i+4);
-    const rs=await Promise.all(batch.map(p=>stationsAround(p,fuel,settings.radius).catch(e=>{failed++;if(e.serviceWait)waitMessage=e.message;dbg("Carburants partiel",e.message);return {stations:[],limited:false}})));
+    const rs=await Promise.all(batch.map(p=>stationsAround(p,fuel,settings.radius,signal).catch(e=>{failed++;if(e.serviceWait)waitMessage=e.message;dbg("Carburants partiel",e.message);return {stations:[],limited:false}})));
     if(!isCurrent())throw new Error("Recherche interrompue.");
     for(const result of rs){all.push(...result.stations);if(result.limited)limited++}
     if(waitMessage){unrequested=pts.length-i-batch.length;break}
@@ -7187,6 +7187,53 @@ function guidanceTrack(model,state,raw,now){
 // END GUIDANCE MODEL
 
 
+// BEGIN GUIDANCE FUEL MODEL
+function guidanceFuelOptions(raw){
+ const number=(key,min,max,optional=false)=>{const v=raw[key];if(optional&&(v==null||String(v).trim()===''))return null;const n=Number(v);if(v==null||String(v).trim()===''||!Number.isFinite(n)||n<min||n>max)throw Error('Valeur à vérifier : '+({liters:'litres à acheter',cons:'consommation',target:'distance cible',tolerance:'tolérance',near:'zone proche',maxKm:'détour en kilomètres',maxMin:'détour en minutes',range:'autonomie restante',reserve:'réserve'}[key]||key)+'.');return n;};
+ if(!['Gazole','SP95','SP98','E10','E85','GPLc'].includes(raw.fuel))throw Error('Carburant inconnu.');
+ const mode=raw.mode;if(!['soon','near','around'].includes(mode))throw Error('Choisir une intention d’arrêt.');
+ return {fuel:raw.fuel,mode,liters:number('liters',.1,2000),cons:number('cons',1,100),target:mode==='around'?number('target',.1,40000):100,tolerance:mode==='around'?number('tolerance',.1,40000):20,near:mode==='near'?number('near',.1,40000):50,maxKm:number('maxKm',0,1000,true),maxMin:number('maxMin',0,1440,true),range:number('range',0,5000,true),reserve:number('reserve',0,500),onlyRange:raw.onlyRange===true,services:Array.isArray(raw.services)?[...new Set(raw.services.map(String))].sort():[],opening:['all','compatible','outside','unknown'].includes(raw.opening)?raw.opening:'all'};
+}
+function guidanceFuelCandidates(stations,model,nodes,window){
+ const ids=new Set(nodes.filter(n=>n.kind==='station').map(n=>String(n.stationId||n.id?.replace(/^station:/,'')))),seen=new Set(),rows=[];let excluded=0;
+ for(const s of stations){
+  if(!s.id||s.id==='undefined'||seen.has(s.id)||ids.has(s.id)||![s.lat,s.lon,s.price].every(Number.isFinite)||Math.abs(s.lat)>90||Math.abs(s.lon)>180||s.price<=.2||s.price>=4){excluded++;continue}seen.add(s.id);
+  const p=[s.lon,s.lat],all=model.segments.map(segment=>guidanceProjection(p,segment)).sort((a,b)=>a.offset-b.offset),best=all[0];
+  if(!best||all.some(x=>x.leg!==best.leg&&x.offset<best.offset+20&&Math.abs(x.at-best.at)>100)){excluded++;continue}
+  const first=model.segments[0],behind=best.at<1&&((p[0]-first.a[0])*(first.b[0]-first.a[0])*Math.cos(p[1]*Math.PI/180)**2+(p[1]-first.a[1])*(first.b[1]-first.a[1]))<0;
+  const progress=best.at/model.meters*window.length;
+  if(behind||progress<window.min||progress>window.max){excluded++;continue}
+  rows.push({...s,progress,insertion:best.leg+1});
+ }
+ rows.sort((a,b)=>window.mode==='around'?Math.abs(a.progress-window.target)-Math.abs(b.progress-window.target)||a.id.localeCompare(b.id):a.progress-b.progress||a.id.localeCompare(b.id));return {rows,excluded};
+}
+function guidanceFuelNodes(nodes,s){
+ if(nodes.length>=12||!Number.isInteger(s.insertion)||s.insertion<1||s.insertion>=nodes.length)throw Error('Impossible d’ajouter une station à cet ordre d’étapes.');
+ const copy=structuredClone(nodes);copy.splice(s.insertion,0,{kind:'station',id:'station:'+s.id,stationId:s.id,name:s.address||'Station',point:[s.lat,s.lon]});return copy;
+}
+function guidanceFuelScore(s,via,baseline,options){
+ const deltaD=via.distance-baseline.distance,deltaT=via.duration-baseline.duration;
+ if(deltaD < -2||deltaT < -2)return null;
+ const prefix=via.legs.slice(0,s.insertion),access=prefix.reduce((n,l)=>n+l.distance,0),seconds=prefix.reduce((n,l)=>n+l.duration,0);
+ if(prefix.length!==s.insertion||[access,seconds,deltaD,deltaT].some(n=>!Number.isFinite(n))||access<0||seconds<0)throw Error('Accès à la station non vérifiable.');
+ const extraKm=Math.max(0,deltaD)/1000,extraMin=Math.max(0,deltaT)/60,purchase=options.liters*s.price,detourFuelCost=extraKm*options.cons/100*s.price;
+ return {...s,pausesUnknown:s.insertion>1,distanceFromStart:access/1000,accessSeconds:seconds,extraKm,extraMin,purchase,detourFuelCost,real:purchase+detourFuelCost};
+}
+function guidanceFuelFilter(rows,options,originAt,now=Date.now()){
+ const expired=!Number.isFinite(originAt)||now<originAt||now-originAt>300000,excluded={price:0,detour:0,services:0,range:0,opening:0},useful=options.range===null?null:Math.max(0,options.range-options.reserve);
+ const visible=expired?[]:rows.filter(s=>{
+  if(!priceFreshness(s.updated,now,s.receivedAt).eligible){excluded.price++;return false}
+  if(options.maxKm!==null&&s.extraKm>options.maxKm||options.maxMin!==null&&s.extraMin>options.maxMin){excluded.detour++;return false}
+  if(options.services.some(x=>!s.services?.includes(x))){excluded.services++;return false}
+  if(options.onlyRange&&(useful===null||s.distanceFromStart>useful)){excluded.range++;return false}
+  if(options.opening!=='all'&&(s.pausesUnknown?'unknown':arrivalOpening(s,originAt).state)!==options.opening){excluded.opening++;return false}return true;
+ });
+ const sorted=visible.slice().sort((a,b)=>options.mode==='soon'?a.distanceFromStart-b.distanceFromStart||Math.round(a.real*100)-Math.round(b.real*100):Math.round(a.real*100)-Math.round(b.real*100)||a.distanceFromStart-b.distanceFromStart);
+ const minimum=key=>Math.min(...visible.map(s=>key==='real'?Math.round(s.real*100):key==='price'?Math.round(s.price*1000):s.extraMin));
+ return {expired,excluded,useful,rows:sorted.map(s=>({...s,badges:[Math.round(s.real*100)===minimum('real')?'Compromis':null,Math.round(s.price*1000)===minimum('price')?'Pompe':null,s.extraMin===minimum('extraMin')?'Rapide':null].filter(Boolean)}))};
+}
+// END GUIDANCE FUEL MODEL
+
 // BEGIN GUIDANCE CONTROLLER
 let guidance=null;
 function guidanceBinding(){return JSON.stringify([roadContextSignature(),multiActive?.plan||null,trip?.base,selectedStop?.via||null])}
@@ -7194,7 +7241,7 @@ function guidanceOwner(){
  const p=multiActive?.plan;
  if(p)return {route:structuredClone(p.route),routing:structuredClone(p.routing),nodes:structuredClone(p.nodes),label:p.name};
  if(!trip)throw Error('Calculer un trajet avant de préparer le guidage.');
- const nodes=routePlanNodes(selectedStop?.station).map((n,i)=>({...n,name:n.kind==='start'?trip.places.start:n.kind==='end'?trip.places.end:n.kind==='station'?selectedStop.station.address:n.kind==='pickup'?trip.meetings.pickup.label:n.kind==='dropoff'?trip.meetings.dropoff.label:'Étape '+i}));
+ const nodes=routePlanNodes(selectedStop?.station).map((n,i)=>({...n,...(n.kind==='station'?{stationId:String(selectedStop.station.id)}:{}),name:n.kind==='start'?trip.places.start:n.kind==='end'?trip.places.end:n.kind==='station'?selectedStop.station.address:n.kind==='pickup'?trip.meetings.pickup.label:n.kind==='dropoff'?trip.meetings.dropoff.label:'Étape '+i}));
  return {route:structuredClone(selectedStop?.via||trip.base),routing:structuredClone(trip.routing),nodes,label:trip.places.start+' → '+trip.places.end};
 }
 function guidanceCurrent(g){return guidance===g&&$('guidanceDialog').open&&!g.invalid&&g.binding===guidanceBinding()}
@@ -7206,7 +7253,7 @@ async function guidanceFetch(g,nodes,reference,signal){
  else{
   ensureRouting(settings);routingCooldown('osrm');const coords=points.map(p=>p[1]+','+p[0]).join(';');
   let d;try{d=await getJSON(C.osrm+'/route/v1/driving/'+coords+'?overview=full&geometries=geojson&steps=true&alternatives='+(reference&&points.length===2?'true':'false'),'Instructions routières',25000,signal)}catch(e){routingCooldown('osrm',e);throw e}
-  checkRouteRequest(current,signal);if(d?.code!=='Ok'||!Array.isArray(d.routes)||!d.routes.length)throw Error('Instructions routières indisponibles.');
+  checkRouteRequest(current,signal);if(d?.code==='NoRoute')throw Object.assign(Error('Aucun accès routier trouvé.'),{noRoute:true});if(d?.code!=='Ok'||!Array.isArray(d.routes)||!d.routes.length)throw Error('Instructions routières indisponibles.');
   if(!Array.isArray(d.waypoints)||d.waypoints.length!==points.length||d.waypoints.some((w,i)=>guidanceMeters(guidancePoint(w.location),[points[i][1],points[i][0]])>100))throw Error('Accès aux étapes non confirmés pour le guidage.');
   routes=d.routes;
  }
@@ -7253,6 +7300,7 @@ function guidanceMapDraw(g,fit=false){
 }
 function guidanceRender(g){
  if(guidance!==g)return;const s=g.state;
+ $('guidanceFuelOpen').hidden=!g.model||['arrived','stop'].includes(s?.status);$('guidanceFuelOpen').disabled=g.loading||g.invalid||!!g.fuel;
  $('guidanceSetup').hidden=!!g.model;$('guidanceAuto').disabled=!!g.model||g.loading;
  $('guidanceStart').disabled=g.loading||g.invalid;$('guidanceStart').hidden=!g.paused||['arrived','stop'].includes(s?.status);
  $('guidanceStart').textContent=g.model?'Reprendre le guidage GPS':'Démarrer le guidage GPS';
@@ -7282,7 +7330,7 @@ function guidanceWatch(g){
 }
 async function guidanceStart(){
  const g=guidance;if(!g||g.loading||!guidanceCurrent(g)||g.state?.status==='stop')return;
- if(g.model){guidanceWatch(g);return}const controller=new AbortController(),epoch=++g.epoch;g.controller=controller;g.loading=true;g.auto=$('guidanceAuto').checked;guidanceRender(g);
+ if(g.fuel)return;if(g.model){guidanceWatch(g);return}const controller=new AbortController(),epoch=++g.epoch;g.controller=controller;g.loading=true;g.auto=$('guidanceAuto').checked;guidanceRender(g);
  try{const data=await guidanceFetch(g,g.nodes,g.owner.route,controller.signal);if(!guidanceCurrent(g)||g.epoch!==epoch)return;Object.assign(g,data);g.spoken=null;$('guidanceSettings').open=false;$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');g.loading=false;guidanceMapDraw(g,true);guidanceWatch(g);}
  catch(e){if(guidance===g&&g.epoch===epoch){g.state={status:'error',message:e.message};g.paused=true;}}
  finally{if(guidance===g&&g.epoch===epoch){g.loading=false;g.controller=null;guidanceRender(g);}}
@@ -7297,7 +7345,7 @@ async function guidanceRecalculate(){
  finally{if(guidance===g&&g.epoch===epoch){g.loading=false;g.controller=null;guidanceRender(g);}}
 }
 function guidanceClose(){
- const g=guidance;if(!g)return;guidance=null;g.epoch++;g.controller?.abort();guidanceReleaseWatch(g);clearInterval(g.timer);g.observer?.disconnect();g.map?.remove();
+ guidanceFuelClose(false);const g=guidance;if(!g)return;guidance=null;g.epoch++;g.controller?.abort();guidanceReleaseWatch(g);clearInterval(g.timer);g.observer?.disconnect();g.map?.remove();
  $('guidanceMap').hidden=true;$('guidanceFallback').hidden=true;$('guidanceFallback').replaceChildren();$('guidanceSteps').replaceChildren();if($('guidanceDialog').open)$('guidanceDialog').close();const target=g.trigger?.isConnected?g.trigger:$('guidanceOpen');target.focus({preventScroll:true});
 }
 function guidanceOpen(){
@@ -7305,7 +7353,11 @@ function guidanceOpen(){
  const g=guidance={trigger:document.activeElement,owner,nodes:structuredClone(owner.nodes),binding:guidanceBinding(),model:null,paused:true,watch:null,watchEpoch:0,wakeEpoch:0,epoch:0,follow:true,loading:false,invalid:false,lastRecalculate:-Infinity,recalculateFailed:false,map:null,wake:null,state:null};
  $('guidanceSettings').open=true;$('guidanceAuto').checked=false;$('guidanceVoice').checked=false;$('guidanceAwake').checked=true;$('guidanceSummary').textContent=owner.label+' · '+routingLabel(owner.routing);
  guidanceVoiceControls();$('guidanceDialog').showModal();guidanceRender(g);$('guidanceStart').focus();
- g.timer=setInterval(()=>{if(guidance!==g)return;if(!guidanceCurrent(g)&&!g.invalid){g.invalid=true;guidancePause('Trajet ou paramètres modifiés. Fermer puis préparer à nouveau le guidage.');return}
+ g.timer=setInterval(()=>{if(guidance!==g)return;
+  if(g.fuel&&!guidanceCurrent(g))guidanceFuelClose(false);
+  if(g.fuel?.origin&&!g.fuel.busy){const f=g.fuel,key=JSON.stringify(f.rows.map(s=>priceFreshness(s.updated,Date.now(),s.receivedAt).state));if(f.priceKey!==key){f.priceKey=key;guidanceFuelRender(g,f)}}
+  if(g.fuel&&g.fuel.origin&&(Date.now()<g.fuel.origin.at||Date.now()-g.fuel.origin.at>300000)&&!g.fuel.expiryShown){g.fuel.expiryShown=true;g.fuel.controller?.abort();g.fuel.busy=false;guidanceFuelRender(g,g.fuel);}
+if(!guidanceCurrent(g)&&!g.invalid){g.invalid=true;guidancePause('Trajet ou paramètres modifiés. Fermer puis préparer à nouveau le guidage.');return}
   if(!g.paused&&g.state?.last&&Date.now()-g.state.last.at>15000){g.state={...g.state,status:'uncertain',next:null,remaining:null,message:'Position GPS trop ancienne : indications suspendues.'};guidanceRender(g);}
  },1000);
 }
@@ -7318,13 +7370,114 @@ function bindGuidance(){
  $('guidanceVoice').addEventListener('change',()=>{window.speechSynthesis?.cancel();if(guidance)guidance.spoken=null;});
  $('guidanceAwake').addEventListener('change',()=>{const g=guidance;if(!g)return;if(!$('guidanceAwake').checked){g.wakeEpoch++;const lock=g.wake;g.wake=null;lock?.release().catch(()=>{});$('guidanceScreenNote').textContent='Maintien de l’écran désactivé.'}else if(!g.paused)guidanceWake(g)});
  window.speechSynthesis?.addEventListener('voiceschanged',guidanceVoiceControls);
- document.addEventListener('visibilitychange',()=>{if(document.hidden&&guidance)guidancePause('Application en arrière-plan : guidage en pause. Reprendre quand l’application est visible.')});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&guidance){guidanceFuelClose(false);guidancePause('Application en arrière-plan : guidage en pause. Reprendre quand l’application est visible.')}});
  window.addEventListener('pagehide',guidanceClose);
 }
 // END GUIDANCE CONTROLLER
 
+// BEGIN GUIDANCE FUEL CONTROLLER
+const guidanceFuelFields={fuel:'Type',liters:'Liters',cons:'Cons',mode:'Mode',target:'Target',tolerance:'Tolerance',near:'Near',maxKm:'MaxKm',maxMin:'MaxMin',range:'Range',reserve:'Reserve',opening:'Opening'};
+function guidanceFuelRead(){const raw=Object.fromEntries(Object.entries(guidanceFuelFields).map(([k,v])=>[k,$('guidanceFuel'+v).value]));raw.onlyRange=$('guidanceFuelOnlyRange').checked;raw.services=[...document.querySelectorAll('[data-guidance-service]:checked')].map(x=>x.value);const o=guidanceFuelOptions(raw);if(o.onlyRange&&o.range===null)throw Error('Renseigner une autonomie actuelle pour limiter la portée.');return o;}
+function guidanceFuelCurrent(g,f){return guidanceCurrent(g)&&g.fuel===f&&$('guidanceFuelDialog').open&&!f.invalid;}
+function guidanceFuelOptionsKey(){try{return JSON.stringify(guidanceFuelRead())}catch{return null}}
+function guidanceFuelFieldsChanged(){
+ const mode=$('guidanceFuelMode').value;for(const [key,visible] of [['Near',mode==='near'],['Target',mode==='around'],['Tolerance',mode==='around']]){$('guidanceFuel'+key+'Field').hidden=!visible;$('guidanceFuel'+key).disabled=!visible}
+ const f=guidance?.fuel;if(f&&f.key&&f.key!==guidanceFuelOptionsKey()){f.controller?.abort();f.busy=false;f.key=null;f.selected=null;f.rows=[];f.queue=[];guidanceFuelRender(guidance,f);$('guidanceFuelStatus').textContent='Critères modifiés. Lancer une nouvelle recherche depuis la position actuelle.';}
+}
+function guidanceFuelPosition(signal){
+ return new Promise((resolve,reject)=>{let done=false,timer;const finish=(error,value)=>{if(done)return;done=true;clearTimeout(timer);signal.removeEventListener('abort',abort);error?reject(error):resolve(value)},abort=()=>finish(new DOMException('Recherche interrompue.','AbortError'));signal.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>finish(Error('Position GPS non reçue à temps. Réessayer à l’arrêt.')),12000);
+  if(signal.aborted){abort();return}if(!navigator.geolocation?.getCurrentPosition){finish(Error('Position ponctuelle indisponible sur cet appareil.'));return}
+  try{navigator.geolocation.getCurrentPosition(raw=>{try{finish(null,guidanceFix(raw,Date.now()))}catch(e){finish(e)}},e=>finish(Error(e.code===1?'Accès GPS refusé. Autoriser la position puis réessayer.':'Position GPS indisponible. Réessayer à l’arrêt.')),{enableHighAccuracy:true,maximumAge:0,timeout:10000})}catch{finish(Error('Le navigateur ne peut pas obtenir la position.'))}
+ });
+}
+function guidanceFuelOpen(){
+ const g=guidance;if(!g||!g.model||g.invalid||g.loading||['arrived','stop'].includes(g.state?.status)||!guidanceCurrent(g))return;
+ const nodes=structuredClone(g.nodes.slice((g.state?.leg||0)+1));guidancePause('Guidage en pause pendant le choix d’une station.');
+ const f=g.fuel={remaining:nodes,rows:[],queue:[],cursor:0,rejected:0,busy:false,key:null,selected:null,controller:null,map:null,markers:null,invalid:false};
+ $('guidanceFuelType').value=$('fuel').value;$('guidanceFuelLiters').value=$('liters').value;$('guidanceFuelCons').value=$('cons').value;$('guidanceFuelMode').value='soon';$('guidanceFuelTarget').value='100';$('guidanceFuelTolerance').value='20';$('guidanceFuelNear').value='50';
+ for(const [a,b] of [['MaxKm','maxDetourKm'],['MaxMin','maxDetourMin'],['Opening','stationOpeningFilter']])$('guidanceFuel'+a).value=$(b).value;
+ $('guidanceFuelRange').value='';$('guidanceFuelReserve').value='30';$('guidanceFuelOnlyRange').checked=false;
+ $('guidanceFuelServices').innerHTML=serviceSelection().map(x=>'<label class="check-label"><input type="checkbox" data-guidance-service checked value="'+escapeHtml(x)+'"> '+escapeHtml(x)+'</label>').join('');
+ $('guidanceFuelOrigin').textContent='Guidage en pause. Recherche volontaire depuis une nouvelle position GPS, à l’arrêt. '+nodes.length+' étape(s) restante(s) conservée(s).';$('guidanceFuelStatus').textContent='Choisir les critères puis lancer la recherche.';$('guidanceFuelDialog').showModal();guidanceFuelFieldsChanged();guidanceFuelRender(g,f);$('guidanceFuelTitle').focus();
+}
+function guidanceFuelClose(restore=true){
+ const g=guidance,f=g?.fuel;if(!f)return;f.invalid=true;f.controller?.abort();f.map?.remove();f.observer?.disconnect();g.fuel=null;if($('guidanceFuelDialog').open)$('guidanceFuelDialog').close();$('guidanceFuelCards').replaceChildren();$('guidanceFuelChoiceBody').replaceChildren();if(restore&&$('guidanceDialog').open)$('guidanceFuelOpen').focus();
+}
+function guidanceFuelMap(g,f,rows){
+ if(!window.L||!f.baseline||!rows.length){$('guidanceFuelMap').hidden=true;return}
+ try{$('guidanceFuelMap').hidden=false;if(!f.map){f.map=L.map('guidanceFuelMap',{scrollWheelZoom:false}).setView([f.origin.point[1],f.origin.point[0]],12);L.tileLayer(C.tileUrl,{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(f.map);f.observer=new ResizeObserver(()=>f.map?.invalidateSize());f.observer.observe($('guidanceFuelMap'))}f.markers?.remove();f.markers=L.featureGroup().addTo(f.map);
+ const coords=f.baseline.model.points.map(p=>[p[1],p[0]]);L.polyline(coords,{color:'#fff',weight:10}).addTo(f.markers);L.polyline(coords,{color:'#0758d9',weight:6}).addTo(f.markers);L.circleMarker([f.origin.point[1],f.origin.point[0]],{radius:7,color:'#fff',fillColor:'#0758d9',fillOpacity:1}).addTo(f.markers);
+ for(const s of rows){const m=L.marker([s.lat,s.lon],{icon:L.divIcon({className:'station-marker',html:String(s.number),iconSize:[44,44],iconAnchor:[22,22]}),title:'Station '+s.number+' : '+s.address,keyboard:true}).addTo(f.markers);m.getElement().setAttribute('aria-label','Station '+s.number+' : '+s.address);m.on('click',()=>guidanceFuelSelect(s.id));m.getElement().setAttribute('role','button');m.getElement().addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();e.stopPropagation();guidanceFuelSelect(s.id)}});}
+ f.map.invalidateSize();f.map.fitBounds(f.markers.getBounds(),{padding:[28,28],maxZoom:16,animate:false});
+ }catch{f.map?.remove();f.map=null;f.observer?.disconnect();$('guidanceFuelMap').hidden=true}
+}
+function guidanceFuelDescribe(s,f){
+ const money=n=>fmt(n,2)+' €',opening=arrivalOpening(s,f.origin.at),range=f.options.range===null?'Autonomie inconnue':stationRangeText(s.distanceFromStart,{valid:true,useful:Math.max(0,f.options.range-f.options.reserve)}),next=f.nodes[s.insertion];
+ return '<p><strong>Station '+s.number+' · '+escapeHtml(s.address)+'</strong></p><p>'+fmt(s.distanceFromStart,1)+' km depuis la position relevée · environ '+Math.ceil(s.accessSeconds/60)+' min de conduite. Insertion avant '+escapeHtml(next?.name||'l’étape suivante')+'.</p><p>'+fmt(s.price,3)+' €/L · '+escapeHtml(stationPriceText(s))+'</p><p>'+money(s.real)+' : achat '+money(s.purchase)+' + carburant du détour '+money(s.detourFuelCost)+'. Détour +'+fmt(s.extraKm,1)+' km / +'+fmt(s.extraMin,1)+' min. Péages, stationnement et autres frais non compris.</p><p>'+escapeHtml(range)+'</p><p>'+escapeHtml(s.pausesUnknown?'Arrivée et compatibilité des horaires inconnues : pauses aux étapes précédentes non renseignées.':opening.reason)+'</p><details><summary>Horaires déclarés et services</summary>'+(hoursRows(s.hours).length?'<ul>'+hoursRows(s.hours).map(h=>'<li>'+escapeHtml(h)+'</li>').join('')+'</ul>':'<p>Horaires non renseignés.</p>')+'<p>'+escapeHtml(s.services?.length?s.services.join(' · '):'Services non renseignés')+'</p><p>Horaires habituels, disponibilité et accès physique non vérifiés.</p></details>';
+}
+function guidanceFuelRender(g,f){
+ if(!guidanceFuelCurrent(g,f))return;f.priceKey=JSON.stringify(f.rows.map(s=>priceFreshness(s.updated,Date.now(),s.receivedAt).state));const current=f.key&&f.key===guidanceFuelOptionsKey(),filtered=current&&f.origin?guidanceFuelFilter(f.rows,f.options,f.origin.at):{rows:[],expired:false,excluded:{}};f.visible=filtered.rows;
+ $('guidanceFuelSearch').disabled=f.busy;$('guidanceFuelCancel').hidden=!f.busy;$('guidanceFuelMore').hidden=!current||f.busy||filtered.expired||!f.baseline||f.cursor>=f.queue.length;$('guidanceFuelMore').textContent='Comparer les '+Math.min(20,f.queue.length-f.cursor)+' stations suivantes ('+(f.queue.length-f.cursor)+' restantes)';
+ $('guidanceFuelCoverage').textContent=f.found?f.found.stations.length+' stations reçues · '+f.cursor+' candidates examinées · '+filtered.rows.length+' affichées · '+f.rejected+' accès non comparables. '+(f.found.partial||f.found.limited||f.found.plan.capped?'Collecte partielle. ':'')+'Recherche non exhaustive. '+Object.entries(filtered.excluded).filter(([,n])=>n).map(([k,n])=>n+' exclue(s) : '+({price:'prix ancien/inconnu',detour:'détour',services:'services',range:'portée',opening:'horaires'}[k])).join(' · '):'';
+ $('guidanceFuelCards').innerHTML=filtered.rows.map(s=>'<article class="guidance-fuel-card"><p class="badges">'+s.badges.map(b=>'<span class="badge">'+b+'</span>').join(' ')+'</p>'+guidanceFuelDescribe(s,f)+'<button type="button" class="ghost" data-guidance-station="'+escapeHtml(s.id)+'" '+(f.busy?'disabled':'')+'>Examiner cet arrêt</button></article>').join('');
+ const outside=!!f.selected&&f.options?.range!==null&&f.selected.distanceFromStart>Math.max(0,f.options.range-f.options.reserve);$('guidanceFuelRangeWarning').hidden=!outside;
+ $('guidanceFuelChoice').hidden=!f.selected;$('guidanceFuelApply').disabled=f.busy||!current||filtered.expired||!filtered.rows.some(s=>s.id===f.selected?.id);if(outside&&!$('guidanceFuelRangeConsent').checked)$('guidanceFuelApply').disabled=true;if(f.selected)$('guidanceFuelChoiceBody').innerHTML=guidanceFuelDescribe(f.selected,f);
+ if(filtered.expired)$('guidanceFuelStatus').textContent='Position relevée il y a plus de cinq minutes ou horloge incohérente. Actualiser la recherche depuis la position actuelle.';
+ guidanceFuelMap(g,f,filtered.rows);
+}
+async function guidanceFuelSearch(more=false){
+ const g=guidance,f=g?.fuel;if(!f||f.busy||!guidanceFuelCurrent(g,f))return;let options;try{options=guidanceFuelRead()}catch(e){$('guidanceFuelStatus').textContent=e.message;return}
+ if(more&&(!f.key||f.key!==JSON.stringify(options)||!f.origin||guidanceFuelFilter([],options,f.origin.at).expired)){$('guidanceFuelStatus').textContent='Actualiser la recherche depuis la position actuelle.';return}
+ const controller=new AbortController(),current=()=>guidanceFuelCurrent(g,f)&&f.controller===controller&&!controller.signal.aborted&&f.key===guidanceFuelOptionsKey();f.controller=controller;f.busy=true;f.selected=null;f.options=options;f.key=JSON.stringify(options);guidanceFuelRender(g,f);
+ try{
+  if(!more){f.rows=[];f.queue=[];f.cursor=0;f.rejected=0;f.found=null;f.baseline=null;f.origin=null;f.expiryShown=false;guidanceFuelRender(g,f);$('guidanceFuelStatus').textContent='Recherche de la position GPS…';const origin=await guidanceFuelPosition(controller.signal);if(!current())return;
+   const nodes=[{kind:'start',name:'Position relevée',point:[origin.point[1],origin.point[0]]},...structuredClone(f.remaining)];if(nodes.length>=12)throw Error('Le parcours comporte déjà le maximum d’étapes. Atteindre une étape avant d’ajouter une station.');
+   $('guidanceFuelStatus').textContent='Calcul de la suite du trajet avec les mêmes options…';const baseline=await guidanceFetch(g,nodes,null,controller.signal);if(!current())return;
+   const window=stationWindow(options,baseline.route.distance/1000);if(!window.valid)throw Error(window.error+' Longueur restante : '+fmt(window.length,1)+' km.');
+   f.origin=origin;f.nodes=nodes;f.baseline=baseline;f.window=window;const settings={radius:12,spacing:30,maxPoints:Math.min(24,C.maxFuelSamples),scope:'window'},section=stationCollectionSection(baseline.model.points.map(p=>[p[1],p[0]]),window,'window'),plan={...stationSampling(section.coords,30,settings.maxPoints),section};
+   $('guidanceFuelOrigin').textContent='Position relevée le '+new Date(origin.at).toLocaleString('fr-FR')+' · précision ±'+Math.ceil(origin.accuracy)+' m. Recherche de '+fmt(window.min,1)+' à '+fmt(window.max,1)+' km sur la suite du trajet ; '+f.remaining.length+' étape(s) conservée(s).';
+   $('guidanceFuelStatus').textContent='Consultation des stations sur la portion choisie…';const found=await collectStations(section.coords,options.fuel,settings,plan,current,controller.signal);if(!current())return;f.found=found;const receivedAt=new Date().toISOString();const candidates=guidanceFuelCandidates(found.stations.map(s=>({...s,receivedAt})),baseline.model,nodes,window);f.queue=candidates.rows;f.geographicExcluded=candidates.excluded;
+   const services=[...new Set([...options.services,...found.stations.flatMap(s=>s.services||[])])].sort((a,b)=>a.localeCompare(b,'fr'));$('guidanceFuelServices').innerHTML=services.map(x=>'<label class="check-label"><input type="checkbox" data-guidance-service value="'+escapeHtml(x)+'" '+(options.services.includes(x)?'checked':'')+'> '+escapeHtml(x)+'</label>').join('');
+  }
+  const end=Math.min(f.cursor+20,f.queue.length);
+  while(f.cursor<end){if(!current())return;const s=f.queue[f.cursor];$('guidanceFuelStatus').textContent='Vérification routière de la station '+(f.cursor+1)+' sur '+f.queue.length+'…';
+   if(!priceFreshness(s.updated,Date.now(),s.receivedAt).eligible){f.cursor++;f.rejected++;continue}
+   let data;try{data=await guidanceFetch(g,guidanceFuelNodes(f.nodes,s),null,controller.signal)}catch(e){if(e.noRoute){f.cursor++;f.rejected++;continue}throw e}if(!current())return;
+   const row=guidanceFuelScore(s,data.route,f.baseline.route,options);f.cursor++;if(row)f.rows.push({...row,number:f.rows.length+1});else f.rejected++;
+  }
+  $('guidanceFuelStatus').textContent=f.rows.length?'Comparaison terminée pour ce groupe. Choisir un arrêt avant de reprendre le guidage.':'Aucune station comparable dans cette zone avec ces critères. Modifier les critères ou consulter la suite des candidates.';
+ }catch(e){if(guidanceFuelCurrent(g,f)&&f.controller===controller)$('guidanceFuelStatus').textContent=(controller.signal.aborted?'Recherche interrompue.':e.message)+' Le guidage et les étapes précédents restent conservés ; reprise volontaire.';}
+ finally{if(guidanceFuelCurrent(g,f)&&f.controller===controller){f.busy=false;f.controller=null;guidanceFuelRender(g,f)}}
+}
+function guidanceFuelSelect(id){
+ const g=guidance,f=g?.fuel;if(!f||f.busy||!guidanceFuelCurrent(g,f)||f.key!==guidanceFuelOptionsKey())return;const s=guidanceFuelFilter(f.rows,f.options,f.origin.at).rows.find(s=>s.id===id);if(!s)return;f.selected=s;$('guidanceFuelRangeConsent').checked=false;guidanceFuelRender(g,f);$('guidanceFuelChoiceTitle').focus();$('guidanceFuelChoice').scrollIntoView({block:'start'});
+}
+async function guidanceFuelApply(){
+ const g=guidance,f=g?.fuel;if(!f||f.busy||!f.selected||!guidanceFuelCurrent(g,f)||f.key!==guidanceFuelOptionsKey())return;
+ if(f.options.range!==null&&f.selected.distanceFromStart>Math.max(0,f.options.range-f.options.reserve)&&!$('guidanceFuelRangeConsent').checked)return;
+ if(!guidanceFuelFilter([f.selected],f.options,f.origin.at).rows.length){guidanceFuelRender(g,f);return}
+ const controller=new AbortController();f.controller=controller;f.busy=true;const current=()=>guidanceFuelCurrent(g,f)&&f.controller===controller&&!controller.signal.aborted&&f.key===guidanceFuelOptionsKey();guidanceFuelRender(g,f);
+ try{$('guidanceFuelStatus').textContent='Vérification de la position et de l’arrêt avant reprise…';const fix=await guidanceFuelPosition(controller.signal);if(!current())return;
+  if(guidanceMeters(fix.point,f.origin.point)>100)throw Error('La position a changé de plus de 100 m. Actualiser la recherche avant de confirmer cet arrêt.');
+  const nodes=structuredClone(f.nodes);nodes[0]={kind:'start',name:'Position actuelle',point:[fix.point[1],fix.point[0]]};const baseline=await guidanceFetch(g,nodes,null,controller.signal);if(!current())return;const window=stationWindow(f.options,baseline.route.distance/1000),located=window.valid&&guidanceFuelCandidates([f.selected],baseline.model,nodes,window).rows[0];if(!located||located.insertion!==f.selected.insertion)throw Error('La station ne correspond plus à la portion choisie. Actualiser la recherche.');const added=guidanceFuelNodes(nodes,f.selected),data=await guidanceFetch(g,added,null,controller.signal);if(!current())return;
+  const score=guidanceFuelScore(f.selected,data.route,baseline.route,f.options);if(!score||!guidanceFuelFilter([score],f.options,fix.at).rows.length)throw Error('L’accès ou les critères ne sont plus confirmés. Actualiser la recherche.');
+  const changed=Math.abs(score.distanceFromStart-f.selected.distanceFromStart)>.1||Math.abs(score.extraKm-f.selected.extraKm)>.1||Math.abs(score.extraMin-f.selected.extraMin)>1||Math.round(score.real*100)!==Math.round(f.selected.real*100);
+  if(changed||f.options.range!==null&&score.distanceFromStart>Math.max(0,f.options.range-f.options.reserve)&&!$('guidanceFuelRangeConsent').checked){f.rows=[score];f.queue=[score];f.cursor=1;f.rejected=0;f.selected=score;f.origin=fix;f.nodes=nodes;f.baseline=baseline;$('guidanceFuelRangeConsent').checked=false;$('guidanceFuelStatus').textContent='L’estimation a changé. Les autres comparaisons sont retirées. Relire cet arrêt et confirmer de nouveau, ou actualiser toute la recherche.';return}
+  Object.assign(g,data,{nodes:added,state:null,spoken:null,recalculateFailed:false,lastRaw:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · station ajoutée : '+score.address+'. Étapes restantes conservées. Préparation, prix et budgets antérieurs non actualisés.';guidanceFuelClose(false);guidanceMapDraw(g,true);guidanceWatch(g);$('guidanceInstruction').setAttribute('tabindex','-1');$('guidanceInstruction').focus();
+ }catch(e){if(current())$('guidanceFuelStatus').textContent=e.message+' Aucun arrêt ajouté ; le guidage précédent reste en pause.';else if(guidanceFuelCurrent(g,f)&&controller.signal.aborted)$('guidanceFuelStatus').textContent='Vérification interrompue. Aucun arrêt ajouté.';}
+ finally{if(guidanceFuelCurrent(g,f)&&f.controller===controller){f.busy=false;f.controller=null;guidanceFuelRender(g,f)}}
+}
+function bindGuidanceFuel(){
+ $('guidanceFuelOpen').addEventListener('click',guidanceFuelOpen);$('guidanceFuelClose').addEventListener('click',()=>guidanceFuelClose());$('guidanceFuelDialog').addEventListener('cancel',e=>{e.preventDefault();guidanceFuelClose()});$('guidanceFuelDialog').addEventListener('close',()=>{if(!$('guidanceFuelDialog').open)guidanceFuelClose()});
+ $('guidanceFuelForm').addEventListener('submit',e=>{e.preventDefault();guidanceFuelSearch()});$('guidanceFuelForm').addEventListener('input',guidanceFuelFieldsChanged);$('guidanceFuelForm').addEventListener('change',guidanceFuelFieldsChanged);
+ $('guidanceFuelRangeConsent').addEventListener('change',()=>{if(guidance?.fuel)guidanceFuelRender(guidance,guidance.fuel)});
+ $('guidanceFuelMore').addEventListener('click',()=>guidanceFuelSearch(true));$('guidanceFuelCancel').addEventListener('click',()=>guidance?.fuel?.controller?.abort());$('guidanceFuelCards').addEventListener('click',e=>{const b=e.target.closest('[data-guidance-station]');if(b)guidanceFuelSelect(b.dataset.guidanceStation)});$('guidanceFuelApply').addEventListener('click',guidanceFuelApply);$('guidanceFuelBack').addEventListener('click',()=>{const f=guidance?.fuel;if(f&&!f.busy){f.selected=null;guidanceFuelRender(guidance,f);$('guidanceFuelCards').querySelector('button')?.focus()}});
+}
+// END GUIDANCE FUEL CONTROLLER
 
-bindGuidance();loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();bindPassengerView();
+
+
+bindGuidance();bindGuidanceFuel();loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();bindPassengerView();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
