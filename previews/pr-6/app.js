@@ -1882,10 +1882,10 @@ async function orsRoutes(points,settings,alternatives=false,isCurrent=()=>true,s
   }finally{t.done()}
 }
 function ignNoPath(status,data){return status===404&&typeof data?.error?.message==='string'&&data.error.message.trim()==='No path found'}
-async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false){
+async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false,withSteps=false){
   ensureRouting(settings);
   const walking=settings.vehicle.type==='walk',profileName=walking?'pedestrian':'car',snapKm=walking?.15:1;
-  const key=JSON.stringify([points,settings.avoid,profileName,settings.optimization]),cached=ignCache.get(key);
+  const key=JSON.stringify([points,settings.avoid,profileName,settings.optimization])+(withSteps?'|guidance':''),cached=ignCache.get(key);
   checkRouteRequest(isCurrent,signal);
   if(!forceFresh&&cached&&performance.now()-cached.at<300000)return structuredClone(cached.route);
   // Calls are sequential in run/scoreConstrainedCandidates. Below 5 requests/s/IP;
@@ -1894,7 +1894,7 @@ async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.s
   checkRouteRequest(isCurrent,signal);
   routingCooldown("ign");ignLastRequest=performance.now();
   const constraint={constraintType:"banned",key:"waytype",operator:"=",value:"autoroute"};
-  const query=new URLSearchParams({resource:"bdtopo-osrm",profile:profileName,optimization:settings.optimization,start:[...points[0]].reverse().join(","),end:[...points.at(-1)].reverse().join(","),geometryFormat:"geojson",crs:"EPSG:4326",distanceUnit:"meter",timeUnit:"second",getSteps:"false",getBbox:"false"});
+  const query=new URLSearchParams({resource:"bdtopo-osrm",profile:profileName,optimization:settings.optimization,start:[...points[0]].reverse().join(","),end:[...points.at(-1)].reverse().join(","),geometryFormat:"geojson",crs:"EPSG:4326",distanceUnit:"meter",timeUnit:"second",getSteps:withSteps?"true":"false",getBbox:"false"});
   if(settings.avoid.includes("highways"))query.set("constraints",JSON.stringify(constraint));
   if(points.length>2)query.set("intermediates",points.slice(1,-1).map(([lat,lon])=>`${lon},${lat}`).join("|"));
   let data;
@@ -4936,6 +4936,7 @@ function updateBudget(){
   $("compareBtn").hidden=!trip;
   $("roadCompareBtn").hidden=!trip||trip.routing.vehicle.type==='walk';
   $("navigationBtn").hidden=!trip;
+  $("guidanceOpen").hidden=!trip&&!multiActive;
   $("journalRecordBtn").hidden=!trip;$("savePreparationBtn").hidden=!trip;
   $("tripBudget").hidden=!trip||trip.routing.vehicle.type==="walk";
   updateWalking();
@@ -6822,7 +6823,7 @@ function multiOfferAdoption(){
 }
 function multiActiveMarkup(p){
  const description=multiDescription(p,false,'Active',false).replaceAll('<h4>','<h2>').replaceAll('</h4>','</h2>');const v=multiReview(p),summary='<div class="summary" aria-label="Résumé du parcours"><div class="metric"><b>'+fmt(p.route.distance/1000,1)+' km</b><small>'+p.nodes.filter(n=>n.kind==="station").length+' stations</small></div><div class="metric"><b>'+(v.totalSeconds===null?'Inconnue':fmt(v.totalSeconds/60,1)+' min')+'</b><small>conduite et pauses carburant</small></div></div>';
- return '<section id="multiActiveSheet" class="sheet" aria-labelledby="multiActiveTitle"><h1 id="multiActiveTitle" tabindex="-1">Mon trajet à plusieurs arrêts</h1>'+summary+(p.timing?'<p data-multi-timing-headline>'+escapeHtml(multiTimingHeadline(p))+'</p>':'')+'<p class="note">Réglages et budget propres à ce parcours. Enregistrer une copie pour le conserver.</p><div class="dialog-actions"><button type="button" class="ghost" data-multi-active="map">Voir la carte des étapes</button><button type="button" class="ghost" data-multi-active="return">Revenir à la préparation de référence</button></div><p id="multiActiveStatus" role="status"></p><div class="dialog-actions"><button type="button" class="ghost" data-multi-active="prepare">Préparation et budget</button><button type="button" class="ghost" data-multi-active="timing">Départ et pauses</button><button type="button" class="ghost" data-multi-active="sharing">Partager les frais</button><button type="button" class="ghost" data-multi-active="opening">Horaires et services des stations</button><button type="button" class="ghost" data-multi-active="modes">Comparer les autres modes</button><button type="button" class="ghost" data-multi-active="navigation">Préparer la navigation</button><button type="button" class="ghost" data-multi-active="gpx">Exporter ce tracé · GPX</button><button type="button" class="ghost" data-multi-active="json">Exporter ce parcours · JSON</button><button type="button" class="ghost" data-multi-active="journal">Déclarer un déplacement effectué</button></div>'+description+'</section><section id="multiActiveMapArea" class="map-area" aria-labelledby="multiActiveMapTitle"><div class="map-navigation"><h2 id="multiActiveMapTitle" tabindex="-1">Carte du parcours à plusieurs arrêts</h2><button type="button" class="ghost" data-multi-active="list">Revenir aux étapes et au budget</button></div></section>';
+ return '<section id="multiActiveSheet" class="sheet" aria-labelledby="multiActiveTitle"><h1 id="multiActiveTitle" tabindex="-1">Mon trajet à plusieurs arrêts</h1>'+summary+(p.timing?'<p data-multi-timing-headline>'+escapeHtml(multiTimingHeadline(p))+'</p>':'')+'<p class="note">Réglages et budget propres à ce parcours. Enregistrer une copie pour le conserver.</p><div class="dialog-actions"><button type="button" class="ghost" data-multi-active="map">Voir la carte des étapes</button><button type="button" class="ghost" data-multi-active="return">Revenir à la préparation de référence</button></div><p id="multiActiveStatus" role="status"></p><div class="dialog-actions"><button type="button" class="ghost" data-multi-active="prepare">Préparation et budget</button><button type="button" class="ghost" data-multi-active="timing">Départ et pauses</button><button type="button" class="ghost" data-multi-active="sharing">Partager les frais</button><button type="button" class="ghost" data-multi-active="opening">Horaires et services des stations</button><button type="button" class="ghost" data-multi-active="modes">Comparer les autres modes</button><button type="button" class="primary" data-multi-active="guidance">Guidage GPS dans OùQuandQui</button><button type="button" class="ghost" data-multi-active="navigation">Préparer la navigation</button><button type="button" class="ghost" data-multi-active="gpx">Exporter ce tracé · GPX</button><button type="button" class="ghost" data-multi-active="json">Exporter ce parcours · JSON</button><button type="button" class="ghost" data-multi-active="journal">Déclarer un déplacement effectué</button></div>'+description+'</section><section id="multiActiveMapArea" class="map-area" aria-labelledby="multiActiveMapTitle"><div class="map-navigation"><h2 id="multiActiveMapTitle" tabindex="-1">Carte du parcours à plusieurs arrêts</h2><button type="button" class="ghost" data-multi-active="list">Revenir aux étapes et au budget</button></div></section>';
 }
 function multiRenderActive(markup){
  const host=$('multiActiveBody');multiDisposeMap('Active');host.innerHTML=markup;host.querySelector('#multiActiveMapArea').append(host.querySelector('.multi-cartography'));
@@ -6854,7 +6855,7 @@ function multiDraftFromActive(){
 function bindMultiAdoption(){
  $('multiAdoptOpen').addEventListener('click',multiOfferAdoption);$('multiAdoptAccept').addEventListener('change',()=>{$('multiAdoptConfirm').disabled=!multiAdoptProposal||!$('multiAdoptAccept').checked});$('multiAdoptConfirm').addEventListener('click',multiAdoptConfirmed);$('multiAdoptCancel').addEventListener('click',()=>{multiDismissAdoption();$('multiAdoptOpen').focus()});
  $('multiActiveBody').addEventListener('click',e=>{const b=e.target.closest('[data-multi-active]');if(!b||!multiActive)return;const action=b.dataset.multiActive,p=multiActive.plan;
-  if(action==='return')multiLeaveActive();else if(action==='prepare')multiOpenActive();else if(action==='timing'){multiOpenActive();multiTimingStart();}else if(action==='sharing'){multiOpenActive();multiSharingStart();}else if(action==='opening'){multiOpenActive();multiOpeningStart();}else if(action==='modes')openMultiModes();else if(action==='navigation')multiOpenActive(true);else if(action==='gpx')downloadCycleText(multiGpx(p),'DragonRoute-parcours.gpx','application/gpx+xml');else if(action==='json')downloadProfile({version:p.version,entries:[p]},'DragonRoute-parcours-multiples.json');else if(action==='journal'){openJournal();if(journal.enabled)journalForm(null,true);else $('journalMessage').textContent='Activer volontairement le journal, puis reprendre le parcours affiché. Aucun trajet ajouté automatiquement.';}else{const target=action==='map'?$('multiActiveMapTitle'):$('multiActiveTitle');target.scrollIntoView({block:'start'});target.focus();}
+  if(action==='return')multiLeaveActive();else if(action==='prepare')multiOpenActive();else if(action==='timing'){multiOpenActive();multiTimingStart();}else if(action==='sharing'){multiOpenActive();multiSharingStart();}else if(action==='opening'){multiOpenActive();multiOpeningStart();}else if(action==='modes')openMultiModes();else if(action==='guidance')guidanceOpen();else if(action==='navigation')multiOpenActive(true);else if(action==='gpx')downloadCycleText(multiGpx(p),'DragonRoute-parcours.gpx','application/gpx+xml');else if(action==='json')downloadProfile({version:p.version,entries:[p]},'DragonRoute-parcours-multiples.json');else if(action==='journal'){openJournal();if(journal.enabled)journalForm(null,true);else $('journalMessage').textContent='Activer volontairement le journal, puis reprendre le parcours affiché. Aucun trajet ajouté automatiquement.';}else{const target=action==='map'?$('multiActiveMapTitle'):$('multiActiveTitle');target.scrollIntoView({block:'start'});target.focus();}
  });
 }
 
@@ -7105,7 +7106,225 @@ function bindMultiModes(){
  $('multiModesTiming').addEventListener('click',()=>{closeMultiModes(false);multiOpenActive();multiTimingStart()});
 }
 
-loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();bindPassengerView();
+// BEGIN GUIDANCE MODEL
+const GUIDANCE_TYPES=new Set(['depart','arrive','turn','new name','continue','merge','on ramp','off ramp','fork','end of road','roundabout','rotary','roundabout turn','exit roundabout','exit rotary','notification']);
+const GUIDANCE_MODIFIERS={'uturn':'demi-tour','sharp right':'fortement à droite','right':'à droite','slight right':'légèrement à droite','straight':'tout droit','slight left':'légèrement à gauche','left':'à gauche','sharp left':'fortement à gauche'};
+function guidancePoint(p){if(!Array.isArray(p)||p.length<2||!p.slice(0,2).every(Number.isFinite)||Math.abs(p[0])>180||Math.abs(p[1])>90)throw Error('Coordonnées de guidage invalides.');return p.slice(0,2)}
+function guidanceMeters(a,b){const rad=Math.PI/180,dlat=(b[1]-a[1])*rad,dlon=(b[0]-a[0])*rad,x=Math.sin(dlat/2)**2+Math.cos(a[1]*rad)*Math.cos(b[1]*rad)*Math.sin(dlon/2)**2;return 12742000*Math.asin(Math.min(1,Math.sqrt(x)))}
+function guidanceCoordinates(g){if(g?.type!=='LineString'||!Array.isArray(g.coordinates)||g.coordinates.length<2||g.coordinates.length>150000)throw Error('Tracé de guidage absent ou trop volumineux.');return g.coordinates.map(guidancePoint)}
+function guidanceCompact(points){return points.filter((p,i)=>!i||guidanceMeters(p,points[i-1])>.05)}
+function guidanceSameTrace(a,b){const x=guidanceCompact(guidanceCoordinates(a.geometry)),y=guidanceCompact(guidanceCoordinates(b.geometry));return x.length===y.length&&x.every((p,i)=>guidanceMeters(p,y[i])<=1.5)&&Math.abs(a.distance-b.distance)<=2&&Math.abs(a.duration-b.duration)<=2}
+function guidanceInstruction(m,name,final=false){
+ if(!m||!GUIDANCE_TYPES.has(m.type)||m.modifier!==undefined&&!Object.hasOwn(GUIDANCE_MODIFIERS,m.modifier))throw Error('Manœuvre non prise en charge : guidage indisponible pour ce trajet.');
+ const side=GUIDANCE_MODIFIERS[m.modifier],road=typeof name==='string'?name.trim().slice(0,160):'';let text;
+ if(m.type==='depart')text='Rejoindre le départ puis suivre la route';
+ else if(m.type==='arrive')text=final?'Destination à proximité':'Étape à proximité';
+ else if(m.type==='roundabout'||m.type==='rotary'){if(!Number.isInteger(m.exit)||m.exit<1||m.exit>99)throw Error('Numéro de sortie du rond-point non vérifiable.');text='Au rond-point, prendre la sortie '+m.exit;}
+ else if(m.type==='exit roundabout'||m.type==='exit rotary')text='Sortir du rond-point'+(side?' '+side:'');
+ else if(m.type==='new name'||m.type==='notification')text='Continuer'+(side&&side!=='tout droit'?' '+side:' tout droit');
+ else{if(!side)throw Error('Direction de manœuvre manquante.');const verbs={'turn':'Tourner','continue':'Continuer','merge':'Rejoindre la voie','on ramp':'Prendre la bretelle','off ramp':'Prendre la sortie','fork':'À la bifurcation, rester','end of road':'Au bout de la route, tourner','roundabout turn':'Au rond-point, tourner'};text=m.modifier==='uturn'?'Faire demi-tour':verbs[m.type]+' '+side;}
+ return text+(road&&m.type!=='arrive'?' · '+road:'');
+}
+function guidanceModel(route,provider,nodes){
+ if(!['ign','osrm'].includes(provider)||!route||!Array.isArray(nodes)||nodes.length<2||nodes.length>12)throw Error('Parcours non pris en charge pour le guidage intégré.');
+ const geometry=guidanceCoordinates(route.geometry),legs=route.legs;
+ if(!Array.isArray(legs)||legs.length!==nodes.length-1||[route.distance,route.duration].some(n=>!Number.isFinite(n)||n<0))throw Error('Étapes de guidage incomplètes.');
+ const steps=[],segments=[],all=[],ends=[];let meters=0,seconds=0,reportedMeters=0;
+ for(let li=0;li<legs.length;li++){
+  const leg=legs[li];if(!Array.isArray(leg.steps)||leg.steps.length<2||leg.steps.length>3000)throw Error('Manœuvres absentes ou trop nombreuses.');
+  let legMeters=0,legSeconds=0,previous=null;
+  for(let si=0;si<leg.steps.length;si++){
+   const s=leg.steps[si],p=guidanceCoordinates(s.geometry),m=provider==='ign'?s.instruction:s.maneuver;
+   if([s.distance,s.duration].some(n=>!Number.isFinite(n)||n<0)||!m)throw Error('Distance, durée ou manœuvre invalide.');
+   if(si===0&&m.type!=='depart'||si===leg.steps.length-1&&m.type!=='arrive'||si>0&&si<leg.steps.length-1&&['depart','arrive'].includes(m.type))throw Error('Ordre des manœuvres incohérent.');
+   if(previous&&guidanceMeters(previous,p[0])>2)throw Error('Coupure dans les instructions de guidage.');
+   if(provider==='osrm'&&guidanceMeters(guidancePoint(m.location),p[0])>3)throw Error('Manœuvre éloignée du tracé.');
+   if(!si&&guidanceMeters(p[0],[nodes[li].point[1],nodes[li].point[0]])>100)throw Error('Accès au point de départ non vérifié pour le guidage.');
+   if(all.length+p.length>150000)throw Error('Instructions de guidage trop volumineuses.');
+   const at=meters,stepIndex=steps.length,distances=p.slice(1).map((v,i)=>guidanceMeters(p[i],v)),length=distances.reduce((a,b)=>a+b,0);
+   if(Math.abs(length-s.distance)>Math.max(8,s.distance*.06))throw Error('Distance des instructions incohérente avec le tracé.');
+   for(let i=1;i<p.length;i++){const length=distances[i-1];if(length>.05){segments.push({a:p[i-1],b:p[i],at:meters,length,leg:li,step:stepIndex});meters+=length;}}
+   const text=guidanceInstruction(m,provider==='ign'?s.attributes?.name:s.name,li===legs.length-1);
+   steps.push({type:m.type,text,at,end:meters,duration:s.duration,leg:li,point:p[0]});for(const point of p)all.push(point);previous=p.at(-1);legMeters+=s.distance;legSeconds+=s.duration;
+  }
+  if(guidanceMeters(previous,[nodes[li+1].point[1],nodes[li+1].point[0]])>100)throw Error('Accès à une étape non vérifié pour le guidage.');
+  if([leg.distance,leg.duration].some(n=>!Number.isFinite(n)||n<0)||Math.abs(legMeters-leg.distance)>Math.max(2,leg.steps.length*.15)||Math.abs(legSeconds-leg.duration)>Math.max(2,leg.steps.length*.15))throw Error('Totaux des manœuvres incohérents.');
+  ends.push({at:meters,point:previous,node:structuredClone(nodes[li+1])});seconds+=legSeconds;reportedMeters+=legMeters;
+ }
+ const x=guidanceCompact(geometry),y=guidanceCompact(all);
+ if(!segments.length||steps.length>6000||x.length!==y.length||x.some((p,i)=>guidanceMeters(p,y[i])>1.5)||Math.abs(reportedMeters-route.distance)>Math.max(2,steps.length*.15)||Math.abs(seconds-route.duration)>Math.max(2,steps.length*.15))throw Error('Les instructions ne correspondent pas au trajet complet.');
+ return {steps,segments,ends,meters,seconds,points:geometry,nodes:structuredClone(nodes)};
+}
+function guidanceFix(raw,now){
+ const c=raw?.coords,at=raw?.timestamp;
+ if(!c||![c.longitude,c.latitude,c.accuracy,at,now].every(Number.isFinite)||Math.abs(c.longitude)>180||Math.abs(c.latitude)>90||c.accuracy<0||at>now+3000||now-at>15000)throw Error('Position GPS absente, ancienne ou incohérente.');
+ if(c.accuracy>50)throw Error('Position GPS trop imprécise : attendre une meilleure réception.');
+ return {point:[c.longitude,c.latitude],accuracy:c.accuracy,at,speed:Number.isFinite(c.speed)&&c.speed>=0&&c.speed<100?c.speed:null};
+}
+function guidanceProjection(p,s){
+ const scaleX=111195*Math.cos((s.a[1]+s.b[1]+p[1])/3*Math.PI/180),scaleY=111195,dx=(s.b[0]-s.a[0])*scaleX,dy=(s.b[1]-s.a[1])*scaleY,px=(p[0]-s.a[0])*scaleX,py=(p[1]-s.a[1])*scaleY,t=Math.max(0,Math.min(1,(px*dx+py*dy)/(dx*dx+dy*dy)));
+ return {offset:Math.hypot(px-t*dx,py-t*dy),at:s.at+t*s.length,point:[s.a[0]+t*(s.b[0]-s.a[0]),s.a[1]+t*(s.b[1]-s.a[1])],leg:s.leg};
+}
+function guidanceTrack(model,state,raw,now){
+ const prior={leg:0,progress:0,last:null,offSince:null,offCount:0,nearSince:null,...state};
+ let fix;try{fix=guidanceFix(raw,now)}catch(e){return {...prior,status:'uncertain',message:e.message,next:null,remaining:null,nearSince:null,offSince:null,offCount:0};}
+ if(prior.last&&fix.at<=prior.last.at)return {...prior,ignored:true};
+ const candidates=model.segments.filter(s=>s.leg===prior.leg).map(s=>guidanceProjection(fix.point,s)).sort((a,b)=>a.offset-b.offset);
+ const cutoff=Math.max(40,fix.accuracy*2),nearest=candidates[0];
+ if(!nearest||nearest.offset>cutoff){const offSince=prior.offSince??fix.at,offCount=(prior.offCount||0)+1,confirmed=offCount>=3&&fix.at-offSince>=5000;return {...prior,last:fix,offSince,offCount,nearSince:null,status:confirmed?'offroute':'uncertain',message:confirmed?'Écart au trajet confirmé. Recalculer depuis la position actuelle.':'Position éloignée du trajet : vérification en cours.',next:null,remaining:null};}
+ const elapsed=prior.last?Math.max(0,(fix.at-prior.last.at)/1000):null;
+ const nearby=candidates.filter(p=>p.offset<=nearest.offset+Math.max(8,Math.min(20,fix.accuracy))&&p.offset<=cutoff);
+ const reachable=prior.last?nearby.filter(p=>p.at>=prior.progress-50&&p.at<=prior.progress+Math.max(120,elapsed*70+2*fix.accuracy)):nearby;
+ if(!reachable.length&&nearest.at<prior.progress-60){const offSince=prior.offSince??fix.at,offCount=(prior.offCount||0)+1,confirmed=offCount>=3&&fix.at-offSince>=5000;return {...prior,last:fix,offSince,offCount,nearSince:null,status:confirmed?'offroute':'uncertain',message:confirmed?'Retour en arrière confirmé. Recalculer depuis la position actuelle.':'Progression en arrière : vérification en cours.',next:null,remaining:null};}
+ if(!reachable.length)return {...prior,status:'uncertain',message:'Saut de position non confirmé : indications suspendues.',next:null,remaining:null,nearSince:null};
+ const best=reachable.sort((a,b)=>a.offset-b.offset)[0];
+ if(reachable.some(p=>Math.abs(p.at-best.at)>100))return {...prior,status:'uncertain',message:'Plusieurs portions proches : position sur le trajet à confirmer.',next:null,remaining:null,nearSince:null};
+ const progress=Math.max(prior.progress,best.at),end=model.ends[prior.leg],near=end.at-progress<25&&guidanceMeters(fix.point,end.point)<=Math.max(15,Math.min(35,fix.accuracy*1.5)),nearSince=near?(prior.nearSince??fix.at):null;
+ const reached=near&&fix.at-nearSince>=2000,final=prior.leg===model.ends.length-1,next=model.steps.find(s=>s.leg===prior.leg&&s.type!=='depart'&&s.at>=progress-8)||model.steps.findLast(s=>s.leg===prior.leg);
+ const remaining=model.meters-progress,seconds=model.steps.reduce((n,s)=>n+(s.end>progress?s.duration*Math.min(1,(s.end-progress)/Math.max(.01,s.end-s.at)):0),0);
+ return {...prior,last:fix,progress,offCount:0,offSince:null,nearSince,status:reached?(final?'arrived':'stop'):'active',message:reached?(final?'Destination atteinte à proximité du point calculé.':'Étape atteinte : reprendre le guidage après l’arrêt.'):'Position suivie sur le trajet.',next:reached?null:{text:next.text,distance:Math.max(0,next.at-progress),index:model.steps.indexOf(next)},remaining,seconds,snapped:best.point,ignored:false};
+}
+// END GUIDANCE MODEL
+
+
+// BEGIN GUIDANCE CONTROLLER
+let guidance=null;
+function guidanceBinding(){return JSON.stringify([roadContextSignature(),multiActive?.plan||null,trip?.base,selectedStop?.via||null])}
+function guidanceOwner(){
+ const p=multiActive?.plan;
+ if(p)return {route:structuredClone(p.route),routing:structuredClone(p.routing),nodes:structuredClone(p.nodes),label:p.name};
+ if(!trip)throw Error('Calculer un trajet avant de préparer le guidage.');
+ const nodes=routePlanNodes(selectedStop?.station).map((n,i)=>({...n,name:n.kind==='start'?trip.places.start:n.kind==='end'?trip.places.end:n.kind==='station'?selectedStop.station.address:n.kind==='pickup'?trip.meetings.pickup.label:n.kind==='dropoff'?trip.meetings.dropoff.label:'Étape '+i}));
+ return {route:structuredClone(selectedStop?.via||trip.base),routing:structuredClone(trip.routing),nodes,label:trip.places.start+' → '+trip.places.end};
+}
+function guidanceCurrent(g){return guidance===g&&$('guidanceDialog').open&&!g.invalid&&g.binding===guidanceBinding()}
+async function guidanceFetch(g,nodes,reference,signal){
+ const current=()=>guidanceCurrent(g)&&!signal.aborted,settings=g.owner.routing,points=nodes.map(n=>n.point);
+ if(settings.vehicle.type!=='car'||!['ign','osrm'].includes(settings.provider))throw Error('Guidage intégré disponible pour les trajets voiture IGN ou OSRM. Ce véhicule ou moteur n’est pas encore qualifié.');
+ let routes;
+ if(settings.provider==='ign')routes=[await ignRoute(points,settings,current,signal,true,true)];
+ else{
+  ensureRouting(settings);routingCooldown('osrm');const coords=points.map(p=>p[1]+','+p[0]).join(';');
+  let d;try{d=await getJSON(C.osrm+'/route/v1/driving/'+coords+'?overview=full&geometries=geojson&steps=true&alternatives='+(reference&&points.length===2?'true':'false'),'Instructions routières',25000,signal)}catch(e){routingCooldown('osrm',e);throw e}
+  checkRouteRequest(current,signal);if(d?.code!=='Ok'||!Array.isArray(d.routes)||!d.routes.length)throw Error('Instructions routières indisponibles.');
+  if(!Array.isArray(d.waypoints)||d.waypoints.length!==points.length||d.waypoints.some((w,i)=>guidanceMeters(guidancePoint(w.location),[points[i][1],points[i][0]])>100))throw Error('Accès aux étapes non confirmés pour le guidage.');
+  routes=d.routes;
+ }
+ checkRouteRequest(current,signal);const chosen=reference?routes.find(r=>guidanceSameTrace(r,reference)):routes[0];
+ if(!chosen)throw Error('Le tracé a changé depuis la préparation. Recalculer et choisir le trajet avant de démarrer le guidage.');
+ return {route:chosen,model:guidanceModel(chosen,settings.provider,nodes)};
+}
+function guidanceVoice(){
+ return window.speechSynthesis?.getVoices().find(v=>v.localService&&/^fr(?:-|$)/i.test(v.lang))||null;
+}
+function guidanceVoiceControls(){
+ const voice=guidanceVoice();$('guidanceVoice').disabled=!voice;if(!voice)$('guidanceVoice').checked=false;
+ $('guidanceVoiceNote').textContent=voice?'Voix locale disponible. Les annonces restent facultatives.':'Voix française locale indisponible : guidage visuel uniquement sur cet appareil.';
+}
+function guidanceSay(g,text,key){
+ if(!guidanceCurrent(g)||!$('guidanceVoice').checked||g.spoken===key)return;const voice=guidanceVoice();if(!voice)return;
+ g.spoken=key;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=1;window.speechSynthesis.speak(u);
+}
+function guidanceReleaseWatch(g){
+ g.watchEpoch++;g.wakeEpoch++;if(g.watch!==null){navigator.geolocation?.clearWatch(g.watch);g.watch=null}window.speechSynthesis?.cancel();
+ const wake=g.wake;g.wake=null;if(wake)wake.release().catch(()=>{});$('guidanceScreenNote').textContent='Maintien de l’écran désactivé.';
+}
+async function guidanceWake(g){
+ if(!$('guidanceAwake').checked||!navigator.wakeLock){$('guidanceScreenNote').textContent='Maintien de l’écran indisponible ou désactivé.';return}
+ const epoch=++g.wakeEpoch,previous=g.wake;g.wake=null;previous?.release().catch(()=>{});
+ try{const lock=await navigator.wakeLock.request('screen');if(!guidanceCurrent(g)||g.paused||g.wakeEpoch!==epoch||!$('guidanceAwake').checked){await lock.release();return}g.wake=lock;$('guidanceScreenNote').textContent='Écran maintenu allumé pendant cette session.';lock.addEventListener('release',()=>{if(g.wake===lock){g.wake=null;$('guidanceScreenNote').textContent='Maintien de l’écran interrompu par l’appareil.'}})}catch{$('guidanceScreenNote').textContent='L’appareil n’a pas autorisé le maintien de l’écran.'}
+}
+function guidancePause(message='Guidage en pause. Reprendre à l’arrêt.'){
+ const g=guidance;if(!g)return;g.paused=true;g.epoch++;g.controller?.abort();g.controller=null;g.loading=false;guidanceReleaseWatch(g);
+ g.state={...(g.state||{}),status:'paused',next:null,remaining:null,message};guidanceRender(g);
+}
+function guidanceMapDraw(g,fit=false){
+ if(!g.model)return;const points=g.model.points.map(p=>[p[1],p[0]]);
+ if(window.L){try{
+  if(!g.map){$('guidanceMap').hidden=false;$('guidanceFallback').hidden=true;g.map=L.map('guidanceMap',{zoomControl:true}).setView(points[0],15);L.tileLayer(C.tileUrl,{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(g.map);g.map.on('dragstart',()=>{g.follow=false;$('guidanceFollow').setAttribute('aria-pressed','false')});g.observer=new ResizeObserver(()=>g.map?.invalidateSize());g.observer.observe($('guidanceMap'));}
+  if(fit||!g.line){if(g.outline)g.map.removeLayer(g.outline);if(g.line)g.map.removeLayer(g.line);g.outline=L.polyline(points,{color:'#fff',weight:11,opacity:1}).addTo(g.map);g.line=L.polyline(points,{color:'#0758d9',weight:7,opacity:1}).addTo(g.map);g.map.invalidateSize();g.map.fitBounds(g.line.getBounds(),{padding:[24,24],maxZoom:16,animate:false});}
+  const last=g.state?.last;if(last&&g.state.status==='active'){const p=[last.point[1],last.point[0]];if(!g.marker)g.marker=L.circleMarker(p,{radius:10,color:'#fff',weight:3,fillColor:'#0b62e3',fillOpacity:1}).addTo(g.map);else g.marker.setLatLng(p);if(g.follow)g.map.setView(p,Math.max(15,g.map.getZoom()),{animate:false});}else if(g.marker){g.map.removeLayer(g.marker);g.marker=null}
+  return;
+ }catch{g.map?.remove();g.map=null;g.observer?.disconnect();}}
+ $('guidanceMap').hidden=true;$('guidanceFallback').hidden=false;
+ const bounds=g.model.points.reduce((b,p)=>[Math.min(b[0],p[0]),Math.min(b[1],p[1]),Math.max(b[2],p[0]),Math.max(b[3],p[1])],[Infinity,Infinity,-Infinity,-Infinity]),x=bounds[0],y=bounds[1],dx=Math.max(.001,bounds[2]-x),dy=Math.max(.001,bounds[3]-y),scale=Math.min(560/dx,240/dy),project=p=>[(p[0]-x)*scale+20,280-(p[1]-y)*scale-20];
+ const line=g.model.points.map(p=>project(p).map(n=>n.toFixed(1)).join(',')).join(' '),position=g.state?.status==='active'?project(g.state.last.point):null;
+ $('guidanceFallback').innerHTML='<svg viewBox="0 0 600 300" role="img" aria-label="Tracé du guidage sans fond de carte"><polyline points="'+line+'" fill="none" stroke="#fff" stroke-width="9"/><polyline points="'+line+'" fill="none" stroke="#82baff" stroke-width="5"/>'+(position?'<circle cx="'+position[0]+'" cy="'+position[1]+'" r="8" fill="#0758d9" stroke="#fff" stroke-width="3"/>':'')+'</svg>';
+}
+function guidanceRender(g){
+ if(guidance!==g)return;const s=g.state;
+ $('guidanceSetup').hidden=!!g.model;$('guidanceAuto').disabled=!!g.model||g.loading;
+ $('guidanceStart').disabled=g.loading||g.invalid;$('guidanceStart').hidden=!g.paused||['arrived','stop'].includes(s?.status);
+ $('guidanceStart').textContent=g.model?'Reprendre le guidage GPS':'Démarrer le guidage GPS';
+ $('guidancePause').hidden=g.paused;$('guidanceContinue').hidden=s?.status!=='stop';
+ $('guidanceRecalculate').hidden=g.paused||!s||!(g.recalculateFailed||['offroute','recalculation-error'].includes(s.status));$('guidanceRecalculate').disabled=g.loading;
+ $('guidanceFollow').hidden=!g.model;$('guidanceFollow').setAttribute('aria-pressed',String(g.follow));
+ const next=!g.paused&&!g.loading&&s?.status==='active'?s.next:null;
+ $('guidanceDistance').textContent=next?(next.distance<20?'À proximité':next.distance<1000?'Dans '+Math.round(next.distance/10)*10+' m':'Dans '+fmt(next.distance/1000,1)+' km'):'';
+ $('guidanceInstruction').textContent=next?next.text:g.loading?'Préparation des indications…':s?.status==='arrived'?'Arrivée':s?.status==='stop'?'Arrêt à l’étape':g.paused?'Guidage en pause':'En attente d’une position fiable';
+ const message=g.loading?'Recherche des instructions du trajet…':s?.message||'Le GPS n’est pas activé.';if($('guidanceStatus').textContent!==message)$('guidanceStatus').textContent=message;
+ $('guidanceGps').textContent=s?.last?'Dernière position : '+new Date(s.last.at).toLocaleTimeString('fr-FR')+' · précision annoncée ±'+Math.ceil(s.last.accuracy)+' m.':'';
+ $('guidanceRemaining').textContent=next&&Number.isFinite(s.remaining)?fmt(s.remaining/1000,1)+' km restants · environ '+Math.ceil(s.seconds/60)+' min de conduite, hors trafic et pauses.':'';
+ if(next){const threshold=next.distance<=25?'now':next.distance<=120?'near':next.distance<=500?'far':null;if(threshold)guidanceSay(g,$('guidanceDistance').textContent+'. '+next.text,next.index+':'+threshold);}
+ else window.speechSynthesis?.cancel();guidanceMapDraw(g);
+}
+function guidanceWatch(g){
+ if(!guidanceCurrent(g)||!g.model||document.hidden)return;if(!navigator.geolocation){guidancePause('Géolocalisation indisponible sur cet appareil.');return}
+ g.paused=false;g.state={leg:0,progress:0,...g.state,status:'waiting',last:null,next:null,nearSince:null,offSince:null,offCount:0,message:'Recherche de la position GPS…'};const epoch=++g.watchEpoch;
+ try{const watch=navigator.geolocation.watchPosition(raw=>{
+  if(!guidanceCurrent(g)||g.paused||g.watchEpoch!==epoch)return;g.lastRaw=raw;
+  const s=guidanceTrack(g.model,g.state,raw,Date.now());if(s.ignored)return;g.state=s;
+  if(s.status==='arrived'||s.status==='stop'){g.paused=true;g.epoch++;g.controller?.abort();g.controller=null;g.loading=false;guidanceReleaseWatch(g);}
+  guidanceRender(g);
+  if(s.status==='offroute'&&g.auto&&!g.recalculateFailed&&!g.loading&&performance.now()-g.lastRecalculate>=30000)guidanceRecalculate();
+ },e=>{if(!guidanceCurrent(g)||g.paused||g.watchEpoch!==epoch)return;if(e.code===1){guidancePause('Accès GPS refusé. Autoriser la position dans le navigateur puis reprendre.');return}g.state={...(g.state||{}),status:'uncertain',next:null,remaining:null,message:e.code===3?'Position GPS non reçue à temps : indications suspendues.':'Position GPS indisponible : indications suspendues.'};guidanceRender(g);},{enableHighAccuracy:true,maximumAge:0,timeout:10000});if(g.paused||g.watchEpoch!==epoch||!guidanceCurrent(g)){navigator.geolocation.clearWatch(watch);return}g.watch=watch;guidanceWake(g);guidanceRender(g);
+ }catch{guidancePause('Le navigateur n’a pas pu démarrer le suivi GPS.');}
+}
+async function guidanceStart(){
+ const g=guidance;if(!g||g.loading||!guidanceCurrent(g)||g.state?.status==='stop')return;
+ if(g.model){guidanceWatch(g);return}const controller=new AbortController(),epoch=++g.epoch;g.controller=controller;g.loading=true;g.auto=$('guidanceAuto').checked;guidanceRender(g);
+ try{const data=await guidanceFetch(g,g.nodes,g.owner.route,controller.signal);if(!guidanceCurrent(g)||g.epoch!==epoch)return;Object.assign(g,data);g.spoken=null;$('guidanceSettings').open=false;$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');g.loading=false;guidanceMapDraw(g,true);guidanceWatch(g);}
+ catch(e){if(guidance===g&&g.epoch===epoch){g.state={status:'error',message:e.message};g.paused=true;}}
+ finally{if(guidance===g&&g.epoch===epoch){g.loading=false;g.controller=null;guidanceRender(g);}}
+}
+async function guidanceRecalculate(){
+ const g=guidance;if(!g||g.loading||g.paused||!guidanceCurrent(g))return;
+ let fix;try{fix=guidanceFix(g.lastRaw,Date.now())}catch(e){g.state={...g.state,status:'recalculation-error',next:null,message:e.message};guidanceRender(g);return}
+ const nodes=[{kind:'start',name:'Position actuelle',point:[fix.point[1],fix.point[0]]},...g.nodes.slice((g.state.leg||0)+1)],controller=new AbortController(),epoch=++g.epoch;
+ g.controller=controller;g.loading=true;g.lastRecalculate=performance.now();g.recalculateFailed=false;guidanceRender(g);
+ try{const data=await guidanceFetch(g,nodes,null,controller.signal);if(!guidanceCurrent(g)||g.epoch!==epoch)return;Object.assign(g,data,{nodes,state:null,spoken:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · guidage recalculé depuis la dernière position. Préparation et budgets initiaux conservés, non actualisés.';guidanceMapDraw(g,true);}
+ catch(e){if(guidance===g&&g.epoch===epoch){g.recalculateFailed=true;g.state={...g.state,status:'recalculation-error',next:null,remaining:null,message:'Recalcul impossible. '+e.message+' Réessayer volontairement à l’arrêt.'};}}
+ finally{if(guidance===g&&g.epoch===epoch){g.loading=false;g.controller=null;guidanceRender(g);}}
+}
+function guidanceClose(){
+ const g=guidance;if(!g)return;guidance=null;g.epoch++;g.controller?.abort();guidanceReleaseWatch(g);clearInterval(g.timer);g.observer?.disconnect();g.map?.remove();
+ $('guidanceMap').hidden=true;$('guidanceFallback').hidden=true;$('guidanceFallback').replaceChildren();$('guidanceSteps').replaceChildren();if($('guidanceDialog').open)$('guidanceDialog').close();const target=g.trigger?.isConnected?g.trigger:$('guidanceOpen');target.focus({preventScroll:true});
+}
+function guidanceOpen(){
+ if(busy||guidance)return;let owner;try{owner=guidanceOwner()}catch{return}
+ const g=guidance={trigger:document.activeElement,owner,nodes:structuredClone(owner.nodes),binding:guidanceBinding(),model:null,paused:true,watch:null,watchEpoch:0,wakeEpoch:0,epoch:0,follow:true,loading:false,invalid:false,lastRecalculate:-Infinity,recalculateFailed:false,map:null,wake:null,state:null};
+ $('guidanceSettings').open=true;$('guidanceAuto').checked=false;$('guidanceVoice').checked=false;$('guidanceAwake').checked=true;$('guidanceSummary').textContent=owner.label+' · '+routingLabel(owner.routing);
+ guidanceVoiceControls();$('guidanceDialog').showModal();guidanceRender(g);$('guidanceStart').focus();
+ g.timer=setInterval(()=>{if(guidance!==g)return;if(!guidanceCurrent(g)&&!g.invalid){g.invalid=true;guidancePause('Trajet ou paramètres modifiés. Fermer puis préparer à nouveau le guidage.');return}
+  if(!g.paused&&g.state?.last&&Date.now()-g.state.last.at>15000){g.state={...g.state,status:'uncertain',next:null,remaining:null,message:'Position GPS trop ancienne : indications suspendues.'};guidanceRender(g);}
+ },1000);
+}
+function bindGuidance(){
+ $('guidanceOpen').addEventListener('click',guidanceOpen);$('guidanceClose').addEventListener('click',guidanceClose);$('guidanceStop').addEventListener('click',guidanceClose);
+ $('guidanceDialog').addEventListener('cancel',e=>{e.preventDefault();guidanceClose()});$('guidanceDialog').addEventListener('close',()=>{if(!$('guidanceDialog').open)guidanceClose()});
+ $('guidanceStart').addEventListener('click',guidanceStart);$('guidancePause').addEventListener('click',()=>guidancePause());$('guidanceRecalculate').addEventListener('click',guidanceRecalculate);
+ $('guidanceContinue').addEventListener('click',()=>{const g=guidance;if(!g||g.state?.status!=='stop')return;g.state={...g.state,leg:g.state.leg+1,status:'waiting',last:null,nearSince:null};guidanceWatch(g)});
+ $('guidanceFollow').addEventListener('click',()=>{const g=guidance;if(g){g.follow=true;guidanceRender(g)}});
+ $('guidanceVoice').addEventListener('change',()=>{window.speechSynthesis?.cancel();if(guidance)guidance.spoken=null;});
+ $('guidanceAwake').addEventListener('change',()=>{const g=guidance;if(!g)return;if(!$('guidanceAwake').checked){g.wakeEpoch++;const lock=g.wake;g.wake=null;lock?.release().catch(()=>{});$('guidanceScreenNote').textContent='Maintien de l’écran désactivé.'}else if(!g.paused)guidanceWake(g)});
+ window.speechSynthesis?.addEventListener('voiceschanged',guidanceVoiceControls);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&guidance)guidancePause('Application en arrière-plan : guidage en pause. Reprendre quand l’application est visible.')});
+ window.addEventListener('pagehide',guidanceClose);
+}
+// END GUIDANCE CONTROLLER
+
+
+bindGuidance();loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();bindPassengerView();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();
 health("hJS","ok","JS ✓");
 setStatus("Moteur chargé. Prêt pour un trajet réel.","ok");
