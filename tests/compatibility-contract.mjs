@@ -1,5 +1,8 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "recette Android : boucle réelle IGN, reprise après autonomie",
+  "recette Android : parcours complet OSRM avec station, plein déclaré et arrivée",
+  "recette Android : panne audio signalée sans interrompre le guidage visuel",
   "autonomie guidée : déclaration volontaire, progression et préparation conservée",
   "autonomie guidée : clavier, champs lisibles et retour au déclencheur",
   "stations guidées : recherche volontaire, confirmation et reprise sans changer la préparation",

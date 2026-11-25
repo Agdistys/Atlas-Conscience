@@ -7165,6 +7165,11 @@ function guidanceProjection(p,s){
  const scaleX=111195*Math.cos((s.a[1]+s.b[1]+p[1])/3*Math.PI/180),scaleY=111195,dx=(s.b[0]-s.a[0])*scaleX,dy=(s.b[1]-s.a[1])*scaleY,px=(p[0]-s.a[0])*scaleX,py=(p[1]-s.a[1])*scaleY,t=Math.max(0,Math.min(1,(px*dx+py*dy)/(dx*dx+dy*dy)));
  return {offset:Math.hypot(px-t*dx,py-t*dy),at:s.at+t*s.length,point:[s.a[0]+t*(s.b[0]-s.a[0]),s.a[1]+t*(s.b[1]-s.a[1])],leg:s.leg};
 }
+function guidanceNextLeg(model,state){
+ if(state?.status!=='stop'||!Number.isInteger(state.leg)||state.leg<0||state.leg>=model.ends.length-1)throw Error('Étape intermédiaire atteinte requise pour reprendre.');
+ const end=model.ends[state.leg],leg=state.leg+1;
+ return {...state,leg,progress:end.at,status:'waiting',last:null,nearSince:null,entry:{leg,at:end.at,point:end.point}};
+}
 function guidanceTrack(model,state,raw,now){
  const prior={leg:0,progress:0,last:null,offSince:null,offCount:0,nearSince:null,...state};
  let fix;try{fix=guidanceFix(raw,now)}catch(e){return {...prior,status:'uncertain',message:e.message,next:null,remaining:null,nearSince:null,offSince:null,offCount:0};}
@@ -7174,7 +7179,8 @@ function guidanceTrack(model,state,raw,now){
  if(!nearest||nearest.offset>cutoff){const offSince=prior.offSince??fix.at,offCount=(prior.offCount||0)+1,confirmed=offCount>=3&&fix.at-offSince>=5000;return {...prior,last:fix,offSince,offCount,nearSince:null,status:confirmed?'offroute':'uncertain',message:confirmed?'Écart au trajet confirmé. Recalculer depuis la position actuelle.':'Position éloignée du trajet : vérification en cours.',next:null,remaining:null};}
  const elapsed=prior.last?Math.max(0,(fix.at-prior.last.at)/1000):null;
  const nearby=candidates.filter(p=>p.offset<=nearest.offset+Math.max(8,Math.min(20,fix.accuracy))&&p.offset<=cutoff);
- const reachable=prior.last?nearby.filter(p=>p.at>=prior.progress-50&&p.at<=prior.progress+Math.max(120,elapsed*70+2*fix.accuracy)):nearby;
+ const entry=prior.entry,endOfPrevious=model.ends[prior.leg-1],atEntry=!prior.last&&entry?.leg===prior.leg&&endOfPrevious&&entry.at===endOfPrevious.at&&guidanceMeters(entry.point,endOfPrevious.point)<.01&&guidanceMeters(fix.point,endOfPrevious.point)<=50;
+ const reachable=prior.last?nearby.filter(p=>p.at>=prior.progress-50&&p.at<=prior.progress+Math.max(120,elapsed*70+2*fix.accuracy)):atEntry?nearby.filter(p=>p.at>=entry.at&&p.at<=entry.at+100):nearby;
  if(!reachable.length&&nearest.at<prior.progress-60){const offSince=prior.offSince??fix.at,offCount=(prior.offCount||0)+1,confirmed=offCount>=3&&fix.at-offSince>=5000;return {...prior,last:fix,offSince,offCount,nearSince:null,status:confirmed?'offroute':'uncertain',message:confirmed?'Retour en arrière confirmé. Recalculer depuis la position actuelle.':'Progression en arrière : vérification en cours.',next:null,remaining:null};}
  if(!reachable.length)return {...prior,status:'uncertain',message:'Saut de position non confirmé : indications suspendues.',next:null,remaining:null,nearSince:null};
  const best=reachable.sort((a,b)=>a.offset-b.offset)[0];
@@ -7182,7 +7188,7 @@ function guidanceTrack(model,state,raw,now){
  const progress=Math.max(prior.progress,best.at),end=model.ends[prior.leg],near=end.at-progress<25&&guidanceMeters(fix.point,end.point)<=Math.max(15,Math.min(35,fix.accuracy*1.5)),nearSince=near?(prior.nearSince??fix.at):null;
  const reached=near&&fix.at-nearSince>=2000,final=prior.leg===model.ends.length-1,next=model.steps.find(s=>s.leg===prior.leg&&s.type!=='depart'&&s.at>=progress-8)||model.steps.findLast(s=>s.leg===prior.leg);
  const remaining=model.meters-progress,seconds=model.steps.reduce((n,s)=>n+(s.end>progress?s.duration*Math.min(1,(s.end-progress)/Math.max(.01,s.end-s.at)):0),0);
- return {...prior,last:fix,progress,offCount:0,offSince:null,nearSince,status:reached?(final?'arrived':'stop'):'active',message:reached?(final?'Destination atteinte à proximité du point calculé.':'Étape atteinte : reprendre le guidage après l’arrêt.'):'Position suivie sur le trajet.',next:reached?null:{text:next.text,distance:Math.max(0,next.at-progress),index:model.steps.indexOf(next)},remaining,seconds,snapped:best.point,ignored:false};
+ return {...prior,last:fix,progress,entry:null,offCount:0,offSince:null,nearSince,status:reached?(final?'arrived':'stop'):'active',message:reached?(final?'Destination atteinte à proximité du point calculé.':'Étape atteinte : reprendre le guidage après l’arrêt.'):'Position suivie sur le trajet.',next:reached?null:{text:next.text,distance:Math.max(0,next.at-progress),index:model.steps.indexOf(next)},remaining,seconds,snapped:best.point,ignored:false};
 }
 // END GUIDANCE MODEL
 
@@ -7286,24 +7292,45 @@ async function guidanceFetch(g,nodes,reference,signal){
  return {route:chosen,model:guidanceModel(chosen,settings.provider,nodes)};
 }
 function guidanceVoice(){
- return window.speechSynthesis?.getVoices().find(v=>v.localService&&/^fr(?:-|$)/i.test(v.lang))||null;
+ try{return window.speechSynthesis?.getVoices().find(v=>v.localService&&/^fr(?:-|$)/i.test(v.lang))||null}catch{return null}
 }
 function guidanceVoiceControls(){
- const voice=guidanceVoice();$('guidanceVoice').disabled=!voice;if(!voice)$('guidanceVoice').checked=false;
- $('guidanceVoiceNote').textContent=voice?'Voix locale disponible. Les annonces restent facultatives.':'Voix française locale indisponible : guidage visuel uniquement sur cet appareil.';
+ const voice=guidanceVoice();$('guidanceVoice').disabled=!voice;$('guidanceVoiceTest').disabled=!voice;if(!voice)$('guidanceVoice').checked=false;
+ $('guidanceVoiceNote').textContent=voice?'Voix locale disponible. Tester à l’arrêt pour vérifier le son. Les annonces restent facultatives.':'Voix française locale indisponible : guidage visuel uniquement sur cet appareil.';
+}
+function guidanceSilence(g=guidance){
+ if(g)g.voiceEpoch=(g.voiceEpoch||0)+1;
+ try{window.speechSynthesis?.cancel()}catch{}
+ $('guidanceVoiceTest').disabled=!guidanceVoice();
+}
+function guidanceSpeak(g,text,test=false){
+ if(!guidanceCurrent(g)||document.hidden)return;const voice=guidanceVoice();if(!voice){guidanceVoiceControls();return}
+ guidanceSilence(g);const epoch=g.voiceEpoch,current=()=>guidanceCurrent(g)&&g.voiceEpoch===epoch&&!document.hidden;
+ const failed=()=>{if(!current())return;guidanceSilence(g);$('guidanceVoice').checked=false;$('guidanceVoiceNote').textContent='Lecture vocale indisponible ou interrompue. Annonces désactivées ; guidage visuel conservé. Vérifier le volume et la voix du téléphone à l’arrêt, puis refaire un essai.';};
+ try{
+  const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=1;$('guidanceVoiceTest').disabled=false;
+  u.onerror=failed;u.onend=()=>{if(!current())return;$('guidanceVoiceTest').disabled=!guidanceVoice();$('guidanceVoiceNote').textContent=test?'Phrase terminée selon le téléphone : son audible à confirmer à l’écoute. Les annonces restent un choix séparé.':'Annonce terminée selon le téléphone. Le volume et l’audibilité restent à vérifier.';};
+  $('guidanceVoiceNote').textContent=test?'Phrase d’essai demandée : vérifier qu’elle est audible. Aucun GPS n’est démarré par cet essai.':'Annonce vocale demandée au téléphone.';
+  window.speechSynthesis.speak(u);
+ }catch{failed()}
 }
 function guidanceSay(g,text,key){
- if(!guidanceCurrent(g)||!$('guidanceVoice').checked||g.spoken===key)return;const voice=guidanceVoice();if(!voice)return;
- g.spoken=key;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=1;window.speechSynthesis.speak(u);
+ if(!guidanceCurrent(g)||!$('guidanceVoice').checked||g.spoken===key)return;
+ g.spoken=key;guidanceSpeak(g,text);
+}
+function guidanceTestVoice(){
+ const g=guidance;if(!g||!guidanceCurrent(g)||!guidanceVoice()||document.hidden)return;
+ if(!g.paused||g.loading)guidancePause('Guidage en pause pendant l’essai vocal. Reprendre volontairement à l’arrêt.');
+ guidanceSpeak(g,'Essai de la voix locale OùQuandQui. Le guidage visuel reste disponible.',true);
 }
 function guidanceReleaseWatch(g){
- g.watchEpoch++;g.wakeEpoch++;if(g.watch!==null){navigator.geolocation?.clearWatch(g.watch);g.watch=null}window.speechSynthesis?.cancel();
+ g.watchEpoch++;g.wakeEpoch++;if(g.watch!==null){navigator.geolocation?.clearWatch(g.watch);g.watch=null}guidanceSilence(g);
  const wake=g.wake;g.wake=null;if(wake)wake.release().catch(()=>{});$('guidanceScreenNote').textContent='Maintien de l’écran désactivé.';
 }
 async function guidanceWake(g){
  if(!$('guidanceAwake').checked||!navigator.wakeLock){$('guidanceScreenNote').textContent='Maintien de l’écran indisponible ou désactivé.';return}
  const epoch=++g.wakeEpoch,previous=g.wake;g.wake=null;previous?.release().catch(()=>{});
- try{const lock=await navigator.wakeLock.request('screen');if(!guidanceCurrent(g)||g.paused||g.wakeEpoch!==epoch||!$('guidanceAwake').checked){await lock.release();return}g.wake=lock;$('guidanceScreenNote').textContent='Écran maintenu allumé pendant cette session.';lock.addEventListener('release',()=>{if(g.wake===lock){g.wake=null;$('guidanceScreenNote').textContent='Maintien de l’écran interrompu par l’appareil.'}})}catch{$('guidanceScreenNote').textContent='L’appareil n’a pas autorisé le maintien de l’écran.'}
+ try{const lock=await navigator.wakeLock.request('screen');if(!guidanceCurrent(g)||g.paused||g.wakeEpoch!==epoch||!$('guidanceAwake').checked){await lock.release();return}g.wake=lock;$('guidanceScreenNote').textContent='Écran maintenu allumé pendant cette session.';lock.addEventListener('release',()=>{if(g.wake===lock){g.wake=null;$('guidanceScreenNote').textContent='Maintien de l’écran interrompu par l’appareil.'}})}catch{if(guidanceCurrent(g)&&!g.paused&&g.wakeEpoch===epoch&&$('guidanceAwake').checked)$('guidanceScreenNote').textContent='L’appareil n’a pas autorisé le maintien de l’écran.'}
 }
 function guidancePause(message='Guidage en pause. Reprendre à l’arrêt.'){
  const g=guidance;if(!g)return;g.rangeJob?.abort();g.rangeJob=null;guidanceRangeInvalidate(g,'Guidage interrompu.');g.paused=true;g.epoch++;g.controller?.abort();g.controller=null;g.loading=false;guidanceReleaseWatch(g);
@@ -7338,7 +7365,7 @@ function guidanceRender(g){
  $('guidanceGps').textContent=s?.last?'Dernière position : '+new Date(s.last.at).toLocaleTimeString('fr-FR')+' · précision annoncée ±'+Math.ceil(s.last.accuracy)+' m.':'';
  $('guidanceRemaining').textContent=next&&Number.isFinite(s.remaining)?fmt(s.remaining/1000,1)+' km restants · environ '+Math.ceil(s.seconds/60)+' min de conduite, hors trafic et pauses.':'';
  if(next){const threshold=next.distance<=25?'now':next.distance<=120?'near':next.distance<=500?'far':null;if(threshold)guidanceSay(g,$('guidanceDistance').textContent+'. '+next.text,next.index+':'+threshold);}
- else window.speechSynthesis?.cancel();guidanceMapDraw(g);
+ else guidanceSilence(g);guidanceMapDraw(g);
 }
 function guidanceWatch(g){
  if(!guidanceCurrent(g)||!g.model||document.hidden)return;if(!navigator.geolocation){guidancePause('Géolocalisation indisponible sur cet appareil.');return}
@@ -7390,9 +7417,10 @@ function bindGuidance(){
  $('guidanceOpen').addEventListener('click',guidanceOpen);$('guidanceClose').addEventListener('click',guidanceClose);$('guidanceStop').addEventListener('click',guidanceClose);
  $('guidanceDialog').addEventListener('cancel',e=>{e.preventDefault();guidanceClose()});$('guidanceDialog').addEventListener('close',()=>{if(!$('guidanceDialog').open)guidanceClose()});
  $('guidanceStart').addEventListener('click',guidanceStart);$('guidancePause').addEventListener('click',()=>guidancePause());$('guidanceRecalculate').addEventListener('click',guidanceRecalculate);
- $('guidanceContinue').addEventListener('click',()=>{const g=guidance;if(!g||g.state?.status!=='stop')return;guidanceRangeInvalidate(g,'Reprise après une étape : quantité restante à réactualiser.');g.state={...g.state,leg:g.state.leg+1,status:'waiting',last:null,nearSince:null};guidanceWatch(g)});
+ $('guidanceContinue').addEventListener('click',()=>{const g=guidance;if(!g||g.state?.status!=='stop')return;guidanceRangeInvalidate(g,'Reprise après une étape : quantité restante à réactualiser.');g.state=guidanceNextLeg(g.model,g.state);guidanceWatch(g)});
  $('guidanceFollow').addEventListener('click',()=>{const g=guidance;if(g){g.follow=true;guidanceRender(g)}});
- $('guidanceVoice').addEventListener('change',()=>{window.speechSynthesis?.cancel();if(guidance)guidance.spoken=null;});
+ $('guidanceVoice').addEventListener('change',()=>{guidanceSilence();if(guidance)guidance.spoken=null;});
+ $('guidanceVoiceTest').addEventListener('click',guidanceTestVoice);
  $('guidanceAwake').addEventListener('change',()=>{const g=guidance;if(!g)return;if(!$('guidanceAwake').checked){g.wakeEpoch++;const lock=g.wake;g.wake=null;lock?.release().catch(()=>{});$('guidanceScreenNote').textContent='Maintien de l’écran désactivé.'}else if(!g.paused)guidanceWake(g)});
  window.speechSynthesis?.addEventListener('voiceschanged',guidanceVoiceControls);
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&guidance){guidanceRangeClose(false);guidanceFuelClose(false);guidancePause('Application en arrière-plan : guidage en pause. Reprendre quand l’application est visible.')}});
@@ -7522,8 +7550,8 @@ async function guidanceRangeSave(){
  const controller=new AbortController();g.rangeJob=controller;const current=()=>guidanceCurrent(g)&&g.rangeJob===controller&&!controller.signal.aborted&&$('guidanceRangeDialog').open;const key=JSON.stringify(input);$('guidanceRangeSave').disabled=true;$('guidanceRangeNote').textContent='Vérification ponctuelle de la position avant reprise…';guidanceRangeRender(g);
  try{const fix=await guidanceFuelPosition(controller.signal);if(!current())return;if(JSON.stringify(guidanceRangeRead())!==key)throw Error('Déclaration modifiée. Confirmer de nouveau.');
   const previous=g.state,leg=(previous?.leg||0)+(previous?.status==='stop'?1:0),progress=previous?.status==='stop'?g.model.ends[previous.leg].at:previous?.progress||0,raw={coords:{longitude:fix.point[0],latitude:fix.point[1],accuracy:fix.accuracy},timestamp:fix.at};
-  const s=guidanceTrack(g.model,{leg,progress:0,last:null,nearSince:null},raw,Date.now());if(s.progress<progress-50)throw Error('Position en amont de la progression connue. Recalculer le guidage avant cette déclaration.');const range=guidanceRangeDeclare(input,s,g.rangeRevision||0,Date.now());if(!current())return;
-  g.range=range;g.state=s;g.lastRaw=raw;g.rangeJob=null;guidanceRangeClose(false);guidanceWatch(g);$('guidanceInstruction').setAttribute('tabindex','-1');$('guidanceInstruction').focus();
+  const resume=previous?.status==='stop'?guidanceNextLeg(g.model,previous):{leg,progress:0,last:null,nearSince:null};const s=guidanceTrack(g.model,resume,raw,Date.now());if(s.status!=='active'||!s.last)throw Error('Position fiable sur la portion courante nécessaire. '+s.message);if(s.progress<progress-50)throw Error('Position en amont de la progression connue. Recalculer le guidage avant cette déclaration.');const range=guidanceRangeDeclare(input,s,g.rangeRevision||0,Date.now());if(!current())return;
+  g.range=range;g.state={...s,entry:resume.entry||null};g.lastRaw=raw;g.rangeJob=null;guidanceRangeClose(false);guidanceWatch(g);$('guidanceInstruction').setAttribute('tabindex','-1');$('guidanceInstruction').focus();
  }catch(e){if(current())$('guidanceRangeNote').textContent=e.message+' Aucune nouvelle estimation enregistrée ; guidage en pause.';}
  finally{if(guidance===g&&g.rangeJob===controller){g.rangeJob=null;$('guidanceRangeSave').disabled=false;guidanceRangeRender(g)}}
 }
