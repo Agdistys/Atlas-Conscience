@@ -1,5 +1,7 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "journal passagers : activation volontaire, une personne et conducteur conservé",
+  "journal passagers : clavier et texte agrandi rendent le parcours intact",
   "carte collective passagers : ouverture locale, étapes et retour sans changer le conducteur",
   "carte collective passagers : clavier et texte agrandi restent lisibles sans fond",
   "collectif passagers : mêmes lieux, heure et groupe sans changer le conducteur",
