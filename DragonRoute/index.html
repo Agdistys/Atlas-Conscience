@@ -133,6 +133,7 @@
         <p id="resolvedPlaces" class="note" hidden></p>
         <button id="compareBtn" class="ghost navigation-button" type="button" aria-expanded="false" aria-controls="comparisonPanel" hidden>Comparer les modes</button>
         <button id="roadCompareBtn" type="button" class="ghost navigation-button" hidden>Comparer plus rapide / plus court</button>
+        <button id="guidanceOpen" class="primary navigation-button" type="button" hidden>Guidage GPS dans OùQuandQui</button>
         <button id="navigationBtn" class="ghost navigation-button" type="button" hidden>Navigation et tracé GPS</button>
         <button id="savePreparationBtn" class="ghost navigation-button" type="button" hidden>Enregistrer cette préparation</button>
         <button id="journalRecordBtn" class="ghost navigation-button" type="button" hidden>J’ai effectué ce trajet</button>
@@ -459,6 +460,38 @@
   <button id="preparedBackup" class="ghost" type="button">Exporter la liste actuelle avant remplacement</button><div id="preparedImportDetails"></div><label class="check-label"><input id="preparedImportConfirm" type="checkbox"> Remplacer ma liste de préparations par ce fichier</label>
   <p id="preparedImportMessage" class="note" role="status"></p><button id="preparedImportApply" class="primary" type="button" disabled>Confirmer le remplacement</button>
 </dialog>
+<dialog id="guidanceDialog" class="guidance-dialog" aria-labelledby="guidanceTitle">
+ <div class="dialog-heading"><h2 id="guidanceTitle">Guidage OùQuandQui</h2><button id="guidanceClose" class="icon-btn" type="button" aria-label="Arrêter et fermer le guidage">×</button></div>
+ <p id="guidanceSummary"></p>
+ <div id="guidanceSetup">
+  <p>Le guidage suit la position pendant que l’application reste ouverte. Les manœuvres sont demandées au moteur du trajet choisi. Le suivi reste sur cet appareil ; aucune trace GPS n’est enregistrée. Préparer les réglages à l’arrêt et respecter la signalisation.</p>
+  <label class="check-label"><input id="guidanceAuto" type="checkbox"> Recalculer automatiquement après une sortie de route confirmée</label>
+  <p class="note">Un recalcul transmet la position actuelle et les étapes restantes au même moteur routier. Les options du trajet sont conservées. Les prix, horaires des arrêts et budgets de la préparation ne sont pas actualisés par le guidage.</p>
+ </div>
+ <div class="guidance-instruction"><p id="guidanceDistance"></p><h3 id="guidanceInstruction">Prêt à préparer le guidage</h3></div>
+ <p id="guidanceStatus" class="app-notice" role="status">Le GPS n’est pas activé.</p>
+ <p id="guidanceGps" class="note"></p><p id="guidanceRemaining"></p>
+ <div id="guidanceMap" class="guidance-map" aria-label="Carte du trajet guidé" hidden></div>
+ <div id="guidanceFallback" class="guidance-map" hidden></div>
+ <div class="dialog-actions guidance-actions">
+  <button id="guidanceStart" class="primary" type="button">Démarrer le guidage GPS</button>
+  <button id="guidancePause" class="ghost" type="button" hidden>Mettre en pause</button>
+  <button id="guidanceRecalculate" class="primary" type="button" hidden>Recalculer depuis ma position</button>
+  <button id="guidanceContinue" class="primary" type="button" hidden>Reprendre après cette étape</button>
+  <button id="guidanceFollow" class="ghost" type="button" aria-pressed="true" hidden>Suivre ma position</button>
+  <button id="guidanceStop" class="ghost" type="button">Arrêter le guidage</button>
+ </div>
+ <details id="guidanceSettings" open><summary>Voix et écran</summary>
+ <div class="guidance-settings">
+  <label class="check-label"><input id="guidanceVoice" type="checkbox"> Annonces vocales avec une voix française locale</label>
+  <label class="check-label"><input id="guidanceAwake" type="checkbox" checked> Garder l’écran allumé si l’appareil l’autorise</label>
+ </div>
+ <p id="guidanceVoiceNote" class="note"></p><p id="guidanceScreenNote" class="note"></p>
+ </details>
+ <details><summary>Étapes et limites du guidage</summary><ol id="guidanceSteps"></ol><p class="note">Distances et durées estimées, sans trafic en direct. Une mauvaise précision, une position ancienne ou ambiguë suspend les indications. Le passage en arrière-plan met le guidage en pause. Écran verrouillé, navigation native et fonctionnement sur route restent à qualifier sur appareil réel.</p></details>
+</dialog>
+
+
 <dialog id="navigationDialog" aria-labelledby="navigationTitle">
   <div class="dialog-heading"><h2 id="navigationTitle">Emporter ce trajet</h2><button class="icon-btn close-dialog" type="button" aria-label="Fermer la navigation" title="Fermer">×</button></div>
   <p id="navigationOptimizationNote" class="note"></p>

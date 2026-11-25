@@ -259,3 +259,6 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 #passengerViewSteps [aria-pressed="true"]{border:2px solid #80bdff}
 #passengerViewDialog .passenger-transit-details{margin-block:20px}
 @media(max-width:600px){#passengerViewMap,#passengerViewSvg{height:240px}}
+
+/* Integrated foreground guidance. */
+.guidance-dialog{width:min(960px,calc(100% - 24px));max-width:960px}.guidance-instruction{background:#102942;border:2px solid #82baff;border-radius:12px;padding:16px;margin:16px 0}.guidance-instruction h3{font-size:clamp(1.3rem,3vw,2rem);margin:0;color:#fff}.guidance-instruction p{font-size:1.5rem;color:#b9dcff;margin:0 0 8px}.guidance-map{height:clamp(220px,40vh,430px);background:#111c29;border:1px solid #6485a4;border-radius:10px;margin:12px 0;overflow:hidden}#guidanceFallback>svg{display:block;width:100%;height:100%}#guidanceDialog .dialog-heading{z-index:1100}.guidance-map{isolation:isolate}.guidance-actions button{min-height:48px}.guidance-settings{display:flex;gap:12px;flex-wrap:wrap}.guidance-settings label{flex:1 1 220px}@media(max-width:600px){.guidance-dialog{padding:12px}.guidance-actions{display:grid;grid-template-columns:1fr}.guidance-map{height:240px}}

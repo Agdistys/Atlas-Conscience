@@ -1,5 +1,7 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "guidage : démarrage volontaire, progression, pause et préparation intacte",
+  "guidage : clavier, texte doublé et schéma sans fond restent utilisables",
   "fauteuil passagers : demande volontaire, pistes hors classement et conducteur conservé",
   "fauteuil passagers : clavier, texte agrandi et carte conservent les limites",
   "journal passagers : activation volontaire, une personne et conducteur conservé",
