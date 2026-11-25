@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "application": "DragonRoute / OuQuandQui",
-  "generatedAt": "2026-11-25T11:58:27.358Z",
-  "commit": "e0ee57a7f8607aad199ae6f28ef83b0f94d768af",
+  "generatedAt": "2026-11-25T19:17:37.873Z",
+  "commit": "386d417fce5ec22dc2ed4a94e4f580c693d904a7",
   "state": "inspection",
-  "passed": 4884,
-  "total": 4884,
+  "passed": 4944,
+  "total": 4944,
   "stages": {
     "contract": {
       "exitCode": 0,
@@ -15645,7 +15645,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-show=\"5418c763-8f25-4b95-a4ee-76486dec4af2\">Lire cette comparaison</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-show=\"768d1b28-a432-4092-b65d-dc74c822cccf\">Lire cette comparaison</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -15670,7 +15670,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"5418c763-8f25-4b95-a4ee-76486dec4af2\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"768d1b28-a432-4092-b65d-dc74c822cccf\">Supprimer</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -16069,7 +16069,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"07078c99-93d7-44cf-8f4e-1faa8596f585\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"9270651b-342e-405c-89a8-be3ea4be257c\">Supprimer</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -16288,7 +16288,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-show=\"37e44462-98fd-4b4b-a13e-b549a2e2b537\">Lire cette comparaison</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-show=\"fa0c352f-fb08-4493-9a48-93362a9bd9cd\">Lire cette comparaison</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -16313,7 +16313,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"37e44462-98fd-4b4b-a13e-b549a2e2b537\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"fa0c352f-fb08-4493-9a48-93362a9bd9cd\">Supprimer</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -16712,7 +16712,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"1a093a01-5809-4e5e-b6cd-b3dc179ed0cf\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"59a23f9a-501f-4ead-9386-1bc620a6fee5\">Supprimer</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -16931,7 +16931,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"ca18e080-be24-4cd6-8505-f19ab9f26268\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"d22137cc-c422-4040-a001-5a89e6bbca9b\">Supprimer</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -17330,7 +17330,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"19928a9a-e925-464a-ba5d-2192ed2c11d8\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"e96e4a3a-1fa0-43a8-a2fb-0a5a606d6e98\">Supprimer</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -17549,7 +17549,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"67bffc18-b2f7-4954-bb18-b93bf3cda93a\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"67fffbed-28d9-4506-be4b-c7d777b7d4a0\">Supprimer</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -17948,7 +17948,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"9e84e179-5c22-4cb8-a683-0ff9f3d566ec\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-comparison-delete=\"59be654b-30a8-492e-975d-2dc2e5fd7366\">Supprimer</button>",
               "target": [
                 "article > .dialog-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -23705,70 +23705,6 @@
                     "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"navigationDialog\" aria-labelledby=\"navigationTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#navigationDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"navigationSummary\" class=\"note\">Lyon, France → Valence, France · 100,0 km · 160,0 min de conduite · sans arrêt carburant. Hors autres pauses.</p>",
-              "target": [
-                "#navigationSummary"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "11.3pt (15px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"navigationDialog\" aria-labelledby=\"navigationTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#navigationDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3>Google Maps</h3>",
-              "target": [
-                ".detail-section:nth-child(1) > h3"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
                     "messageKey": "bgOverlap",
                     "expectedContrastRatio": "4.5:1"
                   },
@@ -23780,9 +23716,34 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<p id=\"googleMapsNote\" class=\"note\">Reçoit le départ, l’arrivée et les étapes dans l’ordre indiqué (rencontres et station, au maximum trois). Le parcours est recalculé : vérifier que chaque étape est conservée.</p>",
+              "html": "<p id=\"navigationSummary\" class=\"note\">Lyon, France → Valence, France · 100,0 km · 160,0 min de conduite · sans arrêt carburant. Hors autres pauses.</p>",
               "target": [
-                "#googleMapsNote"
+                "#navigationSummary"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h3>Google Maps</h3>",
+              "target": [
+                ".detail-section:nth-child(1) > h3"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -42243,7 +42204,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-cycle-show=\"6da74d1c-19fa-456b-86f2-80299519775b\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-cycle-show=\"2ecfedf0-f1a0-43ad-a2f0-cc00a8e6ae3a\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -42268,7 +42229,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-cycle-rename=\"6da74d1c-19fa-456b-86f2-80299519775b\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-cycle-rename=\"2ecfedf0-f1a0-43ad-a2f0-cc00a8e6ae3a\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -42293,7 +42254,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-cycle-delete=\"6da74d1c-19fa-456b-86f2-80299519775b\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-cycle-delete=\"2ecfedf0-f1a0-43ad-a2f0-cc00a8e6ae3a\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -370647,7 +370608,7 @@
                       ]
                     },
                     {
-                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"890\" height=\"430\" viewBox=\"-74 -36 890 430\" style=\"transform: translate3d(-73.7267px, -35.3022px, 0px) scale(1);\">",
+                      "html": "<svg pointer-events=\"none\" class=\"leaflet-zoom-animated\" width=\"890\" height=\"430\" viewBox=\"297 -36 890 430\" style=\"transform: translate3d(297px, -36px, 0px);\">",
                       "target": [
                         "svg[width=\"890\"]"
                       ]
@@ -373689,12 +373650,19 @@
                     "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
+                    "messageKey": "elmPartiallyObscured",
                     "expectedContrastRatio": "4.5:1"
                   },
-                  "relatedNodes": [],
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
                 }
               ],
               "all": [],
@@ -373704,7 +373672,747 @@
               "target": [
                 "label[for=\"multiReserve\"]"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label for=\"multiPrice\">Prix de référence (€/L, facultatif)</label>",
+              "target": [
+                "label[for=\"multiPrice\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Aucun plein automatique. Une quantité ou capacité manquante laisse l’autonomie inconnue ; un achat dépassant la capacité est signalé. La réserve reste dans le réservoir. Estimation déclarative, sans mesure du niveau ni suivi GPS.</p>",
+              "target": [
+                "#multiEditor > fieldset > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.3pt (16.38px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h3 id=\"multiPreviewTitle\" tabindex=\"-1\">Aperçu à confirmer</h3>",
+              "target": [
+                "#multiPreviewTitle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p><strong>Parcours à plusieurs arrêts</strong> · OSRM · véhicule léger · sans exclusions · Plus rapide · durée estimée · E10</p>",
+              "target": [
+                "#multiPreviewBody > p:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<strong>Parcours à plusieurs arrêts</strong>",
+              "target": [
+                "p:nth-child(1) > strong"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Calcul du 17/09/2026 12:00:00. Aperçu du calcul demandé. IGN / BD TOPO ou OpenStreetMap / OSRM selon le moteur indiqué. </p>",
+              "target": [
+                "#multiPreviewBody > .note"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p id=\"multiPreviewMapNote\" class=\"note\">Carte locale du tracé calculé. Le fond de carte est facultatif ; l’afficher contacte OpenStreetMap pour la zone consultée.</p>",
+              "target": [
+                "#multiPreviewMapNote"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\" data-multi-map-status=\"\" role=\"status\">Carte interactive indisponible. Schéma et liste des étapes conservés.</p>",
+              "target": [
+                "p[data-multi-map-status=\"\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div class=\"multi-leg\" data-multi-detail=\"\" role=\"status\">Choisir une étape sur la carte ou dans la liste numérotée pour la situer et lire sa portion.</div>",
+              "target": [
+                "div[data-multi-detail=\"\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<summary>Schéma du tracé sans fond de carte</summary>",
+              "target": [
+                ".multi-schema > summary"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"291.12569227064773\" y=\"45\" text-anchor=\"middle\" fill=\"#111\">1</text>",
+              "target": [
+                "text[x=\"291.12569227064773\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"301.8625090296171\" y=\"158.94172887069666\" text-anchor=\"middle\" fill=\"#111\">2</text>",
+              "target": [
+                "text[y=\"158.94172887069666\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"301.8625090296171\" y=\"205.89573802070805\" text-anchor=\"middle\" fill=\"#111\">3</text>",
+              "target": [
+                "text[y=\"205.89573802070805\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "shortTextContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content is too short to determine if it is actual text content"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<text x=\"308.87430772935227\" y=\"305\" text-anchor=\"middle\" fill=\"#111\">4</text>",
+              "target": [
+                "text[x=\"308.87430772935227\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p>Étapes numérotées dans l’ordre ci-dessous ; le schéma sans fond reste disponible. Accès, état des routes, ouverture et carburant disponible non garantis.</p>",
+              "target": [
+                "#multiPreviewBody > p:nth-child(4)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<li><button type=\"button\" class=\"ghost\" data-multi-focus=\"1\" aria-pressed=\"false\">2. 1 route test, 26000, Valence</button> · achat 10,0 L · pause 5,0 min</li>",
+              "target": [
+                ".multi-map-list > li:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<li><button type=\"button\" class=\"ghost\" data-multi-focus=\"2\" aria-pressed=\"false\">3. 2 route test, 26000, Valence</button> · achat 10,0 L · pause 5,0 min</li>",
+              "target": [
+                ".multi-map-list > li:nth-child(3)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p><strong>150,0 km · 125,0 min de conduite</strong>. Pauses carburant : 10,0 min. Conduite + pauses carburant : 135,0 min. Hors autres pauses, embarquement et trafic en direct.</p>",
+              "target": [
+                "#multiPreviewBody > p:nth-child(6)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<strong>150,0 km · 125,0 min de conduite</strong>",
+              "target": [
+                "p:nth-child(6) > strong"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p>Écart au trajet de référence : +46,0 km · +60,0 min de conduite.</p>",
+              "target": [
+                "#multiPreviewBody > p:nth-child(7)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h4>Autonomie par portion</h4>",
+              "target": [
+                "h4:nth-child(8)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p>Consommation 6,2 L/100 km · départ 25,0 L · capacité 60,0 L · réserve 30,0 km. Aucune quantité supposée remise à niveau.</p>",
+              "target": [
+                "#multiPreviewBody > p:nth-child(9)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<strong>1 → 2 · 1 route test, 26000, Valence</strong>",
+              "target": [
+                ".multi-leg:nth-child(10) > strong"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "elmPartiallyObscured",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<dialog id=\"multiDialog\" aria-labelledby=\"multiTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
+                      "target": [
+                        "#multiDialog"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p>50,0 km · 41,7 min · cumul 50,0 km.</p>",
+              "target": [
+                ".multi-leg:nth-child(10) > p:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
             },
             {
               "any": [
@@ -373725,9 +374433,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input id=\"multiReserve\" type=\"number\" min=\"0\" max=\"500\" step=\"any\" value=\"30\" required=\"\" style=\"\">",
+              "html": "<p>Dans la portée théorique, réserve conservée · reste théorique 21,90 L.</p>",
               "target": [
-                "#multiReserve"
+                ".multi-leg:nth-child(10) > p:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -478151,7 +478859,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-address-start=\"99d4d1bd-ff1f-431e-83f7-6ba1a7db2467\">Départ</button>",
+              "html": "<button class=\"ghost\" data-address-start=\"d5362274-2cf8-4e63-8c9a-8cb6bf6dce13\">Départ</button>",
               "target": [
                 ".saved-row > .dialog-actions > .ghost:nth-child(1)"
               ],
@@ -478176,7 +478884,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-address-end=\"99d4d1bd-ff1f-431e-83f7-6ba1a7db2467\">Arrivée</button>",
+              "html": "<button class=\"ghost\" data-address-end=\"d5362274-2cf8-4e63-8c9a-8cb6bf6dce13\">Arrivée</button>",
               "target": [
                 ".saved-row > .dialog-actions > .ghost:nth-child(2)"
               ],
@@ -480390,7 +481098,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-address-remove=\"f01518c3-3790-43e3-ba15-2a6bab8d2246\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-address-remove=\"3ec41a0a-3863-4ad1-a4ca-30d884f13892\">Supprimer</button>",
               "target": [
                 ".saved-row > .dialog-actions > .ghost:nth-child(4)"
               ],
@@ -481666,7 +482374,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-address-remove=\"dc4706ac-3036-4f96-a1e7-e4aaa1497659\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-address-remove=\"66734cc8-a891-4640-b4c4-65ef22f29a07\">Supprimer</button>",
               "target": [
                 ".saved-row > .dialog-actions > .ghost:nth-child(4)"
               ],
@@ -486835,7 +487543,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"1d8e6804-4131-405c-9446-2d7912b65952\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"77e6c762-8fa3-46ed-8b32-ab5edafd1195\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -486860,7 +487568,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"1d8e6804-4131-405c-9446-2d7912b65952\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"77e6c762-8fa3-46ed-8b32-ab5edafd1195\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -486885,7 +487593,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"1d8e6804-4131-405c-9446-2d7912b65952\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"77e6c762-8fa3-46ed-8b32-ab5edafd1195\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -487564,7 +488272,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"46a47c00-a1cf-4957-a572-875d0625e6a7\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"0f0a35f2-5f32-4448-87d4-e783332f3488\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -487589,7 +488297,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"46a47c00-a1cf-4957-a572-875d0625e6a7\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"0f0a35f2-5f32-4448-87d4-e783332f3488\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -487614,7 +488322,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"46a47c00-a1cf-4957-a572-875d0625e6a7\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"0f0a35f2-5f32-4448-87d4-e783332f3488\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -488307,7 +489015,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"e7930275-e774-49a8-9d1d-ba5eeb7bfc59\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"80ccf27f-5174-487c-89b0-994670997deb\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -488332,7 +489040,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"e7930275-e774-49a8-9d1d-ba5eeb7bfc59\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"80ccf27f-5174-487c-89b0-994670997deb\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -488357,7 +489065,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"e7930275-e774-49a8-9d1d-ba5eeb7bfc59\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"80ccf27f-5174-487c-89b0-994670997deb\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -489050,7 +489758,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"35d25074-59e0-440a-bf1d-f2eda8dffea6\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"656468a6-f3bc-4275-9f07-3239556d8684\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -489075,7 +489783,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"35d25074-59e0-440a-bf1d-f2eda8dffea6\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"656468a6-f3bc-4275-9f07-3239556d8684\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -489100,7 +489808,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"35d25074-59e0-440a-bf1d-f2eda8dffea6\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"656468a6-f3bc-4275-9f07-3239556d8684\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -492213,198 +492921,6 @@
                     "contrastRatio": 0,
                     "fontSize": "10.5pt (14px)",
                     "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"roadContext\">Lyon, France → Valence, France. Même véhicule et exclusions : OSRM · véhicule léger · sans exclusions · Plus rapide · durée estimée. Les deux critères seront demandés séparément, sans arrêt carburant ni rencontre.</p>",
-              "target": [
-                "#roadContext"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Comparer deux trajets directs : sans rencontre, arrêt carburant, pause ni trafic en direct. Chaque critère utilise son moteur disponible ; leurs réseaux et estimations peuvent différer. Aucune garantie de route plus sûre, plus large ou moins chère.</p>",
-              "target": [
-                "#roadCompareDialog > .note:nth-child(3)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadDeparture\">Départ prévu · heure de Paris<input id=\"roadDeparture\" type=\"datetime-local\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadDeparture\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadArriveBy\">Arrivée limite · facultative<input id=\"roadArriveBy\" type=\"datetime-local\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadArriveBy\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadCons\">Consommation estimée · L/100 km<input id=\"roadCons\" type=\"number\" min=\"1\" max=\"100\" step=\"0.1\" inputmode=\"decimal\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadCons\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadPrice\">Prix carburant · €/L · facultatif<input id=\"roadPrice\" type=\"number\" min=\"0.001\" max=\"10\" step=\"0.001\" inputmode=\"decimal\" placeholder=\"Non renseigné\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadPrice\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
                     "messageKey": "bgOverlap",
                     "expectedContrastRatio": "4.5:1"
                   },
@@ -492416,9 +492932,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<p class=\"note\">Même consommation et même prix personnel pour les deux calculs, véhicule entier. Le prix n’est repris ni d’une station ni du budget précédent. Péages, stationnement et autres frais restent inconnus.</p>",
+              "html": "<p id=\"roadContext\">Lyon, France → Valence, France. Même véhicule et exclusions : OSRM · véhicule léger · sans exclusions · Plus rapide · durée estimée. Les deux critères seront demandés séparément, sans arrêt carburant ni rencontre.</p>",
               "target": [
-                "#roadCompareDialog > .note:nth-child(5)"
+                "#roadContext"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -492777,21 +493293,39 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
+                    "fontSize": "13.5pt (18px)",
+                    "fontWeight": "bold",
+                    "messageKey": "elmPartiallyObscuring",
                     "expectedContrastRatio": "4.5:1"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                  "message": "Element's background color could not be determined because it partially overlaps other elements"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 id=\"roadTitle\" tabindex=\"-1\">Plus rapide ou plus court ?</h2>",
+              "target": [
+                "#roadTitle"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
                 }
               ],
               "all": [],
@@ -492801,679 +493335,7 @@
               "target": [
                 "#roadContext"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Comparer deux trajets directs : sans rencontre, arrêt carburant, pause ni trafic en direct. Chaque critère utilise son moteur disponible ; leurs réseaux et estimations peuvent différer. Aucune garantie de route plus sûre, plus large ou moins chère.</p>",
-              "target": [
-                "#roadCompareDialog > .note:nth-child(3)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadDeparture\">Départ prévu · heure de Paris<input id=\"roadDeparture\" type=\"datetime-local\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadDeparture\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadArriveBy\">Arrivée limite · facultative<input id=\"roadArriveBy\" type=\"datetime-local\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadArriveBy\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadCons\">Consommation estimée · L/100 km<input id=\"roadCons\" type=\"number\" min=\"1\" max=\"100\" step=\"0.1\" inputmode=\"decimal\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadCons\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadPrice\">Prix carburant · €/L · facultatif<input id=\"roadPrice\" type=\"number\" min=\"0.001\" max=\"10\" step=\"0.001\" inputmode=\"decimal\" placeholder=\"Non renseigné\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadPrice\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Même consommation et même prix personnel pour les deux calculs, véhicule entier. Le prix n’est repris ni d’une station ni du budget précédent. Péages, stationnement et autres frais restent inconnus.</p>",
-              "target": [
-                "#roadCompareDialog > .note:nth-child(5)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label class=\"check\"><input id=\"roadOnlyBefore\" type=\"checkbox\" style=\"\">Limiter le choix aux arrivées estimées avant l’heure limite</label>",
-              "target": [
-                "#roadCompareDialog > .check"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"roadStatus\" role=\"status\" aria-live=\"polite\">2/2 critères calculés. Valeurs à comparer ; aucun meilleur trajet universel.</p>",
-              "target": [
-                "#roadStatus"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadSort\">Présenter d’abord</label>",
-              "target": [
-                "label[for=\"roadSort\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Tri des valeurs disponibles, sans score. Les égalités restent visibles ; un résultat hors limite est consultable mais ne peut être choisi tant que le filtre est actif.</p>",
-              "target": [
-                "#roadSortWrap > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"roadDifference\">Écarts « plus court » moins « plus rapide », à la précision affichée : -4,0 km · +95 min · -0,48 € de carburant estimé. Aucun écart de budget total calculable avec les péages et autres frais inconnus.</p>",
-              "target": [
-                "#roadDifference"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "12.3pt (16.38px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3>Plus court · distance</h3>",
-              "target": [
-                "article[data-road-group=\"0\"] > h3"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">IGN · BD TOPO · véhicule léger · sans exclusions · Plus court · distance</p>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > .note:nth-child(1)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.8pt (13px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dt>Distance</dt>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > dl > div:nth-child(1) > dt"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dd>100,0 km</dd>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > dl > div:nth-child(1) > dd"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.8pt (13px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dt>Conduite estimée</dt>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > dl > div:nth-child(2) > dt"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dd>160 min</dd>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > dl > div:nth-child(2) > dd"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.8pt (13px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dt>Carburant consommé estimé · véhicule entier</dt>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > dl > div:nth-child(3) > dt"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dd>6,00 L · 12,00 €</dd>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > dl > div:nth-child(3) > dd"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.8pt (13px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dt>Péages et autres frais</dt>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > dl > div:nth-child(4) > dt"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dd>Inconnus · budget total incomplet</dd>",
-              "target": [
-                "section[data-road-criterion=\"shortest\"] > dl > div:nth-child(4) > dd"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
             {
               "any": [
@@ -493494,9 +493356,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<p class=\"note\">Arrivée estimée : 20/11/2026 12:40 (Paris). Aucune heure limite demandée. Hors pauses et trafic en direct.</p>",
+              "html": "<p class=\"note\">Comparer deux trajets directs : sans rencontre, arrêt carburant, pause ni trafic en direct. Chaque critère utilise son moteur disponible ; leurs réseaux et estimations peuvent différer. Aucune garantie de route plus sûre, plus large ou moins chère.</p>",
               "target": [
-                "section[data-road-criterion=\"shortest\"] > .note:nth-child(3)"
+                "#roadCompareDialog > .note:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -493599,358 +493461,6 @@
                     "contrastRatio": 0,
                     "fontSize": "10.5pt (14px)",
                     "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"roadContext\">Lyon, France → Valence, France. Même véhicule et exclusions : OSRM · véhicule léger · sans exclusions · Plus rapide · durée estimée. Les deux critères seront demandés séparément, sans arrêt carburant ni rencontre.</p>",
-              "target": [
-                "#roadContext"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Comparer deux trajets directs : sans rencontre, arrêt carburant, pause ni trafic en direct. Chaque critère utilise son moteur disponible ; leurs réseaux et estimations peuvent différer. Aucune garantie de route plus sûre, plus large ou moins chère.</p>",
-              "target": [
-                "#roadCompareDialog > .note:nth-child(3)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadDeparture\">Départ prévu · heure de Paris<input id=\"roadDeparture\" type=\"datetime-local\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadDeparture\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadArriveBy\">Arrivée limite · facultative<input id=\"roadArriveBy\" type=\"datetime-local\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadArriveBy\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadCons\">Consommation estimée · L/100 km<input id=\"roadCons\" type=\"number\" min=\"1\" max=\"100\" step=\"0.1\" inputmode=\"decimal\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadCons\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadPrice\">Prix carburant · €/L · facultatif<input id=\"roadPrice\" type=\"number\" min=\"0.001\" max=\"10\" step=\"0.001\" inputmode=\"decimal\" placeholder=\"Non renseigné\" style=\"\"></label>",
-              "target": [
-                "label[for=\"roadPrice\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Même consommation et même prix personnel pour les deux calculs, véhicule entier. Le prix n’est repris ni d’une station ni du budget précédent. Péages, stationnement et autres frais restent inconnus.</p>",
-              "target": [
-                "#roadCompareDialog > .note:nth-child(5)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label class=\"check\"><input id=\"roadOnlyBefore\" type=\"checkbox\" style=\"\">Limiter le choix aux arrivées estimées avant l’heure limite</label>",
-              "target": [
-                "#roadCompareDialog > .check"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"roadStatus\" role=\"status\" aria-live=\"polite\">1/2 critères calculés. Résultat partiel ; aucune variante de remplacement inventée.</p>",
-              "target": [
-                "#roadStatus"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"roadSort\">Présenter d’abord</label>",
-              "target": [
-                "label[for=\"roadSort\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"roadCompareDialog\" aria-labelledby=\"roadTitle\" style=\"--dialog-heading-height: 72.1875px;\" open=\"\">",
-                      "target": [
-                        "#roadCompareDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Tri des valeurs disponibles, sans score. Les égalités restent visibles ; un résultat hors limite est consultable mais ne peut être choisi tant que le filtre est actif.</p>",
-              "target": [
-                "#roadSortWrap > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "12.3pt (16.38px)",
-                    "fontWeight": "bold",
                     "messageKey": "bgOverlap",
                     "expectedContrastRatio": "4.5:1"
                   },
@@ -493962,9 +493472,34 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h3>Plus rapide · durée estimée</h3>",
+              "html": "<p id=\"roadContext\">Lyon, France → Valence, France. Même véhicule et exclusions : OSRM · véhicule léger · sans exclusions · Plus rapide · durée estimée. Les deux critères seront demandés séparément, sans arrêt carburant ni rencontre.</p>",
               "target": [
-                "article[data-road-group=\"0\"] > h3"
+                "#roadContext"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"note\">Comparer deux trajets directs : sans rencontre, arrêt carburant, pause ni trafic en direct. Chaque critère utilise son moteur disponible ; leurs réseaux et estimations peuvent différer. Aucune garantie de route plus sûre, plus large ou moins chère.</p>",
+              "target": [
+                "#roadCompareDialog > .note:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -545540,7 +545075,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"fa016313-46e2-4cee-b0a6-5aed5000b436\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"9e46706a-4cf2-4354-933b-a981157b7f4c\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -545565,7 +545100,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"fa016313-46e2-4cee-b0a6-5aed5000b436\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"9e46706a-4cf2-4354-933b-a981157b7f4c\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -545590,7 +545125,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"fa016313-46e2-4cee-b0a6-5aed5000b436\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"9e46706a-4cf2-4354-933b-a981157b7f4c\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -546526,7 +546061,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"2d03875e-2605-4cd9-806c-6d86997e795c\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"263fde39-5e7c-4847-9c76-0e42f1919b88\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -546551,7 +546086,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"2d03875e-2605-4cd9-806c-6d86997e795c\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"263fde39-5e7c-4847-9c76-0e42f1919b88\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -546576,7 +546111,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"2d03875e-2605-4cd9-806c-6d86997e795c\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"263fde39-5e7c-4847-9c76-0e42f1919b88\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -548147,7 +547682,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"5795736a-8940-4b94-8e59-bb05906270c6\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"660f6a69-39b9-4b25-924a-07c53100cb7d\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -548172,7 +547707,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"5795736a-8940-4b94-8e59-bb05906270c6\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"660f6a69-39b9-4b25-924a-07c53100cb7d\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -548197,7 +547732,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"5795736a-8940-4b94-8e59-bb05906270c6\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"660f6a69-39b9-4b25-924a-07c53100cb7d\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -549133,7 +548668,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"71cdd5fa-bc82-4c55-be01-93e023a049fc\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"76e03d6b-ea74-4891-afb1-e17bca3823c4\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -549158,7 +548693,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"71cdd5fa-bc82-4c55-be01-93e023a049fc\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"76e03d6b-ea74-4891-afb1-e17bca3823c4\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -549183,7 +548718,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"71cdd5fa-bc82-4c55-be01-93e023a049fc\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"76e03d6b-ea74-4891-afb1-e17bca3823c4\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -550882,7 +550417,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"ff9b7ba5-3f62-4db7-8e04-957ceafb014e\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"4fa877f4-a0dd-48f4-88d7-59076877fee0\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -550907,7 +550442,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"ff9b7ba5-3f62-4db7-8e04-957ceafb014e\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"4fa877f4-a0dd-48f4-88d7-59076877fee0\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -550932,7 +550467,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"ff9b7ba5-3f62-4db7-8e04-957ceafb014e\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"4fa877f4-a0dd-48f4-88d7-59076877fee0\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -551868,7 +551403,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"0380bd8f-8bb4-49c2-b216-362e5f2378cd\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"7eefcfca-f655-4217-a22e-7daa282acce6\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -551893,7 +551428,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"0380bd8f-8bb4-49c2-b216-362e5f2378cd\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"7eefcfca-f655-4217-a22e-7daa282acce6\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -551918,7 +551453,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"0380bd8f-8bb4-49c2-b216-362e5f2378cd\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"7eefcfca-f655-4217-a22e-7daa282acce6\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -554756,7 +554291,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"fb6d4060-2f7e-4833-a24f-dfaf673bb868\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-show=\"7dd20f85-9bd5-4983-8b0a-af7df5492a08\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -554781,7 +554316,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"fb6d4060-2f7e-4833-a24f-dfaf673bb868\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-rename=\"7dd20f85-9bd5-4983-8b0a-af7df5492a08\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -554806,7 +554341,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"fb6d4060-2f7e-4833-a24f-dfaf673bb868\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-shared-delete=\"7dd20f85-9bd5-4983-8b0a-af7df5492a08\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -581865,479 +581400,24 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikesQuery\">Nom, adresse ou numéro de station</label>",
-              "target": [
-                "label[for=\"bikesQuery\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<label for=\"bikesNeed\">Afficher</label>",
-              "target": [
-                "label[for=\"bikesNeed\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">« Récemment » : annonce de la station et flux datant de 5 minutes au maximum. Les dates absentes, futures ou anciennes ne satisfont pas les filtres. Les nombres restent des annonces, sans réservation ni garantie à l’arrivée.</p>",
-              "target": [
-                "#bikesBrowse > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "12.3pt (16.38px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3 id=\"bikesMapTitle\" tabindex=\"-1\">Repérer les stations</h3>",
-              "target": [
-                "#bikesMapTitle"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikesMapNote\" class=\"note\">Carte indisponible. Toutes les stations restent consultables dans la liste.</p>",
-              "target": [
-                "#bikesMapNote"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p id=\"bikesPageLabel\" tabindex=\"-1\">Page 1 sur 1 · 2 station(s) dans la liste et sur la carte</p>",
-              "target": [
-                "#bikesPageLabel"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "12.3pt (16.38px)",
-                    "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h3 tabindex=\"-1\">17. 2001 - BELLECOUR / RÉPUBLIQUE</h3>",
-              "target": [
-                "article[data-bike-id=\"2001\"] > h3"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p>Angle République / rue de la Barre</p>",
-              "target": [
-                "article[data-bike-id=\"2001\"] > p:nth-child(2)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "10.5pt (14px)",
                     "fontWeight": "bold",
-                    "messageKey": "elmPartiallyObscured",
+                    "messageKey": "bgOverlap",
                     "expectedContrastRatio": "4.5:1"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
                 }
               ],
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<p class=\"bike-age\" data-bike-age=\"recent\">Annonce récente · station : 19/11/2026 10:59:50</p>",
+              "html": "<button id=\"bikeTripSearch\" type=\"button\" class=\"primary\">Calculer marche + vélo partagé</button>",
               "target": [
-                "article[data-bike-id=\"2001\"] > .bike-age[data-bike-age=\"recent\"]"
+                "#bikeTripSearch"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dt>Vélos annoncés</dt>",
-              "target": [
-                "article[data-bike-id=\"2001\"] > .bike-counts > div:nth-child(1) > dt"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "18.0pt (24px)",
-                    "fontWeight": "bold",
-                    "messageKey": "shortTextContent",
-                    "expectedContrastRatio": "3:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element content is too short to determine if it is actual text content"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dd>3</dd>",
-              "target": [
-                "article[data-bike-id=\"2001\"] > .bike-counts > div:nth-child(1) > dd"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dt>Places annoncées</dt>",
-              "target": [
-                "article[data-bike-id=\"2001\"] > .bike-counts > div:nth-child(2) > dt"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "18.0pt (24px)",
-                    "fontWeight": "bold",
-                    "messageKey": "shortTextContent",
-                    "expectedContrastRatio": "3:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element content is too short to determine if it is actual text content"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<dd>4</dd>",
-              "target": [
-                "article[data-bike-id=\"2001\"] > .bike-counts > div:nth-child(2) > dd"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p>Mécaniques : 1 · Électriques : 2</p>",
-              "target": [
-                "article[data-bike-id=\"2001\"] > p:nth-child(5)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"bikesDialog\" aria-labelledby=\"bikesTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#bikesDialog"
-                      ]
-                    }
-                  ],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<p class=\"note\">Station installée : Oui · Location : Oui · Restitution : Oui. Batterie et autonomie individuelles inconnues.</p>",
-              "target": [
-                "article[data-bike-id=\"2001\"] > .note"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
             {
               "any": [
@@ -582358,9 +581438,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-bike-trip-role=\"pickup\" data-bike-trip-station=\"2001\" aria-pressed=\"false\">Prendre un vélo ici</button>",
+              "html": "<label for=\"bikesQuery\">Nom, adresse ou numéro de station</label>",
               "target": [
-                ".ghost[data-bike-trip-role=\"pickup\"][data-bike-trip-station=\"2001\"]"
+                "label[for=\"bikesQuery\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -601051,7 +600131,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"06ac5db8-3648-4fef-813e-b06186875917\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"dea50b8c-e2c6-4396-9b68-1047ca2f7432\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -601076,7 +600156,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"06ac5db8-3648-4fef-813e-b06186875917\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"dea50b8c-e2c6-4396-9b68-1047ca2f7432\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -601101,7 +600181,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"06ac5db8-3648-4fef-813e-b06186875917\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"dea50b8c-e2c6-4396-9b68-1047ca2f7432\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -601830,7 +600910,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"52e6bec5-abad-42ed-adee-8e718a0bd48f\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"8943f8c6-235f-485a-bb36-e9907af3ddfa\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -601855,7 +600935,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"52e6bec5-abad-42ed-adee-8e718a0bd48f\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"8943f8c6-235f-485a-bb36-e9907af3ddfa\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -601880,7 +600960,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"52e6bec5-abad-42ed-adee-8e718a0bd48f\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"8943f8c6-235f-485a-bb36-e9907af3ddfa\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -602623,7 +601703,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"0e106476-b15f-49e4-84bc-be39bbf97497\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"1e3d183a-dcbe-40ec-8b35-0adb322dacb0\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -602648,7 +601728,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"0e106476-b15f-49e4-84bc-be39bbf97497\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"1e3d183a-dcbe-40ec-8b35-0adb322dacb0\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -602673,7 +601753,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"0e106476-b15f-49e4-84bc-be39bbf97497\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"1e3d183a-dcbe-40ec-8b35-0adb322dacb0\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -603416,7 +602496,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"de49e7e7-f450-4be5-ba91-ddb01b4b318c\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"2e59afdb-cd3c-4245-bdcb-d3330ff9b302\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -603441,7 +602521,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"de49e7e7-f450-4be5-ba91-ddb01b4b318c\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"2e59afdb-cd3c-4245-bdcb-d3330ff9b302\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -603466,7 +602546,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"de49e7e7-f450-4be5-ba91-ddb01b4b318c\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"2e59afdb-cd3c-4245-bdcb-d3330ff9b302\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -642257,7 +641337,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"699a7e5c-cf92-4161-ac0e-0ac6a19c9772\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"c2cd9a4e-f787-4335-ba5e-c224311f54b9\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -642282,7 +641362,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"699a7e5c-cf92-4161-ac0e-0ac6a19c9772\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"c2cd9a4e-f787-4335-ba5e-c224311f54b9\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -642307,7 +641387,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"699a7e5c-cf92-4161-ac0e-0ac6a19c9772\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"c2cd9a4e-f787-4335-ba5e-c224311f54b9\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -643136,7 +642216,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"a02cd3e6-8f11-49e8-a8cb-8b57430b5534\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"49c13a3f-9bd0-465d-9fe8-bb942ee5eebf\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -643161,7 +642241,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"a02cd3e6-8f11-49e8-a8cb-8b57430b5534\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"49c13a3f-9bd0-465d-9fe8-bb942ee5eebf\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -643186,7 +642266,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"a02cd3e6-8f11-49e8-a8cb-8b57430b5534\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"49c13a3f-9bd0-465d-9fe8-bb942ee5eebf\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -644004,7 +643084,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"81bc2b68-675c-4e36-b6e4-f053a1cb6fad\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"664a57d5-8a04-43c1-bd4f-ddc8180192cf\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -644029,7 +643109,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"81bc2b68-675c-4e36-b6e4-f053a1cb6fad\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"664a57d5-8a04-43c1-bd4f-ddc8180192cf\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -644054,7 +643134,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"81bc2b68-675c-4e36-b6e4-f053a1cb6fad\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"664a57d5-8a04-43c1-bd4f-ddc8180192cf\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -644872,7 +643952,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"a8c4fe52-b036-4bbe-9a33-79f2d7c738a5\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"dd366a76-bf9d-4099-90cc-a25c02ca4ca0\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -644897,7 +643977,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"a8c4fe52-b036-4bbe-9a33-79f2d7c738a5\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"dd366a76-bf9d-4099-90cc-a25c02ca4ca0\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -644922,7 +644002,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"a8c4fe52-b036-4bbe-9a33-79f2d7c738a5\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"dd366a76-bf9d-4099-90cc-a25c02ca4ca0\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -657991,7 +657071,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"6a0bdd06-822e-4922-a24e-11b9cc2f2aa3\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"f7b5a6b3-8c5e-49a6-9714-b6fb23a45273\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -658016,7 +657096,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"6a0bdd06-822e-4922-a24e-11b9cc2f2aa3\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"f7b5a6b3-8c5e-49a6-9714-b6fb23a45273\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -658041,7 +657121,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"6a0bdd06-822e-4922-a24e-11b9cc2f2aa3\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"f7b5a6b3-8c5e-49a6-9714-b6fb23a45273\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -658834,7 +657914,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"d3e52c19-3ab7-49f4-9c2e-55260573db1c\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"5b445aab-7133-4cfc-acde-67b3a512f95e\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -658859,7 +657939,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"d3e52c19-3ab7-49f4-9c2e-55260573db1c\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"5b445aab-7133-4cfc-acde-67b3a512f95e\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -658884,7 +657964,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"d3e52c19-3ab7-49f4-9c2e-55260573db1c\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"5b445aab-7133-4cfc-acde-67b3a512f95e\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -659677,7 +658757,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"e6ea0846-dfc6-4f13-8fc5-e5324c665ee8\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"199a713d-ab0d-40e0-8f58-edf478754398\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -659702,7 +658782,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"e6ea0846-dfc6-4f13-8fc5-e5324c665ee8\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"199a713d-ab0d-40e0-8f58-edf478754398\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -659727,7 +658807,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"e6ea0846-dfc6-4f13-8fc5-e5324c665ee8\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"199a713d-ab0d-40e0-8f58-edf478754398\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -660520,7 +659600,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"bc3359ca-42ee-481b-8f00-d5ecabe94add\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"71a0cc3a-ea47-46ea-a482-a1433f697a60\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -660545,7 +659625,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"bc3359ca-42ee-481b-8f00-d5ecabe94add\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"71a0cc3a-ea47-46ea-a482-a1433f697a60\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -660570,7 +659650,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"bc3359ca-42ee-481b-8f00-d5ecabe94add\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"71a0cc3a-ea47-46ea-a482-a1433f697a60\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -690464,7 +689544,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"42e04405-cc17-4df5-8ed7-810535090f6b\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"e75fac0c-15d6-47b9-abcd-084609c9bb16\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -690489,7 +689569,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"42e04405-cc17-4df5-8ed7-810535090f6b\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"e75fac0c-15d6-47b9-abcd-084609c9bb16\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -690514,7 +689594,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"42e04405-cc17-4df5-8ed7-810535090f6b\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"e75fac0c-15d6-47b9-abcd-084609c9bb16\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -692865,7 +691945,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"242e61c7-723b-4f6f-a1be-dac5b525b44e\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"37d98a82-504f-4c81-9dcb-2a3a856663a9\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -692890,7 +691970,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"242e61c7-723b-4f6f-a1be-dac5b525b44e\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"37d98a82-504f-4c81-9dcb-2a3a856663a9\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -692915,7 +691995,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"242e61c7-723b-4f6f-a1be-dac5b525b44e\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"37d98a82-504f-4c81-9dcb-2a3a856663a9\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -778023,7 +777103,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"c33a80e9-be49-4df2-9aea-af7cebfd8e26\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"cfbfe88b-05a2-47d3-af46-1014ab2ce195\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -778048,7 +777128,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"c33a80e9-be49-4df2-9aea-af7cebfd8e26\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"cfbfe88b-05a2-47d3-af46-1014ab2ce195\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -778073,7 +777153,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"c33a80e9-be49-4df2-9aea-af7cebfd8e26\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"cfbfe88b-05a2-47d3-af46-1014ab2ce195\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -779996,7 +779076,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"0711c8e1-acb8-4a7d-a06d-c5e4102446fd\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"ec532f20-8023-40ad-8950-b22fa0fbe972\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -780021,7 +779101,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"0711c8e1-acb8-4a7d-a06d-c5e4102446fd\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"ec532f20-8023-40ad-8950-b22fa0fbe972\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -780046,7 +779126,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"0711c8e1-acb8-4a7d-a06d-c5e4102446fd\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"ec532f20-8023-40ad-8950-b22fa0fbe972\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -782583,7 +781663,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"00ed784e-9add-42d2-b441-82f61e302c07\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"f071aa32-6409-45e1-b184-7c6ba3411806\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -782608,7 +781688,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"00ed784e-9add-42d2-b441-82f61e302c07\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"f071aa32-6409-45e1-b184-7c6ba3411806\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -782633,7 +781713,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"00ed784e-9add-42d2-b441-82f61e302c07\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"f071aa32-6409-45e1-b184-7c6ba3411806\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -783306,7 +782386,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"9a95f12c-79ec-43a5-ac7f-f9731b1ac54e\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"be04bc18-8603-408e-9626-a662444dd9a2\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -783331,7 +782411,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"9a95f12c-79ec-43a5-ac7f-f9731b1ac54e\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"be04bc18-8603-408e-9626-a662444dd9a2\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -783356,7 +782436,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"9a95f12c-79ec-43a5-ac7f-f9731b1ac54e\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"be04bc18-8603-408e-9626-a662444dd9a2\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -786763,7 +785843,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"e8cb99bd-36f2-495b-b006-d56b0ccb7288\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"a0fa1fd7-06d9-4641-97bd-fdb28548d037\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -786788,7 +785868,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"e8cb99bd-36f2-495b-b006-d56b0ccb7288\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"a0fa1fd7-06d9-4641-97bd-fdb28548d037\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -786813,7 +785893,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"e8cb99bd-36f2-495b-b006-d56b0ccb7288\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"a0fa1fd7-06d9-4641-97bd-fdb28548d037\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -790252,7 +789332,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"eabc34a9-c5d3-45d0-a5ee-40f849c7233f\">Consulter</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-show=\"574f6e2f-e486-4ed4-b1ab-4e98a12fa73d\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(1)"
               ],
@@ -790277,7 +789357,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"eabc34a9-c5d3-45d0-a5ee-40f849c7233f\">Renommer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-rename=\"574f6e2f-e486-4ed4-b1ab-4e98a12fa73d\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(2)"
               ],
@@ -790302,7 +789382,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"eabc34a9-c5d3-45d0-a5ee-40f849c7233f\">Supprimer</button>",
+              "html": "<button type=\"button\" class=\"ghost\" data-saved-transit-delete=\"574f6e2f-e486-4ed4-b1ab-4e98a12fa73d\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost[type=\"button\"]:nth-child(3)"
               ],
@@ -800227,19 +799307,12 @@
                     "contrastRatio": 0,
                     "fontSize": "10.5pt (14px)",
                     "fontWeight": "normal",
-                    "messageKey": "elmPartiallyObscured",
+                    "messageKey": "bgOverlap",
                     "expectedContrastRatio": "4.5:1"
                   },
-                  "relatedNodes": [
-                    {
-                      "html": "<dialog id=\"transitDialog\" aria-labelledby=\"transitTitle\" style=\"--dialog-heading-height: 65px;\" open=\"\">",
-                      "target": [
-                        "#transitDialog"
-                      ]
-                    }
-                  ],
+                  "relatedNodes": [],
                   "impact": "serious",
-                  "message": "Element's background color could not be determined because it's partially obscured by another element"
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
                 }
               ],
               "all": [],
@@ -800249,7 +799322,7 @@
               "target": [
                 "article[data-transit-option=\"1\"] > .transit-legs > li:nth-child(1)"
               ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
             {
               "any": [
@@ -800282,31 +799355,6 @@
                 "article[data-transit-option=\"1\"] > .transit-legs > li:nth-child(1) > strong"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<li><strong>19/11 10:06 — 19/11 10:31 · Tram A</strong><br>Grenoble, Gares → Grenoble, Polesud – Alpexpo<br>Direction : Le Pont-de-Claix, L'Étoile<br>M Réso - Métropole Grenobloise</li>",
-              "target": [
-                "article[data-transit-option=\"1\"] > .transit-legs > li:nth-child(2)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
             {
               "any": [
@@ -815998,7 +815046,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"d29ccd32-2de2-4fc6-bdfb-b1b0bd0bf499\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"7ac5689e-3d6a-4d75-b0ba-3cab8104cd6d\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -816023,7 +815071,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"d29ccd32-2de2-4fc6-bdfb-b1b0bd0bf499\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"7ac5689e-3d6a-4d75-b0ba-3cab8104cd6d\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -816048,7 +815096,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"d29ccd32-2de2-4fc6-bdfb-b1b0bd0bf499\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"7ac5689e-3d6a-4d75-b0ba-3cab8104cd6d\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -816741,7 +815789,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-show=\"296a1e2b-33c0-4ff8-bc99-87ca92d474ab\">Consulter</button>",
+              "html": "<button class=\"ghost\" data-prepared-show=\"8c3d08b4-5369-49ba-a005-52afc8c568ed\">Consulter</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(1)"
               ],
@@ -816766,7 +815814,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-rename=\"296a1e2b-33c0-4ff8-bc99-87ca92d474ab\">Renommer</button>",
+              "html": "<button class=\"ghost\" data-prepared-rename=\"8c3d08b4-5369-49ba-a005-52afc8c568ed\">Renommer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(2)"
               ],
@@ -816791,7 +815839,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<button class=\"ghost\" data-prepared-delete=\"296a1e2b-33c0-4ff8-bc99-87ca92d474ab\">Supprimer</button>",
+              "html": "<button class=\"ghost\" data-prepared-delete=\"8c3d08b4-5369-49ba-a005-52afc8c568ed\">Supprimer</button>",
               "target": [
                 "article > .row-actions > .ghost:nth-child(3)"
               ],
@@ -818012,8 +817060,8 @@
   "diagnostics": [],
   "compatibility": {
     "schemaVersion": 1,
-    "generatedAt": "2026-11-25T10:45:11.117Z",
-    "commit": "e0ee57a7f8607aad199ae6f28ef83b0f94d768af",
+    "generatedAt": "2026-11-25T17:44:51.767Z",
+    "commit": "386d417fce5ec22dc2ed4a94e4f580c693d904a7",
     "playwright": "1.64.1",
     "platform": "linux 7.0.0-1014-aws x64",
     "runnerExitCode": 0,
@@ -818334,6 +817382,24 @@
           },
           {
             "title": "horaires successifs : clavier, texte agrandi, rotation et carte indisponible",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : parcours complet OSRM avec station, plein déclaré et arrivée",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : panne audio signalée sans interrompre le guidage visuel",
+            "project": "firefox-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : boucle réelle IGN, reprise après autonomie",
             "project": "firefox-desktop-1440",
             "attempts": 1,
             "passed": true
@@ -819068,6 +818134,24 @@
             "passed": true
           },
           {
+            "title": "recette Android : parcours complet OSRM avec station, plein déclaré et arrivée",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : panne audio signalée sans interrompre le guidage visuel",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : boucle réelle IGN, reprise après autonomie",
+            "project": "firefox-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
             "title": "guidage : démarrage volontaire, progression, pause et préparation intacte",
             "project": "firefox-small-390",
             "attempts": 1,
@@ -819792,6 +818876,24 @@
           },
           {
             "title": "horaires successifs : clavier, texte agrandi, rotation et carte indisponible",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : parcours complet OSRM avec station, plein déclaré et arrivée",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : panne audio signalée sans interrompre le guidage visuel",
+            "project": "webkit-desktop-1440",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : boucle réelle IGN, reprise après autonomie",
             "project": "webkit-desktop-1440",
             "attempts": 1,
             "passed": true
@@ -820526,6 +819628,24 @@
             "passed": true
           },
           {
+            "title": "recette Android : parcours complet OSRM avec station, plein déclaré et arrivée",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : panne audio signalée sans interrompre le guidage visuel",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
+            "title": "recette Android : boucle réelle IGN, reprise après autonomie",
+            "project": "webkit-small-390",
+            "attempts": 1,
+            "passed": true
+          },
+          {
             "title": "guidage : démarrage volontaire, progression, pause et préparation intacte",
             "project": "webkit-small-390",
             "attempts": 1,
@@ -820941,10 +820061,10 @@
   },
   "toolchain": {
     "schemaVersion": 1,
-    "generatedAt": "2026-11-25T10:46:39.252Z",
-    "commit": "e0ee57a7f8607aad199ae6f28ef83b0f94d768af",
+    "generatedAt": "2026-11-25T17:50:19.156Z",
+    "commit": "386d417fce5ec22dc2ed4a94e4f580c693d904a7",
     "node": "22.23.5",
-    "platform": "linux 7.0.0-1014-aws x64",
+    "platform": "linux 7.0.0-1017-azure x64",
     "state": "passed",
     "errors": [],
     "dependencies": {
