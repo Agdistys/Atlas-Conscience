@@ -7588,6 +7588,12 @@ function bindBottomNavigation(){
  const nav=$('bottomNav'),dialogs=[['journalDialog','journalBtn'],['profileDialog','profileBtn'],['sourcesDialog','sourcesBtn']];
  const sync=()=>{const active=dialogs.find(([id])=>$(id).open)?.[1]||'tripsTab';for(const el of nav.querySelectorAll('button')){if(el.id===active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current')}if($('sourcesDialog').open){$('settingsVoice').disabled=$('guidanceOpen').hidden||busy;$('settingsVoiceHint').hidden=!$('settingsVoice').disabled}};
  const observer=new MutationObserver(sync);for(const [id] of dialogs)observer.observe($(id),{attributes:true,attributeFilter:['open']});
+ // Native focus scrolling can ignore a fixed bar (notably on small WebKit viewports).
+ // Recheck after the browser has scrolled, without moving focus or touching dialogs.
+ const revealFocus=()=>{const el=document.activeElement;if(!(el instanceof HTMLElement)||!$('app').contains(el)||nav.contains(el)||el.closest('dialog'))return;const r=el.getBoundingClientRect(),sheet=el.closest('.sheet'),clip=sheet&&getComputedStyle(sheet).overflowY==='auto'?sheet.getBoundingClientRect():null,top=Math.max(0,clip?.top||0),bottom=Math.min(nav.getBoundingClientRect().top,clip?.bottom||innerHeight);if(r.width&&r.height&&(r.top<top+8||r.bottom>bottom-8))el.scrollIntoView({block:'center',behavior:'instant'})};
+ const scheduleReveal=()=>requestAnimationFrame(()=>{revealFocus();requestAnimationFrame(revealFocus)});
+ document.addEventListener('focusin',scheduleReveal);window.addEventListener('resize',scheduleReveal);
+
  const resize=new ResizeObserver(()=>document.documentElement.style.setProperty('--bottom-nav-height',Math.ceil(nav.getBoundingClientRect().height)+'px'));resize.observe(nav);
  $('tripsTab').addEventListener('click',()=>{const target=$('sheet').hidden?$('multiActiveBody'):$('tripHeading');target.setAttribute('tabindex','-1');target.scrollIntoView({block:'start'});target.focus({preventScroll:true})});
  $('settingsRoute').addEventListener('click',()=>{$('sourcesDialog').close();focusStationField($('routeVehicle').closest('[hidden]')?'walkMode':'routeVehicle')});

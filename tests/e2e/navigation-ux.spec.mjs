@@ -35,3 +35,9 @@ test('voix : unités prononcées et absence de la voix choisie sans substitution
  await fixture(page);await open(page);await page.locator('#guidanceVoiceSelect').selectOption('fr-FR|Locale');await page.locator('#guidanceVoice').check();await page.locator('#guidanceStart').click();await fix(page,start);expect(await page.evaluate(()=>gpsTest.spoken[0].text)).toMatch(/^Dans 390 mètres, /);
  await page.locator('#guidancePause').click();await page.locator('#guidanceClose').click();await page.evaluate(()=>speechSynthesis.getVoices=()=>[{name:'Distante',lang:'fr-FR',localService:false}]);await open(page);await expect(page.locator('#guidanceVoiceTest')).toBeDisabled();await expect(page.locator('#guidanceVoice')).toBeDisabled();
 });
+
+test('ergonomie : le focus remonte au-dessus de la barre après un défilement natif incomplet',async({page})=>{
+ await fixture(page);await page.setViewportSize({width:390,height:640});const target=page.locator('#bikesBtn');await page.locator('#start').focus();
+ await target.evaluate(e=>{const r=e.getBoundingClientRect();window.scrollTo(0,scrollY+r.bottom-innerHeight+12);e.focus({preventScroll:true})});
+ await expect(target).toBeFocused();await expect.poll(()=>target.evaluate(e=>{const r=e.getBoundingClientRect(),bar=document.getElementById('bottomNav').getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return r.top>=0&&r.bottom<bar.top&&(hit===e||e.contains(hit))})).toBe(true);
+});

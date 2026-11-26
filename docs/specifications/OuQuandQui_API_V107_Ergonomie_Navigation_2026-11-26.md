@@ -8,7 +8,7 @@ Placer les accès « 🛣️ Trajets », « 📓 Journal », « 👤 Profil » e
 
 ## Navigation et lecture
 
-La barre reste fixée en bas de la fenêtre, avec quatre boutons de 44 pixels au moins, un libellé visible et un indicateur de rubrique. La hauteur réservée suit la hauteur réelle de la barre et la zone système du téléphone. Le dernier contenu doit rester accessible à 360 pixels et avec le texte doublé.
+La barre reste fixée en bas de la fenêtre, avec quatre boutons de 44 pixels au moins, un libellé visible et un indicateur de rubrique. La hauteur réservée suit la hauteur réelle de la barre et la zone système du téléphone. Le dernier contenu doit rester accessible à 360 pixels et avec le texte doublé. Après le défilement natif lié au focus, une vérification repositionne le contrôle au-dessus de la barre si nécessaire ; elle ne déplace pas le focus et ne modifie pas les panneaux modaux.
 
 Trajets rejoint la préparation ou le parcours à plusieurs arrêts déjà adopté. Les préparations enregistrées restent accessibles dans la rubrique Trajets. Journal et Profil ouvrent leurs panneaux existants, sans modifier le trajet courant ; la fermeture rend le focus au bouton d’origine. Réglages rassemble l’accès aux options routières, à la voix et aux informations de sources et de stockage. L’ouverture d’un panneau ne déclenche ni GPS ni calcul d’itinéraire.
 

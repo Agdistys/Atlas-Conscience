@@ -87,6 +87,7 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "ergonomie : le focus remonte au-dessus de la barre après un défilement natif incomplet",
   "ergonomie : navigation basse, retour de focus et champs conservés",
   "voix : choix local et débit essayés sans GPS ni voix distante",
   "routes : accès direct aux alternatives garde les exclusions et le trajet avant adoption",

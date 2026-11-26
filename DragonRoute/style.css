@@ -281,3 +281,6 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 #stationPauseOptions{margin:12px 0}
 #findAlternativesBtn{border-color:#82baff;color:#bcdcff}
 @media(min-width:801px){.bottom-nav{padding-left:max(12px,calc((100vw - 640px)/2));padding-right:max(12px,calc((100vw - 640px)/2))}}
+
+html{scroll-padding-bottom:calc(var(--bottom-nav-height) + 12px)}
+.sheet{scroll-padding-bottom:12px}
