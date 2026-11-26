@@ -1,19 +1,19 @@
 // Static interface only. Personal records stay in localStorage, never in this cache.
 const PREFIX="dragonroute-shell:"+encodeURIComponent(self.registration.scope)+":";
 // BEGIN SHELL MANIFEST
-const RELEASE="29-de9168c26fe62568";
+const RELEASE="29-9a8f7ab8f621b211";
 const SHELL=[
   {
     "path": "./",
-    "integrity": "sha256-jQvcuZ3HaFwGxg7bUGu/EepkfWBe4yZLMeRym5K3+LQ="
+    "integrity": "sha256-S4QkHDzbHtR5oKhns1VSLBawrGK+HpHUNGfPxKkyeMM="
   },
   {
     "path": "./index.html",
-    "integrity": "sha256-jQvcuZ3HaFwGxg7bUGu/EepkfWBe4yZLMeRym5K3+LQ="
+    "integrity": "sha256-S4QkHDzbHtR5oKhns1VSLBawrGK+HpHUNGfPxKkyeMM="
   },
   {
     "path": "./style.css",
-    "integrity": "sha256-r47DfdtFatcLhOlhIfTjNIrAe5faei1d2arU6wNsHBA="
+    "integrity": "sha256-v+GU4TZeAQ0EqQk3M0EGqGcVRJUkMA7ES8lBjXAn+Cc="
   },
   {
     "path": "./config.js",
@@ -21,7 +21,7 @@ const SHELL=[
   },
   {
     "path": "./app.js",
-    "integrity": "sha256-0I/X/jRC1SwXe0wPffsA069b/haDInLNKKeQV+rpLbU="
+    "integrity": "sha256-/N3le+q7i9gWOBlddPfVp+j0G1lm1D6OpaWyqzNpEyA="
   },
   {
     "path": "./manifest.webmanifest",

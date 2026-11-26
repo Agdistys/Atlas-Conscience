@@ -22,3 +22,10 @@ test('autonomie guidée : clavier, champs lisibles et retour au déclencheur',as
 
 test('autonomie guidée : GPS en amont impose le recalcul avant une nouvelle déclaration',async({page})=>{const h=await setup(page);await fix(page,[5.003,45],{seconds:10});await panel(page);await page.locator('#guidanceRangeAmount').fill('100');await page.locator('#guidanceRangeSave').click();await expect(page.locator('#guidanceRangeNote')).toContainText('Position en amont');await expect(page.locator('#guidanceRangeStatus')).toContainText('inconnue');await unchanged(page,h)});
 test('autonomie guidée : perte du signal et position ancienne conservent seulement la dernière estimation',async({page})=>{const h=await setup(page);await panel(page);await save(page);await page.evaluate(()=>gpsTest.callbacks.at(-1).fail({code:2}));await expect(page.locator('#guidanceRangeStatus')).toContainText('à réactualiser');await panel(page);await page.locator('#guidanceRangeAmount').fill('500');await page.evaluate(()=>gpsTest.age=16000);await page.locator('#guidanceRangeSave').click();await expect(page.locator('#guidanceRangeNote')).toContainText('ancienne');await expect(page.locator('#guidanceRangeStatus')).toContainText('100,0 km');expect(await watches(page)).toBe(2);await unchanged(page,h)});
+
+test('guidage épuré : réserve et autonomie périmée signalées hors des aides',async({page})=>{
+ const h=await setup(page);await panel(page);await save(page,{amount:'0'});
+ await expect(page.locator('#guidanceInfo')).not.toHaveAttribute('open','');await expect(page.locator('#guidanceRangeAlert')).toBeVisible();await expect(page.locator('#guidanceRangeAlert')).toContainText('Réserve atteinte');
+ await page.locator('#guidancePause').click();await expect(page.locator('#guidanceRangeAlert')).toBeVisible();await expect(page.locator('#guidanceRangeAlert')).toHaveText('Autonomie à réactualiser.');await expect(page.locator('#guidanceRangeOpen')).toHaveText('⛽ Autonomie');
+ await page.locator('#guidanceInfo > summary').click();await expect(page.locator('#guidanceRangeEvidence')).toBeVisible();await unchanged(page,h);
+});

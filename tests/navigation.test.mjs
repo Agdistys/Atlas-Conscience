@@ -19,3 +19,9 @@ test('guidage : retour en arrière durable permet le recalcul',()=>{const m=mode
 const loopFixture=JSON.parse(fs.readFileSync('tests/fixtures/navigation/ign-station-loop-public.json')),loopParams=new URL(loopFixture.url).searchParams,loopNodes=[loopParams.get('start'),...loopParams.get('intermediates').split('|'),loopParams.get('end')].map(p=>({point:p.split(',').map(Number).reverse()})),loopModel=()=>c.guidanceModel({...loopFixture.data,legs:loopFixture.data.portions},'ign',loopNodes);
 test('guidage : boucle réelle après station, départ connu sans saut vers le retour',()=>{const m=loopModel(),p=m.ends[0].point,raw=fix(p),unknown=c.guidanceTrack(m,{leg:1,progress:0},raw,now);assert.equal(unknown.status,'uncertain');const entry=c.guidanceNextLeg(m,{status:'stop',leg:0,progress:m.ends[0].at}),s=c.guidanceTrack(m,entry,raw,now);assert.equal(s.status,'active');assert.equal(s.progress,m.ends[0].at);assert.equal(s.entry,null);const later=c.guidanceTrack(m,s,fix(p,now+3000),now+3000);assert.equal(later.status,'active');assert.equal(later.progress,s.progress)});
 test('guidage : une entrée de portion ne peut provenir d’une étape non atteinte',()=>{const m=loopModel();for(const state of [{status:'active',leg:0},{status:'stop',leg:1},{status:'stop',leg:-1}])assert.throws(()=>c.guidanceNextLeg(m,state));const p=m.ends[0].point,entry=c.guidanceNextLeg(m,{status:'stop',leg:0});entry.entry.leg=0;assert.equal(c.guidanceTrack(m,entry,fix(p),now).status,'uncertain')});
+
+test('guidage : pictogramme issu de la manœuvre structurée, jamais du nom de rue',()=>{
+ const r=road();r.legs[0].steps[1].name='Rue à droite';const m=c.guidanceModel(r,'osrm',nodes);
+ assert.equal(m.steps[1].modifier,'left');assert.equal(c.guidanceSymbol(m.steps[1]),'↰');
+ assert.equal(c.guidanceSymbol({type:'roundabout',exit:3}),'⟳');assert.equal(c.guidanceSymbol({type:'arrive'}),'⚑');assert.equal(c.guidanceSymbol({type:'turn',modifier:'uturn'}),'↶');
+});

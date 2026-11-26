@@ -1,5 +1,9 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "guidage épuré : réserve et autonomie périmée signalées hors des aides",
+  "guidage épuré : manœuvre, carte et commandes tiennent sur téléphone",
+  "guidage épuré : perte GPS et refus restent visibles sans flèche ni durée périmées",
+  "guidage épuré : paysage et texte doublé gardent aides et arrêt accessibles",
   "recette Android : boucle réelle IGN, reprise après autonomie",
   "recette Android : parcours complet OSRM avec station, plein déclaré et arrivée",
   "recette Android : panne audio signalée sans interrompre le guidage visuel",

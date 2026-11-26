@@ -470,39 +470,51 @@
   <p id="preparedImportMessage" class="note" role="status"></p><button id="preparedImportApply" class="primary" type="button" disabled>Confirmer le remplacement</button>
 </dialog>
 <dialog id="guidanceDialog" class="guidance-dialog" aria-labelledby="guidanceTitle">
- <div class="dialog-heading"><h2 id="guidanceTitle">Guidage OùQuandQui</h2><button id="guidanceClose" class="icon-btn" type="button" aria-label="Arrêter et fermer le guidage">×</button></div>
- <p id="guidanceSummary"></p>
- <div id="guidanceSetup">
+ <div class="dialog-heading"><h2 id="guidanceTitle">Guidage</h2><button id="guidanceClose" class="icon-btn" type="button" aria-label="Arrêter et fermer le guidage">×</button></div>
+ <div class="guidance-instruction"><span id="guidanceArrow" class="guidance-arrow" aria-hidden="true">⌖</span><div><p id="guidanceDistance"></p><h3 id="guidanceInstruction">Prêt à partir</h3></div></div>
+ <p id="guidanceStatus" class="app-notice" role="status">Le GPS n’est pas activé.</p>
+ <div id="guidanceMap" class="guidance-map" aria-label="Carte du trajet guidé" hidden></div>
+ <div id="guidanceFallback" class="guidance-map" hidden></div>
+ <div id="guidanceTripStats" class="guidance-trip-stats" hidden><strong id="guidanceMinutes"></strong><span id="guidanceKilometers"></span><small>Estimations · hors trafic</small></div>
+ <p id="guidanceRangeAlert" class="app-notice" role="status" hidden></p>
+ <div class="dialog-actions guidance-actions">
+  <button id="guidanceStart" class="primary" type="button">▶ Démarrer</button>
+  <button id="guidancePause" class="ghost" type="button" hidden>⏸ Pause</button>
+  <button id="guidanceRecalculate" class="primary" type="button" hidden>↻ Recalculer</button>
+  <button id="guidanceContinue" class="primary" type="button" hidden>▶ Repartir</button>
+  <button id="guidanceStop" class="ghost" type="button">■ Terminer</button>
+ </div>
+ <div class="guidance-tools">
+  <button id="guidanceFuelOpen" class="ghost" type="button" hidden>⛽ Station</button>
+  <button id="guidanceFollow" class="ghost" type="button" aria-pressed="true" hidden>⌖ Recentrer</button>
+  <button id="guidanceRangeOpen" class="ghost" type="button" hidden>⛽ Autonomie</button>
+ </div>
+ <div class="guidance-quick"><label class="guidance-voice"><input id="guidanceVoice" type="checkbox"> 🔊 Voix</label><span class="note">Garder l’application ouverte</span></div>
+ <p id="guidanceAudioAlert" class="app-notice" role="status" hidden></p>
+ <div class="guidance-disclosures">
+ <details id="guidanceInfo"><summary>ⓘ Informations</summary>
+ <p id="guidanceSummary"></p><div id="guidanceSetup">
   <p>Le guidage suit la position pendant que l’application reste ouverte. Les manœuvres sont demandées au moteur du trajet choisi. Le suivi reste sur cet appareil ; aucune trace GPS n’est enregistrée. Préparer les réglages à l’arrêt et respecter la signalisation.</p>
   <p>Après une sortie de route confirmée, le guidage recalcule automatiquement le trajet.</p>
   <p class="note">Un recalcul transmet la position actuelle et les étapes restantes au même moteur routier. Les options du trajet sont conservées. Les prix, horaires des arrêts et budgets de la préparation ne sont pas actualisés par le guidage.</p>
  </div>
- <div class="guidance-instruction"><p id="guidanceDistance"></p><h3 id="guidanceInstruction">Prêt à préparer le guidage</h3></div>
- <p id="guidanceStatus" class="app-notice" role="status">Le GPS n’est pas activé.</p>
+
  <p id="guidanceGps" class="note"></p><p id="guidanceRemaining"></p>
- <section id="guidanceRangeSummary" hidden><p id="guidanceRangeStatus"></p><p id="guidanceRangeEvidence" class="note"></p></section>
- <div id="guidanceMap" class="guidance-map" aria-label="Carte du trajet guidé" hidden></div>
- <div id="guidanceFallback" class="guidance-map" hidden></div>
- <div class="dialog-actions guidance-actions">
-  <button id="guidanceStart" class="primary" type="button">Démarrer le guidage GPS</button>
-  <button id="guidancePause" class="ghost" type="button" hidden>Mettre en pause</button>
-  <button id="guidanceRecalculate" class="primary" type="button" hidden>Recalculer depuis ma position</button>
-  <button id="guidanceContinue" class="primary" type="button" hidden>Reprendre après cette étape</button>
-  <button id="guidanceFollow" class="ghost" type="button" aria-pressed="true" hidden>Suivre ma position</button>
-  <button id="guidanceFuelOpen" class="primary" type="button" hidden>Trouver une station sur la suite du trajet</button>
-  <button id="guidanceRangeOpen" class="ghost" type="button" hidden>Actualiser mon autonomie</button>
-  <button id="guidanceStop" class="ghost" type="button">Arrêter le guidage</button>
- </div>
- <details id="guidanceSettings" open><summary>Voix et écran</summary>
+ <section id="guidanceRangeSummary" hidden><h3>Autonomie déclarée</h3><p id="guidanceRangeStatus"></p><p id="guidanceRangeEvidence" class="note"></p></section>
+ <h3>Étapes du trajet</h3><ol id="guidanceSteps"></ol>
+ <p class="note">Distances et durées estimées, sans trafic en direct. Une mauvaise précision, une position ancienne ou ambiguë suspend les indications. Le passage en arrière-plan met le guidage en pause. Écran verrouillé, navigation native et fonctionnement sur route restent à qualifier sur appareil réel.</p>
+ </details>
+ <details id="guidanceSettings"><summary>⚙️ Voix et écran</summary>
  <div class="guidance-settings">
-  <label class="check-label"><input id="guidanceVoice" type="checkbox"> Annonces vocales avec une voix française locale</label>
+
   <label class="check-label"><input id="guidanceAwake" type="checkbox" checked> Garder l’écran allumé si l’appareil l’autorise</label>
  </div>
  <div class="two-fields"><div><label for="guidanceVoiceSelect">Voix française sur cet appareil</label><select id="guidanceVoiceSelect"></select></div><div><label for="guidanceVoiceRate">Débit de la voix</label><select id="guidanceVoiceRate"><option value="0.9">Plus posé</option><option value="1" selected>Normal</option><option value="1.1">Plus rapide</option></select></div></div>
  <button id="guidanceVoiceTest" type="button" class="ghost">Tester la voix à l’arrêt</button>
  <p id="guidanceVoiceNote" class="note" role="status"></p><p id="guidanceScreenNote" class="note"></p>
  </details>
- <details><summary>Étapes et limites du guidage</summary><ol id="guidanceSteps"></ol><p class="note">Distances et durées estimées, sans trafic en direct. Une mauvaise précision, une position ancienne ou ambiguë suspend les indications. Le passage en arrière-plan met le guidage en pause. Écran verrouillé, navigation native et fonctionnement sur route restent à qualifier sur appareil réel.</p></details>
+
+ </div>
 </dialog>
 
 

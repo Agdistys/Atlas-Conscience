@@ -32,8 +32,8 @@ export async function fixture(page,{ign=false,leaflet=false}={}){
  const before=await page.evaluate(()=>({storage:JSON.stringify({...localStorage}),route:navTest.route()}));
  return {calls,errors,control,before};
 }
-export async function open(page){await page.locator('#guidanceOpen').click();await expect(page.locator('#guidanceDialog')).toBeVisible()}
-export async function begin(page){await open(page);await page.locator('#guidanceStart').click();await expect.poll(()=>page.evaluate(()=>gpsTest.watches.length)).toBe(1)}
+export async function open(page,{settings=true}={}){await page.locator('#guidanceOpen').click();await expect(page.locator('#guidanceDialog')).toBeVisible();if(settings)await page.locator('#guidanceSettings > summary').click()}
+export async function begin(page){await open(page,{settings:false});await page.locator('#guidanceStart').click();await expect.poll(()=>page.evaluate(()=>gpsTest.watches.length)).toBe(1)}
 export async function fix(page,p=start,{seconds=0,accuracy=5,watch=null,timestamp=null}={}){
  if(seconds)await page.clock.setFixedTime(new Date(Date.parse('2026-09-17T10:00:00Z')+seconds*1000));
  await page.evaluate(({p,accuracy,watch,timestamp})=>{gpsTest.callbacks[watch??gpsTest.callbacks.length-1].ok({coords:{longitude:p[0],latitude:p[1],accuracy,speed:10},timestamp:timestamp??Date.now()})},{p,accuracy,watch,timestamp});
