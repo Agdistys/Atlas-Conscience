@@ -268,3 +268,19 @@ dialog input,dialog select,dialog button{scroll-margin-block:12px}
 .guidance-fuel-dialog{width:min(960px,calc(100% - 24px));max-width:960px}.guidance-fuel-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-block:16px}.guidance-fuel-fields input,.guidance-fuel-fields select{width:100%}.guidance-fuel-dialog .dialog-heading{z-index:1100}.guidance-fuel-card{border:1px solid var(--line);border-radius:10px;padding:16px;margin-block:14px;overflow-wrap:anywhere}.guidance-fuel-map{height:300px;margin-block:16px;border-radius:10px;isolation:isolate}.guidance-fuel-dialog button{min-height:44px}.guidance-fuel-dialog p{overflow-wrap:anywhere}#guidanceFuelChoice{border:2px solid var(--gold);border-radius:10px;padding:16px;margin-block:16px}#guidanceFuelChoiceTitle:focus,#guidanceFuelTitle:focus{outline:2px solid var(--gold)}@media(max-width:560px){.guidance-fuel-fields{grid-template-columns:1fr}.guidance-fuel-dialog{padding:12px}.guidance-fuel-dialog button:not(.icon-btn){width:100%}}
 
 #guidanceRangeSummary{border-left:3px solid var(--gold);padding-left:12px;margin:12px 0}#guidanceRangeStatus{font-weight:700}#guidanceRangeDialog{width:min(560px,calc(100% - 24px))}.guidance-range-fields{display:grid;gap:8px}.guidance-range-fields label:not(:first-child){margin-top:10px}#guidanceRangeForm>button{width:100%;min-height:44px;margin-top:12px}
+
+/* NAV-UX-01: navigation accessible au pouce, hors de la zone de lecture. */
+:root{--bottom-nav-height:76px}
+#app{padding-bottom:var(--bottom-nav-height);box-sizing:border-box}
+.bottom-nav{position:fixed;z-index:1100;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:#101010;border-top:1px solid #666}
+.bottom-nav button{min-width:0;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 2px;background:transparent;color:#eee;border:1px solid transparent;border-radius:8px;font:inherit;font-size:.85rem;overflow-wrap:anywhere;cursor:pointer}
+.bottom-nav button>span:first-child{font-size:1.4rem;line-height:1.2}
+.bottom-nav button[aria-current="page"]{border-color:#ae8427;background:#292216;color:#ffe0a0}
+.bottom-nav button:focus-visible{outline:3px solid #ffe0a0;outline-offset:-3px}
+.mode-icon{font-size:1.65rem;line-height:1.4;display:block}
+#stationPauseOptions{margin:12px 0}
+#findAlternativesBtn{border-color:#82baff;color:#bcdcff}
+@media(min-width:801px){.bottom-nav{padding-left:max(12px,calc((100vw - 640px)/2));padding-right:max(12px,calc((100vw - 640px)/2))}}
+
+html{scroll-padding-bottom:calc(var(--bottom-nav-height) + 12px)}
+.sheet{scroll-padding-bottom:12px}

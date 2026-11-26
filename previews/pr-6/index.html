@@ -18,7 +18,7 @@
 <div id="app">
   <header class="topbar">
     <div class="brand"><span class="dragon" aria-hidden="true">🐉</span><strong>OùQuandQui</strong><span class="badge">ESSAI</span></div>
-    <div class="header-actions"><button id="preparedBtn" class="ghost" type="button">Mes trajets</button><button id="journalBtn" class="ghost" type="button">Mon journal</button><button id="profileBtn" class="ghost">Mon profil</button><button id="sourcesBtn" class="ghost" type="button">Sources et données</button><button id="installBtn" class="ghost tiny-btn" aria-label="Installer OùQuandQui" hidden>＋ Installer</button></div>
+    <div class="header-actions"><button id="preparedBtn" class="ghost" type="button">Mes trajets enregistrés</button><button id="installBtn" class="ghost tiny-btn" aria-label="Installer OùQuandQui" hidden>＋ Installer</button></div>
   </header>
   <main class="stage">
     <section id="multiActiveBody" class="multi-active" aria-label="Parcours adopté à plusieurs arrêts" hidden></section>
@@ -43,7 +43,7 @@
       <section class="route-section">
         <p id="connectionNotice" class="app-notice" role="status" hidden></p>
         <p id="pwaUpdateNotice" class="app-notice" role="status" hidden></p>
-        <h1>Mon trajet</h1>
+        <h1 id="tripHeading" tabindex="-1">Mon trajet</h1>
         <section id="tripValidation" class="trip-validation" aria-labelledby="tripValidationHeading" hidden>
           <h2 id="tripValidationHeading">À corriger avant le calcul</h2>
           <p>Choisir une erreur pour rejoindre le champ concerné, puis relancer la recherche.</p>
@@ -58,11 +58,11 @@
         <section class="mode-access" aria-labelledby="modeAccessTitle" aria-describedby="modeAccessHint">
           <h2 id="modeAccessTitle">Comment se déplacer ?</h2>
           <div class="mode-grid">
-            <button id="carMode" class="ghost mode-choice" type="button" aria-pressed="true" aria-controls="vehiclePicker routingOptions"><strong>En véhicule</strong><small>France · selon le véhicule</small></button>
-            <button id="walkMode" class="ghost mode-choice" type="button" aria-pressed="false" aria-controls="walkingOptions"><strong>À pied</strong><small>France · parcours estimé</small></button>
-            <button id="cycleBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="cycleDialog"><strong>À vélo</strong><small>Métropole · vélo personnel</small></button>
-            <button id="transitBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="transitDialog"><strong>Transports collectifs</strong><small>Pilote Grenoble</small></button>
-            <button id="bikesBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="bikesDialog"><strong>Vélos partagés</strong><small>Pilote Lyon</small></button>
+            <button id="carMode" class="ghost mode-choice" type="button" aria-pressed="true" aria-controls="vehiclePicker routingOptions"><span class="mode-icon" aria-hidden="true">🚘</span><strong>En véhicule</strong><small>France · selon le véhicule</small></button>
+            <button id="walkMode" class="ghost mode-choice" type="button" aria-pressed="false" aria-controls="walkingOptions"><span class="mode-icon" aria-hidden="true">🚶</span><strong>À pied</strong><small>France · parcours estimé</small></button>
+            <button id="cycleBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="cycleDialog"><span class="mode-icon" aria-hidden="true">🚲</span><strong>À vélo</strong><small>Métropole · vélo personnel</small></button>
+            <button id="transitBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="transitDialog"><span class="mode-icon" aria-hidden="true">🚌</span><strong>Transports collectifs</strong><small>Pilote Grenoble</small></button>
+            <button id="bikesBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="bikesDialog"><span class="mode-icon" aria-hidden="true">🚲</span><strong>Vélos partagés</strong><small>Pilote Lyon</small></button>
           </div>
           <p id="modeAccessHint" class="note">Véhicule et marche : réglages ci-dessous. Les autres modes ouvrent leur recherche avec ces lieux, sans trajet voiture préalable.</p>
         </section>
@@ -83,7 +83,7 @@
         </section>
         <p id="routeModuleName" class="note">DragonRoute · module routier</p>
         <h2 id="routeModeHeading" tabindex="-1">Trajet en véhicule</h2>
-        <select id="travelMode" aria-label="Mode du trajet principal" hidden><option value="car">En véhicule</option><option value="walk">À pied</option></select>
+        <select id="travelMode" aria-label="Mode du trajet principal" hidden><option value="car">🚘 En véhicule</option><option value="walk">À pied</option></select>
         <div id="walkingOptions" hidden>
           <label for="maxWalkKm">Distance de marche souhaitée au maximum (km)</label><input id="maxWalkKm" type="number" min="0" max="500" step="any" placeholder="Sans limite renseignée" aria-describedby="walkingPreference"><label for="walkRule">Règle pour la distance à pied</label><select id="walkRule"><option value="soft">Préférence</option><option value="strict">Limite impérative</option></select>
           <details class="explanation"><summary>Comprendre la limite de marche</summary><p id="walkingPreference" class="note">Préférence : dépassement signalé. Limite impérative : trajet non admissible si dépassée. Vide : aucune distance demandée ; zéro : zéro kilomètre. Réévaluation locale sans nouveau calcul. Pente, effort et accessibilité non vérifiés.</p></details>
@@ -96,7 +96,7 @@
         <details id="routingOptions" class="routing-options" open>
           <summary id="routingOptionsToggle">Options du trajet</summary>
           <label for="routeVehicle">Véhicule pour ce trajet</label>
-          <select id="routeVehicle" aria-describedby="vehicleRoutingNote"><option value="car">Véhicule léger</option><option value="truck">Poids lourd</option><option value="caravan" disabled>Caravane · indisponible</option><option value="van" disabled>Utilitaire · indisponible</option></select>
+          <select id="routeVehicle" aria-describedby="vehicleRoutingNote"><option value="car">🚘 Véhicule léger</option><option value="truck">🚚 Poids lourd</option><option value="caravan" disabled>Caravane · indisponible</option><option value="van" disabled>Utilitaire · indisponible</option></select>
           <fieldset id="truckDimensions" class="dimension-fields" hidden><legend>Gabarit et charge du poids lourd</legend>
             <div><label for="truckHeight">Hauteur (m)</label><input id="truckHeight" type="number" min="0.01" max="6" step="0.01"></div>
             <div><label for="truckWidth">Largeur (m)</label><input id="truckWidth" type="number" min="0.01" max="6" step="0.01"></div>
@@ -129,6 +129,7 @@
         <p id="tripTiming" class="selection" role="status" hidden></p>
         <p id="walkingStatus" class="selection" role="status" hidden></p>
         <p id="routeAlternativesNote" class="note" hidden></p>
+        <button id="findAlternativesBtn" class="ghost navigation-button" type="button" hidden>🛣️ Rechercher et comparer d’autres trajets</button>
         <fieldset id="routeChoices" class="stop-modes" hidden></fieldset>
         <p id="appliedRouting" class="note" hidden></p>
         <p id="resolvedPlaces" class="note" hidden></p>
@@ -295,9 +296,11 @@
           </details>
           <p id="samplingSummary" class="note" role="status"></p>
           <details class="explanation"><summary>Méthode et couverture de la recherche</summary><p id="samplingNote" class="note" role="status">Calculer un trajet pour connaître le nombre de points à consulter.</p></details>
+          <details id="stationPauseOptions"><summary>Pause à la station · facultatif</summary>
           <label for="stopMinutes">Temps prévu à la station (min, facultatif)</label><input id="stopMinutes" type="number" min="0" max="1440" step="any" inputmode="decimal" placeholder="Non renseigné" aria-describedby="stopMinutesHelp stopMinutesStatus">
           <details class="explanation"><summary>Renseigner le temps du plein</summary><p id="stopMinutesHelp" class="note">De 0 à 1 440 minutes. Prévoir le plein et l’attente sur place. Laisser vide si la durée est inconnue ; zéro signifie une pause explicitement nulle. Les autres pauses ne sont pas incluses.</p></details>
           <p id="stopMinutesStatus" class="note" role="status">Cette durée sera ajoutée uniquement après le choix d’une station.</p>
+          </details>
           <label for="liters">Litres à acheter</label><input id="liters" type="number" min="1" max="2000" step="1" value="40">
           <details id="rangeOptions"><summary>Autonomie et réserve</summary>
             <label for="rangeMode">Autonomie au point de départ</label><select id="rangeMode"><option value="none">Non renseignée</option><option value="km">Distance restante estimée (km)</option><option value="liters">Carburant restant estimé (L)</option></select>
@@ -383,9 +386,15 @@
         <p id="installHelp" class="note">L’installation dépend du navigateur. Si aucun bouton Installer n’est proposé, consulter son menu d’installation ou d’ajout à l’écran d’accueil.</p>
         <button id="checkUpdateBtn" class="ghost" type="button" hidden>Vérifier les mises à jour</button>
       </details>
-      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · 386d417 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
+      <footer>Prototype · DGCCRF · © OpenStreetMap · Adresses et lieux : <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/" target="_blank" rel="noopener noreferrer">IGN · BAN / BD TOPO · Licence Ouverte 2.0</a> · <span id="routingAttribution">OSRM</span><p>Version d'essai · PR 6 · b480b23 · <a href="./rapport/inspection.html">Rapport d'inspection</a></p></footer>
     </section>
   </main>
+  <nav id="bottomNav" class="bottom-nav" aria-label="Navigation principale">
+    <button id="tripsTab" type="button" aria-current="page"><span aria-hidden="true">🛣️</span><span>Trajets</span></button>
+    <button id="journalBtn" type="button" aria-haspopup="dialog" aria-controls="journalDialog"><span aria-hidden="true">📓</span><span>Journal</span></button>
+    <button id="profileBtn" type="button" aria-haspopup="dialog" aria-controls="profileDialog"><span aria-hidden="true">👤</span><span>Profil</span></button>
+    <button id="sourcesBtn" type="button" aria-haspopup="dialog" aria-controls="sourcesDialog"><span aria-hidden="true">⚙️</span><span>Réglages</span></button>
+  </nav>
 </div>
 <dialog id="preparedDialog" aria-labelledby="preparedTitle">
   <div class="dialog-heading"><h2 id="preparedTitle">Mes trajets préparés</h2><button class="icon-btn close-dialog" type="button" aria-label="Fermer les trajets préparés">×</button></div>
@@ -466,7 +475,7 @@
  <p id="guidanceSummary"></p>
  <div id="guidanceSetup">
   <p>Le guidage suit la position pendant que l’application reste ouverte. Les manœuvres sont demandées au moteur du trajet choisi. Le suivi reste sur cet appareil ; aucune trace GPS n’est enregistrée. Préparer les réglages à l’arrêt et respecter la signalisation.</p>
-  <label class="check-label"><input id="guidanceAuto" type="checkbox"> Recalculer automatiquement après une sortie de route confirmée</label>
+  <p>Après une sortie de route confirmée, le guidage recalcule automatiquement le trajet.</p>
   <p class="note">Un recalcul transmet la position actuelle et les étapes restantes au même moteur routier. Les options du trajet sont conservées. Les prix, horaires des arrêts et budgets de la préparation ne sont pas actualisés par le guidage.</p>
  </div>
  <div class="guidance-instruction"><p id="guidanceDistance"></p><h3 id="guidanceInstruction">Prêt à préparer le guidage</h3></div>
@@ -490,6 +499,7 @@
   <label class="check-label"><input id="guidanceVoice" type="checkbox"> Annonces vocales avec une voix française locale</label>
   <label class="check-label"><input id="guidanceAwake" type="checkbox" checked> Garder l’écran allumé si l’appareil l’autorise</label>
  </div>
+ <div class="two-fields"><div><label for="guidanceVoiceSelect">Voix française sur cet appareil</label><select id="guidanceVoiceSelect"></select></div><div><label for="guidanceVoiceRate">Débit de la voix</label><select id="guidanceVoiceRate"><option value="0.9">Plus posé</option><option value="1" selected>Normal</option><option value="1.1">Plus rapide</option></select></div></div>
  <button id="guidanceVoiceTest" type="button" class="ghost">Tester la voix à l’arrêt</button>
  <p id="guidanceVoiceNote" class="note" role="status"></p><p id="guidanceScreenNote" class="note"></p>
  </details>
@@ -587,7 +597,7 @@
     <h3 id="journalFormTitle">Confirmer un trajet effectué</h3><p id="journalOrigin" class="note"></p>
     <form id="journalForm">
       <label for="journalDate">Date du déplacement</label><input id="journalDate" type="date" min="1900-01-01" required>
-      <label for="journalMode">Mode de déplacement</label><select id="journalMode"><option id="journalSharedMode" value="shared" hidden>Marche et vélo partagé</option><option id="journalCollectiveMode" value="collective" hidden>Collectif à étapes</option><option value="car">Voiture</option><option value="truck">Poids lourd</option><option value="train">Train</option><option value="bus">Bus / car</option><option value="bike">Vélo</option><option value="walk">Marche</option><option value="other">Autre</option></select>
+      <label for="journalMode">Mode de déplacement</label><select id="journalMode"><option id="journalSharedMode" value="shared" hidden>Marche et vélo partagé</option><option id="journalCollectiveMode" value="collective" hidden>Collectif à étapes</option><option value="car">🚘 Voiture</option><option value="truck">🚚 Poids lourd</option><option value="train">Train</option><option value="bus">Bus / car</option><option value="bike">Vélo</option><option value="walk">Marche</option><option value="other">Autre</option></select>
       <label for="journalStart">Départ</label><input id="journalStart" maxlength="1000" required>
       <label for="journalEnd">Arrivée</label><input id="journalEnd" maxlength="1000" required>
       <label for="journalDistance">Distance effectuée (km, facultatif)</label><input id="journalDistance" type="number" inputmode="decimal" min="0" max="40000" step="0.001" aria-describedby="journalDistanceNote"><p id="journalDistanceNote" class="note">Laisser vide si la distance est inconnue. Zéro indique une distance déclarée de zéro kilomètre.</p>
@@ -628,7 +638,7 @@
   <form id="vehicleForm" class="profile-section">
     <h3 id="vehicleEditorTitle">Ajouter un véhicule</h3>
     <label for="vehicleName">Nom du véhicule</label><input id="vehicleName" maxlength="80" placeholder="Ma voiture, ma caravane…">
-    <label for="vehicleType">Type</label><select id="vehicleType"><option value="car">Voiture</option><option value="caravan">Voiture avec caravane</option><option value="van">Utilitaire</option><option value="truck">Camion</option></select>
+    <label for="vehicleType">Type</label><select id="vehicleType"><option value="car">🚘 Voiture</option><option value="caravan">Voiture avec caravane</option><option value="van">Utilitaire</option><option value="truck">🚚 Camion</option></select>
     <p class="note">Le type sélectionné est appliqué au prochain trajet. Un poids lourd exige un gabarit complet ; une caravane n’est pas assimilée à un camion.</p>
     <details id="vehicleDimensionsEditor"><summary>Gabarit et charges facultatifs</summary><p class="note">Laisser tous les champs vides si le gabarit est inconnu. Sinon renseigner les cinq valeurs pour l’ensemble avec sa remorque. Ces bornes sont celles du calculateur, pas une autorisation de circulation.</p><div class="dimension-fields">
       <div><label for="vehicleDim-height">Hauteur totale (m)</label><input id="vehicleDim-height" type="number" min="0.01" max="6" step="any"></div>
@@ -869,7 +879,9 @@
 </dialog>
 
 <dialog id="sourcesDialog" aria-labelledby="sourcesTitle">
-  <div class="dialog-heading"><h2 id="sourcesTitle" tabindex="-1">Sources et données</h2><button id="sourcesClose" class="ghost" type="button" aria-label="Fermer les sources et données">×</button></div>
+  <div class="dialog-heading"><h2 id="sourcesTitle" tabindex="-1">Réglages et données</h2><button id="sourcesClose" class="ghost" type="button" aria-label="Fermer les sources et données">×</button></div>
+  <div class="dialog-actions"><button id="settingsRoute" class="ghost" type="button">🚘 Options du trajet</button><button id="settingsVoice" class="ghost" type="button">🔊 Voix du guidage</button></div><p id="settingsVoiceHint" class="note">Calculer un trajet pour préparer la voix du guidage.</p>
+  <h3>Sources et données</h3>
   <p>Sans compte ne signifie pas sans échanges. Les services consultés reçoivent l’adresse IP et des informations de connexion, en plus des éléments décrits ci-dessous. Leur conservation dépend de leurs règles.</p>
   <p class="note">Ce panneau décrit les fonctions configurées ; il ne surveille pas le trafic et ne certifie ni les fournisseurs ni leur disponibilité. Son ouverture, ses filtres et son actualisation ne lancent aucune requête de données.</p>
   <div class="tabs" role="tablist" aria-label="Sources et stockage"><button id="sourcesServicesTab" role="tab" aria-selected="true" aria-controls="sourcesServices" type="button">Services et échanges</button><button id="sourcesLocalTab" role="tab" aria-selected="false" aria-controls="sourcesLocal" tabindex="-1" type="button">Sur cet appareil</button></div>
