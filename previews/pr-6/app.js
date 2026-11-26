@@ -7126,6 +7126,11 @@ function guidanceInstruction(m,name,final=false){
  else{if(!side)throw Error('Direction de manœuvre manquante.');const verbs={'turn':'Tourner','continue':'Continuer','merge':'Rejoindre la voie','on ramp':'Prendre la bretelle','off ramp':'Prendre la sortie','fork':'À la bifurcation, rester','end of road':'Au bout de la route, tourner','roundabout turn':'Au rond-point, tourner'};text=m.modifier==='uturn'?'Faire demi-tour':verbs[m.type]+' '+side;}
  return text+(road&&m.type!=='arrive'?' · '+road:'');
 }
+function guidanceSymbol(step){
+ if(step.type==='arrive')return '⚑';
+ if(['roundabout','rotary','exit roundabout','exit rotary','roundabout turn'].includes(step.type))return '⟲';
+ return {'left':'↰','slight left':'↖','sharp left':'↙','right':'↱','slight right':'↗','sharp right':'↘','uturn':'↶','straight':'↑'}[step.modifier]||'↑';
+}
 function guidanceModel(route,provider,nodes){
  if(!['ign','osrm'].includes(provider)||!route||!Array.isArray(nodes)||nodes.length<2||nodes.length>12)throw Error('Parcours non pris en charge pour le guidage intégré.');
  const geometry=guidanceCoordinates(route.geometry),legs=route.legs;
@@ -7146,7 +7151,7 @@ function guidanceModel(route,provider,nodes){
    if(Math.abs(length-s.distance)>Math.max(8,s.distance*.06))throw Error('Distance des instructions incohérente avec le tracé.');
    for(let i=1;i<p.length;i++){const length=distances[i-1];if(length>.05){segments.push({a:p[i-1],b:p[i],at:meters,length,leg:li,step:stepIndex});meters+=length;}}
    const text=guidanceInstruction(m,provider==='ign'?s.attributes?.name:s.name,li===legs.length-1);
-   steps.push({type:m.type,text,at,end:meters,duration:s.duration,leg:li,point:p[0]});for(const point of p)all.push(point);previous=p.at(-1);legMeters+=s.distance;legSeconds+=s.duration;
+   steps.push({type:m.type,modifier:m.modifier,text,at,end:meters,duration:s.duration,leg:li,point:p[0]});for(const point of p)all.push(point);previous=p.at(-1);legMeters+=s.distance;legSeconds+=s.duration;
   }
   if(guidanceMeters(previous,[nodes[li+1].point[1],nodes[li+1].point[0]])>100)throw Error('Accès à une étape non vérifié pour le guidage.');
   if([leg.distance,leg.duration].some(n=>!Number.isFinite(n)||n<0)||Math.abs(legMeters-leg.distance)>Math.max(2,leg.steps.length*.15)||Math.abs(legSeconds-leg.duration)>Math.max(2,leg.steps.length*.15))throw Error('Totaux des manœuvres incohérents.');
@@ -7305,7 +7310,7 @@ function guidanceVoiceControls(){
  for(const v of voices)select.add(new Option(v.name+' · '+v.lang,guidanceVoiceKey(v)));
  if(guidanceAudio.voice&&!voices.some(v=>guidanceVoiceKey(v)===guidanceAudio.voice))select.add(new Option('Voix choisie indisponible',guidanceAudio.voice));
  select.value=guidanceAudio.voice;select.disabled=!voices.length;$('guidanceVoiceRate').value=String(guidanceAudio.rate);
- const voice=guidanceVoice();$('guidanceVoice').disabled=!voice;$('guidanceVoiceTest').disabled=!voice;if(!voice){$('guidanceVoice').checked=false;guidanceSilence()}
+ const voice=guidanceVoice();$('guidanceAudioAlert').hidden=!!voice;$('guidanceAudioAlert').textContent=voice?'':'Voix indisponible · guidage visuel.';$('guidanceVoice').disabled=!voice;$('guidanceVoiceTest').disabled=!voice;if(!voice){$('guidanceVoice').checked=false;guidanceSilence()}
  $('guidanceVoiceNote').textContent=voice?'Voix locale disponible. Choisir la voix et le débit, puis tester à l’arrêt. La fluidité dépend des voix installées sur le téléphone.':'Voix française locale indisponible : guidage visuel uniquement sur cet appareil.';
 }
 function guidanceAudioChange(){
@@ -7320,12 +7325,12 @@ function guidanceSilence(g=guidance){
 function guidanceSpeak(g,text,test=false){
  if(!guidanceCurrent(g)||document.hidden)return;const voice=guidanceVoice();if(!voice){guidanceVoiceControls();return}
  guidanceSilence(g);const epoch=g.voiceEpoch,current=()=>guidanceCurrent(g)&&g.voiceEpoch===epoch&&!document.hidden;
- const failed=()=>{if(!current())return;guidanceSilence(g);$('guidanceVoice').checked=false;$('guidanceVoiceNote').textContent='Lecture vocale indisponible ou interrompue. Annonces désactivées ; guidage visuel conservé. Vérifier le volume et la voix du téléphone à l’arrêt, puis refaire un essai.';};
+ const failed=()=>{if(!current())return;guidanceSilence(g);$('guidanceVoice').checked=false;$('guidanceAudioAlert').hidden=false;$('guidanceAudioAlert').textContent='Voix interrompue · guidage visuel.';$('guidanceVoiceNote').textContent='Lecture vocale indisponible ou interrompue. Annonces désactivées ; guidage visuel conservé. Vérifier le volume et la voix du téléphone à l’arrêt, puis refaire un essai.';};
  try{
   const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=guidanceAudio.rate;$('guidanceVoiceTest').disabled=false;
   u.onerror=failed;u.onend=()=>{if(!current())return;$('guidanceVoiceTest').disabled=!guidanceVoice();$('guidanceVoiceNote').textContent=test?'Phrase terminée selon le téléphone : son audible à confirmer à l’écoute. Les annonces restent un choix séparé.':'Annonce terminée selon le téléphone. Le volume et l’audibilité restent à vérifier.';};
   $('guidanceVoiceNote').textContent=test?'Phrase d’essai demandée : vérifier qu’elle est audible. Aucun GPS n’est démarré par cet essai.':'Annonce vocale demandée au téléphone.';
-  window.speechSynthesis.speak(u);
+  $('guidanceAudioAlert').hidden=true;window.speechSynthesis.speak(u);
  }catch{failed()}
 }
 function guidanceSay(g,text,key){
@@ -7368,14 +7373,21 @@ function guidanceRender(g){
  $('guidanceFuelOpen').hidden=!g.model||['arrived','stop'].includes(s?.status);$('guidanceFuelOpen').disabled=g.loading||g.invalid||!!g.fuel;
  $('guidanceSetup').hidden=!!g.model;
  $('guidanceStart').disabled=g.loading||g.invalid;$('guidanceStart').hidden=!g.paused||['arrived','stop'].includes(s?.status);
- $('guidanceStart').textContent=g.model?'Reprendre le guidage GPS':'Démarrer le guidage GPS';
+ $('guidanceStart').textContent=g.model?'▶ Reprendre':'▶ Démarrer';
  $('guidancePause').hidden=g.paused;$('guidanceContinue').hidden=s?.status!=='stop';
  $('guidanceRecalculate').hidden=g.paused||!s||!(g.recalculateFailed||['offroute','recalculation-error'].includes(s.status));$('guidanceRecalculate').disabled=g.loading;
  $('guidanceFollow').hidden=!g.model;$('guidanceFollow').setAttribute('aria-pressed',String(g.follow));
  const next=!g.paused&&!g.loading&&s?.status==='active'?s.next:null;
  $('guidanceDistance').textContent=next?(next.distance<20?'À proximité':next.distance<1000?'Dans '+Math.round(next.distance/10)*10+' m':'Dans '+fmt(next.distance/1000,1)+' km'):'';
- $('guidanceInstruction').textContent=next?next.text:g.loading?'Préparation des indications…':s?.status==='arrived'?'Arrivée':s?.status==='stop'?'Arrêt à l’étape':g.paused?'Guidage en pause':'En attente d’une position fiable';
+ $('guidanceInstruction').textContent=next?next.text:g.loading?'Préparation des indications…':s?.status==='arrived'?'Arrivée':s?.status==='stop'?'Arrêt à l’étape':g.paused?(g.model?'Guidage en pause':'Prêt à partir'):'Recherche GPS…';
  const message=g.loading?'Recherche des instructions du trajet…':s?.message||'Le GPS n’est pas activé.';if($('guidanceStatus').textContent!==message)$('guidanceStatus').textContent=message;
+ // Show a directional symbol only for a currently qualified instruction.
+ const step=next?g.model.steps[next.index]:null;
+ $('guidanceArrow').textContent=step?guidanceSymbol(step):g.loading?'…':s?.status==='arrived'?'⚑':s?.status==='stop'?'⏸':g.paused&&g.model?'⏸':'⌖';
+ $('guidanceStatus').dataset.quiet=String(s?.status==='active'&&!g.paused&&!g.loading);
+ $('guidanceTripStats').hidden=!next||!Number.isFinite(s.remaining)||!Number.isFinite(s.seconds);
+ $('guidanceMinutes').textContent=next&&Number.isFinite(s.seconds)?Math.ceil(s.seconds/60)+' min':'';
+ $('guidanceKilometers').textContent=next&&Number.isFinite(s.remaining)?fmt(s.remaining/1000,1)+' km':'';
  $('guidanceGps').textContent=s?.last?'Dernière position : '+new Date(s.last.at).toLocaleTimeString('fr-FR')+' · précision annoncée ±'+Math.ceil(s.last.accuracy)+' m.':'';
  $('guidanceRemaining').textContent=next&&Number.isFinite(s.remaining)?fmt(s.remaining/1000,1)+' km restants · environ '+Math.ceil(s.seconds/60)+' min de conduite, hors trafic et pauses.':'';
  if(next){const threshold=next.distance<=25?'now':next.distance<=120?'near':next.distance<=500?'far':null;if(threshold)guidanceSay(g,(next.distance<20?'À proximité':next.distance<1000?'Dans '+Math.round(next.distance/10)*10+' mètres':'Dans '+fmt(next.distance/1000,1)+' kilomètres')+', '+next.text,next.index+':'+threshold);}
@@ -7416,7 +7428,7 @@ function guidanceClose(){
 function guidanceOpen(){
  if(busy||guidance)return;let owner;try{owner=guidanceOwner()}catch{return}
  const g=guidance={trigger:document.activeElement,owner,nodes:structuredClone(owner.nodes),binding:guidanceBinding(),model:null,paused:true,watch:null,watchEpoch:0,wakeEpoch:0,epoch:0,follow:true,loading:false,invalid:false,lastRecalculate:-Infinity,recalculateFailed:false,map:null,wake:null,state:null};
- $('guidanceSettings').open=true;$('guidanceVoice').checked=false;$('guidanceAwake').checked=true;$('guidanceSummary').textContent=owner.label+' · '+routingLabel(owner.routing);
+ $('guidanceSettings').open=false;$('guidanceInfo').open=false;$('guidanceVoice').checked=false;$('guidanceAwake').checked=true;$('guidanceSummary').textContent=owner.label+' · '+routingLabel(owner.routing);
  guidanceVoiceControls();$('guidanceDialog').showModal();guidanceRender(g);$('guidanceStart').focus();
  g.timer=setInterval(()=>{if(guidance!==g)return;
   if(g.range?.status==='current'&&(Date.now()<g.range.declaredAt||Date.now()-g.range.updatedAt>15000)){guidanceRangeInvalidate(g,'Position ou horloge devenue incertaine.');guidanceRangeRender(g)}
@@ -7546,7 +7558,13 @@ function bindGuidanceFuel(){
 // BEGIN GUIDANCE RANGE CONTROLLER
 function guidanceRangeInvalidate(g,reason){if(g)g.range=guidanceRangeStale(g.range,reason)}
 function guidanceRangeRender(g){
- const r=g.range;$('guidanceRangeSummary').hidden=!g.model;$('guidanceRangeOpen').hidden=!g.model||g.state?.status==='arrived';$('guidanceRangeOpen').disabled=g.loading||g.invalid||!!g.rangeJob||!!g.fuel;
+ const r=g.range,alert=$('guidanceRangeAlert');
+ const stale=r&&r.status!=='current',reserve=r&&r.status==='current'&&r.remaining<=r.reserve;
+ alert.hidden=!g.model||!r||(!stale&&!reserve);
+ alert.textContent=stale?'Autonomie à réactualiser.':reserve?'Réserve atteinte selon l’estimation.':'';
+ $('guidanceRangeOpen').textContent=r&&r.status==='current'?'⛽ '+fmt(Math.max(0,r.remaining-r.reserve),0)+' km estimés':'⛽ Autonomie';
+ $('guidanceRangeOpen').setAttribute('aria-label',r&&r.status==='current'?'Actualiser mon autonomie, portée estimée '+fmt(Math.max(0,r.remaining-r.reserve),0)+' kilomètres':'Actualiser mon autonomie');
+ $('guidanceRangeSummary').hidden=!g.model;$('guidanceRangeOpen').hidden=!g.model||g.state?.status==='arrived';$('guidanceRangeOpen').disabled=g.loading||g.invalid||!!g.rangeJob||!!g.fuel;
  if(!r){$('guidanceRangeStatus').textContent='Autonomie inconnue.';$('guidanceRangeEvidence').textContent='Estimation facultative, distincte des litres à acheter.';return}
  const current=r.status==='current',useful=Math.max(0,r.remaining-r.reserve);
  $('guidanceRangeStatus').textContent=(current?'Autonomie estimée : ':'Dernière estimation, à réactualiser : ')+fmt(r.remaining,1)+' km · réserve '+fmt(r.reserve,1)+' km'+(current?' · portée estimée '+fmt(useful,1)+' km.':'.');
