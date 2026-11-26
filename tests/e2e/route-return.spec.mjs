@@ -1,3 +1,4 @@
+import {target44} from '../helpers/reading-layout.mjs';
 import {test,expect} from '@playwright/test';
 for(const failure of ['absence','annulation'])test('retour : ancienne résolution retirée après nouvelle tentative '+failure,async({page})=>{
  const calls=await setup(page);await page.clock.install({time:new Date('2026-09-17T10:00:00Z')});await go(page);await page.clock.fastForward(300001);
@@ -40,7 +41,7 @@ async function setup(page,{hold=false}={}){
 test('retour : lieux partiels, clavier, erreurs liées aux champs et aucune requête',async({page},info)=>{
  const calls=await setup(page),before=await stored(page);await page.locator('#start').fill('  ');await page.locator('#end').fill('Valence');await page.locator('#goBtn').click();await expect(page.locator('#start')).toHaveAttribute('aria-invalid','true');
  await page.locator('#swapTripBtn').focus();await page.keyboard.press('Enter');await expect(page.locator('#start')).toHaveValue('Valence');await expect(page.locator('#end')).toHaveValue('  ');await expect(page.locator('#startTripError')).toHaveCount(0);await expect(page.locator('#end')).toHaveAttribute('aria-invalid','true');await expect(page.locator('#swapTripBtn')).toBeFocused();
- expect((await page.locator('#swapTripBtn').boundingBox()).height).toBeGreaterThanOrEqual(44);expect(calls).toHaveLength(0);expect(await stored(page)).toBe(before);
+ await target44(page.locator('#swapTripBtn'));expect(calls).toHaveLength(0);expect(await stored(page)).toBe(before);
  await checkOverflow(page);await checkAccessibility(page,info,'retour-lieux-partiels');await capture(page,info,'retour-lieux-partiels');
  await swap(page);await expect(page.locator('#start')).toHaveValue('  ');await expect(page.locator('#end')).toHaveValue('Valence');
  await page.locator('#end').fill('');await swap(page);await expect(page.locator('#start')).toHaveValue('');await expect(page.locator('#end')).toHaveValue('  ');expect(calls).toHaveLength(0);

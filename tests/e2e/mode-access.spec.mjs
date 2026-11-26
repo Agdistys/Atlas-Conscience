@@ -1,3 +1,4 @@
+import {target44} from '../helpers/reading-layout.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {capture,checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
@@ -52,6 +53,6 @@ test('accès modes : erreur des lieux réparable depuis le mode marche',async({p
 test('accès modes : commandes accessibles en paysage, texte agrandi et petit écran',async({page},info)=>{
  await setup(page);await page.locator('.mode-access').scrollIntoViewIfNeeded();await capture(page,info,'modes-preparation');
  await page.setViewportSize({width:844,height:390});await page.addStyleTag({content:'html{font-size:200%}'});await page.locator('.mode-access').scrollIntoViewIfNeeded();await checkOverflow(page);await capture(page,info,'modes-paysage-texte-agrandi');
- for(const id of ids){const button=page.locator('#'+id);await reachable(button);const box=await button.boundingBox();expect(box.width).toBeGreaterThanOrEqual(44);expect(box.height).toBeGreaterThanOrEqual(44)}
+ for(const id of ids){const button=page.locator('#'+id);await reachable(button);await target44(button)}
  await page.locator('#cycleBtn').click();await expect(page.locator('#cycleDialog')).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('#cycleBtn')).toBeFocused();await checkAccessibility(page,info,'modes-texte-agrandi');
 });
