@@ -7128,7 +7128,7 @@ function guidanceInstruction(m,name,final=false){
 }
 function guidanceSymbol(step){
  if(step.type==='arrive')return '⚑';
- if(['roundabout','rotary','exit roundabout','exit rotary','roundabout turn'].includes(step.type))return '⟳';
+ if(['roundabout','rotary','exit roundabout','exit rotary','roundabout turn'].includes(step.type))return '⟲';
  return {'left':'↰','slight left':'↖','sharp left':'↙','right':'↱','slight right':'↗','sharp right':'↘','uturn':'↶','straight':'↑'}[step.modifier]||'↑';
 }
 function guidanceModel(route,provider,nodes){

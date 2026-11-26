@@ -23,5 +23,5 @@ test('guidage : une entrée de portion ne peut provenir d’une étape non attei
 test('guidage : pictogramme issu de la manœuvre structurée, jamais du nom de rue',()=>{
  const r=road();r.legs[0].steps[1].name='Rue à droite';const m=c.guidanceModel(r,'osrm',nodes);
  assert.equal(m.steps[1].modifier,'left');assert.equal(c.guidanceSymbol(m.steps[1]),'↰');
- assert.equal(c.guidanceSymbol({type:'roundabout',exit:3}),'⟳');assert.equal(c.guidanceSymbol({type:'arrive'}),'⚑');assert.equal(c.guidanceSymbol({type:'turn',modifier:'uturn'}),'↶');
+ assert.equal(c.guidanceSymbol({type:'roundabout',exit:3}),'⟲');assert.equal(c.guidanceSymbol({type:'arrive'}),'⚑');assert.equal(c.guidanceSymbol({type:'turn',modifier:'uturn'}),'↶');
 });
