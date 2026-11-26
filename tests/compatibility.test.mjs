@@ -32,7 +32,7 @@ test('compatibility requires autonomous modes in every engine and format; the ol
 
 test('compatibility retains every complete reference journey; the previous 40-case proof is insufficient', () => {
   const sha='a'.repeat(40), proof=passingCompatibility(sha);
-  assert.equal(compatibilityJourneyCases.length,41);
+  assert.equal(compatibilityJourneyCases.length,44);
   for(const row of proof.matrix)row.cases=row.cases.filter(c=>!compatibilityJourneyCases.includes(c.title));
   assert.equal(validCompatibility(proof,sha),false);
   for(const title of compatibilityJourneyCases){

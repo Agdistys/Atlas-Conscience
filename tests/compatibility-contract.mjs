@@ -87,6 +87,9 @@ export const compatibilityModeCases = [
 ];
 // Complete reference journeys retain the exact Chromium assertions.
 export const compatibilityJourneyCases = [
+  "ergonomie : navigation basse, retour de focus et champs conservés",
+  "voix : choix local et débit essayés sans GPS ni voix distante",
+  "routes : accès direct aux alternatives garde les exclusions et le trajet avant adoption",
   "ponts : huit tarifs officiels, source datée et passage confirmé sans appel externe",
   "ponts : préparation, export et reprise conservent les sources et renouvellent les confirmations",
   "péages modes : proposition sourcée, confirmation et allocation sans appel ni écriture",

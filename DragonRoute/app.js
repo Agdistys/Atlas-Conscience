@@ -4935,6 +4935,7 @@ function updateBudget(){
   updateTripTiming();updateRouteCarbon();updateMeetings();
   $("compareBtn").hidden=!trip;
   $("roadCompareBtn").hidden=!trip||trip.routing.vehicle.type==='walk';
+  $("findAlternativesBtn").hidden=!trip||trip.routing.vehicle.type==='walk';
   $("navigationBtn").hidden=!trip;
   $("guidanceOpen").hidden=!trip&&!multiActive;
   $("journalRecordBtn").hidden=!trip;$("savePreparationBtn").hidden=!trip;
@@ -7291,12 +7292,25 @@ async function guidanceFetch(g,nodes,reference,signal){
  if(!chosen)throw Error('Le tracé a changé depuis la préparation. Recalculer et choisir le trajet avant de démarrer le guidage.');
  return {route:chosen,model:guidanceModel(chosen,settings.provider,nodes)};
 }
+const guidanceAudio={voice:'',rate:1};
+function guidanceVoices(){
+ try{return (window.speechSynthesis?.getVoices()||[]).filter(v=>v.localService&&/^fr(?:-|$)/i.test(v.lang))}catch{return []}
+}
+function guidanceVoiceKey(v){return v.voiceURI||v.lang+'|'+v.name}
 function guidanceVoice(){
- try{return window.speechSynthesis?.getVoices().find(v=>v.localService&&/^fr(?:-|$)/i.test(v.lang))||null}catch{return null}
+ const voices=guidanceVoices();return guidanceAudio.voice?voices.find(v=>guidanceVoiceKey(v)===guidanceAudio.voice)||null:voices.find(v=>v.default)||voices.find(v=>/^fr-FR$/i.test(v.lang))||voices[0]||null;
 }
 function guidanceVoiceControls(){
- const voice=guidanceVoice();$('guidanceVoice').disabled=!voice;$('guidanceVoiceTest').disabled=!voice;if(!voice)$('guidanceVoice').checked=false;
- $('guidanceVoiceNote').textContent=voice?'Voix locale disponible. Tester à l’arrêt pour vérifier le son. Les annonces restent facultatives.':'Voix française locale indisponible : guidage visuel uniquement sur cet appareil.';
+ const voices=guidanceVoices(),select=$('guidanceVoiceSelect');select.replaceChildren(new Option('Voix locale recommandée',''));
+ for(const v of voices)select.add(new Option(v.name+' · '+v.lang,guidanceVoiceKey(v)));
+ if(guidanceAudio.voice&&!voices.some(v=>guidanceVoiceKey(v)===guidanceAudio.voice))select.add(new Option('Voix choisie indisponible',guidanceAudio.voice));
+ select.value=guidanceAudio.voice;select.disabled=!voices.length;$('guidanceVoiceRate').value=String(guidanceAudio.rate);
+ const voice=guidanceVoice();$('guidanceVoice').disabled=!voice;$('guidanceVoiceTest').disabled=!voice;if(!voice){$('guidanceVoice').checked=false;guidanceSilence()}
+ $('guidanceVoiceNote').textContent=voice?'Voix locale disponible. Choisir la voix et le débit, puis tester à l’arrêt. La fluidité dépend des voix installées sur le téléphone.':'Voix française locale indisponible : guidage visuel uniquement sur cet appareil.';
+}
+function guidanceAudioChange(){
+ const g=guidance;if(g&&(!g.paused||g.loading))guidancePause('Guidage en pause pendant le réglage vocal. Reprendre à l’arrêt.');else guidanceSilence();
+ guidanceAudio.voice=$('guidanceVoiceSelect').value;const rate=Number($('guidanceVoiceRate').value);guidanceAudio.rate=[.9,1,1.1].includes(rate)?rate:1;if(g)g.spoken=null;guidanceVoiceControls();
 }
 function guidanceSilence(g=guidance){
  if(g)g.voiceEpoch=(g.voiceEpoch||0)+1;
@@ -7308,7 +7322,7 @@ function guidanceSpeak(g,text,test=false){
  guidanceSilence(g);const epoch=g.voiceEpoch,current=()=>guidanceCurrent(g)&&g.voiceEpoch===epoch&&!document.hidden;
  const failed=()=>{if(!current())return;guidanceSilence(g);$('guidanceVoice').checked=false;$('guidanceVoiceNote').textContent='Lecture vocale indisponible ou interrompue. Annonces désactivées ; guidage visuel conservé. Vérifier le volume et la voix du téléphone à l’arrêt, puis refaire un essai.';};
  try{
-  const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=1;$('guidanceVoiceTest').disabled=false;
+  const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=guidanceAudio.rate;$('guidanceVoiceTest').disabled=false;
   u.onerror=failed;u.onend=()=>{if(!current())return;$('guidanceVoiceTest').disabled=!guidanceVoice();$('guidanceVoiceNote').textContent=test?'Phrase terminée selon le téléphone : son audible à confirmer à l’écoute. Les annonces restent un choix séparé.':'Annonce terminée selon le téléphone. Le volume et l’audibilité restent à vérifier.';};
   $('guidanceVoiceNote').textContent=test?'Phrase d’essai demandée : vérifier qu’elle est audible. Aucun GPS n’est démarré par cet essai.':'Annonce vocale demandée au téléphone.';
   window.speechSynthesis.speak(u);
@@ -7321,7 +7335,7 @@ function guidanceSay(g,text,key){
 function guidanceTestVoice(){
  const g=guidance;if(!g||!guidanceCurrent(g)||!guidanceVoice()||document.hidden)return;
  if(!g.paused||g.loading)guidancePause('Guidage en pause pendant l’essai vocal. Reprendre volontairement à l’arrêt.');
- guidanceSpeak(g,'Essai de la voix locale OùQuandQui. Le guidage visuel reste disponible.',true);
+ guidanceSpeak(g,'Dans deux cents mètres, tournez à droite. Puis continuez tout droit.',true);
 }
 function guidanceReleaseWatch(g){
  g.watchEpoch++;g.wakeEpoch++;if(g.watch!==null){navigator.geolocation?.clearWatch(g.watch);g.watch=null}guidanceSilence(g);
@@ -7352,7 +7366,7 @@ function guidanceMapDraw(g,fit=false){
 function guidanceRender(g){
  if(guidance!==g)return;guidanceRangeRender(g);const s=g.state;
  $('guidanceFuelOpen').hidden=!g.model||['arrived','stop'].includes(s?.status);$('guidanceFuelOpen').disabled=g.loading||g.invalid||!!g.fuel;
- $('guidanceSetup').hidden=!!g.model;$('guidanceAuto').disabled=!!g.model||g.loading;
+ $('guidanceSetup').hidden=!!g.model;
  $('guidanceStart').disabled=g.loading||g.invalid;$('guidanceStart').hidden=!g.paused||['arrived','stop'].includes(s?.status);
  $('guidanceStart').textContent=g.model?'Reprendre le guidage GPS':'Démarrer le guidage GPS';
  $('guidancePause').hidden=g.paused;$('guidanceContinue').hidden=s?.status!=='stop';
@@ -7364,7 +7378,7 @@ function guidanceRender(g){
  const message=g.loading?'Recherche des instructions du trajet…':s?.message||'Le GPS n’est pas activé.';if($('guidanceStatus').textContent!==message)$('guidanceStatus').textContent=message;
  $('guidanceGps').textContent=s?.last?'Dernière position : '+new Date(s.last.at).toLocaleTimeString('fr-FR')+' · précision annoncée ±'+Math.ceil(s.last.accuracy)+' m.':'';
  $('guidanceRemaining').textContent=next&&Number.isFinite(s.remaining)?fmt(s.remaining/1000,1)+' km restants · environ '+Math.ceil(s.seconds/60)+' min de conduite, hors trafic et pauses.':'';
- if(next){const threshold=next.distance<=25?'now':next.distance<=120?'near':next.distance<=500?'far':null;if(threshold)guidanceSay(g,$('guidanceDistance').textContent+'. '+next.text,next.index+':'+threshold);}
+ if(next){const threshold=next.distance<=25?'now':next.distance<=120?'near':next.distance<=500?'far':null;if(threshold)guidanceSay(g,(next.distance<20?'À proximité':next.distance<1000?'Dans '+Math.round(next.distance/10)*10+' mètres':'Dans '+fmt(next.distance/1000,1)+' kilomètres')+', '+next.text,next.index+':'+threshold);}
  else guidanceSilence(g);guidanceMapDraw(g);
 }
 function guidanceWatch(g){
@@ -7381,7 +7395,7 @@ function guidanceWatch(g){
 }
 async function guidanceStart(){
  const g=guidance;if(!g||g.loading||!guidanceCurrent(g)||g.state?.status==='stop')return;
- if(g.fuel||g.rangeJob||$('guidanceRangeDialog').open)return;if(g.model){guidanceWatch(g);return}const controller=new AbortController(),epoch=++g.epoch;g.controller=controller;g.loading=true;g.auto=$('guidanceAuto').checked;guidanceRender(g);
+ if(g.fuel||g.rangeJob||$('guidanceRangeDialog').open)return;if(g.model){guidanceWatch(g);return}const controller=new AbortController(),epoch=++g.epoch;g.controller=controller;g.loading=true;g.auto=true;guidanceRender(g);
  try{const data=await guidanceFetch(g,g.nodes,g.owner.route,controller.signal);if(!guidanceCurrent(g)||g.epoch!==epoch)return;Object.assign(g,data);g.spoken=null;$('guidanceSettings').open=false;$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');g.loading=false;guidanceMapDraw(g,true);guidanceWatch(g);}
  catch(e){if(guidance===g&&g.epoch===epoch){g.state={status:'error',message:e.message};g.paused=true;}}
  finally{if(guidance===g&&g.epoch===epoch){g.loading=false;g.controller=null;guidanceRender(g);}}
@@ -7402,7 +7416,7 @@ function guidanceClose(){
 function guidanceOpen(){
  if(busy||guidance)return;let owner;try{owner=guidanceOwner()}catch{return}
  const g=guidance={trigger:document.activeElement,owner,nodes:structuredClone(owner.nodes),binding:guidanceBinding(),model:null,paused:true,watch:null,watchEpoch:0,wakeEpoch:0,epoch:0,follow:true,loading:false,invalid:false,lastRecalculate:-Infinity,recalculateFailed:false,map:null,wake:null,state:null};
- $('guidanceSettings').open=true;$('guidanceAuto').checked=false;$('guidanceVoice').checked=false;$('guidanceAwake').checked=true;$('guidanceSummary').textContent=owner.label+' · '+routingLabel(owner.routing);
+ $('guidanceSettings').open=true;$('guidanceVoice').checked=false;$('guidanceAwake').checked=true;$('guidanceSummary').textContent=owner.label+' · '+routingLabel(owner.routing);
  guidanceVoiceControls();$('guidanceDialog').showModal();guidanceRender(g);$('guidanceStart').focus();
  g.timer=setInterval(()=>{if(guidance!==g)return;
   if(g.range?.status==='current'&&(Date.now()<g.range.declaredAt||Date.now()-g.range.updatedAt>15000)){guidanceRangeInvalidate(g,'Position ou horloge devenue incertaine.');guidanceRangeRender(g)}
@@ -7421,6 +7435,7 @@ function bindGuidance(){
  $('guidanceFollow').addEventListener('click',()=>{const g=guidance;if(g){g.follow=true;guidanceRender(g)}});
  $('guidanceVoice').addEventListener('change',()=>{guidanceSilence();if(guidance)guidance.spoken=null;});
  $('guidanceVoiceTest').addEventListener('click',guidanceTestVoice);
+ $('guidanceVoiceSelect').addEventListener('change',guidanceAudioChange);$('guidanceVoiceRate').addEventListener('change',guidanceAudioChange);
  $('guidanceAwake').addEventListener('change',()=>{const g=guidance;if(!g)return;if(!$('guidanceAwake').checked){g.wakeEpoch++;const lock=g.wake;g.wake=null;lock?.release().catch(()=>{});$('guidanceScreenNote').textContent='Maintien de l’écran désactivé.'}else if(!g.paused)guidanceWake(g)});
  window.speechSynthesis?.addEventListener('voiceschanged',guidanceVoiceControls);
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&guidance){guidanceRangeClose(false);guidanceFuelClose(false);guidancePause('Application en arrière-plan : guidage en pause. Reprendre quand l’application est visible.')}});
@@ -7567,6 +7582,19 @@ function bindGuidanceRange(){
 
 
 
+
+// Les quatre accès principaux restent au bas de la fenêtre, même avec un texte agrandi.
+function bindBottomNavigation(){
+ const nav=$('bottomNav'),dialogs=[['journalDialog','journalBtn'],['profileDialog','profileBtn'],['sourcesDialog','sourcesBtn']];
+ const sync=()=>{const active=dialogs.find(([id])=>$(id).open)?.[1]||'tripsTab';for(const el of nav.querySelectorAll('button')){if(el.id===active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current')}if($('sourcesDialog').open){$('settingsVoice').disabled=$('guidanceOpen').hidden||busy;$('settingsVoiceHint').hidden=!$('settingsVoice').disabled}};
+ const observer=new MutationObserver(sync);for(const [id] of dialogs)observer.observe($(id),{attributes:true,attributeFilter:['open']});
+ const resize=new ResizeObserver(()=>document.documentElement.style.setProperty('--bottom-nav-height',Math.ceil(nav.getBoundingClientRect().height)+'px'));resize.observe(nav);
+ $('tripsTab').addEventListener('click',()=>{const target=$('sheet').hidden?$('multiActiveBody'):$('tripHeading');target.setAttribute('tabindex','-1');target.scrollIntoView({block:'start'});target.focus({preventScroll:true})});
+ $('settingsRoute').addEventListener('click',()=>{$('sourcesDialog').close();focusStationField($('routeVehicle').closest('[hidden]')?'walkMode':'routeVehicle')});
+ $('settingsVoice').addEventListener('click',()=>{if(busy||$('guidanceOpen').hidden)return;$('sourcesDialog').close();$('sourcesBtn').focus();guidanceOpen();$('guidanceSettings').open=true;$('guidanceVoiceSelect').focus()});
+ $('findAlternativesBtn').addEventListener('click',()=>{openRoadChoices();if($('roadCompareDialog').open)calculateRoadChoices()});sync();
+}
+bindBottomNavigation();
 
 bindGuidance();bindGuidanceFuel();bindGuidanceRange();loadPreparedTrips();loadSavedTransit();makeGrid();bind();bindSavedTransit();bindProfile();bindJournal();bindPreparedTrips();bindRides();bindMeetings();bindComparison();bindTransit();bindTransitCarbon();bindBikes();bindBikeTrip();bindCycle();bindSavedCycle();bindSavedShared();bindCycleJournal();bindSharedJournal();bindProspective();applyVehicle();updateRange();initPwa();bindSources();bindRoadChoices();bindMultiStops();bindMultiMap();bindMultiBudget();bindMultiAdoption();bindMultiTiming();bindMultiSharing();bindMultiOpening();bindMultiModes();bindPassengerView();
 $("stationDeparture").value=parisLocal(Date.now());refreshArrival();

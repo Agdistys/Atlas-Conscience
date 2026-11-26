@@ -1,3 +1,4 @@
+import {setStationPause} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {createRequire} from 'node:module';
 import {mockDragonRoute,confirmStationPreview} from '../helpers/dragonroute.mjs';
@@ -33,7 +34,7 @@ test('aperçu station : refus du remplacement conserve prix, arrêt, carte et sa
 });
 test('aperçu station : pause zéro et pause déclarée, conduite et arrivée distinctes',async({page})=>{
  await setup(page);await page.locator('#stationDeparture').fill('2026-09-17T10:00');await page.locator('#budgetPrice').fill('2');await page.route(osrm,r=>r.fulfill({json:{code:'Ok',routes:[via()]}}));
- for(const pause of ['0','15']){await page.locator('#stopMinutes').fill(pause);await open(page);const p=page.locator('#stationPreviewMetrics section').last();await expect(p).toContainText('70,0 min de conduite');await expect(p).toContainText('pause prévue : '+pause+',0 min');await expect(p).toContainText(pause==='0'?'11:10':'11:25');await expect(p).toContainText('13,14 €');await page.locator('#stationPreviewCancel').click()}
+ for(const pause of ['0','15']){await setStationPause(page,pause);await open(page);const p=page.locator('#stationPreviewMetrics section').last();await expect(p).toContainText('70,0 min de conduite');await expect(p).toContainText('pause prévue : '+pause+',0 min');await expect(p).toContainText(pause==='0'?'11:10':'11:25');await expect(p).toContainText('13,14 €');await page.locator('#stationPreviewCancel').click()}
 });
 test('aperçu station : prix expiré après affichage exige une reconnaissance explicite',async({page})=>{
  await setup(page);await open(page);await expect(page.locator('#stationPreviewOldPrice')).toBeHidden();await page.clock.setFixedTime(new Date('2026-10-01T10:00:00Z'));await page.locator('#stationPreviewConfirm').click();await expect(page.locator('#selectedStop')).toBeHidden();await expect(page.locator('#stationPreviewOldPrice')).toBeVisible();await expect(page.locator('#stationPreviewConfirm')).toBeDisabled();await confirmStationPreview(page,{oldPrice:true});await expect(page.locator('#useStationPrice')).toBeDisabled();

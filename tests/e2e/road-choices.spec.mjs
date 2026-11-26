@@ -128,3 +128,10 @@ test('choix routiers : réponse à un autre lieu refusée avant toute adoption',
  await setup(page);await go(page);await page.route('https://router.project-osrm.org/route/v1/driving/**',r=>r.fulfill({json:{code:'Ok',routes:[{distance:120000,duration:7200,geometry:{type:'LineString',coordinates:[[0,0],[4.8924,44.9334]]}}]}}));await open(page);await calculate(page,1);
  await expect(option(page,'fastest')).toContainText('extrémités du tracé');await expect(adopt(page,'fastest')).toHaveCount(0);await expect(page.locator('#tripKm')).toHaveText('104,0 km');
 });
+
+test('routes : accès direct aux alternatives garde les exclusions et le trajet avant adoption',async({page})=>{
+ const calls=await setup(page);await page.locator('#avoidHighways').check();await go(page);const before=await page.locator('#tripKm').textContent();await page.locator('#findAlternativesBtn').click();await expect(page.locator('#roadStatus')).toContainText('2/2 critères calculés');await expect(page.locator('[data-road-group]')).toHaveCount(2);await expect(page.locator('#roadDifference')).toContainText('-20,0 km');await expect(page.locator('#roadDifference')).toContainText('+20 min');expect(calls.ign.every(u=>new URL(u).searchParams.get('constraints').includes('autoroute'))).toBe(true);await page.keyboard.press('Escape');await expect(page.locator('#tripKm')).toHaveText(before);
+});
+test('routes : accès direct regroupe un même tracé sans inventer une alternative',async({page})=>{
+ await setup(page);await page.route(pattern,r=>{const d=responseFor(r.request().url());d.geometry.coordinates[1]=[4.9,45.4];return r.fulfill({json:d})});await page.locator('#avoidHighways').check();await go(page);await page.locator('#findAlternativesBtn').click();await expect(page.locator('#roadStatus')).toContainText('2/2 critères calculés');await expect(page.locator('[data-road-group]')).toHaveCount(1);await expect(page.locator('#roadCards')).toContainText('Même tracé');
+});

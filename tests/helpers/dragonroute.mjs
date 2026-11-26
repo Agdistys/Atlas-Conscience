@@ -91,3 +91,7 @@ export async function confirmRouteChoice(page){
  await page.locator('#routeChoiceConfirm').click();
  await expect(page.locator('#routeChoiceDialog')).toBeHidden();
 }
+
+export async function setStationPause(page,value){
+ const details=page.locator('#stationPauseOptions');if(!await details.evaluate(e=>e.open))await details.locator(':scope > summary').click();await page.locator('#stopMinutes').fill(value);
+}
