@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {setStationPause} from '../helpers/dragonroute.mjs';
 import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
@@ -6,7 +7,7 @@ import {mockDragonRoute} from '../helpers/dragonroute.mjs';
 import {save,close,download,read,key} from '../helpers/station-corridor.mjs';
 import {capture,checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
 const old='dragonroute.prepared.v9.public';
-async function setup(page){await mockDragonRoute(page);const calls=[];page.on('request',r=>{if(/^https:/.test(r.url()))calls.push(r.url())});page.on('dialog',d=>d.accept());await page.goto('/DragonRoute/');await page.locator('#stationDeparture').fill('2026-11-19T10:00');await page.locator('#routeArriveBy').fill('2026-11-19T11:23');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');return calls}
+async function setup(page){await mockDragonRoute(page);const calls=[];page.on('request',r=>{if(/^https:/.test(r.url()))calls.push(r.url())});page.on('dialog',d=>d.accept());await page.goto('/DragonRoute/');await (await preparationControl(page,'stationDeparture')).fill('2026-11-19T10:00');await (await preparationControl(page,'routeArriveBy')).fill('2026-11-19T11:23');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');return calls}
 async function stations(page){await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('stations comparées');await page.locator('#stationListMode').selectOption('all')}
 async function choose(page,id='A'){await page.locator(`[data-select=${id}]`).click();await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toBeVisible();await expect(page.locator('#stationsBtn')).toBeEnabled()}
 async function gpx(page){await page.locator('#navigationBtn').click();const text=await download(page,'#exportGpxBtn');await page.getByRole('button',{name:'Fermer la navigation'}).click();return text}

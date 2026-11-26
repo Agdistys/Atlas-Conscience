@@ -1,5 +1,12 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "préparation compacte : dernier mode conservé, menu au clavier et aucun calcul au rechargement",
+  "préparation compacte : nuit mémorisée, carte et bande horaire accessibles sans changer le trajet",
+  "adresses : dossiers, renommage, suppression sans perte et export complet",
+  "station : adresse classée avec coordonnées DGCCRF, réutilisation et fiche après rechargement",
+  "profil v4 : origine v3 intacte, préférences explicites et gabarit de péage distinct du poids chargé",
+  "préparation compacte : coût compare les hypothèses sans adopter ni inventer de péage",
+
   "guidage épuré : réserve et autonomie périmée signalées hors des aides",
   "guidage épuré : manœuvre, carte et commandes tiennent sur téléphone",
   "guidage épuré : perte GPS et refus restent visibles sans flèche ni durée périmées",

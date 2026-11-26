@@ -2,8 +2,8 @@ import {test,expect} from '@playwright/test';
 import fs from 'node:fs';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';
 import {capture,checkAccessibility,checkOverflow} from '../helpers/inspection.mjs';
-const key='dragonroute.profile.v3.public',oldKey='dragonroute.profile.v1.public';
-const sample=(version=3)=>{const vehicle={name:'Voiture de test',type:'car',fuel:'E10',cons:7,liters:35},rest={addresses:[{id:'a',name:'École',value:'Valence'}],stations:[]};return version<3?{version,vehicle,...rest}:{version,vehicles:[{id:'legacy-vehicle',...vehicle}],activeVehicleId:'legacy-vehicle',...rest}};
+const key='dragonroute.profile.v4.public',oldKey='dragonroute.profile.v1.public';
+const sample=(version=4)=>{const vehicle={name:'Voiture de test',type:'car',fuel:'E10',cons:7,liters:35},rest={addresses:[{id:'a',name:'École',value:'Valence'}],stations:[]};return version<3?{version,vehicle,...rest}:{version,vehicles:[{id:'legacy-vehicle',...vehicle}],activeVehicleId:'legacy-vehicle',...rest,...(version===4?{folders:[],preferences:{defaultMode:'car',lastMode:null,theme:'day'}}:{})}};
 const place={lat:44.922579,lon:4.921827,label:'Valence · 26000 · Drôme',source:'ign',resolvedAt:'2026-09-17T10:00:00.000Z'};
 const file=data=>({name:'profil.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
 async function open(page){await page.goto('/DragonRoute/');await page.locator('#profileBtn').click()}
@@ -46,7 +46,7 @@ test('profil : aperçu import, annulation au clavier, export propre et confirmat
 test('profil : migration réversible, copie d’origine et version future préservée',async({page})=>{
  const original=sample(1);original.extraKey='secret-marker-profile';await seed(page,{[oldKey]:original});await open(page);const raw=await stored(page,oldKey);expect(await stored(page)).toBeNull();await expect(page.locator('#profileMessage')).toContainText('Ancien profil repris');
  const backup=await exported(page,'#exportLegacyProfileBtn');expect(backup).toEqual(sample(1));
- await page.locator('#vehicleName').fill('V2');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();expect(await stored(page,oldKey)).toBe(raw);expect(JSON.parse(await stored(page)).version).toBe(3);
+ await page.locator('#vehicleName').fill('V2');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();expect(await stored(page,oldKey)).toBe(raw);expect(JSON.parse(await stored(page)).version).toBe(4);
  const future='{"version":999,"privateData":"preserve"}';await page.evaluate(([k,v])=>localStorage.setItem(k,v),[key,future]);await page.reload();await page.locator('#profileBtn').click();await expect(page.locator('#profileMessage')).toContainText('Profil non chargé');await expect(page.locator('#exportProfileBtn')).toBeDisabled();
  await page.locator('#vehicleName').fill('Ne pas remplacer');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();await expect(page.locator('#profileMessage')).toContainText('Enregistrement impossible');expect(await stored(page)).toBe(future);expect(await stored(page,oldKey)).toBe(raw);
  await page.locator('#importProfileFile').setInputFiles(file(sample()));await expect(page.locator('#profileMessage')).toContainText('Import refusé');expect(await stored(page)).toBe(future);
@@ -62,7 +62,7 @@ test('profil : quota, formulaire et import conservés, conflit entre onglets dé
 });
 
 test('profil : aperçu séparé et effacement limité aux versions du même environnement',async({page})=>{
- const previewOld='dragonroute.profile.v1.preview:/DragonRoute/',previewKey='dragonroute.profile.v3.preview:/DragonRoute/';
+ const previewOld='dragonroute.profile.v1.preview:/DragonRoute/',previewKey='dragonroute.profile.v4.preview:/DragonRoute/';
  await seed(page,{[oldKey]:sample(1),[key]:sample(),[previewOld]:{...sample(1),vehicle:{...sample(1).vehicle,name:'Aperçu'}},'autre-app':'conserver','dragonroute.profile.v2.preview:/autre/':sample()});
  await page.route('**/DragonRoute/',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('<body>','<body data-preview="true">')})});
  await open(page);await expect(page.locator('#vehicleName')).toHaveValue('Aperçu');await page.getByRole('button',{name:'Enregistrer le véhicule',exact:true}).click();expect(await stored(page,previewKey)).not.toBeNull();

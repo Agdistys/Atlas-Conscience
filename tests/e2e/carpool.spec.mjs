@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
@@ -57,6 +58,6 @@ test('covoiturage : départ invalide, date des péages différente et contrôles
 });
 
 test('covoiturage : lieux remplacés, clavier et synchronisation du départ sans nouvelle requête',async({page},info)=>{
- const calls=await setup(page);await share(page);await page.locator('#stationsTab').click();const n=calls();await page.locator('#stationDeparture').fill('2026-09-20T10:00');await page.locator('#stationsTab').focus();await page.keyboard.press('ArrowRight');await expect(page.locator('#ridesTab')).toBeFocused();await expect(page.locator('#rideDeparture')).toHaveValue('2026-09-20T10:00');expect(calls()).toBe(n);await expect(page.locator('#rideShare')).toBeHidden();
+ const calls=await setup(page);await share(page);await page.locator('#stationsTab').click();const n=calls();await (await preparationControl(page,'stationDeparture')).fill('2026-09-20T10:00');await page.locator('#stationsTab').focus();await page.keyboard.press('ArrowRight');await expect(page.locator('#ridesTab')).toBeFocused();await expect(page.locator('#rideDeparture')).toHaveValue('2026-09-20T10:00');expect(calls()).toBe(n);await expect(page.locator('#rideShare')).toBeHidden();
  await page.route(geocodingPattern,r=>r.fulfill({json:placesResponse(addressFeature(5.2,46,'Nouveau lieu'))}));await page.locator('#start').fill('Nouveau lieu');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await page.locator('#ridesTab').click();await page.locator('#rideSharing').evaluate(e=>e.open=true);await expect(page.locator('#rideFrom')).toHaveValue('');await expect(page.locator('#rideTo')).toHaveValue('');await page.getByLabel('Je cherche une place',{exact:true}).check();await capture(page,info,'covoiturage-passager');await checkAccessibility(page,info,'covoiturage-passager');await checkOverflow(page);
 });

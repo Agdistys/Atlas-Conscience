@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
@@ -43,7 +44,7 @@ test('critères : réponse différente, absente, contrainte inventée et panne r
 
 test('critères : incompatibilité et service désactivé demandent un choix explicite',async({page})=>{
  const calls=await setup(page);await page.locator('#routeOptimization').selectOption('shortest');await page.locator('#routeVehicle').evaluate(e=>{e.value='truck';e.dispatchEvent(new Event('change',{bubbles:true}))});await expect(page.locator('#goBtn')).toBeDisabled();await expect(page.locator('#routeOptimization')).toHaveValue('shortest');await expect(page.locator('#optimizationNote')).toContainText('indisponible');expect(calls.geo).toBe(0);
- await page.locator('#routeVehicle').selectOption('car');await page.locator('#avoidTolls').evaluate(e=>{e.checked=true;e.dispatchEvent(new Event('change',{bubbles:true}))});await expect(page.locator('#goBtn')).toBeDisabled();expect(calls.ign).toHaveLength(0);page.once('dialog',d=>d.accept());await page.locator('#clearUnavailableOptions').click();await expect(page.locator('#goBtn')).toBeEnabled();await go(page);
+ await (await preparationControl(page,'routeVehicle')).selectOption('car');await page.locator('#avoidTolls').evaluate(e=>{e.checked=true;e.dispatchEvent(new Event('change',{bubbles:true}))});await expect(page.locator('#goBtn')).toBeDisabled();expect(calls.ign).toHaveLength(0);page.once('dialog',d=>d.accept());await page.locator('#clearUnavailableOptions').click();await expect(page.locator('#goBtn')).toBeEnabled();await go(page);
  await page.route('**/DragonRoute/config.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('ignRouting: true','ignRouting: false')})});await page.reload();await expect(page.locator('#routeOptimization option[value=shortest]')).toBeDisabled();await expect(page.locator('#routeOptimization')).toHaveValue('fastest');await go(page);expect(calls.osrm).toHaveLength(1);
 });
 

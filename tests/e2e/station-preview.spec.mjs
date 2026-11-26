@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {setStationPause} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {createRequire} from 'node:module';
@@ -33,7 +34,7 @@ test('aperçu station : refus du remplacement conserve prix, arrêt, carte et sa
  await open(page,'B');await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toContainText('2 route test');await expect(page.locator('#budgetPrice')).toHaveValue('');
 });
 test('aperçu station : pause zéro et pause déclarée, conduite et arrivée distinctes',async({page})=>{
- await setup(page);await page.locator('#stationDeparture').fill('2026-09-17T10:00');await page.locator('#budgetPrice').fill('2');await page.route(osrm,r=>r.fulfill({json:{code:'Ok',routes:[via()]}}));
+ await setup(page);await (await preparationControl(page,'stationDeparture')).fill('2026-09-17T10:00');await page.locator('#budgetPrice').fill('2');await page.route(osrm,r=>r.fulfill({json:{code:'Ok',routes:[via()]}}));
  for(const pause of ['0','15']){await setStationPause(page,pause);await open(page);const p=page.locator('#stationPreviewMetrics section').last();await expect(p).toContainText('70,0 min de conduite');await expect(p).toContainText('pause prévue : '+pause+',0 min');await expect(p).toContainText(pause==='0'?'11:10':'11:25');await expect(p).toContainText('13,14 €');await page.locator('#stationPreviewCancel').click()}
 });
 test('aperçu station : prix expiré après affichage exige une reconnaissance explicite',async({page})=>{

@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {test,expect} from '@playwright/test';import fs from 'node:fs';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';
 import {capture,checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
@@ -14,7 +15,7 @@ async function setup(page,{ambiguous=false,outside=false}={}){
  await page.goto('/DragonRoute/');await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Grand Place Grenoble');return calls;
 }
 async function caravan(page){await page.evaluate(()=>localStorage.setItem('dragonroute.profile.v2.public',JSON.stringify({version:2,vehicle:{name:'Caravane témoin',type:'caravan',fuel:'E10',cons:8,liters:40},addresses:[],stations:[]})));await page.reload();await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Grand Place Grenoble')}
-async function open(page){await page.locator('#transitBtn').click();await page.locator('#transitWhen').fill('2026-11-19T10:00')}
+async function open(page){await (await preparationControl(page,'transitBtn')).click();await page.locator('#transitWhen').fill('2026-11-19T10:00')}
 async function done(page,n=2){await expect(page.locator('[data-transit-option]')).toHaveCount(n);await expect(page.locator('#transitSearch')).toBeEnabled()}
 
 test('collectif direct : accessible sans voiture, aucun routage caché et lieux résolus explicites',async({page},info)=>{

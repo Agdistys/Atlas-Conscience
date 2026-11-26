@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';
 import {checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
@@ -14,7 +15,7 @@ async function setup(page,mutate=()=>{}){
  await page.route(osrm,r=>r.fulfill({json:{code:'Ok',routes:[{distance:6000,duration:900,geometry:{type:'LineString',coordinates:[a,b]}}]}}));
  await page.goto('/DragonRoute/');await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Avenue Innsbruck Grenoble');return calls;
 }
-async function start(page,{compare=false,arrive=false}={}){await page.locator('#transitBtn').click();await page.locator('#transitDirection').selectOption(arrive?'arrive':'depart');await page.locator('#transitWhen').fill(arrive?'2026-11-19T11:00':'2026-11-19T10:00');if(compare)await page.locator('#transitCompare').check();await page.locator('#transitSearch').click()}
+async function start(page,{compare=false,arrive=false}={}){await (await preparationControl(page,'transitBtn')).click();await page.locator('#transitDirection').selectOption(arrive?'arrive':'depart');await page.locator('#transitWhen').fill(arrive?'2026-11-19T11:00':'2026-11-19T10:00');if(compare)await page.locator('#transitCompare').check();await page.locator('#transitSearch').click()}
 async function ready(page,options){await start(page,options);await expect(page.locator('[data-transit-option]')).toHaveCount(2);await expect(page.locator('#transitSearch')).toBeEnabled()}
 const network=(page,id)=>page.locator('[data-transit-exclude-network="TEST:'+id+'"]'),card=(page,n)=>page.locator('[data-transit-option="'+n+'"]');
 async function capture(page,info,name){const path=info.outputPath(name+'.png');await page.screenshot({path,animations:'disabled'});await info.attach(name,{path,contentType:'image/png'})}

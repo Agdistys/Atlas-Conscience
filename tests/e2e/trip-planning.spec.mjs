@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
@@ -152,7 +153,7 @@ test('profil caravane conserve sans calcul voiture implicite', async ({page}) =>
   await page.goto('/DragonRoute/');
   await expect(page.locator('#routeVehicle')).toHaveValue('caravan');
   await expect(page.locator('#goBtn')).toBeDisabled();
-  await page.locator('#routeVehicle').selectOption('car');
+  await (await preparationControl(page,'routeVehicle')).selectOption('car');
   await expect(page.locator('#goBtn')).toBeEnabled();
   await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
   await expect(page.locator('#avoidTolls')).toBeDisabled();

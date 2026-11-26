@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {target44} from '../helpers/reading-layout.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse,publicRouting,orsPattern,orsResponse} from '../helpers/dragonroute.mjs';
@@ -48,7 +49,7 @@ test('annulation trajet : événement de saisie annule immédiatement sans atten
 });
 
 for(const mode of ['walk','car'])test(`annulation trajet : IGN ${mode} arrêté sans repli et relance possible`,async({page})=>{
- const calls=await setup(page,{hold:'/navigation/itineraire'});if(mode==='walk'){await page.locator('#walkMode').click();await page.locator('#maxWalkKm').fill('150')}else await page.locator('#avoidHighways').check();await page.locator('#goBtn').click();await held(page);await page.locator('#cancelTripBtn').click();await release(page);await cancelled(page);await expect(page.locator('#travelMode')).toHaveValue(mode);if(mode==='walk')await expect(page.locator('#maxWalkKm')).toHaveValue('150');else await expect(page.locator('#avoidHighways')).toBeChecked();expect(calls.some(u=>u.includes('router.project'))).toBe(false);await go(page);
+ const calls=await setup(page,{hold:'/navigation/itineraire'});if(mode==='walk'){await (await preparationControl(page,'walkMode')).click();await page.locator('#maxWalkKm').fill('150')}else await page.locator('#avoidHighways').check();await page.locator('#goBtn').click();await held(page);await page.locator('#cancelTripBtn').click();await release(page);await cancelled(page);await expect(page.locator('#travelMode')).toHaveValue(mode);if(mode==='walk')await expect(page.locator('#maxWalkKm')).toHaveValue('150');else await expect(page.locator('#avoidHighways')).toBeChecked();expect(calls.some(u=>u.includes('router.project'))).toBe(false);await go(page);
 });
 
 test('annulation trajet : relais simulé arrêté avant sa demande facultative d’alternatives',async({page})=>{

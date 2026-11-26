@@ -1,3 +1,4 @@
+import {preparationControl} from './preparation-controls.mjs';
 import fs from 'node:fs';
 import {expect} from '@playwright/test';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from './dragonroute.mjs';
@@ -16,6 +17,6 @@ export async function setup(page,{origin='http://127.0.0.1:4173',leaflet=false}=
  if(leaflet)await page.route('https://cdn.jsdelivr.net/**',r=>r.fulfill({body:fs.readFileSync('node_modules/leaflet/dist/'+(r.request().url().endsWith('.css')?'leaflet.css':'leaflet.js')),contentType:r.request().url().endsWith('.css')?'text/css':'application/javascript'}));
  await page.goto(origin+'/DragonRoute/');await page.locator('#start').fill('Place Bellecour, Lyon');await page.locator('#end').fill('Gare Part-Dieu, Lyon');return calls;
 }
-export async function openCycle(page){await page.locator('#cycleBtn').click()}
+export async function openCycle(page){await (await preparationControl(page,'cycleBtn')).click()}
 export async function calc(page){await page.locator('#cycleSearch').click();await expect(page.locator('#cycleStatus')).toContainText('Parcours vélo disponible');await expect(page.locator('#cycleSearch')).toBeEnabled()}
-export async function openBikes(page){await page.locator('#bikesBtn').click();await page.locator('#bikesLoad').click();await expect(page.locator('#bikesLoad')).toBeEnabled()}
+export async function openBikes(page){await (await preparationControl(page,'bikesBtn')).click();await page.locator('#bikesLoad').click();await expect(page.locator('#bikesLoad')).toBeEnabled()}

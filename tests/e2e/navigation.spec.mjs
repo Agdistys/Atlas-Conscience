@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
@@ -94,7 +95,7 @@ test('navigation : exclusions transmises et poids lourd sans lien voiture',async
   const waze=new URL(await page.locator('#wazeArrivalLink').getAttribute('href'));
   for(const key of ['avoid_tolls','avoid_freeways','avoid_ferries'])expect(waze.searchParams.get(key)).toBe('true');
   await expect(page.locator('#navigationAvoidNote')).toContainText('pas une garantie');
-  await close(page);await page.locator('#routeVehicle').selectOption('truck');
+  await close(page);await (await preparationControl(page,'routeVehicle')).selectOption('truck');
   for(const [id,v] of Object.entries({truckHeight:'4',truckWidth:'2.5',truckLength:'12',truckWeight:'18',truckAxleload:'9'}))await page.locator('#'+id).fill(v);
   await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await open(page);
   await expect(page.locator('#navigationCarLinks')).toBeHidden();await expect(page.locator('#navigationVehicleNote')).toContainText('gabarit du poids lourd');

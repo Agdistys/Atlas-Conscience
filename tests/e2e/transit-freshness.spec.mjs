@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {setup as cycleSetup,tcOpen,tcRun} from '../helpers/cycle-limits-browser.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';
@@ -16,7 +17,7 @@ async function setup(page){
  await page.route(ign,r=>r.fulfill({json:walking(r.request().url())}));await page.route(osrm,r=>r.fulfill({json:{code:'Ok',routes:[{distance:6000,duration:3600,geometry:{type:'LineString',coordinates:[a,b]}}]}}));
  await page.goto('/DragonRoute/');await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Avenue Innsbruck Grenoble');return calls;
 }
-async function begin(page,{arrive=false,compare=false,when}={}){await page.locator('#transitBtn').click();await page.locator('#transitDirection').selectOption(arrive?'arrive':'depart');await page.locator('#transitWhen').fill(when||(arrive?'2026-11-19T11:00':'2026-11-19T10:00'));if(compare)await page.locator('#transitCompare').check();await page.locator('#transitSearch').click()}
+async function begin(page,{arrive=false,compare=false,when}={}){await (await preparationControl(page,'transitBtn')).click();await page.locator('#transitDirection').selectOption(arrive?'arrive':'depart');await page.locator('#transitWhen').fill(when||(arrive?'2026-11-19T11:00':'2026-11-19T10:00'));if(compare)await page.locator('#transitCompare').check();await page.locator('#transitSearch').click()}
 async function ready(page,options){await begin(page,options);await expect(page.locator('[data-transit-option]')).toHaveCount(2);await expect(page.locator('#transitSearch')).toBeEnabled()}
 async function changeTime(page,time,signal=true){await page.clock.setSystemTime(new Date(time));if(signal)await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')))}
 const card=(page,n)=>page.locator('[data-transit-option="'+n+'"]');
@@ -51,9 +52,9 @@ test('horaires : contexte silencieusement modifié retire les anciennes référe
 
 test('horaires : focus de la même option conservé lorsqu’elle passe parmi les références',async({page})=>{await setup(page);await ready(page);const button=page.locator('[data-transit-compare-view="0"]');await button.focus();await changeTime(page,'2026-11-19T09:00:01Z');await expect(button).toBeFocused();await expect(page.locator('#transitOptionsExcluded')).toHaveAttribute('open','');await page.keyboard.press('Enter');await expect(card(page,0).locator('h3')).toBeFocused();await expect(page.locator('#transitMapTitle')).toContainText('Référence historique')});
 
-test('horaires : paysage et texte agrandi gardent le message lisible',async({page},info)=>{await setup(page);await ready(page);await changeTime(page,'2026-11-19T09:00:01Z');await page.setViewportSize({width:844,height:390});await page.evaluate(()=>document.documentElement.style.fontSize='200%');await page.locator('#transitTimeNotice').scrollIntoViewIfNeeded();await shot(page,info,'horaires-paysage-200');await checkOverflow(page);await page.locator('#transitClose').click();await expect(page.locator('#transitBtn')).toBeFocused()});
+test('horaires : paysage et texte agrandi gardent le message lisible',async({page},info)=>{await setup(page);await ready(page);await changeTime(page,'2026-11-19T09:00:01Z');await page.setViewportSize({width:844,height:390});await page.evaluate(()=>document.documentElement.style.fontSize='200%');await page.locator('#transitTimeNotice').scrollIntoViewIfNeeded();await shot(page,info,'horaires-paysage-200');await checkOverflow(page);await page.locator('#transitClose').click();await expect(page.locator('#modeMenuToggle')).toBeFocused()});
 
-test('horaires : fermeture et réouverture retirent les références sans nouvelle recherche',async({page})=>{const calls=await setup(page);await ready(page);await changeTime(page,'2026-11-19T09:00:01Z');const before=[...calls];await page.locator('#transitClose').click();await page.locator('#transitBtn').click();await expect(page.locator('[data-transit-option]')).toHaveCount(0);await expect(page.locator('#transitTimeNotice')).toBeHidden();expect(calls).toEqual(before)});
+test('horaires : fermeture et réouverture retirent les références sans nouvelle recherche',async({page})=>{const calls=await setup(page);await ready(page);await changeTime(page,'2026-11-19T09:00:01Z');const before=[...calls];await page.locator('#transitClose').click();await (await preparationControl(page,'transitBtn')).click();await expect(page.locator('[data-transit-option]')).toHaveCount(0);await expect(page.locator('#transitTimeNotice')).toBeHidden();expect(calls).toEqual(before)});
 
 test('horaires : minuit ne décale pas les propositions au jour suivant',async({page})=>{await setup(page);await ready(page,{when:'2026-11-19T00:00'});await changeTime(page,'2026-11-18T23:00:01Z');await expect(page.locator('#transitTimeNotice')).toContainText('Heure demandée dépassée');await expect(page.locator('#transitWhen')).toHaveValue('2026-11-19T00:00');await expect(card(page,0)).toHaveAttribute('data-transit-temporal','past-context');await expect(card(page,0)).toContainText('19/11')});
 

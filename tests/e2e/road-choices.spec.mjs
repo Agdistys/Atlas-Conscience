@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
@@ -119,7 +120,7 @@ test('choix routiers : brouillon de rencontre conservé au refus et retiré apr�
 
 test('choix routiers : poids lourd et exclusions transmis au relais sans substitution voiture',async({page})=>{
  const calls=await setup(page);await publicRouting(page);const bodies=[];await page.route(orsPattern,r=>{const b=r.request().postDataJSON();bodies.push(b);return r.fulfill({json:orsResponse(b)})});await page.reload();
- await page.locator('#routeVehicle').selectOption('truck');for(const [id,value] of [['truckHeight','3'],['truckWidth','2.4'],['truckLength','8'],['truckWeight','7'],['truckAxleload','4']])await page.locator('#'+id).fill(value);await page.locator('#avoidTolls').check();await go(page);
+ await (await preparationControl(page,'routeVehicle')).selectOption('truck');for(const [id,value] of [['truckHeight','3'],['truckWidth','2.4'],['truckLength','8'],['truckWeight','7'],['truckAxleload','4']])await page.locator('#'+id).fill(value);await page.locator('#avoidTolls').check();await go(page);
  const initial=bodies.at(-1);await open(page);await calculate(page,1);expect(bodies.at(-1)).toEqual(initial);expect(calls.ign).toHaveLength(0);expect(calls.osrm).toHaveLength(0);await expect(adopt(page,'shortest')).toHaveCount(0);await expect(option(page,'shortest')).toContainText('options incompatibles');
  await adopt(page,'fastest').click();await expect(page.locator('#routeVehicle')).toHaveValue('truck');await expect(page.locator('#avoidTolls')).toBeChecked();await expect(page.locator('#truckHeight')).toHaveValue('3');
 });

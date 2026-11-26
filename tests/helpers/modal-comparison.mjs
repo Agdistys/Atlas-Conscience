@@ -1,3 +1,4 @@
+import {preparationControl} from './preparation-controls.mjs';
 import {expect} from '@playwright/test';import fs from 'node:fs';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from './dragonroute.mjs';
 import {checkAccessibility,checkOverflow} from './inspection.mjs';
@@ -19,7 +20,7 @@ async function setup(page,{complete=false,fuel='Gazole',mutate=()=>{},origin}={}
  await page.addInitScript(fuel=>localStorage.setItem('dragonroute.profile.v2.public',JSON.stringify({version:2,vehicle:{name:'Véhicule de test',type:'car',fuel,cons:6.2,liters:40},addresses:[],stations:[]})),fuel);
  await page.goto('/DragonRoute/');await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Avenue Innsbruck Grenoble');return calls;
 }
-async function start(page,{cycle=true}={}){await page.locator('#transitBtn').click();await page.locator('#transitWhen').fill('2026-11-19T10:00');await page.locator('#transitCompare').check();if(cycle)await page.locator('#transitCycle').check();await page.locator('#transitSearch').click()}
+async function start(page,{cycle=true}={}){await (await preparationControl(page,'transitBtn')).click();await page.locator('#transitWhen').fill('2026-11-19T10:00');await page.locator('#transitCompare').check();if(cycle)await page.locator('#transitCycle').check();await page.locator('#transitSearch').click()}
 async function ready(page,options){await start(page,options);await expect(page.locator('[data-modal-carbon-open]')).toBeEnabled();await expect(page.locator('#transitSearch')).toBeEnabled()}
 async function open(page){await page.locator('[data-modal-carbon-open]').click();await expect(page.locator('#modalCarbonTitle')).toBeFocused()}
 const row=(page,key)=>page.locator('[data-modal-row="'+key+'"]');

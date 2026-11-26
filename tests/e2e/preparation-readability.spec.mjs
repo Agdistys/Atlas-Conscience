@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute,confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {checkAccessibility,checkOverflow,capture} from '../helpers/inspection.mjs';
@@ -15,17 +16,17 @@ async function stations(page){await page.locator('#stationsBtn').click();await e
 
 test('préparation lisible : actions proches des choix, navigation clavier et critères explicites',async({page},info)=>{
  const calls=await setup(page);await expect(page.locator('#tripReadout')).toContainText('Véhicule léger');
- expect(await page.evaluate(()=>Boolean(document.querySelector('#goBtn').compareDocumentPosition(document.querySelector('#routingOptions'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
- await jump(page,'routeModeHeading').focus();await page.keyboard.press('Enter');await expect(page.locator('#routeModeHeading')).toBeFocused();
+ expect(await page.evaluate(()=>Boolean(document.querySelector('#routingOptions').compareDocumentPosition(document.querySelector('#goBtn'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+ await jump(page,'routingOptionsToggle').focus();await page.keyboard.press('Enter');await expect(page.locator('#routingOptionsToggle')).toBeFocused();
  await page.locator('#avoidHighways').check();await expect(page.locator('#tripReadout')).toContainText('éviter autoroutes');
  await page.locator('#routeSchedule').evaluate(e=>e.open=false);await jump(page,'stationDeparture').click();await expect(page.locator('#stationDeparture')).toBeFocused();await expect(page.locator('#routeSchedule')).toHaveJSProperty('open',true);
- await page.locator('#stationDeparture').fill('2026-11-25T09:00');await page.locator('#routeArriveBy').fill('2026-11-25T12:00');await page.locator('#routeOnlyBefore').check();await expect(page.locator('#tripReadout')).toContainText('2026-11-25 12:00');await expect(page.locator('#tripReadout')).toContainText('Filtre d’heure limite actif');
- await page.locator('#walkMode').click();await expect(page.locator('#tripReadout')).toContainText('À pied');await expect(page.locator('#tripReadout')).not.toContainText('autoroutes');await page.locator('#maxWalkKm').fill('0');await page.locator('#walkRule').selectOption('strict');await expect(page.locator('#tripReadout')).toContainText('0 km maximum');await expect(page.locator('#tripReadout')).toContainText('Limite impérative');
- await page.locator('#carMode').click();await expect(page.locator('#tripReadout')).toContainText('éviter autoroutes');expect(calls).toEqual([]);expect(await page.evaluate(()=>uiWrites)).toBe(0);await checkOverflow(page);await checkAccessibility(page,info,'preparation-actions');
+ await (await preparationControl(page,'stationDeparture')).fill('2026-11-25T09:00');await (await preparationControl(page,'routeArriveBy')).fill('2026-11-25T12:00');await (await preparationControl(page,'routeOnlyBefore')).check();await expect(page.locator('#tripReadout')).toContainText('2026-11-25 12:00');await expect(page.locator('#tripReadout')).toContainText('Filtre d’heure limite actif');
+ await (await preparationControl(page,'walkMode')).click();await expect(page.locator('#tripReadout')).toContainText('À pied');await expect(page.locator('#tripReadout')).not.toContainText('autoroutes');await page.locator('#maxWalkKm').fill('0');await page.locator('#walkRule').selectOption('strict');await expect(page.locator('#tripReadout')).toContainText('0 km maximum');await expect(page.locator('#tripReadout')).toContainText('Limite impérative');
+ await (await preparationControl(page,'carMode')).click();await expect(page.locator('#tripReadout')).toContainText('éviter autoroutes');expect(calls).toEqual([]);expect(await page.evaluate(()=>uiWrites)).toBe(2);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('dragonroute.profile.v4.public')).preferences.lastMode)).toBe('car');await checkOverflow(page);await checkAccessibility(page,info,'preparation-actions');
 });
 
 test('préparation lisible : erreur horaire masquée rejoint le champ sans appel',async({page})=>{
- const calls=await setup(page);await page.locator('#routeArriveBy').fill('2026-09-16T12:00');await page.locator('#routeSchedule').evaluate(e=>e.open=false);await page.locator('#goBtn').click();await expect(page.locator('#routeArriveBy')).toBeFocused();await expect(page.locator('#routeSchedule')).toHaveJSProperty('open',true);await expect(page.locator('#tripValidation')).toContainText('L’heure limite doit suivre le départ');expect(calls).toEqual([]);
+ const calls=await setup(page);await (await preparationControl(page,'routeArriveBy')).fill('2026-09-16T12:00');await page.locator('#routeSchedule').evaluate(e=>e.open=false);await page.locator('#goBtn').click();await expect(page.locator('#routeArriveBy')).toBeFocused();await expect(page.locator('#routeSchedule')).toHaveJSProperty('open',true);await expect(page.locator('#tripValidation')).toContainText('L’heure limite doit suivre le départ');expect(calls).toEqual([]);
 });
 
 test('préparation lisible : résultat, stations et budget accessibles sans recalcul',async({page},info)=>{
@@ -52,6 +53,6 @@ test('préparation lisible : paramètres invalides de collecte visibles depuis l
 
 test('préparation lisible : paysage et texte doublé gardent les accès atteignables',async({page},info)=>{
  await setup(page);await route(page);await page.setViewportSize({width:844,height:390});await enlargeText(page);await checkOverflow(page);
- for(const id of ['routeModeHeading','stationDeparture','summary','stopsHeading','budgetHeading']){const b=jump(page,id);await reachable(b);await b.click();await expect(page.locator('#'+id)).toBeFocused();await reachable(page.locator('#'+id),{scroll:false})}
+ for(const id of ['routingOptionsToggle','stationDeparture','summary','stopsHeading','budgetHeading']){const b=jump(page,id);await reachable(b);await b.click();await expect(page.locator('#'+id)).toBeFocused();await reachable(page.locator('#'+id),{scroll:false})}
  await reachable(page.locator('#goBtn'));await capture(page,info,'preparation-paysage');await checkAccessibility(page,info,'preparation-paysage');expect(await page.evaluate(()=>uiWrites)).toBe(0);
 });

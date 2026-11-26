@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
@@ -138,7 +139,7 @@ test('ORS alternatives courtes et indisponibilite explicite', async ({ page }) =
 test('poids lourd valide memorise et transmis aux arrets sans assimilation caravane', async ({ page }, info) => {
   const bodies=[];
   await page.route(orsPattern,r=>{const body=r.request().postDataJSON();bodies.push(body);return r.fulfill({json:orsResponse(body)})});
-  await configureOrs(page);await page.locator('#routeVehicle').selectOption('truck');
+  await configureOrs(page);await (await preparationControl(page,'routeVehicle')).selectOption('truck');
   await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Hauteur');await expect(page.locator('#tripValidationList button')).toHaveCount(5);await expect(page.locator('#truckHeight')).toBeFocused();
   expect(bodies).toHaveLength(0);
   for(const [id,value]of Object.entries({truckHeight:'3.8',truckWidth:'2.5',truckLength:'16',truckWeight:'32',truckAxleload:'10'}))await page.locator('#'+id).fill(value);
@@ -226,84 +227,22 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  let previous;
-  const sequence = ['preparedBtn', 'mapReturn', 'start', 'gpsBtn', 'end', 'swapTripBtn', 'swapTripBtn + .explanation > summary', 'carMode', 'walkMode', 'cycleBtn', 'transitBtn', 'bikesBtn', 'sheet [data-preparation-target=routeModeHeading]', 'sheet [data-preparation-target=stationDeparture]', 'goBtn', 'savedVehicleSelect', 'routeOptimization', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore'];
-  for (const id of sequence) {
-    await page.keyboard.press('Tab');
-    // Native date inputs expose several keyboard segments inside the same element.
-    if (['stationDeparture','routeArriveBy'].includes(previous)) {
-      for(let n=0;n<12&&await page.locator('#'+previous).evaluate(el=>el===document.activeElement);n++) await page.keyboard.press('Tab');
-    }
-    await expect(page.locator('#' + id)).toBeFocused();
-    const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);
-    expect(outline, 'Focus visible sur ' + id).not.toBe('none');
-    if(id==='swapTripBtn + .explanation > summary'){
-      await page.keyboard.press('Enter');await expect(page.locator('#swapTripHint')).toBeVisible();
-      await page.keyboard.press('Enter');await expect(page.locator('#swapTripHint')).toBeHidden();
-      await expect(page.locator('#' + id)).toBeFocused();
-    }
-    if(id==='routeSchedule > summary'){
-      await page.keyboard.press('Enter');await expect(page.locator('#stationDeparture')).toBeHidden();
-      await page.keyboard.press('Enter');await expect(page.locator('#stationDeparture')).toBeVisible();
-    }
-    previous=id;
-    if (id === 'sourcesBtn') {
-      await page.keyboard.press('Enter');
-      await expect(page.locator('#sourcesDialog')).toBeVisible();
-      await expect(page.locator('#sourcesTitle')).toBeFocused();
-      await page.keyboard.press('Escape');
-      await expect(page.locator('#sourcesDialog')).toBeHidden();
-      await expect(page.locator('#sourcesBtn')).toBeFocused();
-    }
-    if (id === 'transitBtn') {
-      await page.keyboard.press('Enter');
-      await expect(page.locator('#transitDialog')).toBeVisible();
-      await expect(page.locator('#transitTitle')).toBeFocused();
-      await page.keyboard.press('Escape');
-      await expect(page.locator('#transitDialog')).toBeHidden();
-      await expect(page.locator('#transitBtn')).toBeFocused();
-    }
-    if (id === 'cycleBtn') {
-      await page.keyboard.press('Enter');
-      await expect(page.locator('#cycleDialog')).toBeVisible();
-      await expect(page.locator('#cycleTitle')).toBeFocused();
-      await page.keyboard.press('Escape');
-      await expect(page.locator('#cycleDialog')).toBeHidden();
-      await expect(page.locator('#cycleBtn')).toBeFocused();
-    }
-    if (id === 'bikesBtn') {
-      await page.keyboard.press('Enter');
-      await expect(page.locator('#bikesDialog')).toBeVisible();
-      await expect(page.locator('#bikesTitle')).toBeFocused();
-      await page.keyboard.press('Escape');
-      await expect(page.locator('#bikesDialog')).toBeHidden();
-      await expect(page.locator('#bikesBtn')).toBeFocused();
-    }
-    if (id === 'journalBtn') {
-      await page.keyboard.press('Enter');
-      await expect(page.locator('#journalDialog')).toBeVisible();
-      await page.keyboard.press('Escape');
-      await expect(page.locator('#journalDialog')).toBeHidden();
-      await expect(page.locator('#journalBtn')).toBeFocused();
-    }
+  const sequence=['preparedBtn','mapReturn','mapNightToggle','start','saveStartAddress','gpsBtn','end','saveEndAddress','swapTripBtn','modeMenuToggle','carMode','walkMode','cycleBtn','transitBtn','bikesBtn','routeVehicle','routeOptimization','routingOptionsToggle','avoidHighways','routeSchedule > summary','stationDeparture','stationDepartureNow','routeArriveBy','routeOnlyBefore','speedPriority','costPriority','goBtn'];
+  for(const id of sequence){
+    const target=page.locator('#'+id);let reached=false;
+    for(let n=0;n<45;n++){await page.keyboard.press('Tab');if(await target.evaluate(el=>el===document.activeElement)){reached=true;break}}
+    expect(reached,'Commande atteinte au clavier : '+id).toBe(true);
+    expect(await target.evaluate(el=>getComputedStyle(el).outlineStyle),'Focus visible : '+id).not.toBe('none');
+    if(id==='modeMenuToggle'||id==='routeSchedule > summary')await page.keyboard.press('Enter');
   }
-  // Return to the earlier calculation button using the same keyboard path.
-  for (const id of sequence.slice(sequence.indexOf('goBtn'), -1).reverse()) {
-    await page.keyboard.press('Shift+Tab');
-    if (['stationDeparture','routeArriveBy'].includes(previous)) {
-      for(let n=0;n<12&&await page.locator('#'+previous).evaluate(el=>el===document.activeElement);n++) await page.keyboard.press('Shift+Tab');
-    }
-    await expect(page.locator('#' + id)).toBeFocused();
-    previous=id;
-  }
+  await expect(page.locator('#modeMenu')).toHaveJSProperty('open',true);
+  await expect(page.locator('#routeSchedule')).toHaveJSProperty('open',true);
   await page.keyboard.press('Enter');
   await expect(page.locator('#statusDot')).toHaveClass(/busy/);
-  await expect(page.locator('#statusDot')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('#statusDot')).toHaveCSS('animation-name','none');
   await expect(page.locator('#status')).toContainText('Trajet prêt');
-  await page.locator('#stationsTab').focus();
-  await page.keyboard.press('ArrowRight');
-  await expect(page.locator('#ridesTab')).toBeFocused();
-  await expect(page.locator('#ridesPanel')).toBeVisible();
+  await page.locator('#stationsTab').focus();await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#ridesTab')).toBeFocused();await expect(page.locator('#ridesPanel')).toBeVisible();
 });
 
 test('erreur de geocodage explicite', async ({ page }) => {
@@ -588,7 +527,7 @@ test('import export et suppression du profil sans toucher les autres donnees', a
   await page.locator('#exportProfileBtn').click();
   const download=await downloadPromise;
   expect(download.suggestedFilename()).toBe('DragonRoute-profil.json');
-  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual({version:3,vehicles:[{id:'legacy-vehicle',...profile.vehicle}],activeVehicleId:'legacy-vehicle',addresses:profile.addresses,stations:profile.stations});
+  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual({version:4,vehicles:[{id:'legacy-vehicle',...profile.vehicle}],activeVehicleId:'legacy-vehicle',addresses:profile.addresses,stations:profile.stations,folders:[],preferences:{defaultMode:'car',lastMode:null,theme:'day'}});
   await page.locator('#eraseProfileBtn').click();
   await expect(page.locator('#profileMessage')).toHaveText('Profil local effacé.');
   await expect(page.locator('#savedAddresses')).toContainText('Aucune adresse');

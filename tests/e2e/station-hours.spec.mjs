@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import {test,expect} from '@playwright/test';
 import {mockDragonRoute,publicRouting,orsPattern,orsResponse} from '../helpers/dragonroute.mjs';
@@ -18,7 +19,7 @@ async function fixture(page,{gpl=false,constrained=false,leaflet=false}={}){
  await page.goto('/DragonRoute/');if(constrained){await page.locator('#routingOptions').evaluate(e=>e.open=true);await page.locator('#avoidTolls').check()}
  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
  if(gpl)await page.locator('#fuel').selectOption('GPLc');
- await page.locator('#stationDeparture').fill('2026-09-17T11:30');await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('stations comparées');
+ await (await preparationControl(page,'stationDeparture')).fill('2026-09-17T11:30');await page.locator('#stationsBtn').click();await expect(page.locator('#fuelStatus')).toContainText('stations comparées');
  await page.locator('#stationFilters').evaluate(e=>e.open=true);await page.locator('#stationListMode').selectOption('all');return ()=>calls;
 }
 const select=(page,value)=>page.locator('#stationOpeningFilter').selectOption(value);
@@ -27,7 +28,7 @@ test('horaires : arrivée par station, filtre strict, inconnus séparés et ré�
  const calls=await fixture(page),n=calls();await ids(page,['A','B','C']);
  await expect(page.locator('[data-station=B] .station-opening')).toContainText('11:50');await expect(page.locator('[data-station=A] .station-opening')).toContainText('Automate 24 h/24');
  await page.locator('[data-station=A] .station-detail-link').click();await expect(page.locator('#stationDetails')).toContainText('00:00 – 00:00 (durée ambiguë — non interprétée)');await page.getByRole('button',{name:'Fermer la fiche station'}).click();
- await select(page,'compatible');await ids(page,['A','B']);await page.locator('#stationDeparture').fill('2026-09-17T11:45');await ids(page,['A']);
+ await select(page,'compatible');await ids(page,['A','B']);await (await preparationControl(page,'stationDeparture')).fill('2026-09-17T11:45');await ids(page,['A']);
  await expect(page.locator('#stationFilterStatus')).toContainText('1 aux horaires inconnus');await expect(page.locator('#stationFilterStatus')).toContainText('1 hors horaires du guichet');
  await select(page,'unknown');await ids(page,['C']);await expect(page.locator('[data-station=C] .station-index')).toHaveText('Point 3');
  await select(page,'outside');await ids(page,['B']);await page.locator('#stationDots [data-details=B]').press('Enter');
@@ -37,25 +38,25 @@ test('horaires : arrivée par station, filtre strict, inconnus séparés et ré�
 });
 test('horaires : départ inconnu ou heure invalide ne passent jamais le filtre strict',async({page})=>{
  const calls=await fixture(page),n=calls();await select(page,'compatible');
- await page.locator('#stationDeparture').fill('');await expect(page.locator('#stationDeparture')).toHaveAttribute('aria-invalid','false');await expect(page.locator('#stationDepartureStatus')).toContainText('non renseigné');await ids(page,[]);
- for(const date of ['2026-03-29T02:30','2026-10-25T02:30']){await page.locator('#stationDeparture').fill(date);await expect(page.locator('#stationDeparture')).toHaveAttribute('aria-invalid','true');await ids(page,[])}
- await expect(page.locator('#stationDepartureStatus')).toContainText('existe deux fois');await page.locator('#stationDepartureNow').click();await expect(page.locator('#stationDeparture')).toHaveValue('2026-09-17T12:00');await ids(page,['A']);expect(calls()).toBe(n);
+ await (await preparationControl(page,'stationDeparture')).fill('');await expect(page.locator('#stationDeparture')).toHaveAttribute('aria-invalid','false');await expect(page.locator('#stationDepartureStatus')).toContainText('non renseigné');await ids(page,[]);
+ for(const date of ['2026-03-29T02:30','2026-10-25T02:30']){await (await preparationControl(page,'stationDeparture')).fill(date);await expect(page.locator('#stationDeparture')).toHaveAttribute('aria-invalid','true');await ids(page,[])}
+ await expect(page.locator('#stationDepartureStatus')).toContainText('existe deux fois');await (await preparationControl(page,'stationDepartureNow')).click();await expect(page.locator('#stationDeparture')).toHaveValue('2026-09-17T12:00');await ids(page,['A']);expect(calls()).toBe(n);
 });
 test('horaires : filtres cumulés, badges et arrêt choisi conservé hors horaires',async({page})=>{
  const calls=await fixture(page),n=calls();page.on('dialog',d=>d.accept());await page.locator('[data-select=B]').click();await confirmStationPreview(page);await expect(page.locator('#selectedStop')).toBeVisible();const afterSelect=calls();expect(afterSelect).toBeGreaterThan(n);
- await select(page,'compatible');await page.locator('#stationDeparture').fill('2026-09-17T11:45');await expect(page.locator('#filteredStopNote')).toContainText('reste dans le trajet');await expect(page.locator('#stationDots .svg-station')).toHaveCount(2);
+ await select(page,'compatible');await (await preparationControl(page,'stationDeparture')).fill('2026-09-17T11:45');await expect(page.locator('#filteredStopNote')).toContainText('reste dans le trajet');await expect(page.locator('#stationDots .svg-station')).toHaveCount(2);
  await page.locator('#maxDetourKm').fill('0');await expect(page.locator('.result-card')).toHaveCount(0);await expect(page.locator('#stationDots .svg-station')).toHaveCount(1);
  await page.locator('#resetStationFilters').click();await select(page,'compatible');await expect(page.locator('[data-station=A] .result-badge')).toHaveText(['OPTIMAL','POMPE','RAPIDE']);expect(calls()).toBe(afterSelect);
 });
 test('horaires : automate générique ne confirme pas le GPLc, guichet reste utilisable',async({page})=>{
- await fixture(page,{gpl:true});await expect(page.locator('[data-station=A] .station-opening')).toContainText('non qualifié pour le GPLc');await select(page,'compatible');await ids(page,['B']);await page.locator('#stationDeparture').fill('2026-09-17T11:45');await ids(page,[]);
+ await fixture(page,{gpl:true});await expect(page.locator('[data-station=A] .station-opening')).toContainText('non qualifié pour le GPLc');await select(page,'compatible');await ids(page,['B']);await (await preparationControl(page,'stationDeparture')).fill('2026-09-17T11:45');await ids(page,[]);
 });
 test('horaires : accès routier contraint utilise sa première étape',async({page})=>{
  await fixture(page,{constrained:true});await expect(page.locator('[data-station=B] .station-opening')).toContainText('12:20');await select(page,'compatible');await ids(page,['A']);
 });
 test('horaires : carte Leaflet, clic et titre reflètent la même arrivée',async({page})=>{
- await fixture(page,{leaflet:true});await ids(page,['A','B','C'],true);await expect(page.locator('.station-marker').nth(1)).toHaveAttribute('title',/11:50/);await page.locator('#mapStationsBtn').click();await expect(page.locator('#stationPickerDialog')).toBeVisible();await page.locator('[data-picker-station=B]').click();await expect(page.locator('#stationDetails')).toContainText('11:50');await page.getByRole('button',{name:'Fermer la fiche station'}).click();if(await page.locator('#stationPickerDialog').isVisible())await page.keyboard.press('Escape');await page.locator('#stationDeparture').fill('2026-09-17T11:45');await select(page,'outside');await ids(page,['B'],true);await expect(page.locator('.station-marker')).toHaveAttribute('title',/12:05/);
+ await fixture(page,{leaflet:true});await ids(page,['A','B','C'],true);await expect(page.locator('.station-marker').nth(1)).toHaveAttribute('title',/11:50/);await page.locator('#mapStationsBtn').click();await expect(page.locator('#stationPickerDialog')).toBeVisible();await page.locator('[data-picker-station=B]').click();await expect(page.locator('#stationDetails')).toContainText('11:50');await page.getByRole('button',{name:'Fermer la fiche station'}).click();if(await page.locator('#stationPickerDialog').isVisible())await page.keyboard.press('Escape');await (await preparationControl(page,'stationDeparture')).fill('2026-09-17T11:45');await select(page,'outside');await ids(page,['B'],true);await expect(page.locator('.station-marker')).toHaveAttribute('title',/12:05/);
 });
 test.describe('horaires sur appareil dans un autre fuseau',()=>{test.use({timezoneId:'America/New_York'});test('heure de Paris explicite, départ figé puis actualisation volontaire',async({page})=>{
- await fixture(page);await expect(page.locator('[data-station=B] .station-opening')).toContainText('11:50');await page.clock.setFixedTime(new Date('2026-09-17T15:00:00Z'));await expect(page.locator('#stationDeparture')).toHaveValue('2026-09-17T11:30');await page.locator('#stationDepartureNow').click();await expect(page.locator('#stationDeparture')).toHaveValue('2026-09-17T17:00');await expect(page.locator('[data-station=B] .station-opening')).toContainText('17:20');
+ await fixture(page);await expect(page.locator('[data-station=B] .station-opening')).toContainText('11:50');await page.clock.setFixedTime(new Date('2026-09-17T15:00:00Z'));await expect(page.locator('#stationDeparture')).toHaveValue('2026-09-17T11:30');await (await preparationControl(page,'stationDepartureNow')).click();await expect(page.locator('#stationDeparture')).toHaveValue('2026-09-17T17:00');await expect(page.locator('[data-station=B] .station-opening')).toContainText('17:20');
 })});

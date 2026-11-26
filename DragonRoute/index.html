@@ -37,6 +37,7 @@
       </div>
       <div id="stationMapTools" class="map-station-tools" hidden><button id="mapStationsBtn" class="ghost" type="button" aria-haspopup="dialog" aria-controls="stationPickerDialog">⛽ <span id="mapStationCount">0</span></button></div>
     </div>
+    <div id="mapTimeBand" class="map-time-band" aria-label="Heure et arrivée"><span>🕒 <time id="mapClock">—</time></span><span id="mapArrival">Arrivée —</span><button id="mapNightToggle" class="ghost" type="button" aria-label="Activer le mode nuit" aria-pressed="false">🌙</button></div><details class="map-time-info explanation"><summary aria-label="Informations sur les horaires de la carte">ⓘ</summary><p id="mapTimeInfo" class="note">Heure de Paris. L’arrivée dépend du départ prévu et du trajet calculé, hors trafic en direct.</p></details>
     </section>
     <section class="sheet" id="sheet" aria-label="Préparation du trajet">
       <section class="route-section">
@@ -49,53 +50,39 @@
           <ul id="tripValidationList"></ul>
         </section>
         <div class="route-fields">
-          <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote gpsOriginNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p><p id="gpsOriginNote" class="note" hidden></p></div>
-          <div><label for="end">Arrivée</label><input id="end" aria-describedby="addressHint endPlaceNote" value="Valence" autocomplete="off" placeholder="Ville ou adresse"><p id="endPlaceNote" class="note" hidden></p></div>
+          <div><label for="start">Départ</label><div class="field-row"><input id="start" aria-describedby="addressHint startPlaceNote gpsOriginNote" value="Lyon" autocomplete="off" placeholder="Ville ou adresse"><button id="saveStartAddress" class="icon-btn" type="button" aria-label="Enregistrer le départ dans mes adresses">📌</button><button id="gpsBtn" class="icon-btn" title="Utiliser ma position" aria-label="Utiliser ma position">⌖</button></div><p id="startPlaceNote" class="note" hidden></p><p id="gpsOriginNote" class="note" hidden></p></div>
+          <div><label for="end">Arrivée</label><div class="field-row"><input id="end" aria-describedby="addressHint endPlaceNote" value="Valence" autocomplete="off" placeholder="Ville ou adresse"><button id="saveEndAddress" class="icon-btn" type="button" aria-label="Enregistrer l’arrivée dans mes adresses">📌</button></div><p id="endPlaceNote" class="note" hidden></p></div>
         </div>
         <button id="swapTripBtn" class="ghost navigation-button" type="button" aria-describedby="swapTripHint">Inverser départ et arrivée</button>
-        <details class="explanation"><summary>À savoir pour le retour</summary><p id="swapTripHint" class="note">Préparer le retour : les lieux sont inversés. Le trajet, ses arrêts, les horaires et l’autonomie seront à renseigner ou calculer à nouveau. Les sauvegardes sont conservées.</p></details>
+        <details class="explanation"><summary aria-label="Informations sur le retour">ⓘ</summary><p id="swapTripHint" class="note">Préparer le retour : les lieux sont inversés. Le trajet, ses arrêts, les horaires et l’autonomie seront à renseigner ou calculer à nouveau. Les sauvegardes sont conservées.</p></details>
         <section class="mode-access" aria-labelledby="modeAccessTitle" aria-describedby="modeAccessHint">
           <h2 id="modeAccessTitle">Comment se déplacer ?</h2>
-          <div class="mode-grid">
-            <button id="carMode" class="ghost mode-choice" type="button" aria-pressed="true" aria-controls="vehiclePicker routingOptions"><span class="mode-icon" aria-hidden="true">🚘</span><strong>En véhicule</strong><small>France · selon le véhicule</small></button>
+          <details id="modeMenu" class="mode-menu"><summary id="modeMenuToggle"><span id="modeCurrent">🚘 Voiture</span></summary><div class="mode-grid">
+            <button id="carMode" class="ghost mode-choice" type="button" aria-pressed="true" aria-controls="vehiclePicker routingOptions"><span class="mode-icon" aria-hidden="true">🚘</span><strong>Voiture / véhicule</strong><small>France · selon le véhicule</small></button>
             <button id="walkMode" class="ghost mode-choice" type="button" aria-pressed="false" aria-controls="walkingOptions"><span class="mode-icon" aria-hidden="true">🚶</span><strong>À pied</strong><small>France · parcours estimé</small></button>
             <button id="cycleBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="cycleDialog"><span class="mode-icon" aria-hidden="true">🚲</span><strong>À vélo</strong><small>Métropole · vélo personnel</small></button>
             <button id="transitBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="transitDialog"><span class="mode-icon" aria-hidden="true">🚌</span><strong>Transports collectifs</strong><small>Pilote Grenoble</small></button>
             <button id="bikesBtn" class="ghost mode-choice" type="button" aria-haspopup="dialog" aria-controls="bikesDialog"><span class="mode-icon" aria-hidden="true">🚲</span><strong>Vélos partagés</strong><small>Pilote Lyon</small></button>
           </div>
-          <p id="modeAccessHint" class="note">Véhicule et marche : réglages ci-dessous. Les autres modes ouvrent leur recherche avec ces lieux, sans trajet voiture préalable.</p>
+        <div id="vehiclePicker"><label for="savedVehicleSelect">Mes véhicules</label><select id="savedVehicleSelect" aria-describedby="activeVehicle"><option value="">Réglages ponctuels</option></select></div>
+        <p id="activeVehicle" class="note" hidden></p>
+          <label for="routeVehicle">Type de véhicule</label>
+          <select id="routeVehicle" aria-describedby="vehicleRoutingNote"><option value="car">🚘 Véhicule léger</option><option value="truck">🚚 Poids lourd</option><option value="caravan" disabled>Caravane · indisponible</option><option value="van" disabled>Utilitaire · indisponible</option></select>
+          </details>
+          <details class="explanation"><summary aria-label="Informations sur les déplacements">ⓘ</summary><p id="modeAccessHint" class="note">Véhicule et marche : réglages ci-dessous. Les autres modes ouvrent leur recherche avec ces lieux, sans trajet voiture préalable.</p></details>
         </section>
-        <section class="preparation-actions" aria-label="Calcul du trajet">
-          <p id="tripReadout" class="note" aria-live="polite"></p>
-          <nav class="preparation-links" aria-label="Accès dans la préparation">
-            <button class="ghost" type="button" data-preparation-target="routeModeHeading">Réglages du trajet</button>
-            <button class="ghost" type="button" data-preparation-target="stationDeparture">Horaires</button>
-          </nav>
-        <button id="goBtn" class="primary">Trouver mon trajet</button>
-        <button id="cancelTripBtn" class="ghost navigation-button" type="button" hidden>Annuler la recherche du trajet</button>
-        <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
-          <nav id="routeResultLinks" class="preparation-links" aria-label="Accès aux résultats du trajet" hidden><button id="routeMapLink" class="ghost" type="button" data-map-open="route">Voir la carte</button>
-            <button id="jumpRouteResult" class="ghost" type="button" data-preparation-target="summary" hidden>Voir le trajet</button>
-            <button id="jumpStations" class="ghost" type="button" data-preparation-target="stopsHeading" hidden>Choisir les arrêts</button>
-            <button id="jumpBudget" class="ghost" type="button" data-preparation-target="budgetHeading" hidden>Budget</button>
-          </nav>
-        </section>
-        <p id="routeModuleName" class="note">DragonRoute · module routier</p>
-        <h2 id="routeModeHeading" tabindex="-1">Trajet en véhicule</h2>
+        <p id="routeModuleName" class="sr-only">DragonRoute · module routier</p>
+        <h2 id="routeModeHeading" class="sr-only" tabindex="-1">Trajet en véhicule</h2>
         <select id="travelMode" aria-label="Mode du trajet principal" hidden><option value="car">🚘 En véhicule</option><option value="walk">À pied</option></select>
         <div id="walkingOptions" hidden>
           <label for="maxWalkKm">Distance de marche souhaitée au maximum (km)</label><input id="maxWalkKm" type="number" min="0" max="500" step="any" placeholder="Sans limite renseignée" aria-describedby="walkingPreference"><label for="walkRule">Règle pour la distance à pied</label><select id="walkRule"><option value="soft">Préférence</option><option value="strict">Limite impérative</option></select>
           <details class="explanation"><summary>Comprendre la limite de marche</summary><p id="walkingPreference" class="note">Préférence : dépassement signalé. Limite impérative : trajet non admissible si dépassée. Vide : aucune distance demandée ; zéro : zéro kilomètre. Réévaluation locale sans nouveau calcul. Pente, effort et accessibilité non vérifiés.</p></details>
           <p class="note">Pente, escaliers, revêtement, fermetures et accessibilité ne sont pas vérifiés. La durée du moteur reste une estimation, hors pauses.</p>
         </div>
-        <div id="vehiclePicker"><label for="savedVehicleSelect">Véhicule mémorisé pour ce trajet</label><select id="savedVehicleSelect" aria-describedby="activeVehicle"><option value="">Réglages ponctuels</option></select></div>
-        <p id="activeVehicle" class="note" hidden></p>
-        <label for="routeOptimization">Privilégier pour ce trajet</label><select id="routeOptimization" aria-describedby="optimizationNote"><option value="" disabled>Choisir un critère</option><option value="fastest" selected>Plus rapide — durée estimée</option><option value="shortest">Plus court — distance</option></select><p id="optimizationNote" class="note" role="status"></p>
-        <p id="addressHint" class="note">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p>
+        <label for="routeOptimization">Calcul du trajet</label><select id="routeOptimization" aria-describedby="optimizationNote"><option value="" disabled>Choisir un critère</option><option value="fastest" selected>🐎 Plus rapide</option><option value="shortest">🪽 Plus court</option></select><details class="explanation"><summary aria-label="Informations sur le calcul">ⓘ</summary><p id="optimizationNote" class="note" role="status"></p></details>
+        <details class="explanation"><summary aria-label="Informations sur les adresses">ⓘ</summary><p id="addressHint" class="note">Adresses et lieux en France. Pour un nom partagé par plusieurs communes, préciser le code postal.</p></details>
         <details id="routingOptions" class="routing-options" open>
           <summary id="routingOptionsToggle">Options du trajet</summary>
-          <label for="routeVehicle">Véhicule pour ce trajet</label>
-          <select id="routeVehicle" aria-describedby="vehicleRoutingNote"><option value="car">🚘 Véhicule léger</option><option value="truck">🚚 Poids lourd</option><option value="caravan" disabled>Caravane · indisponible</option><option value="van" disabled>Utilitaire · indisponible</option></select>
           <fieldset id="truckDimensions" class="dimension-fields" hidden><legend>Gabarit et charge du poids lourd</legend>
             <div><label for="truckHeight">Hauteur (m)</label><input id="truckHeight" type="number" min="0.01" max="6" step="0.01"></div>
             <div><label for="truckWidth">Largeur (m)</label><input id="truckWidth" type="number" min="0.01" max="6" step="0.01"></div>
@@ -114,13 +101,29 @@
           <p class="note">France : couverture à vérifier selon les données disponibles. Les chemins non revêtus ne disposent pas encore d’un filtre dédié.</p>
         </details>
         <section id="preparedResume" class="selection" hidden aria-label="Préparation reprise"><p id="preparedResumeNote" role="status"></p><details id="budgetMemory" hidden></details><p id="budgetMemoryMessage" class="note" role="status"></p><p id="preparedStopNote" class="note"></p><button id="preparedReviewStop" class="ghost" type="button" hidden>Revoir l’arrêt mémorisé</button><button id="preparedDismiss" class="ghost" type="button">Masquer ce rappel</button></section>
-        <details id="routeSchedule" open><summary>Horaires du trajet</summary>
+        <details id="routeSchedule"><summary>Partir plus tard</summary>
             <label for="stationDeparture">Départ prévu — heure de Paris</label><input id="stationDeparture" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59" aria-describedby="stationDepartureStatus">
             <button id="stationDepartureNow" type="button" class="ghost">Partir maintenant</button><p id="stationDepartureStatus" class="note" role="status"></p>
           <label for="routeArriveBy">Arriver au plus tard — heure de Paris (facultatif)</label><input id="routeArriveBy" type="datetime-local" min="2000-01-01T00:00" max="2099-12-31T23:59" aria-describedby="routeTimingStatus">
           <label class="check-label"><input id="routeOnlyBefore" type="checkbox"> Filtrer la comparaison par cette heure limite</label><p id="routeTimingStatus" class="note" role="status"></p>
           <p class="note">Départ commun au trajet et aux horaires des stations. La pause carburant déclarée est ajoutée après le choix d’une station. Autres pauses et trafic en direct exclus ; aucune garantie d’arrivée.</p>
         </details>
+        <section class="preparation-actions" aria-label="Calcul du trajet">
+          <details class="explanation"><summary aria-label="Résumé des critères du trajet">ⓘ</summary><p id="tripReadout" class="note" aria-live="polite"></p></details>
+          <nav class="preparation-links" aria-label="Accès dans la préparation">
+            <button class="ghost" type="button" data-preparation-target="routingOptionsToggle">Réglages du trajet</button>
+            <button class="ghost" type="button" data-preparation-target="stationDeparture">Partir plus tard</button>
+          </nav>
+        <div class="priority-control" role="group" aria-label="Privilégier"><button id="speedPriority" class="ghost" type="button" aria-pressed="true">💨 Vitesse</button><button id="costPriority" class="ghost" type="button" aria-pressed="false">💰 Coût</button></div><p id="priorityStatus" class="note" role="status" hidden></p>
+        <button id="goBtn" class="primary">Trouver mon trajet</button>
+        <button id="cancelTripBtn" class="ghost navigation-button" type="button" hidden>Annuler la recherche du trajet</button>
+        <div class="status-row"><span id="statusDot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Démarrage du moteur…</span></div>
+          <nav id="routeResultLinks" class="preparation-links" aria-label="Accès aux résultats du trajet" hidden><button id="routeMapLink" class="ghost" type="button" data-map-open="route">Voir la carte</button>
+            <button id="jumpRouteResult" class="ghost" type="button" data-preparation-target="summary" hidden>Voir le trajet</button>
+            <button id="jumpStations" class="ghost" type="button" data-preparation-target="stopsHeading" hidden>Choisir les arrêts</button>
+            <button id="jumpBudget" class="ghost" type="button" data-preparation-target="budgetHeading" hidden>Budget</button>
+          </nav>
+        </section>
         <div id="summary" class="summary" tabindex="-1" role="group" aria-label="Résumé du trajet calculé" hidden><div class="metric"><b id="tripKm">—</b><small>trajet affiché</small></div><div class="metric"><b id="tripTime">—</b><small>durée de déplacement</small></div></div>
         <section id="meetingSummary" class="selection" hidden aria-label="Rencontres sur le trajet"><h3>Rencontres sur le trajet</h3><p id="meetingOrder"></p><p id="meetingMetrics"></p><button id="meetingEdit" class="ghost" type="button">Modifier les rencontres</button><button id="meetingRemove" class="ghost" type="button">Retirer les rencontres</button></section>
         <p id="meetingPending" class="selection" hidden>Des rencontres sont en préparation, mais ne sont pas incluses dans le trajet affiché. <button id="meetingReview" class="ghost" type="button">Vérifier les rencontres</button></p>
@@ -377,7 +380,7 @@
           <p class="note">Le récapitulatif reste dans cette session. Les rencontres peuvent être conservées par un enregistrement explicite dans Mes trajets. Aucune offre de covoiturage connectée pour le moment. Recherche, publication d’une offre, contact et réservation restent chez le fournisseur.</p><a id="rideExternal" class="external-link" href="https://www.blablacar.fr/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Ouvrir BlaBlaCar ↗</a><p class="note">Ce lien ouvre le site sans lui transmettre les paramètres du trajet.</p>
         </div>
       </section>
-      <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
+
       <details id="appAvailability"><summary>Installation et hors ligne</summary>
         <p id="networkStatus" class="note" role="status"></p><p id="pwaStatus" class="note" role="status"></p>
         <p class="note">Mes trajets, Mon profil et Mon journal restent consultables dans ce navigateur sans réseau. Les préparations sont des instantanés datés, avec un schéma du tracé. Les nouveaux itinéraires, prix et fonds de carte nécessitent une connexion ; aucune actualisation automatique au retour du réseau.</p>
@@ -593,7 +596,7 @@
   <div id="stationDetails"></div>
   <p id="stationMessage" class="note" role="status"></p>
   <button id="stationListReveal" class="ghost navigation-button" type="button" aria-describedby="stationListRevealNote" hidden>Voir dans la liste</button><p id="stationListRevealNote" class="note" hidden></p>
-  <div class="dialog-actions"><button id="favoriteBtn" class="ghost" aria-pressed="false">Enregistrer la station</button><button id="detailChooseBtn" class="primary">Choisir cet arrêt</button></div>
+  <div class="dialog-actions"><button id="stationAddressBtn" class="ghost" type="button">📁 Enregistrer dans mes adresses</button><button id="favoriteBtn" class="ghost" aria-pressed="false">Enregistrer la station</button><button id="detailChooseBtn" class="primary">Choisir cet arrêt</button></div>
 </dialog>
 <dialog id="journalDialog" aria-labelledby="journalTitle">
   <div class="dialog-heading"><h2 id="journalTitle">Mon journal de mobilité</h2><button class="icon-btn close-dialog" aria-label="Fermer le journal" title="Fermer">×</button></div>
@@ -644,6 +647,7 @@
 <dialog id="profileDialog" aria-labelledby="profileTitle">
   <div class="dialog-heading"><h2 id="profileTitle">Mon profil</h2><button class="icon-btn close-dialog" aria-label="Fermer le profil" title="Fermer">×</button></div>
   <p class="note">Enregistré dans ce navigateur uniquement, sans compte ni synchronisation. Le profil d’essai est séparé du profil public.</p>
+  <section class="profile-section"><h3>⚙️ Mes préférences</h3><label for="profileDefaultMode">Déplacement par défaut</label><select id="profileDefaultMode"><option value="car">🚘 Voiture</option><option value="walk">🚶 À pied</option><option value="cycle">🚲 À vélo</option><option value="transit">🚌 Transports collectifs</option><option value="bikes">🚲 Vélos partagés</option></select><label for="profileTheme">Carte</label><select id="profileTheme"><option value="day">☀️ Jour</option><option value="night">🌙 Nuit</option><option value="system">📱 Selon l’appareil</option></select><button id="savePreferences" type="button" class="ghost">Enregistrer les préférences</button><button id="profileServices" type="button" class="ghost">État des services</button><details class="explanation"><summary aria-label="Informations sur les préférences">ⓘ</summary><p>Le dernier déplacement choisi est repris au démarrage. Enregistrer un nouveau défaut le remplace. Les modes vélo et transports se rouvrent sur demande, sans recherche automatique. Le mode nuit adapte localement les couleurs du fond de carte, sans changer de fournisseur.</p></details></section>
   <p id="profileMessage" class="note" role="status" aria-live="polite"></p>
   <section class="profile-section"><h3>Mes véhicules</h3><p class="note">Jusqu’à dix véhicules. Enregistrer un gabarit ne valide pas son passage sur les routes. Les options de routage disponibles restent indiquées dans le trajet.</p><div id="savedVehicles" class="saved-list"></div><button id="newVehicleBtn" class="ghost" type="button">Ajouter un véhicule</button></section>
   <form id="vehicleForm" class="profile-section">
@@ -660,13 +664,13 @@
     </div><button id="clearVehicleDimensions" class="ghost" type="button">Retirer le gabarit du formulaire</button></details>
     <button id="saveTruckDimensions" class="ghost" type="button">Reprendre le gabarit du trajet</button>
     <p id="savedDimensionsNote" class="note"></p>
-    <div class="settings"><div><label for="vehicleFuel">Carburant</label><select id="vehicleFuel"><option>E10</option><option>Gazole</option><option>SP98</option><option>SP95</option><option>E85</option><option>GPLc</option></select></div><div><label for="vehicleCons">Conso. L/100 km</label><input id="vehicleCons" type="number" min="1" max="100" step="0.1" required></div><div><label for="vehicleLiters">Litres par défaut</label><input id="vehicleLiters" type="number" min="1" max="2000" step="1" required></div></div>
+    <details id="vehicleTolls"><summary>💶 Péages du véhicule</summary><label for="vehicleTollClass">Classe de péage déclarée</label><select id="vehicleTollClass"><option value="">Non renseignée</option><option value="1">Classe 1</option><option value="2">Classe 2</option><option value="3">Classe 3</option><option value="4">Classe 4</option><option value="5">Classe 5</option></select><label for="vehicleTollHeight">Hauteur totale pour le péage (m)</label><input id="vehicleTollHeight" type="number" min="0.1" max="6" step="any"><label for="vehicleTollPtac">PTAC (tonnes, carte grise)</label><input id="vehicleTollPtac" type="number" min="0.1" max="100" step="any"><p class="note">Le PTAC n’est pas le poids en charge. La classe dépend aussi des essieux et de la remorque. Ces valeurs seront reprises dans le budget, à confirmer pour le trajet ; seules les grilles disponibles et datées peuvent donner un tarif. <a href="https://www.autoroutes.fr/fr/classification-des-vehicules.htm" target="_blank" rel="noopener noreferrer">Classes de véhicules — ASFA</a>.</p></details><div class="settings"><div><label for="vehicleFuel">Carburant</label><select id="vehicleFuel"><option>E10</option><option>Gazole</option><option>SP98</option><option>SP95</option><option>E85</option><option>GPLc</option></select></div><div><label for="vehicleCons">Conso. L/100 km</label><input id="vehicleCons" type="number" min="1" max="100" step="0.1" required></div><div><label for="vehicleLiters">Litres par défaut</label><input id="vehicleLiters" type="number" min="1" max="2000" step="1" required></div></div>
     <div id="vehicleDuplicates" class="profile-notice" hidden><p id="vehicleDuplicateNote"></p><label><input id="allowVehicleDuplicate" type="checkbox"> Conserver ce nom déjà utilisé</label></div>
     <p class="note">L’enregistrement choisit aussi ce véhicule pour le trajet et les prochains démarrages. Les résultats actuels seront à recalculer ; le journal et les préparations sauvegardées restent conservés. Les litres à acheter ne représentent pas le carburant restant.</p>
     <button class="primary" type="submit">Enregistrer le véhicule</button>
   </form>
-  <section class="profile-section"><h3>Mes adresses</h3><div id="savedAddresses" class="saved-list"></div>
-    <form id="addressForm"><input id="addressId" type="hidden"><label for="addressName">Nom</label><input id="addressName" maxlength="80" required placeholder="Maison, travail…"><label for="addressValue">Adresse</label><input id="addressValue" aria-describedby="addressPlaceStatus" maxlength="250" required placeholder="Rue, code postal, ville">
+  <section class="profile-section"><h3>📁 Mes adresses</h3><label for="addressFolderFilter">Dossier</label><select id="addressFolderFilter"></select><form id="folderForm"><input id="folderId" type="hidden"><label for="folderName">Nom du dossier</label><input id="folderName" maxlength="60" required placeholder="Amis, stations essence, famille…"><button class="ghost" type="submit">Enregistrer le dossier</button><button id="folderCancel" class="ghost" type="button" hidden>Annuler</button></form><div id="folderActions" class="dialog-actions"><button id="folderEdit" class="ghost" type="button">Renommer le dossier</button><button id="folderRemove" class="ghost" type="button">Supprimer le dossier</button></div><div id="savedAddresses" class="saved-list"></div>
+    <form id="addressForm"><input id="addressId" type="hidden"><label for="addressFolder">Ranger dans</label><select id="addressFolder"></select><label for="addressName">Nom</label><input id="addressName" maxlength="80" required placeholder="Maison, travail…"><label for="addressValue">Adresse</label><input id="addressValue" aria-describedby="addressPlaceStatus" maxlength="250" required placeholder="Rue, code postal, ville">
       <p id="addressPlaceStatus" class="note" role="status">Lieu non mémorisé : il sera recherché lors du trajet.</p><button id="resolveAddressBtn" class="ghost" type="button">Vérifier le lieu</button>
       <div class="dialog-actions"><button id="copyStartBtn" class="ghost" type="button">Reprendre le départ</button><button id="copyEndBtn" class="ghost" type="button">Reprendre l’arrivée</button></div>
       <div id="addressDuplicates" class="profile-notice" hidden><p id="addressDuplicateNote"></p><label><input id="allowAddressDuplicate" type="checkbox" aria-describedby="addressDuplicateNote"> Enregistrer malgré ce doublon possible</label></div>
@@ -674,7 +678,7 @@
     </form>
   </section>
   <section class="profile-section"><h3>Mes stations</h3><div id="savedStations" class="saved-list"></div></section>
-  <section class="profile-section"><h3>Mes données</h3><p class="note">Le journal de mobilité s’exporte et s’efface séparément depuis Mon journal.</p><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="exportLegacyProfileBtn" class="ghost" hidden>Exporter le profil d’origine v1</button><button id="exportV2ProfileBtn" class="ghost" hidden>Exporter le profil d’origine v2</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
+  <section class="profile-section"><h3>Mes données</h3><p class="note">Le journal de mobilité s’exporte et s’efface séparément depuis Mon journal.</p><div class="dialog-actions"><button id="exportProfileBtn" class="ghost">Exporter</button><button id="exportLegacyProfileBtn" class="ghost" hidden>Exporter le profil d’origine v1</button><button id="exportV3ProfileBtn" class="ghost" hidden>Exporter le profil d’origine v3</button><button id="exportV2ProfileBtn" class="ghost" hidden>Exporter le profil d’origine v2</button><button id="importProfileBtn" class="ghost">Importer</button><button id="eraseProfileBtn" class="ghost">Tout effacer</button></div><input id="importProfileFile" type="file" accept="application/json,.json" hidden></section>
 </dialog>
 <dialog id="profileImportDialog" aria-labelledby="profileImportTitle" aria-describedby="profileImportSummary profileImportCurrent">
   <div class="dialog-heading"><h2 id="profileImportTitle">Vérifier le profil à importer</h2><button id="cancelProfileImport" class="icon-btn" type="button" aria-label="Annuler l’import">×</button></div>
@@ -892,6 +896,7 @@
 <dialog id="sourcesDialog" aria-labelledby="sourcesTitle">
   <div class="dialog-heading"><h2 id="sourcesTitle" tabindex="-1">Réglages et données</h2><button id="sourcesClose" class="ghost" type="button" aria-label="Fermer les sources et données">×</button></div>
   <div class="dialog-actions"><button id="settingsRoute" class="ghost" type="button">🚘 Options du trajet</button><button id="settingsVoice" class="ghost" type="button">🔊 Voix du guidage</button></div><p id="settingsVoiceHint" class="note">Calculer un trajet pour préparer la voix du guidage.</p>
+      <details id="diagWrap"><summary>État des services</summary><div class="health"><span id="hJS" class="pill">JS</span><span id="hMap" class="pill">carte</span><span id="hGeo" class="pill">géocodage</span><span id="hRoute" class="pill">routage</span><span id="hFuel" class="pill">carburants</span></div><pre id="diag"></pre></details>
   <h3>Sources et données</h3>
   <p>Sans compte ne signifie pas sans échanges. Les services consultés reçoivent l’adresse IP et des informations de connexion, en plus des éléments décrits ci-dessous. Leur conservation dépend de leurs règles.</p>
   <p class="note">Ce panneau décrit les fonctions configurées ; il ne surveille pas le trafic et ne certifie ni les fournisseurs ni leur disponibilité. Son ouverture, ses filtres et son actualisation ne lancent aucune requête de données.</p>

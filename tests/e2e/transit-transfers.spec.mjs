@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {test,expect} from '@playwright/test';import fs from 'node:fs';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from '../helpers/dragonroute.mjs';
 import {capture,checkOverflow,checkAccessibility} from '../helpers/inspection.mjs';
@@ -14,7 +15,7 @@ async function setup(page,{ambiguous=false,outside=false}={}){
  await page.route('https://router.project-osrm.org/route/v1/driving/**',r=>r.fulfill({json:{code:'Ok',routes:[{distance:6000,duration:900,geometry:{type:'LineString',coordinates:[[5.714527,45.191112],[5.731,45.1572]]}}]}}));
  await page.goto('/DragonRoute/');await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Grand Place Grenoble');return calls;
 }
-async function open(page){await page.locator('#transitBtn').click();await page.locator('#transitWhen').fill('2026-11-19T10:00')}
+async function open(page){await (await preparationControl(page,'transitBtn')).click();await page.locator('#transitWhen').fill('2026-11-19T10:00')}
 async function done(page,n=2){await expect(page.locator('[data-transit-option]')).toHaveCount(n);await expect(page.locator('#transitSearch')).toBeEnabled()}
 
 const key='dragonroute.transit-prepared.v3.public',old='dragonroute.transit-prepared.v1.public';

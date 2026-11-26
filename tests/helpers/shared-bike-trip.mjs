@@ -1,3 +1,4 @@
+import {preparationControl} from './preparation-controls.mjs';
 import {expect} from '@playwright/test';import fs from 'node:fs';
 import {mockDragonRoute,addressFeature,placesResponse,geocodingPattern} from './dragonroute.mjs';import {checkAccessibility,checkOverflow,capture} from './inspection.mjs';
 const base='https://download.data.grandlyon.com/files/rdata/jcd_jcdecaux.jcdvelov/',cycle='https://routing.openstreetmap.de/routed-bike/route/v1/driving/**',ign='https://data.geopf.fr/navigation/itineraire?**',now=Date.parse('2026-11-19T06:00:00Z');
@@ -11,7 +12,7 @@ async function setup(page,{data=feeds(),leaflet=false,disabled=false,open=true,p
  if(leaflet)await page.route('https://cdn.jsdelivr.net/**',r=>r.fulfill({body:fs.readFileSync('node_modules/leaflet/dist/'+(r.request().url().endsWith('.css')?'leaflet.css':'leaflet.js')),contentType:r.request().url().endsWith('.css')?'text/css':'application/javascript'}));
  if(disabled)await page.route('**/DragonRoute/config.js',async r=>{const res=await r.fetch();await r.fulfill({response:res,body:(await res.text()).replace('cyclingApi: "https://routing.openstreetmap.de/routed-bike/route/v1/driving/"','cyclingApi: ""')})});
  if(preview)await page.route('**/DragonRoute/',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('<body>','<body data-preview="true">')})});
- await page.goto('/DragonRoute/');if(!open)return calls;await page.locator('#bikesBtn').click();await page.locator('#bikesLoad').click();await expect(page.locator('#bikesBrowse')).toBeVisible();await page.locator('#bikeTripStart').fill('Place Bellecour, Lyon');await page.locator('#bikeTripEnd').fill('Gare Part-Dieu, Lyon');return calls;
+ await page.goto('/DragonRoute/');if(!open)return calls;await (await preparationControl(page,'bikesBtn')).click();await page.locator('#bikesLoad').click();await expect(page.locator('#bikesBrowse')).toBeVisible();await page.locator('#bikeTripStart').fill('Place Bellecour, Lyon');await page.locator('#bikeTripEnd').fill('Gare Part-Dieu, Lyon');return calls;
 }
 async function choose(page,role,id){await page.locator('#bikesQuery').fill(id);await page.locator(`[data-bike-trip-role="${role}"][data-bike-trip-station="${id}"]`).click()}
 async function stations(page){await choose(page,'pickup','2002');await choose(page,'dropoff','3011')}

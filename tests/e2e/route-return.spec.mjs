@@ -1,3 +1,4 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
 import {target44} from '../helpers/reading-layout.mjs';
 import {test,expect} from '@playwright/test';
 for(const failure of ['absence','annulation'])test('retour : ancienne résolution retirée après nouvelle tentative '+failure,async({page})=>{
@@ -13,7 +14,7 @@ for(const failure of ['absence','annulation'])test('retour : ancienne résolutio
 });
 test('retour : copie du lieu inversé vers un favori conserve sa provenance IGN',async({page})=>{
  const calls=await setup(page);await go(page);await swap(page);const n=calls.length;await page.locator('#profileBtn').click();await page.locator('#addressName').fill('Départ retour');await page.locator('#copyStartBtn').click();await expect(page.locator('#addressPlaceStatus')).toContainText('Valence');await page.getByRole('button',{name:'Enregistrer l’adresse',exact:true}).click();expect(calls.length).toBe(n);
- const profile=await page.evaluate(()=>JSON.parse(localStorage.getItem('dragonroute.profile.v3.public')));expect(profile.addresses[0].place).toMatchObject({source:'ign',lat:44.9334,lon:4.8924,label:'Valence, France'});expect(profile.addresses[0].place.resolvedAt).toBeTruthy();
+ const profile=await page.evaluate(()=>JSON.parse(localStorage.getItem('dragonroute.profile.v4.public')));expect(profile.addresses[0].place).toMatchObject({source:'ign',lat:44.9334,lon:4.8924,label:'Valence, France'});expect(profile.addresses[0].place.resolvedAt).toBeTruthy();
  await page.reload();await page.locator('#profileBtn').click();await page.locator('[data-address-start]').click();await expect(page.locator('#startPlaceNote')).toContainText('Valence');
 });
 test('retour : paysage et texte agrandi gardent commande et champs accessibles',async({page},info)=>{
@@ -67,7 +68,7 @@ test('retour : favori confirmé transféré, profil inchangé et édition manuel
  await page.locator('#start').fill('Nouveau lieu');await expect(page.locator('#startPlaceNote')).toBeHidden();await advance(page);await go(page);expect(calls.some(u=>u.includes('q=Nouveau+lieu'))).toBe(true);
 });
 test('retour : préparation sauvegardée préservée, horaires et rappel à réexaminer',async({page})=>{
- const calls=await setup(page);await page.locator('#stationDeparture').fill('2026-09-18T10:00');await page.locator('#routeArriveBy').fill('2026-09-18T14:00');await page.locator('#routeOnlyBefore').check();await go(page);
+ const calls=await setup(page);await (await preparationControl(page,'stationDeparture')).fill('2026-09-18T10:00');await (await preparationControl(page,'routeArriveBy')).fill('2026-09-18T14:00');await (await preparationControl(page,'routeOnlyBefore')).check();await go(page);
  await page.locator('#savePreparationBtn').click();await page.locator('#preparedName').fill('Aller conservé');await page.locator('#preparedConfirm').check();await page.locator('#preparedSave').click();await expect(page.locator('#preparedMessage')).toContainText('Préparation enregistrée');await page.getByRole('button',{name:'Fermer les trajets préparés'}).click();
  await page.locator('#preparedBtn').click();await page.locator('[data-prepared-show]').first().click();page.once('dialog',d=>d.accept());await page.locator('#preparedResumeBtn').click();await expect(page.locator('#preparedResume')).toBeVisible();const before=await stored(page),n=calls.length;
  await swap(page);await expect(page.locator('#preparedResume')).toBeHidden();await expect(page.locator('#stationDeparture')).toHaveValue('');await expect(page.locator('#routeArriveBy')).toHaveValue('');await expect(page.locator('#routeOnlyBefore')).not.toBeChecked();expect(calls.length).toBe(n);expect(await stored(page)).toBe(before);
@@ -98,11 +99,11 @@ test('retour : arrêt, autonomie, rencontres et hypothèses carbone retirés san
 test('retour : marche et exclusions conservent leur calculateur et leurs critères',async({page})=>{
  const calls=await setup(page);await page.locator('#avoidHighways').check();await go(page);await swap(page);await expect(page.locator('#avoidHighways')).toBeChecked();await advance(page);await go(page);
  let p=new URL(calls.filter(u=>u.includes('/navigation/')).at(-1)).searchParams;expect(p.get('start')).toBe('4.8924,44.9334');expect(p.get('constraints')).toContain('autoroute');expect(routes(calls)).toHaveLength(0);
- await page.locator('#walkMode').click();await page.locator('#maxWalkKm').fill('120');await page.locator('#walkRule').selectOption('strict');await swap(page);await expect(page.locator('#maxWalkKm')).toHaveValue('120');await advance(page);await go(page);p=new URL(calls.filter(u=>u.includes('/navigation/')).at(-1)).searchParams;expect(p.get('profile')).toBe('pedestrian');expect(p.get('start')).toBe('4.8357,45.764');expect(routes(calls)).toHaveLength(0);
+ await (await preparationControl(page,'walkMode')).click();await page.locator('#maxWalkKm').fill('120');await page.locator('#walkRule').selectOption('strict');await swap(page);await expect(page.locator('#maxWalkKm')).toHaveValue('120');await advance(page);await go(page);p=new URL(calls.filter(u=>u.includes('/navigation/')).at(-1)).searchParams;expect(p.get('profile')).toBe('pedestrian');expect(p.get('start')).toBe('4.8357,45.764');expect(routes(calls)).toHaveLength(0);
 });
 test('retour : contexte collectif et comparaison retirés sans appel de remplacement',async({page})=>{
  const calls=await setup(page);await page.clock.setFixedTime(new Date('2026-11-18T12:00:00Z'));await page.route(geocodingPattern,r=>r.fulfill({json:placesResponse(new URL(r.request().url()).searchParams.get('q').includes('Innsbruck')?addressFeature(5.731,45.1572,'Avenue Innsbruck, Grenoble'):addressFeature(5.7152,45.1913,'Gare de Grenoble'))}));await page.route(transitPlanPattern,r=>r.fulfill({json:transferPlan()}));
- await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Avenue Innsbruck Grenoble');await page.locator('#transitBtn').click();await page.locator('#transitWhen').fill('2026-11-19T10:00');await page.locator('#transitSearch').click();await expect(page.locator('[data-transit-option]').first()).toBeVisible();await expect(page.locator('#transitSearch')).toBeEnabled();await page.locator('#transitClose').click();
+ await page.locator('#start').fill('Gare Grenoble');await page.locator('#end').fill('Avenue Innsbruck Grenoble');await (await preparationControl(page,'transitBtn')).click();await page.locator('#transitWhen').fill('2026-11-19T10:00');await page.locator('#transitSearch').click();await expect(page.locator('[data-transit-option]').first()).toBeVisible();await expect(page.locator('#transitSearch')).toBeEnabled();await page.locator('#transitClose').click();
  const n=calls.length;await swap(page);await expect(page.locator('#transitResults')).toBeEmpty();await expect(page.locator('#transitMapWrap')).toBeHidden();expect(calls.length).toBe(n);
- await page.locator('#transitBtn').click();await expect(page.locator('#transitPlaces')).toContainText('Avenue Innsbruck');await expect(page.locator('#transitResults')).toBeEmpty();expect(calls.length).toBe(n);
+ await (await preparationControl(page,'transitBtn')).click();await expect(page.locator('#transitPlaces')).toContainText('Avenue Innsbruck');await expect(page.locator('#transitResults')).toBeEmpty();expect(calls.length).toBe(n);
 });
