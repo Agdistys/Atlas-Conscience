@@ -7,8 +7,9 @@ test('ergonomie : navigation basse, retour de focus et champs conservés',async(
  const h=await fixture(page);const before=await page.locator('#start').inputValue();
  await expect(page.locator('#bottomNav button')).toHaveCount(4);
  for(const id of ['tripsTab','journalBtn','profileBtn','sourcesBtn'])await target44(page.locator('#'+id));
+ await page.locator('#tripsTab').focus();
  for(const [button,dialog] of [['journalBtn','journalDialog'],['profileBtn','profileDialog'],['sourcesBtn','sourcesDialog']]){
-  await page.locator('#'+button).click();await expect(page.locator('#'+dialog)).toBeVisible();await expect(page.locator('#'+button)).toHaveAttribute('aria-current','page');await page.keyboard.press('Escape');await expect(page.locator('#'+button)).toBeFocused();
+  await page.keyboard.press('Tab');await expect(page.locator('#'+button)).toBeFocused();await page.keyboard.press('Enter');await expect(page.locator('#'+dialog)).toBeVisible();await expect(page.locator('#'+button)).toHaveAttribute('aria-current','page');await page.keyboard.press('Escape');await expect(page.locator('#'+button)).toBeFocused();
  }
  await page.locator('#tripsTab').click();await expect(page.locator('#tripHeading')).toBeFocused();await expect(page.locator('#start')).toHaveValue(before);await expect(page.locator('#tripsTab')).toHaveAttribute('aria-current','page');
  await expect(page.locator('#carMode')).toContainText('🚘');await expect(page.locator('#walkMode')).toContainText('🚶');await expect(page.locator('#transitBtn')).toContainText('🚌');
@@ -40,4 +41,9 @@ test('ergonomie : le focus remonte au-dessus de la barre après un défilement n
  await fixture(page);await page.setViewportSize({width:390,height:640});const target=page.locator('#bikesBtn');await page.locator('#start').focus();
  await target.evaluate(e=>{const r=e.getBoundingClientRect();window.scrollTo(0,scrollY+r.bottom-innerHeight+12);e.focus({preventScroll:true})});
  await expect(target).toBeFocused();await expect.poll(()=>target.evaluate(e=>{const r=e.getBoundingClientRect(),bar=document.getElementById('bottomNav').getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return r.top>=0&&r.bottom<bar.top&&(hit===e||e.contains(hit))})).toBe(true);
+ // A pointer press near the bar must not move the control between down and up.
+ await page.locator('#start').focus();const transit=page.locator('#transitBtn');
+ await transit.evaluate(e=>{const r=e.getBoundingClientRect(),bar=document.getElementById('bottomNav').getBoundingClientRect();window.scrollBy(0,r.bottom-bar.top-4)});
+ const box=await transit.boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.waitForTimeout(100);
+ await expect(transit).toBeFocused();const held=await transit.boundingBox();expect(held.y).toBeCloseTo(box.y,1);await page.mouse.up();await expect(page.locator('#transitDialog')).toBeVisible();await page.keyboard.press('Escape');
 });

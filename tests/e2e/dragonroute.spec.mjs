@@ -227,7 +227,7 @@ test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
   let previous;
-  const sequence = ['preparedBtn', 'journalBtn', 'profileBtn', 'sourcesBtn', 'mapReturn', 'start', 'gpsBtn', 'end', 'swapTripBtn', 'swapTripBtn + .explanation > summary', 'carMode', 'walkMode', 'cycleBtn', 'transitBtn', 'bikesBtn', 'sheet [data-preparation-target=routeModeHeading]', 'sheet [data-preparation-target=stationDeparture]', 'goBtn', 'savedVehicleSelect', 'routeOptimization', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore'];
+  const sequence = ['preparedBtn', 'mapReturn', 'start', 'gpsBtn', 'end', 'swapTripBtn', 'swapTripBtn + .explanation > summary', 'carMode', 'walkMode', 'cycleBtn', 'transitBtn', 'bikesBtn', 'sheet [data-preparation-target=routeModeHeading]', 'sheet [data-preparation-target=stationDeparture]', 'goBtn', 'savedVehicleSelect', 'routeOptimization', 'routingOptionsToggle', 'routeVehicle', 'avoidHighways', 'routeSchedule > summary', 'stationDeparture', 'stationDepartureNow', 'routeArriveBy', 'routeOnlyBefore'];
   for (const id of sequence) {
     await page.keyboard.press('Tab');
     // Native date inputs expose several keyboard segments inside the same element.

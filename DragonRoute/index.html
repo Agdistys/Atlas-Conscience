@@ -17,7 +17,7 @@
 <div id="app">
   <header class="topbar">
     <div class="brand"><span class="dragon" aria-hidden="true">🐉</span><strong>OùQuandQui</strong><span class="badge">V3 PWA</span></div>
-    <div class="header-actions"><button id="installBtn" class="ghost tiny-btn" aria-label="Installer OùQuandQui" hidden>＋ Installer</button></div>
+    <div class="header-actions"><button id="preparedBtn" class="ghost" type="button">Mes trajets enregistrés</button><button id="installBtn" class="ghost tiny-btn" aria-label="Installer OùQuandQui" hidden>＋ Installer</button></div>
   </header>
   <main class="stage">
     <section id="multiActiveBody" class="multi-active" aria-label="Parcours adopté à plusieurs arrêts" hidden></section>
@@ -43,7 +43,6 @@
         <p id="connectionNotice" class="app-notice" role="status" hidden></p>
         <p id="pwaUpdateNotice" class="app-notice" role="status" hidden></p>
         <h1 id="tripHeading" tabindex="-1">Mon trajet</h1>
-        <button id="preparedBtn" class="ghost" type="button">Mes trajets enregistrés</button>
         <section id="tripValidation" class="trip-validation" aria-labelledby="tripValidationHeading" hidden>
           <h2 id="tripValidationHeading">À corriger avant le calcul</h2>
           <p>Choisir une erreur pour rejoindre le champ concerné, puis relancer la recherche.</p>
