@@ -34,7 +34,7 @@ test('voix : réglage en cours de guidage interrompt puis reprise volontaire',as
  await fixture(page);await begin(page);await fix(page,start);await page.locator('#guidanceSettings > summary').click();await page.locator('#guidanceVoiceRate').selectOption('0.9');await expect(page.locator('#guidanceStatus')).toContainText('pause pendant le réglage vocal');expect(await page.evaluate(()=>gpsTest.cleared)).toEqual([0]);expect(await watches(page)).toBe(1);await page.locator('#guidanceStart').click();expect(await watches(page)).toBe(2);
 });
 test('voix : unités prononcées et absence de la voix choisie sans substitution distante',async({page})=>{
- await fixture(page);await open(page);await page.locator('#guidanceVoiceSelect').selectOption('fr-FR|Locale');await page.locator('#guidanceVoice').check();await page.locator('#guidanceStart').click();await fix(page,start);expect(await page.evaluate(()=>gpsTest.spoken[0].text)).toMatch(/^Dans 390 mètres, /);
+ await fixture(page);await open(page);await page.locator('#guidanceVoiceSelect').selectOption('fr-FR|Locale');await page.locator('#guidanceVoice').check();await page.locator('#guidanceStart').click();await expect.poll(()=>watches(page)).toBe(1);await fix(page,start);expect(await page.evaluate(()=>gpsTest.spoken[0].text)).toMatch(/^Dans 390 mètres, /);
  await page.locator('#guidancePause').click();await page.locator('#guidanceClose').click();await page.evaluate(()=>speechSynthesis.getVoices=()=>[{name:'Distante',lang:'fr-FR',localService:false}]);await open(page);await expect(page.locator('#guidanceVoiceTest')).toBeDisabled();await expect(page.locator('#guidanceVoice')).toBeDisabled();
 });
 

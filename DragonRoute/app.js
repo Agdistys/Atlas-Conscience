@@ -5731,6 +5731,7 @@ function bindProfile(){
     }catch(e){loadProfile();resetRememberedInputs();applyVehicle();applyCompactPreferences();resetAddressForm();openProfile();$('profileMessage').textContent='Suppression non terminée : '+e.message+'. Vérifier les données restantes avant de réessayer.'}
   });
 }
+async function submitCurrentMode(){if(busy)return;const modeButton={cycle:'cycleBtn',transit:'transitBtn',bikes:'bikesBtn'}[compactMode];if(modeButton){$(modeButton).click();return}const before=trip;await run();if(trip&&trip!==before&&$('costPriority').getAttribute('aria-pressed')==='true')openCostChoices()}
 function bind(){
   $('routeOptimization').addEventListener('change',()=>{if(!busy){invalidateRouting();updateResumePreparation()}});
   for(const id of ['fuel','cons','liters','routeVehicle',...Object.values(dimensionFields)])$(id).addEventListener('input',()=>{if(!busy)detachTripVehicle()});
@@ -5807,13 +5808,13 @@ function bind(){
   $('cancelTripBtn').addEventListener('click',()=>cancelTripSearch());
   for(const event of ['input','change'])$('sheet').addEventListener(event,e=>{if(tripRun&&tripRun.revision!==tripSearchSignature()&&!['maxWalkKm','walkRule'].includes(e.target.id))cancelTripSearch('Paramètres modifiés : calcul annulé. Relancer la recherche.')},true);
   bindPreparationNavigation();bindMapNavigation();
-  $("goBtn").addEventListener("click",async()=>{const modeButton={cycle:'cycleBtn',transit:'transitBtn',bikes:'bikesBtn'}[compactMode];if(modeButton){$(modeButton).click();return}const before=trip;await run();if(trip&&trip!==before&&$('costPriority').getAttribute('aria-pressed')==='true')openCostChoices()});$("gpsBtn").addEventListener("click",gps);
+  $("goBtn").addEventListener("click",submitCurrentMode);$("gpsBtn").addEventListener("click",gps);
   $('gpsCancel').addEventListener('click',()=>cancelGps());$('gpsClose').addEventListener('click',()=>cancelGps());$('gpsRetry').addEventListener('click',gps);$('gpsConfirm').addEventListener('click',adoptGps);
   $('gpsAcceptImprecise').addEventListener('change',()=>{if(gpsJob)showGpsProposal(gpsJob)});
   $('gpsDialog').addEventListener('cancel',e=>{e.preventDefault();cancelGps()});$('gpsDialog').addEventListener('close',()=>{if(!$('gpsDialog').open)cancelGps(false)});
   for(const event of ['input','change'])$('sheet').addEventListener(event,()=>{if(gpsJob)cancelGps()},true);
   $('swapTripBtn').addEventListener('click',swapTripEnds);
-  ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("goBtn").click()}}));
+  ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();submitCurrentMode()}}));
   ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{clearRememberedInput(id);if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
   $('tripValidationList').addEventListener('click',e=>{const button=e.target.closest('[data-trip-error]');if(button)focusTripField(button.dataset.tripError)});
   for(const event of ['input','change'])document.querySelector('.route-section').addEventListener(event,refreshTripValidation);

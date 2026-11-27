@@ -54,6 +54,6 @@ test('accès modes : erreur des lieux réparable depuis le mode marche',async({p
 test('accès modes : commandes accessibles en paysage, texte agrandi et petit écran',async({page},info)=>{
  await setup(page);await page.locator('.mode-access').scrollIntoViewIfNeeded();await capture(page,info,'modes-preparation');
  await page.setViewportSize({width:844,height:390});await page.addStyleTag({content:'html{font-size:200%}'});await page.locator('.mode-access').scrollIntoViewIfNeeded();await checkOverflow(page);await capture(page,info,'modes-paysage-texte-agrandi');
- for(const id of ids){const button=await preparationControl(page,id);await reachable(button);await target44(button)}
+ for(const id of ids){const button=await preparationControl(page,id);await reachable(button);await target44(button);await expect.poll(()=>button.evaluate(e=>{const r=e.getBoundingClientRect(),sheet=e.closest('.sheet'),clip=getComputedStyle(sheet).overflowY==='auto'?sheet.getBoundingClientRect():{top:0,bottom:innerHeight};return r.top>=Math.max(0,clip.top)-1&&r.bottom<=Math.min(clip.bottom,document.getElementById('bottomNav').getBoundingClientRect().top)+1})).toBe(true)}
  await (await preparationControl(page,'cycleBtn')).click();await expect(page.locator('#cycleDialog')).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('#modeMenuToggle')).toBeFocused();await checkAccessibility(page,info,'modes-texte-agrandi');
 });
