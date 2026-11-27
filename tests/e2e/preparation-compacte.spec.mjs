@@ -18,6 +18,14 @@ test('préparation compacte : dernier mode conservé, menu au clavier et aucun c
  expect(await page.evaluate(()=>window.compactLabelNodes.every(node=>node.isConnected))).toBe(true);await page.locator('#modeMenuToggle').click();
  await page.locator('#modeMenuToggle').focus();await page.keyboard.press('Enter');await (await preparationControl(page,'walkMode')).click();await expect(page.locator('#modeCurrent')).toContainText('À pied');await expect(page.locator('#modeMenuToggle')).toBeFocused();await page.reload();await expect(page.locator('#travelMode')).toHaveValue('walk');expect(calls).toEqual([]);
  await profile(page);await page.locator('#profileTheme').selectOption('night');await page.locator('#savePreferences').click();await close(page);await expect(page.locator('#modeCurrent')).toContainText('À pied');await profile(page);await page.locator('#profileDefaultMode').selectOption('cycle');await page.locator('#savePreferences').click();await close(page);await page.reload();await expect(page.locator('#modeCurrent')).toContainText('À vélo');await expect(page.locator('dialog[open]')).toHaveCount(0);await page.locator('#goBtn').click();await expect(page.locator('#cycleDialog')).toBeVisible();expect(calls).toEqual([]);await page.keyboard.press('Escape');await checkOverflow(page);await checkAccessibility(page,info,'preparation-menu');
+ // A remembered non-road mode must remain usable with an unsupported saved vehicle.
+ await page.evaluate(k=>{const p=JSON.parse(localStorage.getItem(k));p.vehicles=[{id:'legacy',name:'Caravane conservée',type:'caravan',fuel:'E10',cons:8,liters:40}];p.activeVehicleId='legacy';localStorage.setItem(k,JSON.stringify(p))},key);
+ await page.reload();await expect(page.locator('#routeVehicle')).toHaveValue('caravan');await expect(page.locator('#goBtn')).toBeEnabled();
+ for(const [button,dialog] of [['cycleBtn','cycleDialog'],['transitBtn','transitDialog'],['bikesBtn','bikesDialog']]){
+  await (await preparationControl(page,button)).click();await expect(page.locator('#'+dialog)).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('#goBtn')).toBeEnabled();
+  await page.locator('#end').focus();await page.keyboard.press('Enter');await expect(page.locator('#'+dialog)).toBeVisible();await page.keyboard.press('Escape');
+ }
+ expect(calls).toEqual([]);await (await preparationControl(page,'carMode')).click();await expect(page.locator('#goBtn')).toBeDisabled();
 });
 test('préparation compacte : nuit mémorisée, carte et bande horaire accessibles sans changer le trajet',async({page},info)=>{
  await setup(page);await page.clock.setFixedTime(new Date('2026-11-27T09:00Z'));await (await preparationControl(page,'stationDeparture')).fill('2026-11-27T10:00');await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');await expect(page.locator('#mapClock')).toHaveText('10:00');await expect(page.locator('#mapArrival')).toContainText('Arrivée ≈');

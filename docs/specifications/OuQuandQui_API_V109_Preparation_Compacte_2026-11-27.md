@@ -6,7 +6,7 @@ Date : 27 novembre 2026. Lot NAV-UX-03. Complément du référentiel V108 ; les 
 
 « Comment se déplacer ? » devient un menu repliable. Son résumé affiche le dernier mode choisi, ou la voiture lors d’une première ouverture. Voiture, marche, vélo personnel, transports collectifs et vélo partagé restent accessibles au clavier et au toucher. Le véhicule enregistré et son type se choisissent dans ce même menu ; aucune seconde rubrique « Véhicule pour ce trajet » ne figure dans les options. La liste des véhicules mémorisés disparaît lorsqu’elle est vide.
 
-Le profil permet de définir le mode par défaut. L’enregistrement explicite de ce défaut remplace le dernier mode mémorisé. Réouvrir la page ne lance ni géolocalisation ni calcul et n’ouvre pas spontanément une fenêtre vélo ou transports : le bouton principal ouvre la préparation correspondante. Les limites de couverture restent celles des services existants.
+Le profil permet de définir le mode par défaut. L’enregistrement explicite de ce défaut remplace le dernier mode mémorisé. Réouvrir la page ne lance ni géolocalisation ni calcul et n’ouvre pas spontanément une fenêtre vélo ou transports : le bouton principal ouvre la préparation correspondante. Les limites de couverture restent celles des services existants. La touche Entrée dans les adresses suit le même mode que le bouton principal. Un véhicule enregistré dont le routage est indisponible ne bloque pas la préparation du vélo, des transports ou du vélo partagé ; revenir au véhicule rétablit ses propres conditions de disponibilité.
 
 ## Critères et informations
 

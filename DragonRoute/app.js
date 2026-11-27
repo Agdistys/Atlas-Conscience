@@ -5813,7 +5813,7 @@ function bind(){
   $('gpsDialog').addEventListener('cancel',e=>{e.preventDefault();cancelGps()});$('gpsDialog').addEventListener('close',()=>{if(!$('gpsDialog').open)cancelGps(false)});
   for(const event of ['input','change'])$('sheet').addEventListener(event,()=>{if(gpsJob)cancelGps()},true);
   $('swapTripBtn').addEventListener('click',swapTripEnds);
-  ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")run()}));
+  ["start","end"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("goBtn").click()}}));
   ["start","end"].forEach(id=>$(id).addEventListener("input",()=>{clearRememberedInput(id);if(!busy){clearResults();if(id==="start")resetRange();setStatus("Trajet à recalculer.")}}));
   $('tripValidationList').addEventListener('click',e=>{const button=e.target.closest('[data-trip-error]');if(button)focusTripField(button.dataset.tripError)});
   for(const event of ['input','change'])document.querySelector('.route-section').addEventListener(event,refreshTripValidation);
@@ -7662,11 +7662,13 @@ function syncModeCurrent(){
  $('costPriority').disabled=busy||mode!=='car';if(mode!=='car'){$('costPriority').setAttribute('aria-pressed','false');$('speedPriority').setAttribute('aria-pressed','true');$('priorityStatus').hidden=true;}
  const actionLabel=mode==='cycle'?'Préparer le trajet à vélo':mode==='transit'?'Préparer le trajet en transports':mode==='bikes'?'Préparer le vélo partagé':'Trouver mon trajet';
  if($('goBtn').textContent!==actionLabel)$('goBtn').textContent=actionLabel;
+ const modeButton={cycle:'cycleBtn',transit:'transitBtn',bikes:'bikesBtn'}[mode];
+ if(modeButton)$('goBtn').disabled=busy||$(modeButton).disabled;
 }
 function rememberCompactMode(mode){
  compactMode=mode;
  if(profile.preferences.lastMode!==mode){const next=structuredClone(profile);next.preferences.lastMode=mode;if(!saveProfile(next)){setStatus('Choix appliqué pour cette session ; préférence non enregistrée.');}}
- syncModeCurrent();
+ updateVehicleRouting();
 }
 function renderAddressFolders(){
  const options=[new Option('Sans dossier',''),...profile.folders.map(f=>new Option(f.name,f.id))];
