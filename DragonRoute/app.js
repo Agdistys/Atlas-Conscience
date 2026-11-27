@@ -7654,10 +7654,14 @@ function syncModeCurrent(){
  if(!compactReady)return;
  const mode=compactMode==='car'||compactMode==='walk'?(isWalking()?'walk':'car'):compactMode;
  const saved=profile.vehicles.find(v=>v.id===tripVehicleId);
- $('modeCurrent').textContent=mode==='car'?(saved?`${saved.type==='truck'?'🚚':'🚘'} ${saved.name||'Mon véhicule'}`:($('routeVehicle').value==='car'?'🚘 Voiture':$('routeVehicle').selectedOptions[0]?.textContent)||compactModeLabel(mode)):compactModeLabel(mode);
+ const modeLabel=mode==='car'?(saved?`${saved.type==='truck'?'🚚':'🚘'} ${saved.name||'Mon véhicule'}`:($('routeVehicle').value==='car'?'🚘 Voiture':$('routeVehicle').selectedOptions[0]?.textContent)||compactModeLabel(mode)):compactModeLabel(mode);
+ // A field's change event may fire during the next pointer press. Keep unchanged
+ // label nodes intact: WebKit can cancel activation when its hit text is detached.
+ if($('modeCurrent').textContent!==modeLabel)$('modeCurrent').textContent=modeLabel;
  document.documentElement.dataset.preparationMode=mode;
  $('costPriority').disabled=busy||mode!=='car';if(mode!=='car'){$('costPriority').setAttribute('aria-pressed','false');$('speedPriority').setAttribute('aria-pressed','true');$('priorityStatus').hidden=true;}
- $('goBtn').textContent=mode==='cycle'?'Préparer le trajet à vélo':mode==='transit'?'Préparer le trajet en transports':mode==='bikes'?'Préparer le vélo partagé':'Trouver mon trajet';
+ const actionLabel=mode==='cycle'?'Préparer le trajet à vélo':mode==='transit'?'Préparer le trajet en transports':mode==='bikes'?'Préparer le vélo partagé':'Trouver mon trajet';
+ if($('goBtn').textContent!==actionLabel)$('goBtn').textContent=actionLabel;
 }
 function rememberCompactMode(mode){
  compactMode=mode;
