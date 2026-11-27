@@ -7629,12 +7629,14 @@ function bindBottomNavigation(){
  const observer=new MutationObserver(sync);for(const [id] of dialogs)observer.observe($(id),{attributes:true,attributeFilter:['open']});
  // Native focus scrolling can ignore a fixed bar (notably on small WebKit viewports).
  // Recheck after the browser has scrolled, without moving focus or touching dialogs.
- let pointerActive=false;
+ let pointerActive=false,pointerFocus=null,pointerTarget=null;
  const revealFocus=()=>{if(pointerActive)return;const el=document.activeElement;if(!(el instanceof HTMLElement)||!$('app').contains(el)||nav.contains(el)||el.closest('dialog'))return;const r=el.getBoundingClientRect(),sheet=el.closest('.sheet'),clip=sheet&&getComputedStyle(sheet).overflowY==='auto'?sheet.getBoundingClientRect():null,top=Math.max(0,clip?.top||0),bottom=Math.min(nav.getBoundingClientRect().top,clip?.bottom||innerHeight);if(r.width&&r.height&&(r.top<top+8||r.bottom>bottom-8))el.scrollIntoView({block:'center',behavior:'instant'})};
  const scheduleReveal=()=>requestAnimationFrame(()=>{revealFocus();requestAnimationFrame(revealFocus)});
  // Keep a pressed control stationary until pointer release so its click is not lost.
- document.addEventListener('pointerdown',()=>{pointerActive=true},true);
- for(const type of ['pointerup','pointercancel'])document.addEventListener(type,()=>{pointerActive=false;scheduleReveal()},true);
+ document.addEventListener('pointerdown',e=>{pointerActive=true;pointerFocus=document.activeElement;pointerTarget=e.target},true);
+ // WebKit may keep the previous input focused when a button is pressed. Revealing
+ // that old field on release can scroll the new button away before its click.
+ for(const type of ['pointerup','pointercancel'])document.addEventListener(type,()=>{pointerActive=false;const active=document.activeElement;if(active!==pointerFocus||active?.contains(pointerTarget))scheduleReveal();pointerFocus=null;pointerTarget=null},true);
  document.addEventListener('focusin',scheduleReveal);window.addEventListener('resize',scheduleReveal);
 
  const resize=new ResizeObserver(()=>document.documentElement.style.setProperty('--bottom-nav-height',Math.ceil(nav.getBoundingClientRect().height)+'px'));resize.observe(nav);
