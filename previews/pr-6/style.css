@@ -323,3 +323,31 @@ html{scroll-padding-bottom:calc(var(--bottom-nav-height) + 12px)}
  .guidance-dialog> *{flex-shrink:0}
  .guidance-dialog .guidance-map{flex:1 0 220px;height:auto;min-height:220px}
 }
+
+/* NAV-UX-03: compact preparation and local night map. */
+.mode-menu{border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--panel)}
+.mode-menu>summary{min-height:48px;padding:12px 0;font-weight:700;font-size:1rem;cursor:pointer}
+.mode-menu .mode-grid{grid-template-columns:1fr;gap:6px;margin:8px 0}
+.mode-menu .mode-choice{display:flex;text-align:left;gap:10px;align-items:center;min-height:48px}
+.mode-menu .mode-choice small{margin-left:auto;max-width:42%;font-size:.7rem}
+.mode-menu #vehiclePicker{margin:12px 0}.mode-menu #activeVehicle{font-size:.75rem}
+.priority-control{display:flex;gap:8px;margin:12px 0}.priority-control button{flex:1;min-height:44px}
+.priority-control [aria-pressed=true]{border:2px solid var(--green);background:var(--panel)}
+.explanation{margin:6px 0}.explanation>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--muted);width:max-content;max-width:100%}
+.map-time-band{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;min-height:56px;border-top:1px solid var(--line);background:var(--panel);flex:none;font-weight:700;flex-wrap:wrap}
+.map-time-band button{min-width:44px;min-height:44px}.map-time-info{padding:0 12px;margin:0}.map-time-info>summary{min-height:32px}
+html[data-map-theme=night] .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.85) saturate(.7)}
+html[data-map-theme=night] .fallback-map{background:#101722}
+#savedAddresses .saved-row small{display:block;color:var(--muted)}
+#folderForm{margin:12px 0}#folderActions{margin-bottom:12px}
+html[data-preparation-mode=cycle] #routingOptions,html[data-preparation-mode=transit] #routingOptions,html[data-preparation-mode=bikes] #routingOptions{display:none}
+@media(max-width:800px){.map-time-band{font-size:.85rem}.mode-menu .mode-choice small{max-width:38%}}
+
+.explanation{border:0;padding:0}.explanation>summary{min-width:44px;justify-content:center}.map-time-info{padding:0 12px}.map-time-info>summary{min-height:44px}
+html[data-map-theme=night] .leaflet-container{background:#131a24}
+
+.mode-menu .mode-choice{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;padding:8px;justify-content:start}.mode-menu .mode-icon{font-size:1.4rem;grid-column:1;grid-row:1 / span 2;align-self:center}.mode-menu .mode-choice strong{font-size:.9rem;grid-column:2;min-width:0}.mode-menu .mode-choice small{grid-column:2;max-width:none;margin-left:0;text-align:left}
+html[data-map-theme=night] .leaflet-bar a,html[data-map-theme=night] .leaflet-popup-content-wrapper,html[data-map-theme=night] .leaflet-popup-tip{background:var(--panel);color:var(--text)}
+html[data-map-theme=night] .leaflet-control-attribution{background:#18181de8!important;color:var(--muted)!important}html[data-map-theme=night] .leaflet-control-attribution a{color:#82baff!important}
+
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
