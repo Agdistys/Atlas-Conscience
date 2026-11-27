@@ -44,9 +44,13 @@ test('ergonomie : le focus remonte au-dessus de la barre après un défilement n
  await expect(target).toBeFocused();await expect.poll(()=>target.evaluate(e=>{const r=e.getBoundingClientRect(),bar=document.getElementById('bottomNav').getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return r.top>=0&&r.bottom<bar.top&&(hit===e||e.contains(hit))})).toBe(true);
  // A pointer press near the bar must not move the control between down and up.
  await page.locator('#start').focus();const transit=page.locator('#transitBtn');
+ // Let the keyboard focus correction finish before simulating a later manual scroll.
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await transit.evaluate(e=>{const r=e.getBoundingClientRect(),bar=document.getElementById('bottomNav').getBoundingClientRect();window.scrollBy(0,r.bottom-bar.top-4)});
  // Reproduce a browser that keeps the input focused when a button is pressed.
  await transit.evaluate(e=>e.addEventListener('mousedown',event=>event.preventDefault(),{once:true}));
- const box=await transit.boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.waitForTimeout(100);
+ const box=await transit.boundingBox();expect(box.y).toBeGreaterThanOrEqual(0);expect(box.y+box.height).toBeLessThan(640);
+ expect(await transit.evaluate(e=>{const r=e.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return e===hit||e.contains(hit)})).toBe(true);
+ await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.waitForTimeout(100);
  await expect(page.locator('#start')).toBeFocused();const held=await transit.boundingBox();expect(held.y).toBeCloseTo(box.y,1);await page.mouse.up();await expect(page.locator('#transitDialog')).toBeVisible();await page.keyboard.press('Escape');
 });
