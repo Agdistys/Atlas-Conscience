@@ -2272,7 +2272,7 @@ function geocodedPlace(feature){
   for(const detail of details)if(!parts.some(part=>part.toLocaleLowerCase("fr-FR").includes(detail.toLocaleLowerCase("fr-FR"))))parts.push(detail);
   return {lat:coordinates[1],lon:coordinates[0],label:parts.join(" · ")};
 }
-async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false,stationIntent=false){
+async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false){
   if(!isCurrent())throw new Error("Recherche du lieu annulée.");
   if(temporaryAddress(q)&&field!=='start')throw new Error('Ce libellé GPS ne désigne pas une arrivée confirmée. Renseigner une adresse fixe.');
   if(q==="__CURRENT__"){
@@ -7906,7 +7906,7 @@ function selectedTollOpen(){
  };
  const validateRoute=r=>selectedTollRouteModel(r,[r.geometry.coordinates[0],r.geometry.coordinates.at(-1)].map(p=>({point:[p[1],p[0]]})));
  selectedTollDialog=selectedTollsCore.createSelectedTollDialog({document,calculate:selectedTollCalculate,getContext,validateRoute,mapView:selectedTollMapView,effects:'Confirmer remplace le trajet affiché et retire ses stations comparées, son arrêt et son ancien budget de péages. Les enregistrements restent conservés.',onAdopt:adoption=>{
-  getContext();validateRoute(adoption.route);const id=crypto.randomUUID(),r=structuredClone(adoption.route);
+  getContext();validateRoute(adoption.route);const id=crypto.randomUUID(),r=structuredClone(adoption.route);$('tariffClass').value=adoption.selection.context.vehicleClass;
   clearRoadChoices();clearComparison();clearMeetingDraft();clearNavigation();tollState.enabled=false;tollState.key='';resetTollQuote();clearTableTolls('Portion choisie : prix à vérifier.');
   trip={...owner,base:r,a:r.geometry.coordinates[0].slice().reverse(),b:r.geometry.coordinates.at(-1).slice().reverse(),coords:r.geometry.coordinates.map(p=>[p[1],p[0]]),choices:[r],choice:0,calculatedAt:new Date().toISOString(),routing:{provider:'ors-selected',vehicle:{type:'car'},optimization:'fastest',avoid:[...adoption.selection.context.avoid],selectedTollKey:id},selectedToll:{id,selection:adoption.selection,previous:original}};
   trip.base.alternativeNotice='Péages évités hors de la portion choisie.';delete trip.meetings;clearStations();renderRouteChoices();updateWindow();updateTripMetrics();
