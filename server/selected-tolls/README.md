@@ -1,3 +1,9 @@
+# Repérage des gares de la portion — V116
+
+`gates.mjs` rapproche l’inventaire géographique embarqué de la portion entière : corridor30m, ordre le long du tracé, ambiguïtés de boucle et de nom. Une paire n’est proposée que pour deux candidates et une ligne tarifaire directionnelle unique ; la confirmation humaine reste séparée. Statuts `GEOGRAPHIC_CANDIDATES_ONLY` puis `DECLARED_NOT_ROUTE_VERIFIED`, jamais un plafond strict automatiquement validé. Aucun appel réseau supplémentaire ni mutation de la géométrie.
+
+`tariff-control.mjs` et `dialog.mjs` affichent liste, carte et action de proposition. Un changement de portion efface les anciens repères ; proposer des gares retire la confirmation précédente. Le contrôleur principal fournit l’inventaire existant. Le bloc généré contient maintenant dix modules. Contrat détaillé : `docs/specifications/OuQuandQui_API_V116_Gares_Portion_2026-11-28.md`. Les sections suivantes conservent les états antérieurs.
+
 # Portion payante choisie — estimation déclarée V115
 
 Le pilote intégré V114 reçoit un tarif de référence pour les gares déclarées de la portion. Voir `docs/specifications/OuQuandQui_API_V115_Tarif_Portion_2026-11-28.md`. Les constats V114 ci-dessous restent historiques.

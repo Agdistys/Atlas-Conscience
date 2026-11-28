@@ -562,8 +562,65 @@ function createRelayCalculator({fetchImpl=fetch,now=Date.now,timeoutMs=25000}={}
 return {relayEndpoint,createRelayCalculator};
 })();
 const module7=(()=>{
+const {selectedTariffNetworks}=module1;
+const {meters}=module3;
+const name=value=>typeof value==='string'&&!value.includes('\uFFFD')?value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/’/g,"'").trim().replace(/\s+/g,' ').toUpperCase():'';
+const point=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90;
+// Explicit label correspondence only. The inventory supplies no tariff/network ID.
+// Source rows 228/229: Valence Nord, 26A900710CD. ASF label: A7 · VALENCE-N.
+// This alias is not a claim about access, direction or actual passage.
+const aliases=[{id:'mte2025-228',name:'VALENCE NORD',road:'26A900710CD',network:'ASF',label:'A7 · VALENCE-N'}];
+function gateTariffCandidates(gate,catalogue){
+ const label=name(gate?.name);if(!label)return [];
+ return Object.entries(selectedTariffNetworks(catalogue)).flatMap(([network,n])=>n.gates.flatMap((text,index)=>{
+  const comparable=network==='ASF'?text.replace(/^[A-Z0-9]+ · /,''):text;
+  const alias=aliases.some(a=>a.id===gate.id&&a.name===label&&a.road===gate.road&&a.network===network&&a.label===text);
+  return name(comparable)===label||alias?[{network,index,label:text,match:alias?'documented-label':'same-label'}]:[];
+ }));
+}
+/** Geographic hints only, in selected-portion order. Never promotes price coverage.
+ * A fixed 30m corridor deliberately excludes many nearby ramps. No result is not
+ * evidence of absence. Separated visits to a gate are ambiguous, never reordered.
+ */
+function locateSectionGates(section,inventory,catalogue){
+ if(!section?.key||!Array.isArray(section.coordinates)||section.coordinates.length<2||section.coordinates.length>100000||!section.coordinates.every(point))throw Error('Portion invalide pour le repérage des gares.');
+ if(inventory?.schemaVersion!==1||!Array.isArray(inventory.gates)||inventory.gates.length>10000)throw Error('Inventaire des gares indisponible. Le choix manuel reste possible.');
+ const radius=30;let total=0;
+ const segments=section.coordinates.slice(1).map((b,i)=>{const a=section.coordinates[i],length=meters(a,b),s={a,b,length,start:total};total+=length;return s}).filter(s=>s.length>0);
+ if(!segments.length)throw Error('Portion sans longueur.');
+ const found=[];const ids=new Set();
+ for(const gate of inventory.gates){
+  if(!gate||typeof gate.id!=='string'||ids.has(gate.id))throw Error('Inventaire des gares ambigu. Le choix manuel reste possible.');ids.add(gate.id);
+  if(!name(gate.name)||!Array.isArray(gate.positions))continue;
+  const hits=[];
+  for(const p of gate.positions){
+   if(!Array.isArray(p)||!point([p[1],p[0]]))continue;
+   const [lat,lon]=p,kx=111320*Math.cos(lat*Math.PI/180),ky=110574;if(kx<1000)continue;
+   for(const s of segments){
+    const {a,b}=s;if(lat<Math.min(a[1],b[1])-radius/ky||lat>Math.max(a[1],b[1])+radius/ky||lon<Math.min(a[0],b[0])-radius/kx||lon>Math.max(a[0],b[0])+radius/kx)continue;
+    const vx=(b[0]-a[0])*kx,vy=(b[1]-a[1])*ky,wx=(lon-a[0])*kx,wy=(lat-a[1])*ky,den=vx*vx+vy*vy,t=den?Math.max(0,Math.min(1,(wx*vx+wy*vy)/den)):0;
+    const distance=Math.hypot(wx-t*vx,wy-t*vy);if(distance<=radius)hits.push({distance,progress:s.start+t*s.length,point:[lon,lat],sourceLine:p[3]});
+   }
+  }
+  if(!hits.length)continue;
+  const best=hits.reduce((a,b)=>a.distance<=b.distance?a:b),ambiguous=hits.reduce((n,x)=>Math.max(n,x.progress),-Infinity)-hits.reduce((n,x)=>Math.min(n,x.progress),Infinity)>150;
+  found.push({id:gate.id,name:gate.name,type:gate.type,road:gate.road,...best,ambiguous,matches:gateTariffCandidates(gate,catalogue)});
+ }
+ found.sort((a,b)=>a.progress-b.progress||a.id.localeCompare(b.id));
+ const rows=found.slice(0,40).map((g,i)=>({...g,number:i+1}));let pair=null;
+ if(found.length===2&&found.every(g=>!g.ambiguous&&g.matches.length===1)&&found[1].progress-found[0].progress>150){
+  const [a,b]=found.map(g=>g.matches[0]),n=selectedTariffNetworks(catalogue)[a.network];
+  if(a.network===b.network&&a.index!==b.index&&n.rows.filter(r=>r[0]===a.index&&r[1]===b.index).length===1)pair={network:a.network,entry:a.index,exit:b.index,entryLabel:a.label,exitLabel:b.label};
+ }
+ return {sectionKey:section.key,source:inventory.source,referenceDate:inventory.referenceDate,radius,total:found.length,rows,pair,coverage:'GEOGRAPHIC_CANDIDATES_ONLY'};
+}
+
+return {gateTariffCandidates,locateSectionGates};
+})();
+const module8=(()=>{
 const {selectedTariffNetworks,declaredSectionTariff}=module1;
-function createSectionTariffControl({document,catalogue,onChange,now=Date.now}){
+const {locateSectionGates}=module7;
+function createSectionTariffControl({document,catalogue,inventory=null,onChange,onLocate=()=>{},now=Date.now}){
  const make=(tag,text,attrs={})=>{const el=document.createElement(tag);if(text)el.textContent=text;for(const [k,v]of Object.entries(attrs))el.setAttribute(k,v);return el};
  const networks=selectedTariffNetworks(catalogue),root=make('details','',{class:'selected-toll-tariff'});root.append(make('summary','💰 Estimer le péage'));
  const network=make('select','',{'aria-label':'Réseau tarifaire de la portion'}),entry=make('select','',{'aria-label':'Gare d’entrée déclarée'}),exit=make('select','',{'aria-label':'Gare de sortie déclarée'}),confirmed=make('input','',{type:'checkbox'}),confirmLabel=make('label','',{class:'check-label'});
@@ -573,27 +630,44 @@ function createSectionTariffControl({document,catalogue,onChange,now=Date.now}){
  confirmLabel.append(confirmed,make('span','Ces gares correspondent à toute la portion choisie'));root.append(output,assumptions,source,confirmLabel,info);
  const options=(select,values,placeholder)=>{select.replaceChildren(make('option',placeholder,{value:''}));for(const [value,label]of values)select.append(make('option',label,{value:String(value)}))};
  options(network,Object.keys(networks).map(id=>[id,id]),'Sans estimation');
- let context=null,sectionKey=null,binding='',busy=false;
+ let context=null,sectionKey=null,section=null,binding='',busy=false,located=null;
+ const locate=make('button','📍 Repérer les gares',{type:'button',class:'ghost'}),locationNote=make('p','',{class:'note','aria-live':'polite'}),list=make('ol','',{class:'selected-gate-list'}),pair=make('button','Proposer ces gares',{type:'button',class:'ghost'}),geography=make('details','',{class:'explanation'}),inventoryLink=make('a','Inventaire des gares',{target:'_blank',rel:'noopener noreferrer'});
+ geography.append(make('summary','ⓘ',{'aria-label':'Précision du repérage des gares'}),make('p','Repères de l’inventaire 2025 à moins de 30 m de la portion, classés dans le sens du tracé. La proximité et un nom concordant ne prouvent ni le passage ni le sens de circulation. Les limites de la portion ne sont pas forcément des gares. Une gare absente du repérage ne signifie pas absence de péage.'),inventoryLink);
+ root.insertBefore(locate,root.children[1]);locate.after(locationNote,list,pair,geography);pair.hidden=true;geography.hidden=true;
+ function showLocations(){
+  locate.disabled=busy||!section;pair.disabled=busy;list.replaceChildren();pair.hidden=!located?.pair;geography.hidden=!located;
+  if(!located)return;
+  locationNote.textContent=located.total?located.total+' repères proches · passage à confirmer.'+(located.total>40?' Les 40 premiers sont affichés.':''):'Aucune gare repérée. Choix manuel disponible ; péage non déduit.';
+  for(const g of located.rows){const row=make('li');row.append(make('strong','P'+g.number+' · '+g.name),make('span',' · km '+(g.progress/1000).toLocaleString('fr-FR',{maximumFractionDigits:1})+' de la portion'));
+   if(g.ambiguous)row.append(make('p','Plusieurs passages proches : ordre ambigu.',{class:'note'}));
+   else if(g.matches.length!==1)row.append(make('p',g.matches.length?'Plusieurs noms tarifaires concordants.':'Sans correspondance de nom dans les grilles.',{class:'note'}));
+   list.append(row);
+  }
+  if(located.pair)pair.textContent='Proposer '+located.rows[0].name+' → '+located.rows[1].name;
+  inventoryLink.hidden=true;inventoryLink.removeAttribute('href');try{const u=new URL(located.source);if(u.protocol==='https:'&&!u.username&&!u.password){inventoryLink.href=u.href;inventoryLink.hidden=false}}catch{}
+ }
+ locate.addEventListener('click',()=>{if(busy||!section)return;try{located=locateSectionGates(section,inventory,catalogue);showLocations()}catch(e){located=null;showLocations();locationNote.textContent=e.message}onLocate()});
+ pair.addEventListener('click',()=>{if(busy||!located?.pair||located.sectionKey!==sectionKey)return;const p=located.pair;network.value=p.network;gates(true);entry.value=String(p.entry);gates();exit.value=String(p.exit);changed();confirmed.focus()});
  const value=()=>({network:network.value,entry:entry.value===''?null:Number(entry.value),exit:exit.value===''?null:Number(exit.value),confirmed:confirmed.checked});
  function gates(resetEntry=false){const n=networks[network.value];if(resetEntry)options(entry,[...new Set((n?.rows||[]).filter(r=>r[0]!==r[1]).map(r=>r[0]))].sort((a,b)=>n.gates[a].localeCompare(n.gates[b],'fr')).map(i=>[i,n.gates[i]]),'Choisir une entrée');options(exit,(n?.rows||[]).filter(r=>entry.value!==''&&String(r[0])===entry.value&&r[0]!==r[1]).map(r=>[r[1],n.gates[r[1]]]).sort((a,b)=>a[1].localeCompare(b[1],'fr')),'Choisir une sortie')}
  function render(){
-  network.disabled=busy;entry.disabled=busy||!network.value;exit.disabled=busy||entry.value==='';confirmed.disabled=busy;source.hidden=true;source.removeAttribute('href');assumptions.textContent='';
+  showLocations();network.disabled=busy;entry.disabled=busy||!network.value;exit.disabled=busy||entry.value==='';confirmed.disabled=busy;source.hidden=true;source.removeAttribute('href');assumptions.textContent='';
   if(!network.value){output.textContent='Facultatif · le prix peut rester inconnu.';confirmed.disabled=true;return}
   try{const r=declaredSectionTariff(catalogue,{...value(),confirmed:true},context,sectionKey,now());output.textContent=(r.cents/100).toLocaleString('fr-FR',{style:'currency',currency:'EUR'})+' · gares déclarées';assumptions.textContent='Classe '+r.vehicleClass+' · trajet '+r.date.split('-').reverse().join('/')+' · tarif au '+r.effectiveFrom.split('-').reverse().join('/');source.href=r.source;source.hidden=false;}
   catch(e){output.textContent=entry.value===''||exit.value===''?'Choisir les gares dans le sens publié.':e.message;confirmed.disabled=true;confirmed.checked=false}
  }
  const changed=()=>{confirmed.checked=false;render();onChange()};
  network.addEventListener('change',()=>{gates(true);changed()});entry.addEventListener('change',()=>{gates();changed()});exit.addEventListener('change',changed);confirmed.addEventListener('change',()=>{render();onChange()});gates(true);
- return {element:root,update(next){context=next.context;sectionKey=next.sectionKey;busy=next.busy;root.hidden=!sectionKey||!Object.keys(networks).length;const key=JSON.stringify([sectionKey,context?.date,context?.vehicleClass]);if(key!==binding){confirmed.checked=false;binding=key}render()},choice(){if(!network.value)return null;declaredSectionTariff(catalogue,value(),context,sectionKey,now());return value()},reset(){network.value='';confirmed.checked=false;gates(true);binding='';render()}};
+ return {element:root,update(next){context=next.context;if(sectionKey!==next.sectionKey){located=null;locationNote.textContent=''}sectionKey=next.sectionKey;section=next.section;busy=next.busy;root.hidden=!sectionKey||!Object.keys(networks).length;const key=JSON.stringify([sectionKey,context?.date,context?.vehicleClass]);if(key!==binding){confirmed.checked=false;binding=key}render()},choice(){if(!network.value)return null;declaredSectionTariff(catalogue,value(),context,sectionKey,now());return value()},markers(){return located?.rows||[]},reset(){located=null;section=null;sectionKey=null;locationNote.textContent='';network.value='';confirmed.checked=false;gates(true);binding='';render()}};
 }
 
 return {createSectionTariffControl};
 })();
-const module8=(()=>{
+const module9=(()=>{
 const {createSelectedTollSession}=module5;
-const {createSectionTariffControl}=module7;
+const {createSectionTariffControl}=module8;
 // Mounted by the existing preparation screen; the host owns final trip adoption.
-function createSelectedTollDialog({document,calculate,getContext,validateRoute,onAdopt,effects='',mapView=null,tariffs=null,now=Date.now}){
+function createSelectedTollDialog({document,calculate,getContext,validateRoute,onAdopt,effects='',mapView=null,tariffs=null,inventory=null,now=Date.now}){
  if(!document?.createElement||typeof onAdopt!=='function')throw Error('Écran de comparaison non configuré.');
  const dialog=document.createElement('dialog');dialog.className='selected-toll-dialog';dialog.setAttribute('aria-label','Choisir une portion payante');
  const make=(tag,text,attrs={})=>{const e=document.createElement(tag);if(text)e.textContent=text;for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);return e};
@@ -606,24 +680,25 @@ function createSelectedTollDialog({document,calculate,getContext,validateRoute,o
  const plot=make('div','',{class:'selected-toll-map'}),metrics=make('div','',{class:'selected-toll-metrics'}),limits=make('details','',{class:'explanation'}),limitLabel=make('label','Plafond péage (€) '),limit=make('input','',{type:'number',min:'0',max:'1000',step:'.01','aria-label':'Plafond péage en euros'});limitLabel.append(limit);limits.append(make('summary','💰 Limite de prix'),limitLabel,make('p','Vide : aucun plafond. Un plafond impose un tarif vérifié pour la portion ; un prix inconnu ne vaut pas zéro.',{class:'note'}));
  const calculateButton=make('button','Calculer cette portion',{type:'button',class:'primary'}),confirm=make('button','Choisir ce trajet',{type:'button',class:'primary'}),cancel=make('button','Annuler le calcul',{type:'button',class:'ghost'}),actions=make('div','',{class:'dialog-actions'});actions.append(calculateButton,confirm,cancel);
  dialog.append(head,info,classLabel,highwayLabel,compare,status,choices,plot,metrics,limits,actions);document.body.append(dialog);
- const style=make('style');style.textContent='.selected-toll-dialog{width:min(42rem,calc(100vw - 2rem));box-sizing:border-box;max-height:calc(100dvh - 2rem);overflow:auto}.selected-toll-dialog [hidden]{display:none!important}.selected-toll-dialog .dialog-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem}.selected-toll-dialog h2{font-size:1.3rem}.selected-toll-dialog fieldset label{display:flex;align-items:center;gap:.5rem;padding:.7rem}.selected-toll-dialog input[type=radio],.selected-toll-dialog input[type=checkbox]{width:auto;min-height:1rem}.selected-toll-dialog table{width:100%;border-collapse:collapse}.selected-toll-dialog th,.selected-toll-dialog td{text-align:left;padding:.45rem;border-bottom:1px solid #555}.selected-toll-dialog caption{font-weight:700;text-align:left;margin:.5rem 0}.selected-toll-map{isolation:isolate}.selected-toll-map > svg{width:100%;height:auto;display:block;background:#121820;border-radius:.5rem}.selected-toll-dialog .dialog-actions{display:flex;flex-wrap:wrap;gap:.5rem}.selected-toll-dialog .dialog-actions button{flex:1;min-height:44px}.selected-toll-price{font-weight:700;color:#e9ba66}.selected-toll-dialog .explanation{margin:.6rem 0}.selected-toll-dialog .note{overflow-wrap:anywhere}.selected-toll-tariff label:not(.check-label){display:block;margin:.6rem 0}.selected-toll-tariff select{width:100%;min-width:0;max-width:100%}.selected-toll-tariff .check-label{display:flex;gap:.5rem;align-items:center}';document.head.append(style);
+ const style=make('style');style.textContent='.selected-toll-dialog{width:min(42rem,calc(100vw - 2rem));box-sizing:border-box;max-height:calc(100dvh - 2rem);overflow:auto}.selected-toll-dialog [hidden]{display:none!important}.selected-toll-dialog .dialog-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem}.selected-toll-dialog h2{font-size:1.3rem}.selected-toll-dialog fieldset label{display:flex;align-items:center;gap:.5rem;padding:.7rem}.selected-toll-dialog input[type=radio],.selected-toll-dialog input[type=checkbox]{width:auto;min-height:1rem}.selected-toll-dialog table{width:100%;border-collapse:collapse}.selected-toll-dialog th,.selected-toll-dialog td{text-align:left;padding:.45rem;border-bottom:1px solid #555}.selected-toll-dialog caption{font-weight:700;text-align:left;margin:.5rem 0}.selected-toll-map{isolation:isolate}.selected-toll-map > svg{width:100%;height:auto;display:block;background:#121820;border-radius:.5rem}.selected-toll-dialog .dialog-actions{display:flex;flex-wrap:wrap;gap:.5rem}.selected-toll-dialog .dialog-actions button{flex:1;min-height:44px}.selected-toll-price{font-weight:700;color:#e9ba66}.selected-toll-dialog .explanation{margin:.6rem 0}.selected-toll-dialog .note{overflow-wrap:anywhere}.selected-toll-tariff label:not(.check-label){display:block;margin:.6rem 0}.selected-toll-tariff select{width:100%;min-width:0;max-width:100%}.selected-gate-list{padding-left:1.5rem}.selected-gate-list li{margin:.5rem 0;overflow-wrap:anywhere}.selected-toll-tariff .check-label{display:flex;gap:.5rem;align-items:center}';document.head.append(style);
  let session=null,trigger=null,chosen=null,lastState={status:'idle'},destroyed=false,operation=0,mapCleanup=null;
- const tariffControl=createSectionTariffControl({document,catalogue:tariffs,now,onChange:()=>{operation++;session?.cancel()}});dialog.insertBefore(tariffControl.element,limits);
+ const tariffControl=createSectionTariffControl({document,catalogue:tariffs,inventory,now,onLocate:()=>showMap(lastState),onChange:()=>{operation++;session?.cancel()}});dialog.insertBefore(tariffControl.element,limits);
  const fmt=(n,unit)=>(unit==='min'?Math.round(n/60):n/1000).toLocaleString('fr-FR',{maximumFractionDigits:unit==='min'?0:1})+' '+unit;
  function showMap(state){
   mapCleanup?.();mapCleanup=null;plot.replaceChildren();const lines=[state.baseline&&{route:state.baseline.geometry.coordinates,color:'#94a3b8',label:'Sans péage',width:5},state.proposal&&{route:state.proposal.route.geometry.coordinates,color:'#82baff',label:'Avec la portion',width:5}].filter(Boolean),selected=state.sections?.find(s=>s.id===chosen);
-  if(selected)lines.push({route:selected.coordinates,color:'#e9ba66',label:'Portion payante choisie',width:8});if(!lines.length)return;if(mapView){mapCleanup=mapView(plot,{lines,selected});if(mapCleanup)return;}
-  const all=lines.flatMap(x=>x.route),[a,b,c,d]=all.reduce((v,p)=>[Math.min(v[0],p[0]),Math.max(v[1],p[0]),Math.min(v[2],p[1]),Math.max(v[3],p[1])],[Infinity,-Infinity,Infinity,-Infinity]),scaleX=Math.cos((c+d)/2*Math.PI/180),w=(b-a)*scaleX,h=d-c,scale=220/Math.max(w/2,h,.000001),project=p=>[20+(p[0]-a)*scaleX*scale,240-(p[1]-c)*scale];
+  if(selected)lines.push({route:selected.coordinates,color:'#e9ba66',label:'Portion payante choisie',width:8});if(!lines.length)return;if(mapView){mapCleanup=mapView(plot,{lines,selected,markers:tariffControl.markers()});if(mapCleanup)return;}
+  const all=[...lines.flatMap(x=>x.route),...tariffControl.markers().map(g=>g.point)],[a,b,c,d]=all.reduce((v,p)=>[Math.min(v[0],p[0]),Math.max(v[1],p[0]),Math.min(v[2],p[1]),Math.max(v[3],p[1])],[Infinity,-Infinity,Infinity,-Infinity]),scaleX=Math.cos((c+d)/2*Math.PI/180),w=(b-a)*scaleX,h=d-c,scale=220/Math.max(w/2,h,.000001),project=p=>[20+(p[0]-a)*scaleX*scale,240-(p[1]-c)*scale];
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 500 260');svg.setAttribute('role','img');svg.setAttribute('aria-label','Schéma de comparaison : gris sans péage, bleu avec la portion, ambre portion choisie.');
   for(const line of lines){const p=document.createElementNS(svg.namespaceURI,'polyline');p.setAttribute('points',line.route.map(p=>project(p).map(x=>x.toFixed(2)).join(',')).join(' '));p.setAttribute('fill','none');p.setAttribute('stroke',line.color);p.setAttribute('stroke-width',String(line.width));svg.append(p)}
   if(selected)for(const [name,point] of [['E',selected.entry],['S',selected.exit]]){const [x,y]=project(point),c=document.createElementNS(svg.namespaceURI,'circle'),t=document.createElementNS(svg.namespaceURI,'text');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','12');c.setAttribute('fill','#09090e');c.setAttribute('stroke','#fff');c.setAttribute('stroke-width','2');t.setAttribute('x',x);t.setAttribute('y',y+5);t.setAttribute('text-anchor','middle');t.setAttribute('fill','#fff');t.textContent=name;svg.append(c,t)}
+  for(const g of tariffControl.markers()){const [x,y]=project(g.point),c=document.createElementNS(svg.namespaceURI,'circle'),t=document.createElementNS(svg.namespaceURI,'text');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','12');c.setAttribute('fill','#e9ba66');c.setAttribute('stroke','#09090e');t.setAttribute('x',x);t.setAttribute('y',y+4);t.setAttribute('text-anchor','middle');t.setAttribute('fill','#09090e');t.setAttribute('font-size','10');t.textContent='P'+g.number;const label=document.createElementNS(svg.namespaceURI,'title');label.textContent='Repère candidat P'+g.number+' : '+g.name;c.append(label);svg.append(c,t)}
   plot.append(svg,make('p','Gris : sans péage · Bleu : proposition · Ambre : portion choisie',{class:'note'}));
  }
  function render(state){
   lastState=state;const busy=['comparing','calculating','calculating-stop'].includes(state.status),proposal=state.status==='proposal';
   compare.disabled=busy||!['1','2'].includes(vehicleClass.value);vehicleClass.disabled=busy;highway.disabled=busy;limit.disabled=busy;choices.hidden=!state.sections?.length;choices.replaceChildren(legend);
   for(const s of state.sections||[]){const label=make('label'),radio=make('input','',{type:'radio',name:'selected-toll-section',value:s.id});radio.checked=chosen===s.id;radio.disabled=busy;radio.addEventListener('change',()=>{session.cancel();chosen=s.id;render(session.state())});label.append(radio,make('span','Portion '+s.number+' · '+(s.road||'Route non nommée')+' · '+fmt(s.distance,'km')));choices.append(label)}
-  tariffControl.update({context:state.context,sectionKey:state.sections?.find(s=>s.id===chosen)?.key||null,busy});
+  tariffControl.update({context:state.context,sectionKey:state.sections?.find(s=>s.id===chosen)?.key||null,section:state.sections?.find(s=>s.id===chosen)||null,busy});
   calculateButton.hidden=!chosen||proposal;calculateButton.disabled=busy;confirm.hidden=!proposal;confirm.disabled=busy;cancel.hidden=!busy;limits.hidden=!chosen;metrics.replaceChildren();
   const messages={idle:'',comparing:'Comparaison en cours…',choices:state.sections?.length?'Choisir une portion.':'Aucune portion avec une entrée et une sortie repérées.',calculating:'Vérification du parcours et des indications…',proposal:'Prêt à comparer.',confirmed:'Trajet choisi.',closed:'',error:state.error?.message||'Comparaison indisponible.'};status.textContent=messages[state.status]||'';
   if(proposal){const p=state.proposal,table=make('table'),caption=make('caption','Comparer avant de choisir');table.append(caption);const rows=[['Parcours','Distance','Conduite'],['Sans péage',fmt(state.baseline.distance,'km'),fmt(state.baseline.duration,'min')],['Avec cette portion',fmt(p.route.distance,'km'),fmt(p.route.duration,'min')]];
@@ -646,7 +721,7 @@ function createSelectedTollDialog({document,calculate,getContext,validateRoute,o
 
 return {createSelectedTollDialog};
 })();
-return Object.freeze(Object.assign({},module0,module1,module2,module3,module4,module5,module6,module7,module8));
+return Object.freeze(Object.assign({},module0,module1,module2,module3,module4,module5,module6,module7,module8,module9));
 })();
 // END SELECTED TOLLS GENERATED
 // BEGIN SOURCES DATA MODEL
@@ -7977,11 +8052,12 @@ function selectedTollControls(){
 function selectedTollRouteModel(r,nodes){
  if(r.provider!=='openrouteservice'||r.qualification!=='INSTRUCTIONS_JOINED_NOT_PHYSICAL_VALIDATION')throw Error('Provenance des indications non confirmée.');return guidanceModel(r,'ors-selected',nodes);
 }
-function selectedTollMapView(host,{lines,selected}){
+function selectedTollMapView(host,{lines,selected,markers=[]}){
  if(!window.L||!map)return null;const el=document.createElement('div');el.style.height='270px';el.setAttribute('aria-label','Carte de comparaison des portions');host.append(el);
  const m=L.map(el,{attributionControl:true,scrollWheelZoom:false});L.tileLayer(C.tileUrl,{attribution:'© OpenStreetMap contributors'}).addTo(m);const group=L.featureGroup().addTo(m);
  for(const l of lines)L.polyline(l.route.map(p=>[p[1],p[0]]),{color:l.color,weight:l.width,opacity:1}).addTo(group);
- if(selected)for(const [name,p]of [['Entrée',selected.entry],['Sortie',selected.exit]])L.circleMarker([p[1],p[0]],{radius:8,color:'#fff',fillColor:'#09090e',fillOpacity:1}).bindTooltip(name,{permanent:true,direction:'top'}).addTo(group);
+ if(selected)for(const [name,p]of [['Début',selected.entry],['Fin',selected.exit]])L.circleMarker([p[1],p[0]],{radius:8,color:'#fff',fillColor:'#09090e',fillOpacity:1}).bindTooltip(name,{permanent:true,direction:'top'}).addTo(group);
+ for(const g of markers){const label=document.createElement('span'),description=document.createElement('span');label.textContent='P'+g.number;description.textContent='P'+g.number+' · '+g.name+' · repère candidat, passage à confirmer';L.circleMarker([g.point[1],g.point[0]],{radius:9,color:'#09090e',fillColor:'#e9ba66',fillOpacity:1}).bindTooltip(label,{permanent:true,direction:'right'}).bindPopup(description).addTo(group);}
  m.fitBounds(group.getBounds(),{padding:[28,28]});const frame=requestAnimationFrame(()=>{m.invalidateSize();m.fitBounds(group.getBounds(),{padding:[28,28]})});return ()=>{cancelAnimationFrame(frame);m.remove()};
 }
 function selectedTollOpen(){
@@ -7992,7 +8068,7 @@ function selectedTollOpen(){
   return {revision,coordinates:[owner.a,owner.b].map(p=>[p[1],p[0]]),vehicle:'car',vehicleClass:$('tariffClass').value||null,optimization:'fastest',avoid:[...new Set([...owner.routing.avoid,'tollways'])],date:$('stationDeparture').value.slice(0,10)||localDate()};
  };
  const validateRoute=r=>selectedTollRouteModel(r,[r.geometry.coordinates[0],r.geometry.coordinates.at(-1)].map(p=>({point:[p[1],p[0]]})));
- selectedTollDialog=selectedTollsCore.createSelectedTollDialog({document,calculate:selectedTollCalculate,getContext,validateRoute,mapView:selectedTollMapView,tariffs:tariffData,effects:'Confirmer remplace le trajet affiché et retire ses stations comparées, son arrêt et son ancien budget de péages. Les enregistrements restent conservés.',onAdopt:adoption=>{
+ selectedTollDialog=selectedTollsCore.createSelectedTollDialog({document,calculate:selectedTollCalculate,getContext,validateRoute,mapView:selectedTollMapView,tariffs:tariffData,inventory:tollInventory,effects:'Confirmer remplace le trajet affiché et retire ses stations comparées, son arrêt et son ancien budget de péages. Les enregistrements restent conservés.',onAdopt:adoption=>{
   getContext();validateRoute(adoption.route);const id=crypto.randomUUID(),r=structuredClone(adoption.route);$('tariffClass').value=adoption.selection.context.vehicleClass;
   clearRoadChoices();clearComparison();clearMeetingDraft();clearNavigation();tollState.enabled=false;tollState.key='';resetTollQuote();clearTableTolls('Portion choisie : prix à vérifier.');
   trip={...owner,base:r,a:r.geometry.coordinates[0].slice().reverse(),b:r.geometry.coordinates.at(-1).slice().reverse(),coords:r.geometry.coordinates.map(p=>[p[1],p[0]]),choices:[r],choice:0,calculatedAt:new Date().toISOString(),routing:{provider:'ors-selected',vehicle:{type:'car'},optimization:'fastest',avoid:[...adoption.selection.context.avoid],selectedTollKey:id},selectedToll:{id,selection:adoption.selection,previous:original}};

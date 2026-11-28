@@ -1,5 +1,11 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "selected toll gates: nearby candidates populate a declared pair only after an explicit action",
+  "selected toll gates: no candidates keeps manual pricing available and absence is not zero",
+  "selected toll gates: three candidates do not silently select a pair",
+  "selected toll gates: a new comparison clears map candidates and cannot retain a gate confirmation",
+  "selected toll gates: unavailable inventory shows a recoverable message",
+
   "selected toll tariff: declared official reference appears in comparison and adopted budget",
   "selected toll tariff: a strict cap rejects a declared amount without extra routing or adoption",
   "selected toll tariff: unconfirmed or changed gates invalidate the proposal before any adoption",

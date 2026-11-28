@@ -2,9 +2,10 @@ import {expect} from '@playwright/test';
 import {mockDragonRoute,geocodingPattern,addressFeature,placesResponse} from './dragonroute.mjs';
 import {network,rawRoute,points,time} from './selected-tolls.mjs';
 
-export async function setupSelectedTollApp(page,{leaflet=false}={}){
+export async function setupSelectedTollApp(page,{leaflet=false,inventory=null}={}){
  const f=network(),errors=[],requests=[],control={};await mockDragonRoute(page);await page.clock.setFixedTime(new Date(time));page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/DragonRoute/app.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('// END GUIDANCE CONTROLLER',`window.tollTest={snapshot:()=>structuredClone({trip,stop:selectedStop,progress:guidance?.tollProgress,nav:guidance?.state,route:guidance?.route}),recalculate:()=>guidanceRecalculate()};\n// END GUIDANCE CONTROLLER`)})});
+ if(inventory)await page.route('**/DragonRoute/config.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text())+'\nwindow.DRAGONROUTE_TOLL_GATES='+JSON.stringify(inventory)+';'});});
  if(leaflet){for(const [file,type]of [['leaflet.js','application/javascript'],['leaflet.css','text/css']])await page.route('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/'+file,r=>r.fulfill({path:'node_modules/leaflet/dist/'+file,contentType:type}));}
  await page.route(geocodingPattern,r=>{const last=new URL(r.request().url()).searchParams.get('q').toLowerCase().includes('valence');return r.fulfill({json:placesResponse(addressFeature(...points[last?8:0],last?'Arrivée publique':'Départ public'))})});
  await page.route('https://router.project-osrm.org/route/v1/driving/**',r=>r.fulfill({json:{code:'Ok',routes:[{geometry:{type:'LineString',coordinates:points},distance:629,duration:63}],waypoints:[{location:points[0]},{location:points[8]}]}}));
