@@ -1,0 +1,8 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Recette de la comparaison de portions</title><link rel="stylesheet" href="../../../DragonRoute/style.css"></head><body><main><h1>Recette locale</h1><button id="open" class="ghost">Choisir une portion payante</button><p>Réseau fictif de test. Aucun trajet réel ou tarif n’est présenté.</p></main><script type="module">
+import {createSelectedTollDialog} from '../../../server/selected-tolls/dialog.mjs';
+import {network} from '../../helpers/selected-tolls.mjs';
+const n=network();window.fixture={...n,adoptions:[],pause:false,fail:null};
+const calculate=async(...args)=>{if(window.fixture.pause)await new Promise(r=>window.fixture.resume=r);if(window.fixture.fail)throw Object.assign(Error(window.fixture.fail),{code:'DAILY_LIMIT'});return n.calculate(...args)};
+const ui=createSelectedTollDialog({document,calculate,getContext:n.getContext,now:n.now,validateRoute:r=>{if(!r.legs.length)throw Error('Guidage absent')},onAdopt:a=>window.fixture.adoptions.push(a)});
+window.fixture.ui=ui;document.getElementById('open').onclick=()=>ui.open();
+</script></body></html>
