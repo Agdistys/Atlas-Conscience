@@ -11,3 +11,11 @@ The planner intentionally rejects uncertain joins and attribute ambiguity. Exact
 See `docs/specifications/OuQuandQui_API_V110_Portion_Payante_2026-11-27.md` for requirements, investigation and remaining acceptance work. Local probe and browser receipts are under `quality/selected-toll-sections`; this ignored proof directory is retained on ACTUEL_4To.
 
 Live proof and limits: V112 and `quality/routing-live-20261128/worker-proof.json`. Keep response receipt on the local clock for expiry checks; retain the provider timestamp separately. `MODEL_ONLY_NOT_LIVE` is the pure planner’s conservative output marker, not a claim that the injected calculator never called a service. It must not be promoted automatically to a navigation qualification.
+
+## Instruction and stop adapter (V113)
+
+`route-adapter.mjs` validates structured ORS steps and roundabout exits, then verifies overlapping instruction windows at calculation boundaries. A bridge must reproduce the exact geometry, graph and edge attributes; it cannot silently change the selected road. Overlapping windows coalesce. Genuine stops retain arrival/departure, while toll calculation boundaries do not. Original first-turn evidence is retained at each replacement window; no turn is inferred from bearings or street names. Final metrics are sums of the assembled instructions and must be used in the confirmation UI.
+
+`withOutsideStop` proposes one stop before or after the paid portion. Its two accesses must avoid tolls and keep other exclusions, with at most 20m initial snapping and exact joins thereafter. It returns a new immutable proposal requiring confirmation, with no carried-over price; it never changes application state. Entry to a physical fuel station is not certified by proximity. Stops inside the paid portion and recalculation from a moving GPS position remain outside this adapter.
+
+35 adapter regressions include an attributed public ORS archive. The complete local suite has 861 passing controls (115 targeted). Live proofs under `quality/selected-toll-adapter` record five route/join calls and seven calls for a public test stop. The common guidance model accepts both. Archived-response browser execution is distinct from a published UI or Android test. Publication and application integration remain pending; auto mode resumed on 28 November 2026.
