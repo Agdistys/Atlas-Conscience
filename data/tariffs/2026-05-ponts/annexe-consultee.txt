@@ -1,0 +1,15 @@
+Extraction textuelle de la page officielle consultée avec l’outil web le 22 novembre 2026.
+URL : https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000053916314
+La réponse de consultation indiquait un contenu indexé deux mois auparavant.
+Ce fichier est une transcription bornée de cette réponse, pas le HTML original ni un XML DILA téléchargé.
+
+Arrêté du 30 mars 2026 relatif aux péages applicables aux ponts de Normandie et de Tancarville
+Version INITIALE
+NOR : TRAT2609535A
+JORF n°0094 du 21 avril 2026 — Texte n°8
+ANNEXE I
+TARIFS EN EUROS TTC APPLICABLES SUR LE PONT DE NORMANDIE ET SUR LE PONT DE TANCARVILLE À COMPTER DU 1ER MAI 2026
+
+Ouvrage | Véhicules de Classe 1 | Véhicules de Classe 2 | Véhicules de Classe 3 | Véhicules de Classe 4
+Pont de Normandie | 6,10 | 7,10 | 7,60 | 15,10
+Pont de Tancarville | 2,90 | 3,70 | 4,40 | 7,50

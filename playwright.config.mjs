@@ -1,3 +1,4 @@
+import { availableParallelism } from 'node:os';
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
@@ -6,13 +7,16 @@ export default defineConfig({
   expect: { timeout: 8_000 },
   fullyParallel: false,
   retries: 0,
-  workers: 2,
+  // Bound CI concurrency by the runner CPUs; keep local runs small.
+  workers: process.env.CI ? Math.max(2, Math.min(4, availableParallelism())) : 2,
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'quality/browser-results.json' }]
   ],
   use: {
+    // Optional installed browser for local checks; CI keeps bundled Chromium.
+    channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
     baseURL: 'http://127.0.0.1:4173',
     serviceWorkers: 'block',
     locale: 'fr-FR',

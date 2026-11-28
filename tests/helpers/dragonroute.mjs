@@ -1,5 +1,10 @@
-const lyon={lat:'45.7640',lon:'4.8357',display_name:'Lyon, France'};
-const valence={lat:'44.9334',lon:'4.8924',display_name:'Valence, France'};
+export const geocodingPattern='https://data.geopf.fr/geocodage/search?**';
+export function addressFeature(lon,lat,label,properties={}){
+  return {type:'Feature',geometry:{type:'Point',coordinates:[lon,lat]},properties:{_type:'address',label,...properties}};
+}
+export const placesResponse=(...features)=>({type:'FeatureCollection',features});
+const lyon=addressFeature(4.8357,45.7640,'Lyon, France');
+const valence=addressFeature(4.8924,44.9334,'Valence, France');
 
 export const orsPattern='https://routing.example.test/api/route';
 export async function publicRouting(page){
@@ -22,19 +27,19 @@ function json(route, body){
   return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
 }
 
-export async function mockDragonRoute(page){
+export async function mockDragonRoute(page,{origin="http://127.0.0.1:4173"}={}){
   await page.clock.setFixedTime(new Date('2026-09-17T10:00:00Z'));
   await page.route('**/*', route => {
     const url = new URL(route.request().url());
-    return url.origin === 'http://127.0.0.1:4173' ? route.continue() : route.abort();
+    return url.origin === origin ? route.continue() : route.abort();
   });
   await page.route('https://cdn.jsdelivr.net/**',route=>route.abort());
   await page.route('https://tile.openstreetmap.org/**',route=>route.abort());
 
-  await page.route('https://nominatim.openstreetmap.org/search?**',async route=>{
+  await page.route(geocodingPattern,async route=>{
     const url=new URL(route.request().url());
     const q=(url.searchParams.get('q')||'').toLowerCase();
-    await json(route,[q.includes('valence')?valence:lyon]);
+    await json(route,placesResponse(q.includes('valence')?valence:lyon));
   });
 
   await page.route('https://router.project-osrm.org/route/v1/driving/**',route=>{
@@ -67,4 +72,26 @@ export async function mockDragonRoute(page){
       {id:'B',adresse:'2 route test',cp:'26000',ville:'Valence',geom:[45.20,4.88],e10_prix:1.66,e10_maj:'2026-09-16T18:00:00+00:00',e10_rupture_type:null}
     ]
   }));
+}
+
+// Explicit user action for the station preview; never auto-accept a native dialog.
+export async function confirmStationPreview(page,{oldPrice=false,outOfRange=false}={}){
+ const {expect}=await import('@playwright/test');
+ await expect(page.locator('#stationPreviewBody')).toBeVisible();
+ if(oldPrice)await page.locator('#stationPreviewAcceptPrice').check();
+ if(outOfRange)await page.locator('#stationPreviewAcceptRange').check();
+ await expect(page.locator('#stationPreviewConfirm')).toBeEnabled();
+ await page.locator('#stationPreviewConfirm').click();
+ await expect(page.locator('#stationPreviewDialog')).toBeHidden();
+}
+
+export async function confirmRouteChoice(page){
+ const {expect}=await import('@playwright/test');
+ await expect(page.locator('#routeChoiceDialog')).toBeVisible();
+ await page.locator('#routeChoiceConfirm').click();
+ await expect(page.locator('#routeChoiceDialog')).toBeHidden();
+}
+
+export async function setStationPause(page,value){
+ const details=page.locator('#stationPauseOptions');if(!await details.evaluate(e=>e.open))await details.locator(':scope > summary').click();await page.locator('#stopMinutes').fill(value);
 }

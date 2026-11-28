@@ -1,0 +1,24 @@
+{
+  "downloadedOn": "2026-11-18",
+  "source": {
+    "url": "https://agora.grandlyon.com/portail/jsp/openfile.jsp?pdf=A9iCZwGvgK5FubNtu322bcS53GS0sK4fqUNzpPiImFcNNkx%2BTqSn6NcCoEvAfojpQXos53usMrm22QTPUoUGF6cAa90Pa%2BnvfXSUNjFtjPreMl36LBBhYVIVGVr1y4ptylqhSyipfzEAAgIxxMCzRDxnAoTNf6Nv",
+    "sha256": "408a62454c08454358353eedb125a88af18919e0c0725ed2aebc94349875d393",
+    "consultedAt": "2026-11-18",
+    "title": "Métropole de Lyon, délibération 2025-3243 du 15 décembre 2025",
+    "page": 59
+  },
+  "dataSha256": "5419614975a2dbb54003d492541c2a4388a22495fb48d2281733252ce05e28d5",
+  "qualification": {
+    "page": 59,
+    "allFiveClassesCompared": true,
+    "visualReview": "quality/toll-coverage/BPNL-table.png",
+    "scope": "Cinq pleins tarifs par passage, aucun abonnement."
+  },
+  "reuse": {
+    "basis": "Montants factuels issus de la délibération publique 2025-3243, page 59. Attribution, date et sens conservés. Aucun logo, mise en page, texte éditorial ou base privée redistribué. Pas de licence ouverte attribuée par supposition.",
+    "reference": "https://www.data.gouv.fr/explore/cada/20082716"
+  },
+  "notIntegrated": {
+    "VINCI": "Grilles ASF/ESCOTA consultées, mais conditions générales restrictives et aucune licence spécifique de redistribution qualifiée. Aucun de leurs montants intégré."
+  }
+}

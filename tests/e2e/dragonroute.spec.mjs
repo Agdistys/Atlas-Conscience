@@ -1,3 +1,6 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
 import { mockDragonRoute, orsPattern, orsResponse, testOrsKey, publicRouting } from '../helpers/dragonroute.mjs';
 import { capture, checkAccessibility, checkOverflow } from '../helpers/inspection.mjs';
@@ -18,9 +21,10 @@ async function configureOrs(page){
 }
 
 test('service public absent : controles indisponibles avant recherche', async ({ page }) => {
-  const requests=[];page.on('request',r=>{if(/route\/v1|openrouteservice\/v2|nominatim/.test(r.url()))requests.push(r.url())});
+  const requests=[];page.on('request',r=>{if(/route\/v1|openrouteservice\/v2|geocodage/.test(r.url()))requests.push(r.url())});
   await page.goto('/DragonRoute/');
-  for(const id of ['avoidTolls','avoidHighways','avoidFerries'])await expect(page.locator('#'+id)).toBeDisabled();
+  for(const id of ['avoidTolls','avoidFerries'])await expect(page.locator('#'+id)).toBeDisabled();
+  await expect(page.locator('#avoidHighways')).toBeEnabled();
   for(const type of ['truck','caravan','van'])await expect(page.locator(`#routeVehicle option[value=${type}]`)).toBeDisabled();
   await expect(page.locator('#goBtn')).toBeEnabled();
   await expect(page.locator('#stops')).toBeHidden();
@@ -52,11 +56,9 @@ test('routage public exclusions appliquees aux stations sans secret client', asy
   await expect(page.locator('#fuelStatus')).toContainText('2 stations comparées',{timeout:20000});
   await expect(page.locator('.result-card').first()).toContainText('+10,0 km');
   expect(requests.map(x=>x.coordinates.length)).toEqual([2,3,3]);expect(osrm).toBe(0);
-  page.once('dialog',dialog=>dialog.dismiss());
-  await page.locator('[data-select]').first().click();
+  await page.locator('[data-select]').first().click();await expect(page.locator('#stationPreviewBody')).toBeVisible();await page.locator('#stationPreviewCancel').click();
   await expect(page.locator('#selectedStop')).toBeHidden();
-  page.once('dialog',async dialog=>{expect(dialog.message()).toContain('peut changer de routes');await dialog.accept()});
-  await page.locator('[data-select]').first().click();
+  await page.locator('[data-select]').first().click();await confirmStationPreview(page);
   await expect(page.locator('#selectedStop')).toContainText('130,0 km');
   expect(requests).toHaveLength(3);
   await page.locator('#routingOptions').scrollIntoViewIfNeeded();
@@ -81,7 +83,7 @@ test('ORS refus et geometrie invalide sans fuite de cle ni repli', async ({ page
   for(const [http,message] of [[403,'Accès au service public refusé'],[429,'Limite du service public'],[500,'indisponible']]){
     status=http;await page.locator('#goBtn').click();
     await expect(page.locator('#status')).toContainText(message);
-    await expect(page.locator('#stops')).toBeHidden();expect(await page.content()).not.toContain(testOrsKey);
+    await expect(page.locator('#stops')).toBeHidden();expect(await page.content()).not.toContain(testOrsKey);if(http===429){await page.evaluate(()=>{const now=performance.now.bind(performance);performance.now=()=>now()+61000});}
   }
   status=200;invalid=true;await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('incomplète ou incohérente');expect(osrm).toBe(0);
@@ -107,7 +109,9 @@ test('ORS comparaison interrompue ou incoherente conserve le trajet', async ({ p
   await page.getByRole('button',{name:'Fermer la fiche station'}).click();
   mode='quota';await page.locator('#stationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('Limite du service public');
-  await expect(page.locator('.result-card')).toHaveCount(0);
+  await expect(page.locator('.result-card')).toHaveCount(1);
+  await expect(page.locator('.result-card')).toHaveAttribute('data-station','A');
+  await expect(page.locator('#continueStationsBtn')).toBeVisible();await page.evaluate(()=>{const now=performance.now.bind(performance);performance.now=()=>now()+61000});
   await page.locator('#stationsBtn').click();await page.locator('#cancelStationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('Recherche interrompue');
   await expect(page.locator('#summary')).toBeVisible();await expect(page.locator('#stationsBtn')).toBeEnabled();
@@ -135,8 +139,8 @@ test('ORS alternatives courtes et indisponibilite explicite', async ({ page }) =
 test('poids lourd valide memorise et transmis aux arrets sans assimilation caravane', async ({ page }, info) => {
   const bodies=[];
   await page.route(orsPattern,r=>{const body=r.request().postDataJSON();bodies.push(body);return r.fulfill({json:orsResponse(body)})});
-  await configureOrs(page);await page.locator('#routeVehicle').selectOption('truck');
-  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('cinq dimensions');
+  await configureOrs(page);await (await preparationControl(page,'routeVehicle')).selectOption('truck');
+  await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Hauteur');await expect(page.locator('#tripValidationList button')).toHaveCount(5);await expect(page.locator('#truckHeight')).toBeFocused();
   expect(bodies).toHaveLength(0);
   for(const [id,value]of Object.entries({truckHeight:'3.8',truckWidth:'2.5',truckLength:'16',truckWeight:'32',truckAxleload:'10'}))await page.locator('#'+id).fill(value);
   await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
@@ -159,21 +163,21 @@ test('alternatives selectionnables et suppression arret sans ancien classement',
   await page.goto('/DragonRoute/');await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('Trajet prêt');
   const initial=await page.locator('#routeLine').getAttribute('d');
-  await page.locator('input[name=routeChoice][value="1"]').check();
+  await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);
   await expect(page.locator('#tripKm')).toHaveText('118,0 km');
   expect(await page.locator('#routeLine').getAttribute('d')).not.toBe(initial);
   await page.locator('#stationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('non comparable');
   await expect(page.locator('.result-card')).toHaveCount(0);
-  await page.locator('input[name=routeChoice][value="0"]').check();
+  await page.locator('[data-route-choice="0"]').click();await confirmRouteChoice(page);
   await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
-  page.once('dialog',d=>d.dismiss());await page.locator('input[name=routeChoice][value="1"]').click();
-  await expect(page.locator('input[name=routeChoice][value="0"]')).toBeChecked();
-  await page.locator('[data-select]').first().click();await expect(page.locator('#removeStopBtn')).toBeVisible();
+  await page.locator('[data-route-choice="1"]').click();await page.locator('#routeChoiceCancel').click();
+  await expect(page.locator('[data-route-choice="0"]')).toHaveAttribute('aria-pressed','true');
+  await page.locator('[data-select]').first().click();await confirmStationPreview(page);await expect(page.locator('#removeStopBtn')).toBeVisible();
   await page.locator('#removeStopBtn').click();await expect(page.locator('#selectedStop')).toBeHidden();
   await expect(page.locator('#routeLine')).toHaveAttribute('d',initial);
   await expect(page.locator('[data-select][aria-pressed=true]')).toHaveCount(0);
-  page.once('dialog',d=>d.accept());await page.locator('input[name=routeChoice][value="1"]').click();
+  await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);
   await expect(page.locator('#tripKm')).toHaveText('118,0 km');await expect(page.locator('.result-card')).toHaveCount(0);
 });
 
@@ -223,24 +227,26 @@ test('Lyon vers Valence : resultats et accessibilite', async ({ page }, info) =>
 test('parcours clavier et mouvement reduit', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/DragonRoute/');
-  for (const id of ['profileBtn', 'start', 'gpsBtn', 'end', 'routingOptionsToggle', 'routeVehicle', 'goBtn']) {
-    await page.keyboard.press('Tab');
-    await expect(page.locator('#' + id)).toBeFocused();
-    const outline = await page.locator('#' + id).evaluate(el => getComputedStyle(el).outlineStyle);
-    expect(outline, 'Focus visible sur ' + id).not.toBe('none');
+  const sequence=['preparedBtn','mapReturn','mapNightToggle','start','saveStartAddress','gpsBtn','end','saveEndAddress','swapTripBtn','modeMenuToggle','carMode','walkMode','cycleBtn','transitBtn','bikesBtn','routeVehicle','routeOptimization','routingOptionsToggle','avoidHighways','routeSchedule > summary','stationDeparture','stationDepartureNow','routeArriveBy','routeOnlyBefore','speedPriority','costPriority','goBtn'];
+  for(const id of sequence){
+    const target=page.locator('#'+id);let reached=false;
+    for(let n=0;n<45;n++){await page.keyboard.press('Tab');if(await target.evaluate(el=>el===document.activeElement)){reached=true;break}}
+    expect(reached,'Commande atteinte au clavier : '+id).toBe(true);
+    expect(await target.evaluate(el=>getComputedStyle(el).outlineStyle),'Focus visible : '+id).not.toBe('none');
+    if(id==='modeMenuToggle'||id==='routeSchedule > summary')await page.keyboard.press('Enter');
   }
+  await expect(page.locator('#modeMenu')).toHaveJSProperty('open',true);
+  await expect(page.locator('#routeSchedule')).toHaveJSProperty('open',true);
   await page.keyboard.press('Enter');
   await expect(page.locator('#statusDot')).toHaveClass(/busy/);
-  await expect(page.locator('#statusDot')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('#statusDot')).toHaveCSS('animation-name','none');
   await expect(page.locator('#status')).toContainText('Trajet prêt');
-  await page.locator('#stationsTab').focus();
-  await page.keyboard.press('ArrowRight');
-  await expect(page.locator('#ridesTab')).toBeFocused();
-  await expect(page.locator('#ridesPanel')).toBeVisible();
+  await page.locator('#stationsTab').focus();await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#ridesTab')).toBeFocused();await expect(page.locator('#ridesPanel')).toBeVisible();
 });
 
 test('erreur de geocodage explicite', async ({ page }) => {
-  await page.route('https://nominatim.openstreetmap.org/search?**', route => route.fulfill({ status: 500, body: 'Service indisponible' }));
+  await page.route('https://data.geopf.fr/geocodage/search?**', route => route.fulfill({ status: 500, body: 'Service indisponible' }));
   await page.goto('/DragonRoute/');
   await page.locator('#goBtn').click();
   await expect(page.locator('#status')).toContainText('HTTP 500');
@@ -251,7 +257,7 @@ test('erreur de geocodage explicite', async ({ page }) => {
 });
 
 for (const [service, pattern] of [
-  ['geocodage', 'https://nominatim.openstreetmap.org/search?**'],
+  ['geocodage', 'https://data.geopf.fr/geocodage/search?**'],
   ['routage', 'https://router.project-osrm.org/route/v1/driving/**']
 ]) {
   test(`relance apres succes puis panne du ${service} et recuperation`, async ({ page }) => {
@@ -291,7 +297,7 @@ for (const [service, pattern] of [
 test('Entree pendant une recherche ne cree pas de requetes concurrentes', async ({ page }) => {
   let requests = 0;
   page.on('request', request => {
-    if (request.url().startsWith('https://nominatim.openstreetmap.org/search?')) requests++;
+    if (request.url().startsWith('https://data.geopf.fr/geocodage/search?')) requests++;
   });
   await page.goto('/DragonRoute/');
   await page.locator('#goBtn').click();
@@ -331,7 +337,7 @@ test('une seule station cumule les trois badges sans doublon', async ({ page }) 
   await page.locator('#stationsBtn').click();
   await expect(page.locator('.result-card')).toHaveCount(1);
   await expect(page.locator('.result-badge')).toHaveText(['OPTIMAL','POMPE','RAPIDE']);
-  await page.getByRole('button', { name: 'Choisir cette station' }).click();
+  await page.getByRole('button', { name: 'Choisir cette station' }).click();await confirmStationPreview(page);
   await expect(page.locator('#selectedStop')).toContainText('Station unique');
   await expect(page.locator('.choose-station')).toHaveAttribute('aria-pressed', 'true');
 });
@@ -343,14 +349,12 @@ test('stations filtrees par distance et jamais elargies silencieusement', async 
   await page.locator('#stationsBtn').click();
   await expect(page.locator('.result-card').first()).toHaveAttribute('data-station', 'A');
   await page.locator('input[value=around]').check();
-  await page.locator('#stopKm').focus();
-  await page.keyboard.press('Home');
-  for (let i = 0; i < 12; i++) await page.keyboard.press('ArrowRight');
-  await expect(page.locator('#stopKmLabel')).toHaveText('60 km');
+  await page.locator('#stopKmInput').fill('60');
+  await expect(page.locator('#stopKmLabel')).toHaveText('60,0 km');
   await page.locator('#stationsBtn').click();
   await expect(page.locator('#testedCount')).toHaveText('2');
-  for (let i = 0; i < 8; i++) await page.locator('#stopKm').press('ArrowRight');
-  await expect(page.locator('#stopKmLabel')).toHaveText('100 km');
+  await page.locator('#stopKmInput').fill('100');
+  await expect(page.locator('#stopKmLabel')).toHaveText('100,0 km');
   await expect(page.locator('.result-card')).toHaveCount(0);
   await page.locator('#stationsBtn').click();
   await expect(page.locator('#fuelStatus')).toContainText('Aucune station');
@@ -401,7 +405,7 @@ test('carte Leaflet interactive sans recouvrement des commandes', async ({ page 
   expect(sheet.x + sheet.width <= map.x + 1 || map.y + map.height <= sheet.y + 1).toBe(true);
   await page.locator('.leaflet-control-zoom-in').click();
   await capture(page, info, 'carte-leaflet');
-  await page.locator('[data-select]').first().click();
+  await page.locator('[data-select]').first().click();await confirmStationPreview(page);
   await expect(page.locator('#selectedStop')).toBeVisible();
   await expect(page.locator('.map-route-selected')).toHaveCount(1);
   await expect(page.locator('.map-route-alternative')).toHaveCount(0);
@@ -516,13 +520,14 @@ test('import export et suppression du profil sans toucher les autres donnees', a
   page.on('dialog',dialog=>dialog.accept());
   const profile={version:1,vehicle:{name:'Import test',type:'car',fuel:'E10',cons:7,liters:35},addresses:[{id:'maison',name:'Maison',value:'Lyon'}],stations:[]};
   await page.locator('#importProfileFile').setInputFiles({name:'profil.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(profile))});
+  await expect(page.locator('#profileImportSummary')).toContainText('1 adresse(s)');await page.locator('#confirmProfileImport').click();
   await expect(page.locator('#profileMessage')).toHaveText('Profil importé.');
   await expect(page.locator('#vehicleName')).toHaveValue('Import test');
   const downloadPromise=page.waitForEvent('download');
   await page.locator('#exportProfileBtn').click();
   const download=await downloadPromise;
   expect(download.suggestedFilename()).toBe('DragonRoute-profil.json');
-  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual(profile);
+  expect(JSON.parse(require('node:fs').readFileSync(await download.path(),'utf8'))).toEqual({version:4,vehicles:[{id:'legacy-vehicle',...profile.vehicle}],activeVehicleId:'legacy-vehicle',addresses:profile.addresses,stations:profile.stations,folders:[],preferences:{defaultMode:'car',lastMode:null,theme:'day'}});
   await page.locator('#eraseProfileBtn').click();
   await expect(page.locator('#profileMessage')).toHaveText('Profil local effacé.');
   await expect(page.locator('#savedAddresses')).toContainText('Aucune adresse');

@@ -1,0 +1,6 @@
+Réponses publiques Mobilités M / SMMAG, ODbL, consultées le 18 novembre 2026. Aucun trajet privé.
+Catalogue : https://data.mobilites-m.fr/api/routers/default/index/routes
+Passages Gares : https://data.mobilites-m.fr/api/routers/default/index/stops/SEM:2216/stoptimes?route=SEM%3AA&showCancelledTrips=true
+Alertes, 20:06:29 UTC : https://data.mobilites-m.fr/api/gtfs/realtime/alert/SMA?json=true
+Documentation : https://data.mobilites-m.fr/donnees
+Les fixtures sont les réponses observées, non modifiées. Les cas synthétiques sont construits explicitement dans les tests.

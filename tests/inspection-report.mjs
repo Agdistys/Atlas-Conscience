@@ -1,9 +1,36 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { compatibilityLimits, validCompatibility } from './compatibility-contract.mjs';
+import { validToolchain } from './dependency-contract.mjs';
 
 export const projects = ['desktop-1440', 'tablet-768', 'mobile-390', 'mobile-360'];
 export const requiredScenarios = [
+  'grilles : tarif officiel par classe, sans appel ni compte',
+  'grilles : subtotal partiel puis total declare sans double addition',
+  'grilles : changement de classe, date et expiration invalident le budget',
+  'grilles : variante, station et nouveau depart retirent les anciens troncons',
+  'grilles : entree exacte, nom corrige et aucune sortie supposee',
+  'grilles : calcul manuel et devis automatique ne sont jamais additionnes',
+  'peages : interface et serveur HTTP relies sans cle dans le navigateur',
+  'peages : service absent visible sans tarif nul ni appel',
+  'peages : total carburant et source sans addition du plein',
+  'peages : zero confirme, partiel et devise incorrecte restent distincts',
+  'peages : variante ignore la reponse tardive de lancien trace',
+  'peages : arret complet et retrait recalcules sans double paiement',
+  'peages : panne, reprise manuelle et expiration sans appels repetes',
+
+  'navigation : liens explicites sans envoi automatique et fermeture clavier',
+  'navigation : variante et arret confirmes dans les liens et le GPX',
+  'navigation : exclusions transmises et poids lourd sans lien voiture',
+  'navigation : XML sur, echec de telechargement et invalidation des anciens liens',
+  'adresses IGN : communes homonymes, lieux nommes et coordonnees choisies',
+  'adresses IGN : reponses vides ou invalides sans trajet ni repli',
+  'adresses IGN : quota respecte, relance manuelle et expiration du cache',
+  'IGN sans autoroute : trajet et stations gardent les exclusions et le cache',
+  'IGN erreurs et reponses incoherentes refusees sans repli',
+  'IGN comparaison interrompue ou en panne preserve seulement le trajet',
+  'IGN restrictions non disponibles jamais ignorees et desactivation possible',
   'service public absent : controles indisponibles avant recherche',
   'geocodage ambigu : choix explicite, libelles, annulation et cache',
   'geocodage : coordonnees invalides refusees et libelle hostile en texte',
@@ -38,7 +65,7 @@ export const requiredScenarios = [
   'import export et suppression du profil sans toucher les autres donnees'
 ];
 const states = ['demarrage', 'resultats'];
-const stageNames = ['contract', 'syntax', 'report-tests', 'browser'];
+const stageNames = ['contract', 'syntax', 'report-tests', 'toolchain', 'browser'];
 
 export function summarize(report, stages = {}) {
   const tests = [];
@@ -74,6 +101,12 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
     catch (error) { diagnostics.push(`${file}: ${error.message}`); return fallback; }
   }
   const summary = summarize(readJSON('browser-results.json', null), readJSON('stages.json', {}));
+  const commit = process.env.INSPECTION_COMMIT || process.env.GITHUB_SHA || null;
+  const compatibility = readJSON('compatibility-status.json', null);
+  const compatibilityOK = validCompatibility(compatibility, commit);
+  if (!compatibilityOK) diagnostics.push('Compatibilité Firefox/WebKit incomplète, en échec ou liée à un autre commit.');
+  const toolchain=readJSON('toolchain-status.json',null);
+  if(!validToolchain(toolchain,commit)||toolchain?.dependencies?.['@playwright/test']!==compatibility?.playwright) diagnostics.push('Versions des outils et du moteur Chromium absentes, incohérentes ou liées à un autre commit.');
   const screenshots = [];
   const accessibility = [];
   function attachmentBytes(attachment) {
@@ -105,17 +138,20 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
     accessibility.some(a => a.project === project && a.state === `accessibilite-${state}`)));
   const ready = summary.ready && evidenceComplete && diagnostics.length === 0 && accessibility.every(a => a.violations.length === 0);
   const status = { schemaVersion: 1, application: 'DragonRoute / OuQuandQui',
-    generatedAt: new Date().toISOString(), commit: process.env.INSPECTION_COMMIT || process.env.GITHUB_SHA || null,
+    generatedAt: new Date().toISOString(), commit,
     state: ready ? 'inspection' : 'blocked', passed: summary.passed, total: summary.total,
-    stages: summary.stages, screenshots, accessibility, diagnostics,
+    stages: summary.stages, screenshots, accessibility, diagnostics, compatibility, toolchain,
     notTested: ['Disponibilite des API reelles', 'Tuiles cartographiques reelles (Leaflet teste avec tuiles simulees)', 'Installation PWA et hors connexion',
-      'Lighthouse et performances', 'Comparaison avec des captures approuvees', 'Autres applications'],
+      'Lighthouse et performances', 'Comparaison avec des captures approuvees', 'Autres applications', compatibilityLimits],
     humanDecision: 'En attente de validation humaine' };
   fs.writeFileSync(path.join(output, 'status.json'), JSON.stringify(status, null, 2));
   const verdict = ready ? 'PRET POUR INSPECTION' : 'CONTROLES INCOMPLETS OU EN ECHEC';
   const lines = ['# Inspectrice v2 : ' + verdict, '', 'DragonRoute / OuQuandQui', '',
     `Commit : ${status.commit || 'execution locale'}`, `Tests navigateur : ${summary.passed}/${summary.total}`, '',
     ...stageNames.map(name => `- ${name} : ${summary.stages[name]?.exitCode === 0 ? 'OK' : 'ECHEC OU NON EXECUTE'}`), '',
+    `Outils : Node ${toolchain?.node || 'inconnu'}, Playwright ${toolchain?.dependencies?.['@playwright/test'] || 'inconnu'}, axe-core ${toolchain?.dependencies?.['axe-core'] || 'inconnu'}. Chromium ${toolchain?.browser?.version || 'non démarré'} (${toolchain?.browser?.channel || 'inconnu'}).`, '',
+    `Compatibilité Firefox/WebKit : ${compatibilityOK ? 'OK' : 'ECHEC OU NON EXECUTE'}.`,
+    ...(compatibility?.matrix || []).map(row => `- ${row.name} : ${row.cases.filter(t => t.passed).length}/${row.cases.length}, ${row.engine} ${row.version}, ${compatibility.platform}, Playwright ${compatibility.playwright}`), '',
     `Captures : ${screenshots.length}/8. Audits d'accessibilite : ${accessibility.length} (8 de base requis).`,
     `Points d'accessibilite a examiner manuellement : ${accessibility.reduce((n, a) => n + a.incomplete.length, 0)}.`, '',
     'Scenario reproductible avec API simulees et carte de secours. Les captures sont a inspecter, sans comparaison automatique a une reference approuvee.', '',
@@ -131,7 +167,9 @@ export function writeReport(root = process.cwd(), { publishSummary = true } = {}
 <p>Tests navigateur : ${summary.passed}/${summary.total}. Captures : ${screenshots.length}/8. Audits : ${accessibility.length} (8 de base requis).</p>
 <ul>${summary.tests.map(t => `<li>${esc(t.project)} : ${esc(t.title)} : ${t.passed ? 'OK' : esc(t.status)}${t.errors.length ? `<pre>${esc(t.errors.join('\n'))}</pre>` : ''}</li>`).join('')}</ul>
 ${diagnostics.length || summary.errors.length ? `<pre>${esc(JSON.stringify({ diagnostics, errors: summary.errors }, null, 2))}</pre>` : ''}</section>
-<section><h2>Accessibilite</h2><p>Regles WCAG 2.1 A/AA detectables par axe-core. L'examen humain reste necessaire.</p>
+<section><h2>Versions vérifiées</h2><p>Node ${esc(toolchain?.node)} · Playwright ${esc(toolchain?.dependencies?.['@playwright/test'])} · axe-core ${esc(toolchain?.dependencies?.['axe-core'])} · Leaflet ${esc(toolchain?.dependencies?.leaflet)}</p><p>Chromium ${esc(toolchain?.browser?.version)} · canal ${esc(toolchain?.browser?.channel)} · ${esc(toolchain?.platform)}</p><p>Empreinte du verrou npm : <code>${esc(toolchain?.lockSha256)}</code></p><p>Versions réellement installées et moteur démarré avant la recette. Le contrôle des versions ne constitue pas un audit de sécurité du code.</p></section>
+<section><h2>Compatibilité des parcours essentiels</h2><p>${compatibilityOK ? 'RECETTE RÉUSSIE' : 'RECETTE INCOMPLÈTE OU EN ÉCHEC'}</p><p>${esc(compatibility?.platform)} · Playwright ${esc(compatibility?.playwright)}</p><ul>${(compatibility?.matrix || []).map(row => `<li>${esc(row.name)} : ${row.cases.filter(t => t.passed).length}/${row.cases.length} · ${esc(row.engine)} ${esc(row.version)}<details><summary>Scénarios</summary><ul>${row.cases.map(t => `<li>${esc(t.title)} : ${t.passed ? 'OK' : 'ÉCHEC'}</li>`).join('')}</ul></details></li>`).join('')}</ul><p>${esc(compatibilityLimits)}</p></section>
+<section><h2>Accessibilite</h2><p>Règles WCAG 2.2 A/AA détectables par axe-core, dont la taille minimale des cibles. L'examen humain reste necessaire.</p>
 ${accessibility.map(a => `<details><summary>${esc(a.project)} / ${esc(a.state)} : ${a.violations.length} anomalie(s), ${a.incomplete.length} point(s) a examiner</summary><pre>${esc(JSON.stringify({ violations: a.violations, incomplete: a.incomplete }, null, 2))}</pre></details>`).join('')}</section>
 <section><h2>Captures a inspecter</h2><p>Aucune reference visuelle n'a encore ete approuvee.</p>${screenshots.map(s => `<figure><figcaption>${esc(s.project)} / ${esc(s.state)}</figcaption><a href="${s.file}"><img src="${s.file}" alt="${esc(s.project)} : ${esc(s.state)}" loading="lazy"></a></figure>`).join('')}</section>
 <section><h2>Perimetre restant</h2><ul>${status.notTested.map(t => `<li>${esc(t)}</li>`).join('')}</ul><p>${esc(status.humanDecision)}. Aucun deploiement n'est declenche par ce rapport.</p></section>

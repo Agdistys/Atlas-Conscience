@@ -1,0 +1,2 @@
+# Byte-preserved official source (UTF-8 BOM and CRLF); generator checks its SHA-256.
+/data/tariffs/2026-06-asf/Tarifs_ASF.txt -text -diff

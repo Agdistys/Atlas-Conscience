@@ -1,0 +1,7 @@
+Mobilités M / SMMAG — API OpenTripPlanner.
+Réponses publiques du 18 novembre 2026, lieux publics Gares–Polesud / Grenoble, horaires du 19 novembre.
+Source : https://data.mobilites-m.fr/api/routers/default/plan
+Documentation et attribution : https://data.mobilites-m.fr/donnees
+Données ODbL : https://www.mobilites-m.fr/pdf/ODbL_fr_VF_1.pdf
+Extraits : métadonnées techniques, steps et legElevation retirés ; autres champs conservés.
+Ces données de test ne sont pas des horaires actualisés ni une preuve de circulation future.

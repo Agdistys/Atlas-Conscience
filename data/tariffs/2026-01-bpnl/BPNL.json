@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "network": "BPNL",
+  "label": "Périphérique nord de Lyon",
+  "kind": "passage",
+  "effectiveFrom": "2026-01-01",
+  "consultationUntil": "2026-12-31",
+  "lastReviewed": "2026-11-18",
+  "amountsCents": [
+    260,
+    390,
+    460,
+    1030,
+    130
+  ],
+  "unit": "Un passage payant au plein tarif",
+  "currency": "EUR",
+  "taxIncluded": true,
+  "source": "https://agora.grandlyon.com/portail/jsp/openfile.jsp?pdf=A9iCZwGvgK5FubNtu322bcS53GS0sK4fqUNzpPiImFcNNkx%2BTqSn6NcCoEvAfojpQXos53usMrm22QTPUoUGF6cAa90Pa%2BnvfXSUNjFtjPreMl36LBBhYVIVGVr1y4ptylqhSyipfzEAAgIxxMCzRDxnAoTNf6Nv",
+  "sourceTitle": "Métropole de Lyon, délibération 2025-3243 du 15 décembre 2025 · p. 59",
+  "publicationDate": "2025-12-17",
+  "sourcePage": 59,
+  "sourceSha256": "408a62454c08454358353eedb125a88af18919e0c0725ed2aebc94349875d393",
+  "sourceIndex": "https://agora.grandlyon.com/portail/seances/15-12-2025?assembly=Conseil&type=apres&role=usager&format=html",
+  "conditions": "Plein tarif sans abonnement ni remise. Un seul passage déclaré par budget ; un retour nécessite une nouvelle préparation. Ne certifie ni le passage ni le droit de circuler."
+}

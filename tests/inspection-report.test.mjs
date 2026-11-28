@@ -4,8 +4,10 @@ import { projects, requiredScenarios, summarize, writeReport } from './inspectio
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { passingCompatibility } from './helpers/compatibility-proof.mjs';
+import { passingToolchain } from './helpers/toolchain-proof.mjs';
 
-const stages = Object.fromEntries(['contract', 'syntax', 'report-tests', 'browser'].map(name => [name, { exitCode: 0 }]));
+const stages = Object.fromEntries(['contract', 'syntax', 'report-tests', 'toolchain', 'browser'].map(name => [name, { exitCode: 0 }]));
 function passing() {
   return { suites: [{ specs: requiredScenarios.map(title => ({ title, tests: projects.map(projectName => ({
     projectName, status: 'expected', results: [{ status: 'passed' }]
@@ -76,9 +78,42 @@ test('complete evidence is required and audit violations block publication readi
     }
     fs.mkdirSync(path.join(root, 'quality'));
     fs.writeFileSync(path.join(root, 'quality/stages.json'), JSON.stringify(stages));
+    fs.writeFileSync(path.join(root, 'quality/compatibility-status.json'), JSON.stringify(passingCompatibility()));
+    const runtimeFile=path.join(root,'quality/toolchain-status.json');
+    fs.writeFileSync(runtimeFile,JSON.stringify(passingToolchain()));
     const save = () => fs.writeFileSync(path.join(root, 'quality/browser-results.json'), JSON.stringify(report));
     save();
     assert.equal(writeReport(root, { publishSummary: false }).state, 'inspection');
+    // File attachments retain audit detail and remain mandatory evidence.
+    const attachment=report.suites[0].specs[0].tests[0].results[0].attachments[1];
+    const body=attachment.body;
+    const auditPath=path.join(root,'quality/audit-file.json');
+    const audit={violations:[],incomplete:[{id:'manual-check',nodes:[{html:'<button>Choisir</button>'}]}],passes:[{id:'label'},{id:'contrast'}]};
+    fs.writeFileSync(auditPath,JSON.stringify(audit));
+    delete attachment.body;attachment.path=auditPath;save();
+    const fileProof=writeReport(root,{publishSummary:false});
+    assert.equal(fileProof.state,'inspection');
+    assert.deepEqual(fileProof.accessibility[0].incomplete,audit.incomplete);
+    assert.equal(fileProof.accessibility[0].rulesPassed,2);
+    fs.rmSync(auditPath);
+    assert.equal(writeReport(root,{publishSummary:false}).state,'blocked');
+    fs.writeFileSync(auditPath,'{invalid');
+    assert.equal(writeReport(root,{publishSummary:false}).state,'blocked');
+    fs.writeFileSync(auditPath,JSON.stringify({...audit,violations:[{id:'label'}]}));
+    assert.equal(writeReport(root,{publishSummary:false}).state,'blocked');
+    attachment.body=body;delete attachment.path;save();
+    assert.equal(writeReport(root,{publishSummary:false}).state,'inspection');
+    for(const bad of [null,passingToolchain('old-commit'),{...passingToolchain(),browser:null},{...passingToolchain(),dependencies:{...passingToolchain().dependencies,'@playwright/test':'1.0.0'}}]) {
+      fs.writeFileSync(runtimeFile,JSON.stringify(bad));
+      assert.equal(writeReport(root,{publishSummary:false}).state,'blocked');
+    }
+    fs.writeFileSync(runtimeFile,JSON.stringify(passingToolchain()));
+    const compatFile = path.join(root, 'quality/compatibility-status.json');
+    fs.rmSync(compatFile);
+    assert.equal(writeReport(root, { publishSummary: false }).state, 'blocked');
+    fs.writeFileSync(compatFile, JSON.stringify(passingCompatibility('other-commit')));
+    assert.equal(writeReport(root, { publishSummary: false }).state, 'blocked');
+    fs.writeFileSync(compatFile, JSON.stringify(passingCompatibility()));
     report.suites[0].specs[0].tests[0].results[0].attachments[1].body =
       Buffer.from(JSON.stringify({ violations: [{ id: 'label' }], incomplete: [], passes: [] })).toString('base64');
     save();

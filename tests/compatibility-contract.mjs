@@ -1,0 +1,200 @@
+// A bounded contract, shared by collection and publication: removing a case is not a pass.
+export const compatibilityRoadCases = [
+  "prepared toll: save reload and explicitly choose a fresh portion and tariff",
+  "prepared toll: optional budget consent excludes the old fare but keeps the chosen geometry",
+  "prepared toll: unknown price remains unknown in the saved portion",
+  "prepared toll: hiding reminders or cancelling calculation never authorizes the reference route",
+  "prepared toll: discard is voluntary and does not change the saved preparation",
+  "prepared toll: export and import preserve the history without a route or GPS request",
+  "prepared toll: v11 migration preserves the original and detects concurrent old-format edits",
+  "prepared toll: hostile or downgraded imports cannot erase the paid exception",
+
+  "selected toll gates: nearby candidates populate a declared pair only after an explicit action",
+  "selected toll gates: no candidates keeps manual pricing available and absence is not zero",
+  "selected toll gates: three candidates do not silently select a pair",
+  "selected toll gates: a new comparison clears map candidates and cannot retain a gate confirmation",
+  "selected toll gates: unavailable inventory shows a recoverable message",
+
+  "selected toll tariff: declared official reference appears in comparison and adopted budget",
+  "selected toll tariff: a strict cap rejects a declared amount without extra routing or adoption",
+  "selected toll tariff: unconfirmed or changed gates invalidate the proposal before any adoption",
+  "selected toll tariff: unknown source cell stays unknown and reverse directions are not invented",
+  "selected toll tariff: vehicle class and trip date invalidate the carried budget reference",
+  "selected toll tariff: station adoption and removal preserve one reference without double counting",
+
+  "selected toll app: compare, explicitly adopt, protect saved routes and restore",
+  "selected toll app: station preview and removal preserve the chosen paid edges",
+  "selected toll app: GPS keeps forward-only paid progress through recalculation",
+  "selected toll app: expired proposal and cancelled dialog leave the original trip intact",
+  "selected toll app: station chosen during guidance preserves the paid exception and resumes GPS",
+  "selected toll app: old station comparisons cannot be confirmed",
+  "selected toll app: free-service quota does not replace a confirmed route or retry",
+
+  "préparation compacte : dernier mode conservé, menu au clavier et aucun calcul au rechargement",
+  "préparation compacte : nuit mémorisée, carte et bande horaire accessibles sans changer le trajet",
+  "adresses : dossiers, renommage, suppression sans perte et export complet",
+  "station : adresse classée avec coordonnées DGCCRF, réutilisation et fiche après rechargement",
+  "profil v4 : origine v3 intacte, préférences explicites et gabarit de péage distinct du poids chargé",
+  "préparation compacte : coût compare les hypothèses sans adopter ni inventer de péage",
+
+  "guidage épuré : réserve et autonomie périmée signalées hors des aides",
+  "guidage épuré : manœuvre, carte et commandes tiennent sur téléphone",
+  "guidage épuré : perte GPS et refus restent visibles sans flèche ni durée périmées",
+  "guidage épuré : paysage et texte doublé gardent aides et arrêt accessibles",
+  "recette Android : boucle réelle IGN, reprise après autonomie",
+  "recette Android : parcours complet OSRM avec station, plein déclaré et arrivée",
+  "recette Android : panne audio signalée sans interrompre le guidage visuel",
+  "autonomie guidée : déclaration volontaire, progression et préparation conservée",
+  "autonomie guidée : clavier, champs lisibles et retour au déclencheur",
+  "stations guidées : recherche volontaire, confirmation et reprise sans changer la préparation",
+  "stations guidées : exclusions IGN conservées jusqu’à la reprise",
+  "guidage : démarrage volontaire, progression, pause et préparation intacte",
+  "guidage : clavier, texte doublé et schéma sans fond restent utilisables",
+  "fauteuil passagers : demande volontaire, pistes hors classement et conducteur conservé",
+  "fauteuil passagers : clavier, texte agrandi et carte conservent les limites",
+  "journal passagers : activation volontaire, une personne et conducteur conservé",
+  "journal passagers : clavier et texte agrandi rendent le parcours intact",
+  "carte collective passagers : ouverture locale, étapes et retour sans changer le conducteur",
+  "carte collective passagers : clavier et texte agrandi restent lisibles sans fond",
+  "collectif passagers : mêmes lieux, heure et groupe sans changer le conducteur",
+  "collectif passagers : clavier et texte agrandi conservent les étapes",
+  "scénarios passagers : reprise explicite, nouveau calcul et souvenir intact",
+  "scénarios passagers : clavier et texte agrandi gardent le souvenir accessible",
+  "modes successifs : calcul volontaire sans recalcul automobile ni modification du parcours",
+  "modes successifs : clavier, texte agrandi et fermeture rendent la préparation intacte",
+  "accès passagers : lieux et chronologie complets, budget automobile et souvenir distincts",
+  "accès passagers : clavier, petit écran et fermeture rendent le parcours intact",
+  "portion passagers : choix explicite, seules les rencontres transmises et parcours préservé",
+  "portion passagers : clavier, texte agrandi et carte absente conservent la fermeture",
+  "stations successives : consultation volontaire, frais conservés et adoption explicite",
+  "stations successives : clavier, texte agrandi, rotation et schéma sans carte",
+  'partage successif : confirmation locale, total conservé et adoption explicite',
+  'partage successif : clavier, texte agrandi, rotation et schéma sans carte',
+  'horaires successifs : confirmation locale, étapes cohérentes et adoption explicite',
+  'horaires successifs : clavier, texte agrandi, rotation et carte indisponible',
+  'adoption successive : confirmation, carte principale et référence conservée sans requête',
+  'adoption successive : navigation et export reprennent tous les points du parcours affiché',
+  'budget successif : grilles datées, passage explicite et couverture partielle',
+  'budget successif : sauvegarde et import récents, lecture historique locale et anciens formats conservés',
+  'carte successive : consultation locale, points proches et clavier sans nouveau service',
+  'navigation successive : tous les points répartis, accord explicite et aucune ouverture automatique',
+  'arrêts successifs : aperçu complet, pauses, autonomie, adoption et affichage accessible',
+  'arrêts successifs : sauvegarde volontaire, rechargement et consultation sans appel',
+  'saisies trajet : deux lieux vides, résumé clavier, correction locale et descriptions conservées',
+  'saisies trajet : panne ou réponse illisible ne désigne pas l’adresse comme erronée',
+  'trajet disponible avant toute recherche de station',
+  'panne carburants ne supprime pas le trajet et peut etre relancee',
+  'fiche station et favoris actualises apres rechargement',
+  'vehicule et adresses persistes modifiables et reutilisables',
+  'variantes : schéma et liste cohérents, clavier et refus sans effet',
+  'variantes : adoption depuis le schéma synchronise budget, repères et GPX sans requête',
+  'variantes : Leaflet au clavier, au toucher et tracé cliquable',
+  'points schéma : superposition, choix explicite et favori stable',
+  'points Leaflet : superposition, choix explicite et favori stable',
+  'points : aperçu refusé et changement de critères effacent les anciens points',
+  'points : choix utilisable en paysage à texte doublé et tabulation bornée',
+  'préparations : trajet avec arrêt, préférences, reprise après rechargement et confirmation renouvelée',
+  'préparations : import vérifiable, export préalable, annulation et restauration complète',
+  'préparations : stockage plein et conflit d’onglet préservent formulaire et données',
+  'lecture : texte réellement doublé, champs non coupés et en-tête adapté',
+  'lecture : erreurs et variante au clavier, fermeture permanente et adoption',
+  'lecture : profil modifiable, clavier visible et rotation conserve les saisies',
+  'lecture : tabulation réelle du profil sans masquer le champ actif'
+];
+// Additional autonomous-mode flows use the same assertions as Chromium.
+export const compatibilityModeCases = [
+  "fauteuil : pistes reçues et limites lisibles, aucun classement compatible ni routage standard",
+  "fauteuil : conservation, lecture hors ligne et reprise gardent le besoin sans nouvelle requête",
+  "accès modes : cinq entrées avant le véhicule, limites visibles et aucun effet externe",
+  "accès modes : commandes accessibles en paysage, texte agrandi et petit écran",
+  "accès modes : cycleBtn au clavier, lieux communs et retour du focus",
+  "accès modes : transitBtn au clavier, lieux communs et retour du focus",
+  "accès modes : bikesBtn au clavier, lieux communs et retour du focus",
+  "marche : vrai profil, préférences séparées, distance et cache distincts de la voiture",
+  "marche : sauvegarde, export et reprise gardent le mode et les préférences automobiles",
+  "vélo : calcul volontaire, vrai profil, schéma, limite locale et stockage conservé",
+  "vélo : annulation et réponse tardive ignorées, reprise indépendante possible",
+  "vélo sauvegardé : reprise explicite sans géocodage, nouveau calcul même avec cache",
+  "collectif direct : accessible sans voiture, aucun routage caché et lieux résolus explicites",
+  "collectif direct : géocodage tardif annulé sans mémorisation ni appel supplémentaire",
+  "collectif direct : saisies incomplètes et périmètre extérieur ne déclenchent pas de routage",
+  "collectif sauvegardé : enregistrement explicite, rechargement, étapes hors réseau et export complet",
+  "horaires : focus de la même option conservé lorsqu’elle passe parmi les références",
+  "parcours partagé : choix explicites, trois moteurs/étapes, données et trajet principal conservés",
+  "parcours partagé : stations manquantes ou identiques et lieux hors pilote",
+  "parcours partagé : annulation et réponse tardive ne réaffichent aucun résultat",
+  "partagé sauvegardé : reprise volontaire, catalogue confirmé, nouveau calcul sans géocodage",
+  "partagé sauvegardé : clavier à quatre rubriques et fermeture avec retour du focus"
+];
+// Complete reference journeys retain the exact Chromium assertions.
+export const compatibilityJourneyCases = [
+  "ergonomie : le focus remonte au-dessus de la barre après un défilement natif incomplet",
+  "ergonomie : navigation basse, retour de focus et champs conservés",
+  "voix : choix local et débit essayés sans GPS ni voix distante",
+  "routes : accès direct aux alternatives garde les exclusions et le trajet avant adoption",
+  "ponts : huit tarifs officiels, source datée et passage confirmé sans appel externe",
+  "ponts : préparation, export et reprise conservent les sources et renouvellent les confirmations",
+  "péages modes : proposition sourcée, confirmation et allocation sans appel ni écriture",
+  "péages modes : conservation volontaire V4 et sources intactes après rechargement",
+  "péages modes : clavier et texte doublé conservent relecture et fermeture",
+  'budgets routiers : accès hors pilote collectif sans appel ni adoption',
+  'budgets routiers : sauvegarde volontaire V3 et relecture conservant les composantes',
+  "budgets modes : postes inconnus, déclaration du groupe et classement sans appel ni écriture",
+  "budgets modes : clavier et texte doublé gardent saisie et confirmation accessibles",
+  "délais modes : Vélo’v partiel conservé, clavier et reprise volontaire après attente",
+  "délais modes : quota du parcours partagé respecté par le calcul vélo autonome",
+  "délais routiers : matrice partielle conservée et reprise volontaire sans nouvelle collecte",
+  "délais routiers : accès IGN acquis conservé et reprise à la première candidate non calculée",
+  "délais services : collecte partielle conservée et autres candidates comparables pendant le quota",
+  "délais services : réseau et calcul collectif partagent l’attente et gardent les données reçues",
+  "comparaisons conservées : sauvegarde volontaire, relecture et exports fidèles sans nouveau calcul",
+  "comparaisons conservées : clavier et texte doublé gardent consentement et exports accessibles",
+  "priorités modes : choix volontaire, contributions et valeurs brutes sans appel ni écriture",
+  "priorités modes : clavier et paysage à texte doublé gardent les commandes accessibles",
+  "priorités enregistrées : choix volontaire, contributions et poids sans écriture ni appel",
+  "priorités enregistrées : clavier et texte doublé conservent les commandes",
+  "priorités : choix volontaire, contributions, poids réversibles sans appel ni adoption",
+  "priorités : clavier, paysage et texte doublé conservent les commandes",
+  "carte et liste Leaflet : retour au même point et à sa page sans recalcul",
+  "carte et liste schéma : paysage et texte doublé sans masquer les commandes",
+  "pages stations : 100 fiches accessibles, rendu borné et navigation sans effet externe",
+  "pages stations Leaflet : carte, fiche et bonne page sans modifier les filtres",
+  "préparation lisible : actions proches des choix, navigation clavier et critères explicites",
+  "préparation lisible : méthode repliée, limites visibles et suite volontaire",
+  'accès station IGN : absence de chemin isolée, suite bornée et contraintes conservées',
+  'accès station IGN : 404 générique interrompt sans consommer la candidate',
+  "service public absent : controles indisponibles avant recherche",
+  "choix routiers : deux critères, écarts lisibles, tri sans appel et adoption volontaire",
+  "choix routiers : mêmes exclusions IGN, cache distinct et arrêts recalculés sur le choix",
+  "choix routiers : panne partielle sans repli et moteur désactivé explicite",
+  "fenêtre : proximité choisie filtre les accès routiers puis relance explicite",
+  "fenêtre : sauvegarde format 11, export, rechargement et reprise gardent les trois valeurs",
+  "comparaison collective : arrivée avant limite inclut la marge et conserve les identités",
+  "covoiturage : frais inconnus, partiels puis déclarés, partage exact sans addition du plein",
+  "covoiturage : récapitulatif relu et copié, lieux privés exclus et aucune transmission automatique",
+  "journal : activation volontaire, confirmation et doublon après rechargement"
+];
+export const compatibilityCases = [...compatibilityRoadCases, ...compatibilityModeCases, ...compatibilityJourneyCases];
+export const compatibilityMatrix = ['firefox', 'webkit'].flatMap(engine => [
+  { name: `${engine}-desktop-1440`, engine, viewport: { width: 1440, height: 900 }, readingViewport: { width: 1024, height: 768 } },
+  { name: `${engine}-small-390`, engine, viewport: { width: 390, height: 844 }, readingViewport: { width: 390, height: 844 } }
+]);
+export const compatibilityLimits = 'Moteurs épinglés de Playwright, services simulés, petit écran redimensionné ; ni Firefox stable actuel, ni Safari commercial, ni Safari iOS, ni appareil physique qualifiés.';
+
+export function validCompatibility(proof, commit) {
+  return !!(proof && proof.schemaVersion === 1 && proof.state === 'passed' &&
+    proof.commit === commit && proof.runnerExitCode === 0 && proof.errors?.length === 0 &&
+    typeof proof.playwright === 'string' && proof.playwright.length &&
+    typeof proof.platform === 'string' && proof.platform.length &&
+    proof.matrix?.length === compatibilityMatrix.length && compatibilityMatrix.every(expected => {
+      const rows = proof.matrix.filter(row => row.name === expected.name);
+      if (rows.length !== 1) return false;
+      const row = rows[0];
+      return row.engine === expected.engine && typeof row.version === 'string' && row.version.length > 0 &&
+        row.viewport?.width === expected.viewport.width && row.viewport?.height === expected.viewport.height &&
+        row.cases?.length === compatibilityCases.length && compatibilityCases.every(title => {
+          const cases = row.cases.filter(test => test.title === title);
+          return cases.length === 1 && cases[0].passed === true && cases[0].attempts === 1;
+        });
+    }));
+}

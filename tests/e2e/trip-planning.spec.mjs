@@ -1,5 +1,8 @@
+import {preparationControl} from '../helpers/preparation-controls.mjs';
+import {confirmRouteChoice} from '../helpers/dragonroute.mjs';
+import {confirmStationPreview} from '../helpers/dragonroute.mjs';
 import { test, expect } from '@playwright/test';
-import { mockDragonRoute } from '../helpers/dragonroute.mjs';
+import { mockDragonRoute, geocodingPattern, addressFeature, placesResponse } from '../helpers/dragonroute.mjs';
 import { capture, checkAccessibility, checkOverflow } from '../helpers/inspection.mjs';
 
 test.beforeEach(async ({page}) => { await mockDragonRoute(page); });
@@ -11,14 +14,16 @@ async function ready(page) {
 
 test('geocodage ambigu : choix explicite, libelles, annulation et cache', async ({page}, info) => {
   let requests=0;
-  await page.route('https://nominatim.openstreetmap.org/search?**', r => {
+  await page.route(geocodingPattern, r => {
     requests++;
     const url=new URL(r.request().url());
     expect(url.searchParams.get('limit')).toBe('5');
-    return r.fulfill({json:[
-      {lat:'45.764',lon:'4.8357',display_name:'Lyon, 69001, France'},
-      {lat:'45.75',lon:'4.84',display_name:'Autre lieu, 69002, France'}
-    ]});
+    expect(url.searchParams.get('index')).toBe('address,poi');
+    expect(url.searchParams.get('autocomplete')).toBe('false');
+    return r.fulfill({json:placesResponse(
+      addressFeature(4.8357,45.764,'Lyon, 69001, France'),
+      addressFeature(4.84,45.75,'Autre lieu, 69002, France')
+    )});
   });
   await page.goto('/DragonRoute/');
   await page.locator('#start').fill('Lieu');
@@ -49,12 +54,12 @@ test('geocodage ambigu : choix explicite, libelles, annulation et cache', async 
 });
 
 test('geocodage : coordonnees invalides refusees et libelle hostile en texte', async ({page}) => {
-  await page.route('https://nominatim.openstreetmap.org/search?**',r=>r.fulfill({json:[
-    {lat:'NaN',lon:'4',display_name:'Invalide'},
-    {lat:'91',lon:'4',display_name:'Invalide'},
-    {lat:'45',lon:'4',display_name:'<img src=x onerror=alert(1)>'},
-    {lat:'46',lon:'5',display_name:'Autre lieu'}
-  ]}));
+  await page.route(geocodingPattern,r=>r.fulfill({json:placesResponse(
+    addressFeature(4,'NaN','Invalide'),
+    addressFeature(4,91,'Invalide'),
+    addressFeature(4,45,'<img src=x onerror=alert(1)>'),
+    addressFeature(5,46,'Autre lieu')
+  )}));
   await page.goto('/DragonRoute/');await page.locator('#goBtn').click();
   await expect(page.locator('#placeChoices input')).toHaveCount(2);
   await expect(page.locator('#placeChoices img')).toHaveCount(0);
@@ -70,10 +75,10 @@ test('budget carburant distinct du plein et peages inconnus', async ({page},info
   await expect(page.locator('#budgetFuel')).toHaveText('6,45 L · 12,90 €');
   await page.locator('#liters').fill('100');
   await expect(page.locator('#budgetFuel')).toContainText('12,90 €');
-  await expect(page.locator('.budget-lines')).toContainText('Tarif indisponible');
-  await expect(page.locator('.budget-lines')).toContainText('Incomplet');
+  await expect(page.locator('#tripBudget .budget-lines')).toContainText('Tarif indisponible');
+  await expect(page.locator('#tripBudget .budget-lines')).toContainText('Incomplet');
   await expect(page.locator('#useStationPrice')).toBeDisabled();
-  await page.locator('input[name=routeChoice][value="1"]').check();
+  await page.locator('[data-route-choice="1"]').click();await confirmRouteChoice(page);
   await expect(page.locator('#budgetFuel')).toHaveText('7,32 L · 14,63 €');
   await page.locator('#budgetPrice').fill('0');
   await expect(page.locator('#budgetFuel')).toContainText('prix à renseigner');
@@ -89,7 +94,7 @@ test('budget carburant distinct du plein et peages inconnus', async ({page},info
 test('budget arret : distance via, prix source et suppression', async ({page}) => {
   await ready(page);await page.locator('#stationsBtn').click();
   await expect(page.locator('.result-card')).toHaveCount(2);
-  await page.locator('[data-select=A]').click();
+  await page.locator('[data-select=A]').click();await confirmStationPreview(page);
   await expect(page.locator('#tripKm')).toHaveText('106,0 km');
   await page.locator('#useStationPrice').click();
   await expect(page.locator('#budgetFuel')).toHaveText('6,57 L · 11,30 €');
@@ -133,10 +138,9 @@ test('autonomie : depart change, hors portee confirme et liste complete', async 
   await ready(page);await page.locator('#rangeOptions summary').click();
   await page.locator('#rangeMode').selectOption('km');await page.locator('#rangeValue').fill('20');
   await page.locator('#stationsBtn').click();await expect(page.locator('.result-card')).toHaveCount(2);
-  page.once('dialog',async d=>{expect(d.message()).toContain('hors');await d.dismiss()});
-  await page.locator('[data-select=A]').click();
+  await page.locator('[data-select=A]').click();await expect(page.locator('#stationPreviewFar')).toBeVisible();await expect(page.locator('#stationPreviewConfirm')).toBeDisabled();await page.locator('#stationPreviewCancel').click();
   await expect(page.locator('#selectedStop')).toBeHidden();
-  page.once('dialog',d=>d.accept());await page.locator('[data-select=A]').click();
+  await page.locator('[data-select=A]').click();await confirmStationPreview(page,{outOfRange:true});
   await expect(page.locator('#selectedStop')).toBeVisible();
   await page.locator('#stationListMode').selectOption('all');
   await expect(page.locator('[data-select=A]')).toHaveAttribute('aria-pressed','true');
@@ -149,7 +153,7 @@ test('profil caravane conserve sans calcul voiture implicite', async ({page}) =>
   await page.goto('/DragonRoute/');
   await expect(page.locator('#routeVehicle')).toHaveValue('caravan');
   await expect(page.locator('#goBtn')).toBeDisabled();
-  await page.locator('#routeVehicle').selectOption('car');
+  await (await preparationControl(page,'routeVehicle')).selectOption('car');
   await expect(page.locator('#goBtn')).toBeEnabled();
   await page.locator('#goBtn').click();await expect(page.locator('#status')).toContainText('Trajet prêt');
   await expect(page.locator('#avoidTolls')).toBeDisabled();
@@ -159,8 +163,7 @@ test('recalcul via different : refus preserve ancien trajet et couts', async ({p
   await ready(page);await page.locator('#stationsBtn').click();
   await expect(page.locator('.result-card')).toHaveCount(2);
   await page.route('https://router.project-osrm.org/route/v1/driving/**',r=>r.fulfill({json:{code:'Ok',routes:[{distance:150000,duration:8000,geometry:{type:'LineString',coordinates:[[4.8357,45.764],[4.87,45.4],[4.8924,44.9334]]}}]}}));
-  page.once('dialog',async d=>{expect(d.message()).toContain('diffère');await d.dismiss()});
-  await page.locator('[data-select=A]').click();
+  await page.locator('[data-select=A]').click();await expect(page.locator('#stationPreviewMetrics')).toContainText('150,0 km');await page.locator('#stationPreviewCancel').click();
   await expect(page.locator('#fuelStatus')).toContainText('précédent est conservé');
   await expect(page.locator('#tripKm')).toHaveText('104,0 km');
   await expect(page.locator('#selectedStop')).toBeHidden();

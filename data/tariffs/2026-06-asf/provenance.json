@@ -1,0 +1,27 @@
+{
+  "source": "https://public-content.vinci-autoroutes.com/PDF/Tarifs-peage-asf/Tarifs_ASF.txt",
+  "sourcePage": "https://www.vinci-autoroutes.com/fr/conseils/autoroute-mode-demploi/tarifs-peage-vinci-autoroutes/",
+  "sourceSha256": "37d6934275ac40ab9c97abfdfcdbc7724ce2250d0573cf6332be95346d58d01f",
+  "effectiveFrom": "2026-06-01",
+  "lastReviewed": "2026-11-28",
+  "consultationUntil": "2026-12-31",
+  "publisher": "VINCI Autoroutes / ASF",
+  "sourceTitle": "Tarifs ASF · publication officielle de juin 2026",
+  "rows": 2055,
+  "missingRow": "PUYMORENS SORTIE → PUYMORENS ENTREE : #N/A pour les cinq classes",
+  "qualification": "Reproduction du tableau texte officiel, sans déduction du sens inverse. Concordance visuelle Vienne → Valence nord pour classes 1 et 2 avec les PDF officiels ; pas de contrôle intégral contre les PDF ni de rattachement automatique au tracé.",
+  "pdfChecks": [
+    {
+      "class": 1,
+      "url": "https://public-content.vinci-autoroutes.com/PDF/Tarifs-peage-asf/C1-TARIFS-WEB-2026-maille_maj062026.pdf",
+      "sha256": "c3833bcb85fb207735b4226497aa610f9352e82a494bbf6f2e61d3205cb48e05",
+      "bytes": 401278
+    },
+    {
+      "class": 2,
+      "url": "https://public-content.vinci-autoroutes.com/PDF/Tarifs-peage-asf/C2-TARIFS-WEB-2026-maille_maj062026.pdf",
+      "sha256": "63ab9865ea42420df2d52b5ef31f9b901b9702c70f2674e4b098cfec7df026e2",
+      "bytes": 400967
+    }
+  ]
+}

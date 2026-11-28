@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-11-22",
+  "normativeSource": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053916305",
+  "annexSource": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000053916314",
+  "sourceKind": "bounded transcription of official web extraction, cached two months before consultation; not original HTML or downloaded DILA XML",
+  "annexFile": "annexe-consultee.txt",
+  "annexSha256": "1f341ef7a2a2cc4f7672ef346a7b74933b6fe615519a78fa281cf50b7dff3c91",
+  "operatorCorroboration": {
+    "url": "https://www.pontsnormandietancarville.fr/les-tarifs/",
+    "checkedOn": "2026-11-22",
+    "scope": "eight ordinary prices, classes 1-4, effective 2026-05-01; discounts excluded",
+    "htmlSha256": "980cec9c37c1c689e699c6fe295b16655d8744b668313bf2b9ceb3293ad23fee",
+    "httpStatus": 200
+  },
+  "producer": "DILA",
+  "publicationDate": "2026-04-21",
+  "license": "Licence Ouverte 2.0",
+  "licenseScope": "normative JORF data; operator page layout/text not redistributed",
+  "licensePolicy": "https://www.dila.gouv.fr/services/repertoire-des-informations-publiques/qu-est-ce-que-le-rip",
+  "networks": {
+    "PNOR": {
+      "file": "PNOR.json",
+      "sha256": "9e42de28e22ba8330456b41ba02ef76f95589d83678ec1761b1e9848a33504c2"
+    },
+    "PTAN": {
+      "file": "PTAN.json",
+      "sha256": "0fdf4f84fe4efed5d12458275a75d08121a171c7698656fbe98d95a32df713af"
+    }
+  }
+}

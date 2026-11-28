@@ -1,0 +1,1147 @@
+{
+  "retrievedAt": "2026-11-18T04:21:15.573Z",
+  "source": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=100&select=id,cp,ville,geom,horaires,horaires_automate_24_24",
+  "schema": [
+    {
+      "name": "cp",
+      "description": null,
+      "annotations": {},
+      "label": "Code postal",
+      "type": "text"
+    },
+    {
+      "name": "horaires",
+      "description": null,
+      "annotations": {},
+      "label": "horaires",
+      "type": "text"
+    },
+    {
+      "name": "geom",
+      "description": null,
+      "annotations": {
+        "facetsort": "-count"
+      },
+      "label": "geom",
+      "type": "geo_point_2d"
+    },
+    {
+      "name": "horaires_automate_24_24",
+      "description": null,
+      "annotations": {
+        "facet": true
+      },
+      "label": "Automate 24-24 (oui/non)",
+      "type": "text"
+    },
+    {
+      "name": "horaires_jour",
+      "description": null,
+      "annotations": {},
+      "label": "horaires détaillés",
+      "type": "text"
+    }
+  ],
+  "records": [
+    {
+      "id": 56580001,
+      "cp": "56580",
+      "ville": "Bréhan",
+      "geom": {
+        "lon": -2.69,
+        "lat": 48.061
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 33114001,
+      "cp": "33114",
+      "ville": "Le Barp",
+      "geom": {
+        "lon": -0.787,
+        "lat": 44.623
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 5100009,
+      "cp": "05100",
+      "ville": "Montgenèvre",
+      "geom": {
+        "lon": 6.733,
+        "lat": 44.934
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 92230008,
+      "cp": "92230",
+      "ville": "Gennevilliers",
+      "geom": {
+        "lon": 2.3044,
+        "lat": 48.9327
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 25115001,
+      "cp": "25115",
+      "ville": "Pouilley-les-Vignes",
+      "geom": {
+        "lon": 5.9240872885659,
+        "lat": 47.257413021458
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 58240003,
+      "cp": "58240",
+      "ville": "Chantenay-Saint-Imbert",
+      "geom": {
+        "lon": 3.1406912128899998,
+        "lat": 46.7535171497
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 40500002,
+      "cp": "40500",
+      "ville": "Saint-Sever",
+      "geom": {
+        "lon": -0.567,
+        "lat": 43.773
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 27340001,
+      "cp": "27340",
+      "ville": "Les Damps",
+      "geom": {
+        "lon": 1.165554,
+        "lat": 49.301637
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 12270001,
+      "cp": "12270",
+      "ville": "La Fouillade",
+      "geom": {
+        "lon": 2.0328320468272003,
+        "lat": 44.240241001506
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 80570001,
+      "cp": "80570",
+      "ville": "Dargnies",
+      "geom": {
+        "lon": 1.52668,
+        "lat": 50.04553
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 34150003,
+      "cp": "34150",
+      "ville": "Gignac",
+      "geom": {
+        "lon": 3.547,
+        "lat": 43.651
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 93380009,
+      "cp": "93380",
+      "ville": "Saint-Denis",
+      "geom": {
+        "lon": 2.36413094302,
+        "lat": 48.9660970452
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 38230003,
+      "cp": "38230",
+      "ville": "Tignieu-Jameyzieu",
+      "geom": {
+        "lon": 5.183,
+        "lat": 45.745
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 6110002,
+      "cp": "06110",
+      "ville": "Le Cannet",
+      "geom": {
+        "lon": 7.016,
+        "lat": 43.572
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 89100001,
+      "cp": "89100",
+      "ville": "Sens",
+      "geom": {
+        "lon": 3.304,
+        "lat": 48.18763
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 83590001,
+      "cp": "83590",
+      "ville": "Gonfaron",
+      "geom": {
+        "lon": 6.275,
+        "lat": 43.316
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 59550001,
+      "cp": "59550",
+      "ville": "Landrecies",
+      "geom": {
+        "lon": 3.68934,
+        "lat": 50.12359
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 42230002,
+      "cp": "42230",
+      "ville": "Roche-la-Molière",
+      "geom": {
+        "lon": 4.33156142347,
+        "lat": 45.4343614775
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 77141003,
+      "cp": "77141",
+      "ville": "Vaudoy-en-Brie",
+      "geom": {
+        "lon": 3.0871627000000004,
+        "lat": 48.6840914
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 74250003,
+      "cp": "74250",
+      "ville": "Fillinges",
+      "geom": {
+        "lon": 6.3494833495813,
+        "lat": 46.163834319677
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 31450003,
+      "cp": "31450",
+      "ville": "Montgiscard",
+      "geom": {
+        "lon": 1.585,
+        "lat": 43.454
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 7290000,
+      "cp": "07290",
+      "ville": "Satillieu",
+      "geom": {
+        "lon": 4.6328811656225,
+        "lat": 45.160197050871
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 34670001,
+      "cp": "34670",
+      "ville": "Baillargues",
+      "geom": {
+        "lon": 3.996,
+        "lat": 43.655
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 60350003,
+      "cp": "60350",
+      "ville": "Cuise-la-Motte",
+      "geom": {
+        "lon": 3.008,
+        "lat": 49.404
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"20.30\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"20.30\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"20.30\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"20.30\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"20.30\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.00\", \"@fermeture\": \"20.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.00\", \"@fermeture\": \"20.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 38570003,
+      "cp": "38570",
+      "ville": "Le Cheylas",
+      "geom": {
+        "lon": 5.998,
+        "lat": 45.386
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 4170002,
+      "cp": "04170",
+      "ville": "Saint-André-les-Alpes",
+      "geom": {
+        "lon": 6.507,
+        "lat": 43.967
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": [{\"@ouverture\": \"08.00\", \"@fermeture\": \"12.00\"}, {\"@ouverture\": \"14.00\", \"@fermeture\": \"19.00\"}]}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": [{\"@ouverture\": \"08.00\", \"@fermeture\": \"12.00\"}, {\"@ouverture\": \"14.00\", \"@fermeture\": \"19.00\"}]}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": [{\"@ouverture\": \"08.00\", \"@fermeture\": \"12.00\"}, {\"@ouverture\": \"14.00\", \"@fermeture\": \"19.00\"}]}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": [{\"@ouverture\": \"08.00\", \"@fermeture\": \"12.00\"}, {\"@ouverture\": \"14.00\", \"@fermeture\": \"19.00\"}]}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": [{\"@ouverture\": \"08.00\", \"@fermeture\": \"12.00\"}, {\"@ouverture\": \"14.00\", \"@fermeture\": \"19.00\"}]}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": [{\"@ouverture\": \"09.00\", \"@fermeture\": \"12.00\"}, {\"@ouverture\": \"16.00\", \"@fermeture\": \"19.00\"}]}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": [{\"@ouverture\": \"09.00\", \"@fermeture\": \"12.00\"}, {\"@ouverture\": \"16.00\", \"@fermeture\": \"19.00\"}]}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 33210008,
+      "cp": "33210",
+      "ville": "Langon",
+      "geom": {
+        "lon": -0.242,
+        "lat": 44.542
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 89330001,
+      "cp": "89330",
+      "ville": "Saint-Julien-du-Sault",
+      "geom": {
+        "lon": 3.305,
+        "lat": 48.036
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 24230002,
+      "cp": "24230",
+      "ville": "Vélines",
+      "geom": {
+        "lon": 0.10267,
+        "lat": 44.84914
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 77100015,
+      "cp": "77100",
+      "ville": "Nanteuil-lès-Meaux",
+      "geom": {
+        "lon": 2.8829,
+        "lat": 48.93482
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 21400005,
+      "cp": "21400",
+      "ville": "Châtillon-sur-Seine",
+      "geom": {
+        "lon": 4.572,
+        "lat": 47.867
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 83600021,
+      "cp": "83600",
+      "ville": "Fréjus",
+      "geom": {
+        "lon": 6.745,
+        "lat": 43.427
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 19300002,
+      "cp": "19300",
+      "ville": "Égletons",
+      "geom": {
+        "lon": 2.042,
+        "lat": 45.402
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 82800001,
+      "cp": "82800",
+      "ville": "Nègrepelisse",
+      "geom": {
+        "lon": 1.51788,
+        "lat": 44.07487
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 62901001,
+      "cp": "62231",
+      "ville": "Coquelles",
+      "geom": {
+        "lon": 1.80599,
+        "lat": 50.93612
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 94700007,
+      "cp": "94700",
+      "ville": "Maisons-Alfort",
+      "geom": {
+        "lon": 2.43827166369,
+        "lat": 48.80694774210001
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 13380002,
+      "cp": "13380",
+      "ville": "Plan-de-Cuques",
+      "geom": {
+        "lon": 5.457,
+        "lat": 43.341
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 39400002,
+      "cp": "39220",
+      "ville": "Les Rousses",
+      "geom": {
+        "lon": 6.028,
+        "lat": 46.501
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 94160001,
+      "cp": "94160",
+      "ville": "Paris",
+      "geom": {
+        "lon": 2.416,
+        "lat": 48.847
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 14400004,
+      "cp": "14400",
+      "ville": "Bayeux",
+      "geom": {
+        "lon": -0.694,
+        "lat": 49.271
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 64500006,
+      "cp": "64500",
+      "ville": "Saint-Jean-de-Luz",
+      "geom": {
+        "lon": -1.649,
+        "lat": 43.382
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.00\", \"@fermeture\": \"19.30\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 3210001,
+      "cp": "03210",
+      "ville": "Souvigny",
+      "geom": {
+        "lon": 3.203,
+        "lat": 46.536
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 77680004,
+      "cp": "77680",
+      "ville": "Roissy-en-Brie",
+      "geom": {
+        "lon": 2.642,
+        "lat": 48.79
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 29450001,
+      "cp": "29450",
+      "ville": "Sizun",
+      "geom": {
+        "lon": -4.087,
+        "lat": 48.411
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 77700006,
+      "cp": "77700",
+      "ville": "Coupvray",
+      "geom": {
+        "lon": 2.8039516316236996,
+        "lat": 48.880882982292
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 86310002,
+      "cp": "86310",
+      "ville": "Saint-Savin",
+      "geom": {
+        "lon": 0.86,
+        "lat": 46.567
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 18200011,
+      "cp": "18200",
+      "ville": "Farges-Allichamps",
+      "geom": {
+        "lon": 2.416,
+        "lat": 46.752
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 78140010,
+      "cp": "78140",
+      "ville": "Vélizy-Villacoublay",
+      "geom": {
+        "lon": 2.183,
+        "lat": 48.781
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.00\", \"@fermeture\": \"21.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.00\", \"@fermeture\": \"21.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.00\", \"@fermeture\": \"21.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.00\", \"@fermeture\": \"21.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.00\", \"@fermeture\": \"21.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"21.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.00\", \"@fermeture\": \"20.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 39100006,
+      "cp": "39100",
+      "ville": "Dole",
+      "geom": {
+        "lon": 5.50677,
+        "lat": 47.10875
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 19190002,
+      "cp": "19190",
+      "ville": "Le Pescher",
+      "geom": {
+        "lon": 1.737681,
+        "lat": 45.071202
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 79200001,
+      "cp": "79200",
+      "ville": "Parthenay",
+      "geom": {
+        "lon": -0.253,
+        "lat": 46.645
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 87570002,
+      "cp": "87570",
+      "ville": "Rilhac-Rancon",
+      "geom": {
+        "lon": 1.31097,
+        "lat": 45.89894
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 64330001,
+      "cp": "64330",
+      "ville": "Garlin",
+      "geom": {
+        "lon": -0.284,
+        "lat": 43.558
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 77550004,
+      "cp": "77550",
+      "ville": "Évry-Grégy-sur-Yerre",
+      "geom": {
+        "lon": 2.63,
+        "lat": 48.626
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 69700002,
+      "cp": "69700",
+      "ville": "Loire-sur-Rhône",
+      "geom": {
+        "lon": 4.81,
+        "lat": 45.56
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.30\", \"@fermeture\": \"12.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 43770001,
+      "cp": "43770",
+      "ville": "Chadrac",
+      "geom": {
+        "lon": 3.9,
+        "lat": 45.053
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 91100019,
+      "cp": "91100",
+      "ville": "Corbeil-Essonnes",
+      "geom": {
+        "lon": 2.452,
+        "lat": 48.611
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 69480002,
+      "cp": "69480",
+      "ville": "Anse",
+      "geom": {
+        "lon": 4.715,
+        "lat": 45.943
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.30\", \"@fermeture\": \"12.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 88170006,
+      "cp": "88170",
+      "ville": "Sandaucourt",
+      "geom": {
+        "lon": 5.8637440000000005,
+        "lat": 48.2666363
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 33440006,
+      "cp": "33440",
+      "ville": "Ambarès-et-Lagrave",
+      "geom": {
+        "lon": -0.52054201580751,
+        "lat": 44.926153290504004
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 62500001,
+      "cp": "62500",
+      "ville": "Saint-Martin-lez-Tatinghem",
+      "geom": {
+        "lon": 2.2446,
+        "lat": 50.75463
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 62600002,
+      "cp": "62600",
+      "ville": "Berck",
+      "geom": {
+        "lon": 1.5962,
+        "lat": 50.40404
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 59540002,
+      "cp": "59540",
+      "ville": "Caudry",
+      "geom": {
+        "lon": 3.41,
+        "lat": 50.112
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 62700001,
+      "cp": "62700",
+      "ville": "Bruay-la-Buissière",
+      "geom": {
+        "lon": 2.5718,
+        "lat": 50.49397
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 14470001,
+      "cp": "14470",
+      "ville": "Courseulles-sur-Mer",
+      "geom": {
+        "lon": -0.457,
+        "lat": 49.324
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.12\", \"@fermeture\": \"14.19\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.12\", \"@fermeture\": \"14.19\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.12\", \"@fermeture\": \"14.19\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.12\", \"@fermeture\": \"14.19\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.12\", \"@fermeture\": \"14.19\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 95100011,
+      "cp": "95100",
+      "ville": "Argenteuil",
+      "geom": {
+        "lon": 2.253,
+        "lat": 48.943
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 26400002,
+      "cp": "26400",
+      "ville": "Crest",
+      "geom": {
+        "lon": 5.03,
+        "lat": 44.726
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 6201001,
+      "cp": "06200",
+      "ville": "Nice",
+      "geom": {
+        "lon": 7.18553,
+        "lat": 43.73015
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 89690001,
+      "cp": "89690",
+      "ville": "Chéroy",
+      "geom": {
+        "lon": 2.992,
+        "lat": 48.2
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.15\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"09.00\", \"@fermeture\": \"12.30\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 66170002,
+      "cp": "66170",
+      "ville": "Millas",
+      "geom": {
+        "lon": 2.691,
+        "lat": 42.692
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"06.30\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": [{\"@ouverture\": \"07.00\", \"@fermeture\": \"13.00\"}, {\"@ouverture\": \"13.00\", \"@fermeture\": \"13.00\"}]}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 40410004,
+      "cp": "40410",
+      "ville": "Saugnac-et-Muret",
+      "geom": {
+        "lon": -0.85169803376746,
+        "lat": 44.362860807475
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 80580001,
+      "cp": "80580",
+      "ville": "Pont-Remy",
+      "geom": {
+        "lon": 1.9002544000000001,
+        "lat": 50.058008
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 13200009,
+      "cp": "13200",
+      "ville": "Arles",
+      "geom": {
+        "lon": 4.63468013303,
+        "lat": 43.6675119789
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 62710001,
+      "cp": "62710",
+      "ville": "Courrières",
+      "geom": {
+        "lon": 2.94554,
+        "lat": 50.44416
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"08.30\", \"@fermeture\": \"19.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 62800001,
+      "cp": "62800",
+      "ville": "Liévin",
+      "geom": {
+        "lon": 2.77373,
+        "lat": 50.4219
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 67500013,
+      "cp": "67500",
+      "ville": "Haguenau",
+      "geom": {
+        "lon": 7.792444000000001,
+        "lat": 48.827314
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 39260003,
+      "cp": "39260",
+      "ville": "Moirans-en-Montagne",
+      "geom": {
+        "lon": 5.722,
+        "lat": 46.439
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 95150001,
+      "cp": "95150",
+      "ville": "Taverny",
+      "geom": {
+        "lon": 2.22190168155,
+        "lat": 49.0146669398
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 73600010,
+      "cp": "73600",
+      "ville": "Moûtiers",
+      "geom": {
+        "lon": 6.529250635582001,
+        "lat": 45.487973282321
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 20137007,
+      "cp": "20137",
+      "ville": "Porto-Vecchio",
+      "geom": {
+        "lon": 9.276,
+        "lat": 41.602
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"07.00\", \"@fermeture\": \"19.30\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 69550003,
+      "cp": "69550",
+      "ville": "Amplepuis",
+      "geom": {
+        "lon": 4.3202,
+        "lat": 45.97868
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 63200001,
+      "cp": "63200",
+      "ville": "Ménétrol",
+      "geom": {
+        "lon": 3.11696,
+        "lat": 45.87835
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 91814001,
+      "cp": "91100",
+      "ville": "Villabé",
+      "geom": {
+        "lon": 2.4504,
+        "lat": 48.58575
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 39600001,
+      "cp": "39600",
+      "ville": "Arbois",
+      "geom": {
+        "lon": 5.77,
+        "lat": 46.911
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 91150014,
+      "cp": "91150",
+      "ville": "Étampes",
+      "geom": {
+        "lon": 2.15983,
+        "lat": 48.42907
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 81600001,
+      "cp": "81600",
+      "ville": "Gaillac",
+      "geom": {
+        "lon": 1.883,
+        "lat": 43.894
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 63300001,
+      "cp": "63300",
+      "ville": "Thiers",
+      "geom": {
+        "lon": 3.50961,
+        "lat": 45.83907
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 67350004,
+      "cp": "67350",
+      "ville": "Niedermodern",
+      "geom": {
+        "lon": 7.61945,
+        "lat": 48.84497
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 71000020,
+      "cp": "71000",
+      "ville": "Mâcon",
+      "geom": {
+        "lon": 4.8075269731918,
+        "lat": 46.287918551893995
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 94550001,
+      "cp": "94550",
+      "ville": "Chevilly-Larue",
+      "geom": {
+        "lon": 2.368,
+        "lat": 48.767
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 34170001,
+      "cp": "34170",
+      "ville": "Castelnau-le-Lez",
+      "geom": {
+        "lon": 3.898,
+        "lat": 43.623
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"23.59\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 33520002,
+      "cp": "33520",
+      "ville": "Bruges",
+      "geom": {
+        "lon": -0.579,
+        "lat": 44.888
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 73420001,
+      "cp": "73420",
+      "ville": "Drumettaz-Clarafond",
+      "geom": {
+        "lon": 5.911,
+        "lat": 45.657
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 12350002,
+      "cp": "12350",
+      "ville": "Lanuéjouls",
+      "geom": {
+        "lon": 2.156,
+        "lat": 44.424
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\", \"horaire\": {\"@ouverture\": \"00.00\", \"@fermeture\": \"00.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 74210003,
+      "cp": "74210",
+      "ville": "Faverges-Seythenex",
+      "geom": {
+        "lon": 6.27791,
+        "lat": 45.75333
+      },
+      "horaires": null,
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 29610002,
+      "cp": "29610",
+      "ville": "Plouigneau",
+      "geom": {
+        "lon": -3.708,
+        "lat": 48.57
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 63360003,
+      "cp": "63360",
+      "ville": "Gerzat",
+      "geom": {
+        "lon": 3.15,
+        "lat": 45.82
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 37380004,
+      "cp": "37380",
+      "ville": "Monnaie",
+      "geom": {
+        "lon": 0.777,
+        "lat": 47.474
+      },
+      "horaires": "{\"@automate-24-24\": \"\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Non"
+    },
+    {
+      "id": 25310001,
+      "cp": "25310",
+      "ville": "Blamont",
+      "geom": {
+        "lon": 6.84753,
+        "lat": 47.3913
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"1\", \"horaire\": {\"@ouverture\": \"01.00\", \"@fermeture\": \"01.00\"}}]}",
+      "horaires_automate_24_24": "Oui"
+    },
+    {
+      "id": 38490013,
+      "cp": "38490",
+      "ville": "Les Abrets en Dauphiné",
+      "geom": {
+        "lon": 5.586953,
+        "lat": 45.53252
+      },
+      "horaires": "{\"@automate-24-24\": \"1\", \"jour\": [{\"@id\": \"1\", \"@nom\": \"Lundi\", \"@ferme\": \"\"}, {\"@id\": \"2\", \"@nom\": \"Mardi\", \"@ferme\": \"\"}, {\"@id\": \"3\", \"@nom\": \"Mercredi\", \"@ferme\": \"\"}, {\"@id\": \"4\", \"@nom\": \"Jeudi\", \"@ferme\": \"\"}, {\"@id\": \"5\", \"@nom\": \"Vendredi\", \"@ferme\": \"\"}, {\"@id\": \"6\", \"@nom\": \"Samedi\", \"@ferme\": \"\"}, {\"@id\": \"7\", \"@nom\": \"Dimanche\", \"@ferme\": \"\"}]}",
+      "horaires_automate_24_24": "Oui"
+    }
+  ]
+}
