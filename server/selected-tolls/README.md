@@ -1,4 +1,16 @@
-# Portion payante choisie — pilote intégré V114
+# Portion payante choisie — estimation déclarée V115
+
+Le pilote intégré V114 reçoit un tarif de référence pour les gares déclarées de la portion. Voir `docs/specifications/OuQuandQui_API_V115_Tarif_Portion_2026-11-28.md`. Les constats V114 ci-dessous restent historiques.
+
+- `tariffs.mjs` distingue `estimate` (`declared-gates-reference`, `DECLARED_NOT_ROUTE_VERIFIED`) de `price`. Les tarifs ASF et les tables APRR/AREA existantes exigent paire directionnelle explicite, montant entier en centimes, classe 1/2, dates compatibles et confirmation de couverture. Ni zéro absent ni trajet gratuit déduit.
+- `tariff-control.mjs` expose source, classe/date et confirmation avant proposition. Changer les gares ou leur confirmation invalide celle-ci. `session.mjs` lie l’estimation à `sectionKey`, contrôle sa fraîcheur à la confirmation et refuse son utilisation pour un plafond strict avant tout appel de calcul.
+- Le budget valide à nouveau l’estimation contre la classe/date courantes. Les stations avant/après conservent la portion et sa référence ; les tables manuelles ordinaires et l’autre fournisseur ne s’y ajoutent pas. Le montant affiché concerne la portion complète, jamais un péage restant inféré du GPS.
+- `tools/build-selected-tariffs.py --check` reconstruit les 2 055 lignes ASF depuis la copie officielle et son empreinte. Cinq cellules manquantes conservées. Seuls les deux montants Vienne–Valence nord C1/C2 sont recoupés visuellement avec les PDF. Source et provenance dans `data/tariffs/2026-06-asf`.
+- Le générateur du bloc embarqué assemble maintenant neuf modules. Le catalogue ne crée aucune ressource publique supplémentaire ni modification du format des anciennes préparations.
+
+Vérifications : 916 contrôles locaux ; six parcours navigateur de tarifs complètent les sept d’intégration. Les résultats par moteur/format et l’aperçu restent rattachés au commit. Les fixtures testent le contrat d’une déclaration : elles ne prouvent pas une correspondance réelle entre gare et géométrie. Prix automatiquement qualifié, sauvegarde et Android physique restent à poursuivre.
+
+## Historique du pilote intégré V114
 
 Les modules sont montés dans l’écran de préparation de DragonRoute, avec le fournisseur isolé `ors-selected`, les stations et le guidage. Leur activation est limitée au pilote `selectedTollPilot`, voiture au plus rapide. Voir V114 pour le périmètre et les preuves actuels. Le banc navigateur `tests/fixtures/selected-tolls/dialog.html` emploie un réseau fictif et ne constitue pas une application parallèle à livrer.
 

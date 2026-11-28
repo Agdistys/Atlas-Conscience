@@ -1,5 +1,12 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "selected toll tariff: declared official reference appears in comparison and adopted budget",
+  "selected toll tariff: a strict cap rejects a declared amount without extra routing or adoption",
+  "selected toll tariff: unconfirmed or changed gates invalidate the proposal before any adoption",
+  "selected toll tariff: unknown source cell stays unknown and reverse directions are not invented",
+  "selected toll tariff: vehicle class and trip date invalidate the carried budget reference",
+  "selected toll tariff: station adoption and removal preserve one reference without double counting",
+
   "selected toll app: compare, explicitly adopt, protect saved routes and restore",
   "selected toll app: station preview and removal preserve the chosen paid edges",
   "selected toll app: GPS keeps forward-only paid progress through recalculation",

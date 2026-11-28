@@ -1,5 +1,6 @@
 // Browser-independent interaction state. The host owns the trip and must adopt explicitly.
-import {createPlanner,sections} from './planner.mjs';
+import {createPlanner,sections,selectionKey} from './planner.mjs';
+import {declaredSectionTariff,currentDeclaredTariff} from './tariffs.mjs';
 import {joinInstructions,withOutsideStop,meters} from './route-adapter.mjs';
 const copy=v=>structuredClone(v),finite=n=>typeof n==='number'&&Number.isFinite(n),point=p=>Array.isArray(p)&&p.length===2&&p.every(finite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90;
 const same=(a,b)=>point(a)&&point(b)&&a.every((n,i)=>Math.abs(n-b[i])<=1e-7);
@@ -18,7 +19,7 @@ const signature=c=>JSON.stringify(c);
  * state()/onChange contain copies. Confirmation consumes a private proposal once.
  * No storage writes, GPS start, fare inference or application mutation happens here.
  */
-export function createSelectedTollSession({calculate,getContext,validateRoute=()=>{},onChange=()=>{},now=Date.now}={}){
+export function createSelectedTollSession({calculate,getContext,validateRoute=()=>{},onChange=()=>{},tariffs=null,now=Date.now}={}){
  need([calculate,getContext,validateRoute,onChange,now].every(v=>typeof v==='function'),'Session de comparaison non configurée.');
  let state={status:'idle'},sequence=0,job=null,closed=false,comparison=null,pending=null,active=null,stopProposal=null;
  const publish=next=>{state=freeze(copy(next));onChange(copy(state));return copy(state)};
@@ -54,25 +55,29 @@ export function createSelectedTollSession({calculate,getContext,validateRoute=()
     const baselineRoute=await joinInstructions([baseline],{calculate:calc,avoid:c.avoid,now,signal:j.controller.signal});
     validateFree(baselineRoute,referenceRoute.graphDate,...endpoints,c.avoid);guard(j);
     comparison={signature:j.signature,context:c,reference,baseline,baselineRoute,allowHighwayOnSection};
-    const choices=sections(reference).map((s,index)=>({...s,number:index+1,road:[...new Set(reference.steps.filter(step=>step.way_points[0]<s.to&&step.way_points[1]>s.from).map(step=>step.name).filter(name=>name&&name!=='-'))].slice(0,3).join(' / '),coordinates:reference.coordinates.slice(s.from,s.to+1),distance:reference.coordinates.slice(s.from+1,s.to+1).reduce((n,p,i)=>n+meters(reference.coordinates[s.from+i],p),0),price:null}));
+    const choices=sections(reference).map((s,index)=>({...s,key:selectionKey(reference,s.id),number:index+1,road:[...new Set(reference.steps.filter(step=>step.way_points[0]<s.to&&step.way_points[1]>s.from).map(step=>step.name).filter(name=>name&&name!=='-'))].slice(0,3).join(' / '),coordinates:reference.coordinates.slice(s.from,s.to+1),distance:reference.coordinates.slice(s.from+1,s.to+1).reduce((n,p,i)=>n+meters(reference.coordinates[s.from+i],p),0),price:null}));
     return publish({status:'choices',context:c,baseline:baselineRoute,reference:referenceRoute,sections:choices,allowHighwayOnSection,proposal:null,error:null});
    }catch(e){return catchJob(j,e)}
   },
-  async choose(sectionId,{quote=null,maxCents=null}={}){
+  async choose(sectionId,{quote=null,maxCents=null,tariffChoice=null}={}){
    need(comparison,'Comparer les trajets avant de choisir une portion.');const j=begin('calculating',comparison);
    try{
     const c=comparison,calc=call(j),planner=createPlanner({calculate:calc,now});
+    need(!(quote&&tariffChoice),'Une seule base tarifaire à la fois.');
+    const estimate=tariffChoice?declaredSectionTariff(tariffs,tariffChoice,c.context,selectionKey(c.reference,sectionId),now()):null;
+    if(estimate&&maxCents!==null)fail('PRICE_LIMIT','Les gares sont déclarées : cette estimation ne valide pas un plafond strict.');
     const proposal=await planner.propose({reference:c.reference,baseline:c.baseline,sectionId,context:c.context,allowHighwayOnSection:c.allowHighwayOnSection,quote,maxCents,signal:j.controller.signal});
     const route=await joinInstructions(proposal.parts,{calculate:calc,avoid:c.context.avoid,allowHighwayOnSection:c.allowHighwayOnSection,now,signal:j.controller.signal});guard(j);
     validateRoute(copy(route),{kind:'selection',context:copy(c.context)});guard(j);
-    pending={planner,proposal,route,signature:j.signature,job:j};
-    return publish({...state,status:'proposal',proposal:{section:copy(proposal.section),route,price:proposal.price,maxCents,deltaDistance:route.distance-c.baselineRoute.distance,deltaDuration:route.duration-c.baselineRoute.duration,expiresAt:proposal.expiresAt},error:null});
+    pending={planner,proposal,route,estimate,signature:j.signature,job:j};
+    return publish({...state,status:'proposal',proposal:{section:copy(proposal.section),route,price:proposal.price,estimate,maxCents,deltaDistance:route.distance-c.baselineRoute.distance,deltaDuration:route.duration-c.baselineRoute.duration,expiresAt:proposal.expiresAt},error:null});
    }catch(e){return catchJob(j,e)}
   },
   confirm(){
    need(pending&&state.status==='proposal','Aucune proposition prête à confirmer.');const p=pending;guard(p.job);
    validateRoute(copy(p.route),{kind:'selection',context:copy(p.job.context)});guard(p.job);
-   const selection=p.planner.confirm(p.proposal,get().revision,{signal:p.job.controller.signal});
+   if(p.estimate)need(currentDeclaredTariff(tariffs,p.estimate,get(),p.proposal.sectionKey,now()),'Tarif ancien ou modifié : comparer à nouveau.');
+   const confirmed=p.planner.confirm(p.proposal,get().revision,{signal:p.job.controller.signal}),selection={...confirmed,...(p.estimate?{estimate:copy(p.estimate)}:{})};
    active={selection,route:copy(p.route),signature:p.signature,stop:null};pending=null;
    publish({...state,status:'confirmed',proposal:null,active});return copy(active);
   },

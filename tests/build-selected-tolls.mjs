@@ -1,5 +1,7 @@
 import fs from 'node:fs';
-const files=['planner','route-adapter','navigation','session','client','dialog'],names=Object.fromEntries(files.map((f,i)=>[f,'module'+i]));
+import {execFileSync} from 'node:child_process';
+execFileSync('python3',['tools/build-selected-tariffs.py','--check'],{stdio:'pipe'});
+const files=['asf-tariffs','tariffs','planner','route-adapter','navigation','session','client','tariff-control','dialog'],names=Object.fromEntries(files.map((f,i)=>[f,'module'+i]));
 const chunks=[],exports=[];
 for(const name of files){
  let source=fs.readFileSync('server/selected-tolls/'+name+'.mjs','utf8');
