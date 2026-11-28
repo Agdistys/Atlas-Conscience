@@ -1,5 +1,14 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "prepared toll: save reload and explicitly choose a fresh portion and tariff",
+  "prepared toll: optional budget consent excludes the old fare but keeps the chosen geometry",
+  "prepared toll: unknown price remains unknown in the saved portion",
+  "prepared toll: hiding reminders or cancelling calculation never authorizes the reference route",
+  "prepared toll: discard is voluntary and does not change the saved preparation",
+  "prepared toll: export and import preserve the history without a route or GPS request",
+  "prepared toll: v11 migration preserves the original and detects concurrent old-format edits",
+  "prepared toll: hostile or downgraded imports cannot erase the paid exception",
+
   "selected toll gates: nearby candidates populate a declared pair only after an explicit action",
   "selected toll gates: no candidates keeps manual pricing available and absence is not zero",
   "selected toll gates: three candidates do not silently select a pair",

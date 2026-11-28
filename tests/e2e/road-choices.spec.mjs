@@ -103,7 +103,7 @@ test('choix routiers : arrêt préservé au refus, retiré après confirmation s
 test('choix routiers : sauvegarde et GPX gardent le critère et le nouveau tracé',async({page})=>{
  await setup(page);await go(page);await open(page);await calculate(page);await adopt(page,'shortest').click();expect(await storage(page)).toBe('{}');
  await page.locator('#savePreparationBtn').click();await page.locator('#preparedName').fill('Route comparée');await page.locator('#preparedConfirm').check();await page.locator('#preparedSave').click();
- const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('dragonroute.prepared.v11.public')));expect(saved.entries[0].optimization).toBe('shortest');expect(saved.entries[0].snapshot.distanceMeters).toBe(100000);
+ const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('dragonroute.prepared.v12.public')));expect(saved.entries[0].optimization).toBe('shortest');expect(saved.entries[0].snapshot.distanceMeters).toBe(100000);
  await page.getByRole('button',{name:'Fermer les trajets préparés'}).click();await page.locator('#navigationBtn').click();const wait=page.waitForEvent('download');await page.locator('#exportGpxBtn').click();const gpx=await fs.readFile(await(await wait).path(),'utf8');expect(gpx).toContain('Plus court');expect(gpx).toContain('lon="4.87000000"');expect(gpx.match(/<trkpt /g)).toHaveLength(3);
  expect(await page.evaluate(()=>Object.keys(localStorage).filter(k=>/^dragonroute\.(profile|journal)/.test(k)))).toEqual([]);
 });

@@ -1,4 +1,5 @@
 import {selectedTariffNetworks,declaredSectionTariff} from './tariffs.mjs';
+import {preparedTollPair} from './memory.mjs';
 import {locateSectionGates} from './gates.mjs';
 export function createSectionTariffControl({document,catalogue,inventory=null,onChange,onLocate=()=>{},now=Date.now}){
  const make=(tag,text,attrs={})=>{const el=document.createElement(tag);if(text)el.textContent=text;for(const [k,v]of Object.entries(attrs))el.setAttribute(k,v);return el};
@@ -38,5 +39,5 @@ export function createSectionTariffControl({document,catalogue,inventory=null,on
  }
  const changed=()=>{confirmed.checked=false;render();onChange()};
  network.addEventListener('change',()=>{gates(true);changed()});entry.addEventListener('change',()=>{gates();changed()});exit.addEventListener('change',changed);confirmed.addEventListener('change',()=>{render();onChange()});gates(true);
- return {element:root,update(next){context=next.context;if(sectionKey!==next.sectionKey){located=null;locationNote.textContent=''}sectionKey=next.sectionKey;section=next.section;busy=next.busy;root.hidden=!sectionKey||!Object.keys(networks).length;const key=JSON.stringify([sectionKey,context?.date,context?.vehicleClass]);if(key!==binding){confirmed.checked=false;binding=key}render()},choice(){if(!network.value)return null;declaredSectionTariff(catalogue,value(),context,sectionKey,now());return value()},markers(){return located?.rows||[]},reset(){located=null;section=null;sectionKey=null;locationNote.textContent='';network.value='';confirmed.checked=false;gates(true);binding='';render()}};
+ return {element:root,recall(memory){if(busy||!sectionKey)return false;const p=preparedTollPair(memory,catalogue);if(!p)return false;network.value=p.network;gates(true);entry.value=String(p.entry);gates();exit.value=String(p.exit);root.open=true;changed();return true},update(next){context=next.context;if(sectionKey!==next.sectionKey){located=null;locationNote.textContent=''}sectionKey=next.sectionKey;section=next.section;busy=next.busy;root.hidden=!sectionKey||!Object.keys(networks).length;const key=JSON.stringify([sectionKey,context?.date,context?.vehicleClass]);if(key!==binding){confirmed.checked=false;binding=key}render()},choice(){if(!network.value)return null;declaredSectionTariff(catalogue,value(),context,sectionKey,now());return value()},markers(){return located?.rows||[]},reset(){located=null;section=null;sectionKey=null;locationNote.textContent='';network.value='';confirmed.checked=false;gates(true);binding='';render()}};
 }

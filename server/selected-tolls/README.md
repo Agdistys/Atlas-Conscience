@@ -1,3 +1,7 @@
+## V117 · Préparations avec portion payante
+
+Format 12 : historique borné, migration conservant le format 11, reprise sans calcul ni GPS au chargement. Un nouveau calcul sans péage reste une référence bloquée jusqu’au choix volontaire d’une portion ou au retrait explicite du souvenir. Les gares mémorisées remplissent des noms actuels uniquement après action ; confirmation et montant historiques ne sont jamais restaurés comme validation actuelle. Voir [contrat V117](../../docs/specifications/OuQuandQui_API_V117_Reprise_Portion_2026-11-28.md).
+
 # Repérage des gares de la portion — V116
 
 `gates.mjs` rapproche l’inventaire géographique embarqué de la portion entière : corridor30m, ordre le long du tracé, ambiguïtés de boucle et de nom. Une paire n’est proposée que pour deux candidates et une ligne tarifaire directionnelle unique ; la confirmation humaine reste séparée. Statuts `GEOGRAPHIC_CANDIDATES_ONLY` puis `DECLARED_NOT_ROUTE_VERIFIED`, jamais un plafond strict automatiquement validé. Aucun appel réseau supplémentaire ni mutation de la géométrie.
