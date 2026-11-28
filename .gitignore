@@ -6,3 +6,10 @@ preview-site/
 preview-test-results/
 .DS_Store
 __pycache__/
+
+# Private routing credentials and Cloudflare local state
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+.wrangler/

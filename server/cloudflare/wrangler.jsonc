@@ -1,0 +1,34 @@
+{
+  "name": "ouquandqui-routing",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-27",
+  "workers_dev": true,
+  "preview_urls": false,
+  "send_metrics": false,
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "SERVICE_ENABLED": "true",
+    "FREE_PLAN_CONFIRMED": "true",
+    "ALLOWED_ORIGINS": "[\"https://agdistys.github.io\",\"https://www.agdistys.fr\",\"https://agdistys.fr\"]",
+    "DAILY_LIMIT": "100",
+    "MINUTE_LIMIT": "10"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ROUTE_BUDGET",
+        "class_name": "RouteBudget"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "RouteBudget"
+      ]
+    }
+  ]
+}
