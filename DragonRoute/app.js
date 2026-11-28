@@ -1,6 +1,579 @@
 (()=>{"use strict";
 const C=window.DRAGONROUTE_CONFIG;
 const $=id=>document.getElementById(id);
+// BEGIN SELECTED TOLLS GENERATED
+const selectedTollsCore=(()=>{
+const module0=(()=>{
+// Preparation only: no network, storage, provider activation, or GPS side effects.
+// A trusted adapter must supply complete ORS edge attributes; live qualification is separate.
+const reject = (code, message) => { throw Object.assign(new Error(message), { code }); };
+const copy = value => structuredClone(value);
+const finite = n => typeof n === 'number' && Number.isFinite(n);
+const point = p => Array.isArray(p) && p.length === 2 && p.every(finite) && Math.abs(p[0]) <= 180 && Math.abs(p[1]) <= 90;
+const same = (a,b) => point(a) && point(b) && a.every((n,i) => Math.abs(n-b[i]) <= 1e-7);
+const instant = s => typeof s === 'string' && Number.isFinite(Date.parse(s));
+const day = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && instant(s+'T12:00:00Z') && new Date(s+'T12:00:00Z').toISOString().slice(0,10) === s;
+const freeze = o => { if(o && typeof o === 'object') { for(const v of Object.values(o)) freeze(v); Object.freeze(o); } return o; };
+const check = signal => { if(signal?.aborted) reject('CANCELLED','Calcul annulé.'); };
+const required = (v, message) => { if(!v) reject('INVALID_DATA',message); };
+const maxPoints = 20000;
+
+function coverage(values, count, accepts) {
+  required(Array.isArray(values) && values.length > 0 && values.length <= count, 'Attributs routiers absents.');
+  const result=[];let cursor=0;
+  for(const row of values) {
+    required(Array.isArray(row) && row.length===3, 'Plage d’attributs invalide.');
+    const [a,b,value]=row;
+    required(Number.isSafeInteger(a) && Number.isSafeInteger(b) && a===cursor && b>a && b<=count && accepts(value), 'Attributs incomplets, superposés ou inconnus.');
+    for(let i=a;i<b;i++) result.push(value);
+    cursor=b;
+  }
+  required(cursor===count,'Une partie du tracé ne possède pas d’attributs.');
+  return result;
+}
+
+function normalizeOrs(data, observedAt) {
+  required(instant(observedAt), 'Date de réception absente.');
+  required(data?.type==='FeatureCollection' && data.features?.length===1 && !data.error, 'Réponse de calcul invalide.');
+  const f=data.features[0],p=f?.properties,g=f?.geometry,graphDate=data.metadata?.engine?.graph_date;
+  required(instant(graphDate), 'Version du réseau inconnue.');
+  required(data.metadata?.query?.profile==='driving-car', 'Profil automobile non confirmé.');
+  required(g?.type==='LineString' && Array.isArray(g.coordinates) && g.coordinates.length>=2 && g.coordinates.length<=maxPoints && g.coordinates.every(point), 'Tracé invalide.');
+  required(finite(p?.summary?.distance) && p.summary.distance>0 && finite(p.summary.duration) && p.summary.duration>0, 'Distance ou durée invalide.');
+  required(Array.isArray(p.segments) && p.segments.length===1 && finite(p.segments[0].distance) && finite(p.segments[0].duration) && Math.abs(p.segments[0].distance-p.summary.distance)<=1 && Math.abs(p.segments[0].duration-p.summary.duration)<=1 && !p.warnings?.length, 'Segments incomplets ou réserve du moteur.');
+  const tolls=coverage(p.extras?.tollways?.values,g.coordinates.length-1,n=>n===0||n===1);
+  const categories=coverage(p.extras?.waycategory?.values,g.coordinates.length-1,n=>Number.isSafeInteger(n)&&n>=0&&n<=31);
+  return freeze({source:'ors',graphDate,observedAt,coordinates:copy(g.coordinates),distance:p.summary.distance,duration:p.summary.duration,tolls,categories});
+}
+
+function validRoute(route) {
+  required(route?.source==='ors' && instant(route.graphDate) && instant(route.observedAt), 'Provenance du tracé invalide.');
+  required(Array.isArray(route.coordinates) && route.coordinates.length>=2 && route.coordinates.length<=maxPoints && route.coordinates.every(point), 'Tracé invalide.');
+  required(finite(route.distance) && route.distance>0 && finite(route.duration) && route.duration>0, 'Mesures invalides.');
+  const n=route.coordinates.length-1;
+  required(route.tolls?.length===n && route.tolls.every(v=>v===0||v===1) && route.categories?.length===n && route.categories.every(v=>Number.isSafeInteger(v)&&v>=0&&v<=31), 'Couverture routière incomplète.');
+  return route;
+}
+const identity = r => JSON.stringify([r.source,r.graphDate,r.coordinates,r.tolls,r.categories]);
+function matches(route, start, end, graphDate, avoid) {
+  validRoute(route);
+  required(route.graphDate===graphDate, 'Le réseau a changé : nouvelle comparaison nécessaire.');
+  required(same(route.coordinates[0],start) && same(route.coordinates.at(-1),end), 'L’entrée ou la sortie n’est pas raccordée exactement.');
+  // Ambiguous category/profile toll flags cannot certify a free approach.
+  if(avoid.includes('tollways') && (route.tolls.some(Boolean)||route.categories.some(v=>v&2))) reject('TOLL_OUTSIDE','Un péage subsiste hors de la portion autorisée.');
+  for(const [name,flag] of [['highways',1],['ferries',8]]) if(avoid.includes(name) && route.categories.some(v=>v&flag)) reject('EXCLUSION_LOST','Un autre évitement n’est pas respecté.');
+}
+
+function sections(reference) {
+  validRoute(reference);const result=[];
+  for(let a=0;a<reference.tolls.length;) {
+    if(!reference.tolls[a]){a++;continue;}
+    let b=a+1;while(b<reference.tolls.length && reference.tolls[b])b++;
+    // A trip beginning or ending inside a paid area does not identify both boundaries.
+    if(a>0 && b<reference.tolls.length) result.push(freeze({id:`${a}:${b}`,from:a,to:b,entry:copy(reference.coordinates[a]),exit:copy(reference.coordinates[b])}));
+    a=b;
+  }
+  return result;
+}
+
+function orsRequest(start, end, avoid) {
+  required(point(start)&&point(end)&&!same(start,end), 'Deux points distincts sont nécessaires.');
+  required(Array.isArray(avoid)&&new Set(avoid).size===avoid.length&&avoid.every(x=>['tollways','highways','ferries'].includes(x)), 'Évitements invalides.');
+  return freeze({coordinates:[copy(start),copy(end)],preference:'fastest',units:'m',geometry:true,instructions:true,language:'fr',radiuses:[20,20],extra_info:['tollways','waycategory'],options:{avoid_features:[...avoid]}});
+}
+
+function quotedPrice(quote, context, sectionKey) {
+  if(quote==null)return null;
+  let source;try{source=new URL(quote.source);}catch{reject('PRICE_UNVERIFIED','Source du tarif absente.');}
+  if(!Number.isSafeInteger(quote.cents)||quote.cents<0||quote.cents>100000||quote.currency!=='EUR'||quote.vehicleClass!==context.vehicleClass||quote.date!==context.date||quote.sectionKey!==sectionKey||source.protocol!=='https:'||source.username||source.password)reject('PRICE_UNVERIFIED','Tarif non rattaché à cette portion, cette classe ou cette date.');
+  return {cents:quote.cents,currency:'EUR',vehicleClass:quote.vehicleClass,date:quote.date,source:source.href,sectionKey};
+}
+
+function selectionKey(reference,id) {
+  const section=sections(reference).find(s=>s.id===id);
+  required(section,'Portion absente du tracé de référence.');
+  return JSON.stringify([identity(reference),id]);
+}
+
+function createPlanner({calculate, now=Date.now, ttlMs=300000}={}) {
+  required(typeof calculate==='function'&&typeof now==='function'&&Number.isSafeInteger(ttlMs)&&ttlMs>0&&ttlMs<=300000,'Calculateur ou durée de validité invalide.');
+  const proposals=new WeakMap();
+  return {
+    async propose({reference,baseline,sectionId,context,quote=null,maxCents=null,allowHighwayOnSection=false,signal}={}) {
+      // Capture the complete intent before the first await; callers cannot edit it mid-flight.
+      reference=copy(reference);baseline=copy(baseline);context=copy(context);quote=copy(quote);
+      check(signal);validRoute(reference);validRoute(baseline);
+      const startedAt=now();
+      const fresh=r=>{ const age=now()-Date.parse(r.observedAt); if(!finite(age)||age<0||age>ttlMs)reject('STALE_ROUTE','Tracé trop ancien ou daté dans le futur.'); };
+      fresh(reference);fresh(baseline);
+      required(typeof context?.revision==='string'&&context.revision.length>0&&context.revision.length<=256&&context.vehicle==='car'&&['1','2'].includes(context.vehicleClass)&&day(context.date),'Contexte du trajet invalide ou véhicule non qualifié.');
+      required(Array.isArray(context.avoid)&&context.avoid.includes('tollways')&&context.avoid.length<=3&&new Set(context.avoid).size===context.avoid.length&&context.avoid.every(x=>['tollways','highways','ferries'].includes(x)), 'L’évitement général des péages doit rester actif.');
+      required(typeof allowHighwayOnSection==='boolean'&&(maxCents===null||Number.isSafeInteger(maxCents)&&maxCents>=0&&maxCents<=100000),'Plafond ou exception locale invalide.');
+      const chosen=sections(reference).find(s=>s.id===sectionId);required(chosen,'Sélection périmée ou limites inconnues.');
+      const start=reference.coordinates[0],end=reference.coordinates.at(-1),key=selectionKey(reference,sectionId),price=quotedPrice(quote,context,key);
+      if(maxCents!==null && (!price||price.cents>maxCents))reject('PRICE_LIMIT','Le prix de cette portion ne respecte pas le plafond ou reste inconnu.');
+      matches(baseline,start,end,reference.graphDate,context.avoid);
+      const insideAvoid=context.avoid.filter(x=>x!=='tollways'&&!(allowHighwayOnSection&&x==='highways'));
+      const parts=[];const limits=[[start,chosen.entry,context.avoid],[chosen.entry,chosen.exit,insideAvoid],[chosen.exit,end,context.avoid]];
+      for(let i=0;i<limits.length;i++) {
+        check(signal);const [a,b,avoid]=limits[i],request=orsRequest(a,b,avoid);
+        const part=copy(await calculate(request,{signal,part:['before','selected','after'][i]}));check(signal);fresh(part);matches(part,a,b,reference.graphDate,avoid);
+        if(i===1) {
+          const expected=reference.coordinates.slice(chosen.from,chosen.to+1);
+          if(part.coordinates.length!==expected.length||!part.coordinates.every((p,j)=>same(p,expected[j]))||part.tolls.some(v=>v!==1))reject('SECTION_CHANGED','La portion calculée diffère de celle choisie : aucune adoption.');
+        }
+        parts.push(part);
+      }
+      const coordinates=parts.flatMap((p,i)=>p.coordinates.slice(i?1:0)),distance=parts.reduce((n,p)=>n+p.distance,0),duration=parts.reduce((n,p)=>n+p.duration,0);
+      const proposedAt=now();required(finite(proposedAt),'Horloge invalide.');
+      if(proposedAt<startedAt||proposedAt-startedAt>ttlMs)reject('STALE_ROUTE','Le calcul doit être renouvelé.');
+      const proposal=freeze({kind:'selected-toll-section',context,section:chosen,sectionKey:key,price,maxCents,allowHighwayOnSection,parts,coordinates,distance,duration,deltaDistance:distance-baseline.distance,deltaDuration:duration-baseline.duration,proposedAt,expiresAt:proposedAt+ttlMs,qualification:'MODEL_ONLY_NOT_LIVE'});
+      proposals.set(proposal,{revision:context.revision,consumed:false});return proposal;
+    },
+    confirm(proposal, revision, {signal}={}) {
+      check(signal);const saved=proposals.get(proposal);
+      if(!saved||saved.consumed)reject('INVALID_PROPOSAL','Proposition inconnue ou déjà appliquée.');
+      if(revision!==saved.revision)reject('STALE_PROPOSAL','Le trajet ou ses réglages ont changé.');
+      const time=now();if(!finite(time)||time<proposal.proposedAt||time>proposal.expiresAt)reject('EXPIRED_PROPOSAL','La proposition doit être recalculée.');
+      saved.consumed=true;return copy(proposal);
+    }
+  };
+}
+
+return {normalizeOrs,sections,orsRequest,selectionKey,createPlanner};
+})();
+const module1=(()=>{
+// ORS instructions remain attributable to the provider. No inferred turn at a join.
+const {normalizeOrs}=module0;
+const copy=v=>structuredClone(v),finite=n=>typeof n==='number'&&Number.isFinite(n);
+const fail=(code,message)=>{throw Object.assign(new Error(message),{code})};
+const require=(v,message)=>{if(!v)fail('INVALID_INSTRUCTIONS',message)};
+const same=(a,b)=>a?.length===2&&b?.length===2&&a.every((n,i)=>Math.abs(n-b[i])<=1e-7);
+const check=signal=>{if(signal?.aborted)fail('CANCELLED','Calcul annulé.')};
+const freeze=o=>{if(o&&typeof o==='object'){for(const v of Object.values(o))freeze(v);Object.freeze(o)}return o};
+function meters(a,b){const rad=Math.PI/180,x=Math.sin((b[1]-a[1])*rad/2)**2+Math.cos(a[1]*rad)*Math.cos(b[1]*rad)*Math.sin((b[0]-a[0])*rad/2)**2;return 12742000*Math.asin(Math.min(1,Math.sqrt(x)))}
+function detailedRoute(data,receivedAt){
+ const route=normalizeOrs(data,receivedAt),raw=data.features[0].properties.segments[0].steps,n=route.coordinates.length-1;
+ require(Array.isArray(raw)&&raw.length>=2&&raw.length<=3000,'Manœuvres absentes ou trop nombreuses.');let cursor=0;
+ const steps=raw.map((s,i)=>{
+  const w=s.way_points;
+  require(Array.isArray(w)&&w.length===2&&w.every(Number.isSafeInteger)&&w[0]===cursor&&w[1]>=cursor&&w[1]<=n,'Coupure dans les instructions.');
+  require(finite(s.distance)&&s.distance>=0&&finite(s.duration)&&s.duration>=0&&Number.isInteger(s.type)&&s.type>=0&&s.type<=13,'Mesures ou type de manœuvre invalides.');
+  require(i===0?s.type===11:i===raw.length-1?s.type===10:![10,11].includes(s.type),'Ordre des manœuvres incohérent.');
+  require(i===raw.length-1?w[0]===w[1]&&s.distance===0&&s.duration===0:w[1]>w[0],'Étendue de manœuvre invalide.');
+  require(typeof s.instruction==='string'&&s.instruction.trim()&&s.instruction.length<=1000&&typeof s.name==='string'&&s.name.length<=500,'Texte de manœuvre invalide.');
+  if(s.type===7)require(Number.isInteger(s.exit_number)&&s.exit_number>=1&&s.exit_number<=99,'Sortie de rond-point non renseignée.');
+  const coords=route.coordinates.slice(w[0],w[1]+1),length=coords.slice(1).reduce((sum,p,j)=>sum+meters(coords[j],p),0);
+  require(Math.abs(length-s.distance)<=Math.max(8,s.distance*.06),'Distance de manœuvre incohérente avec le tracé.');
+  cursor=w[1];return {distance:s.distance,duration:s.duration,type:s.type,instruction:s.instruction,name:s.name,way_points:[...w],...(s.type===7?{exit_number:s.exit_number}:{})};
+ });
+ require(cursor===n&&Math.abs(steps.reduce((a,s)=>a+s.distance,0)-route.distance)<=Math.max(2,steps.length*.11)&&Math.abs(steps.reduce((a,s)=>a+s.duration,0)-route.duration)<=Math.max(2,steps.length*.11),'Totaux ou couverture des manœuvres incohérents.');
+ return freeze({...route,steps});
+}
+const types={0:['turn','left'],1:['turn','right'],2:['turn','sharp left'],3:['turn','sharp right'],4:['turn','slight left'],5:['turn','slight right'],6:['continue','straight'],7:['roundabout'],8:['exit roundabout'],9:['turn','uturn'],10:['arrive'],11:['depart'],12:['fork','slight left'],13:['fork','slight right']};
+function maneuver(step,location){
+ const value=types[step.type];require(value,'Type de manœuvre non reconnu.');
+ if(step.type===7)require(Number.isInteger(step.exit_number)&&step.exit_number>=1&&step.exit_number<=99,'Sortie de rond-point non renseignée.');
+ return {type:value[0],...(value[1]?{modifier:value[1]}:{}),...(step.type===7?{exit:step.exit_number}:{}),location:[...location]};
+}
+function validatePart(part){
+ // Revalidate even trusted callback values; preserve no caller-owned references.
+ const r=copy(part),runs=values=>{const out=[];for(let i=0;i<values.length;){let j=i+1;while(j<values.length&&values[j]===values[i])j++;out.push([i,j,values[i]]);i=j}return out};
+ require(Array.isArray(r?.coordinates)&&Array.isArray(r?.tolls)&&Array.isArray(r?.categories),'Partie de trajet incomplète.');
+ return detailedRoute({type:'FeatureCollection',metadata:{query:{profile:'driving-car'},engine:{graph_date:r.graphDate}},features:[{geometry:{type:'LineString',coordinates:r.coordinates},properties:{summary:{distance:r.distance,duration:r.duration},segments:[{distance:r.distance,duration:r.duration,steps:r.steps}],extras:{tollways:{values:runs(r.tolls)},waycategory:{values:runs(r.categories)}}}}]},r.observedAt);
+}
+function exactGeometry(a,b){return a.length===b.length&&a.every((p,i)=>same(p,b[i]))}
+/** Resolve the instructions across calculation boundaries by querying overlapping road segments.
+ * Real passenger/station stops retain arrive/depart; computational toll boundaries do not.
+ * calculate receives only public route fields, never a key, name or profile record.
+ */
+async function joinInstructions(input,{calculate,stopAfter=[],avoid=['tollways'],allowHighwayOnSection=false,now=Date.now,signal}={}){
+ require(typeof calculate==='function'&&typeof now==='function'&&Array.isArray(input)&&input.length>=1&&input.length<=10,'Assemblage de trajet invalide.');
+ require(Array.isArray(stopAfter)&&new Set(stopAfter).size===stopAfter.length&&stopAfter.every(i=>Number.isInteger(i)&&i>=0&&i<input.length-1),'Arrêts intermédiaires invalides.');
+ require(Array.isArray(avoid)&&new Set(avoid).size===avoid.length&&avoid.every(x=>['tollways','highways','ferries'].includes(x))&&typeof allowHighwayOnSection==='boolean','Évitements invalides.');
+ input=copy(input);stopAfter=[...stopAfter];avoid=[...avoid];const started=now();
+ const fresh=r=>{const age=now()-Date.parse(r.observedAt);if(!finite(age)||age<0||age>300000)fail('STALE_ROUTE','Instructions anciennes : recalculer le trajet.')};
+ check(signal);const parts=input.map(validatePart);for(const p of parts)fresh(p);
+ const graph=parts[0].graphDate,coordinates=[],tolls=[],categories=[],raw=[],boundaries=[];let offset=0;
+ parts.forEach((p,i)=>{
+  require(p.graphDate===graph,'Le réseau a changé.');
+  if(i)require(same(coordinates.at(-1),p.coordinates[0]),'Raccordement routier non exact.');
+  coordinates.push(...p.coordinates.slice(i?1:0));tolls.push(...p.tolls);categories.push(...p.categories);
+  for(const s of p.steps)raw.push({...s,way_points:s.way_points.map(n=>n+offset),part:i});
+  offset+=p.coordinates.length-1;if(i<parts.length-1)boundaries.push({index:offset,part:i,stop:stopAfter.includes(i)});
+ });
+ require(coordinates.length<=150000&&raw.length<=6000,'Parcours trop volumineux pour le guidage.');
+ for(const [name,flag] of [['highways',1],['ferries',8]])if(avoid.includes(name)&&categories.some((v,i)=>(v&flag)&&!(name==='highways'&&allowHighwayOnSection&&tolls[i]===1)))fail('EXCLUSION_LOST','Un évitement initial n’est pas respecté.');
+ const windows=[];
+ for(const seam of boundaries.filter(x=>!x.stop)){
+  const before=raw.filter(s=>s.part===seam.part&&s.type!==10).at(-1),after=raw.find(s=>s.part===seam.part+1&&s.type===11);
+  const w={from:before.way_points[0],to:after.way_points[1]},last=windows.at(-1);
+  // Touching windows stay separate: the second original instruction is preserved.
+  if(last&&w.from<last.to)last.to=Math.max(last.to,w.to);else windows.push(w);
+ }
+ let stitched=raw.map(copy);const bridges=[];
+ for(const w of windows){
+  check(signal);for(const p of parts)fresh(p);
+  const expected=coordinates.slice(w.from,w.to+1),targetTolls=tolls.slice(w.from,w.to),targetCategories=categories.slice(w.from,w.to);
+  const paid=targetTolls.some(Boolean),insideAvoid=avoid.filter(x=>!(paid&&x==='tollways')&&!(paid&&allowHighwayOnSection&&x==='highways'));
+  const response=await calculate({coordinates:[copy(expected[0]),copy(expected.at(-1))],avoid:insideAvoid,vehicle:{type:'car'},alternatives:false},{signal,purpose:'instruction-join'});
+  check(signal);const bridge=validatePart(response);fresh(bridge);
+  if(bridge.graphDate!==graph||!exactGeometry(bridge.coordinates,expected)||bridge.tolls.some((v,i)=>v!==targetTolls[i])||bridge.categories.some((v,i)=>v!==targetCategories[i]))fail('JOIN_CHANGED','Les instructions de raccordement ne suivent pas exactement le trajet choisi.');
+  for(const [name,flag] of [['tollways',2],['highways',1],['ferries',8]])if(insideAvoid.includes(name)&&(bridge.categories.some(v=>v&flag)||name==='tollways'&&bridge.tolls.some(Boolean)))fail('EXCLUSION_LOST','Un évitement a changé pendant le raccordement.');
+  const first=raw.find(s=>s.way_points[0]===w.from&&s.type!==10);
+  require(first&&first.type!==10,'Première manœuvre du raccordement absente.');
+  const replacement=bridge.steps.slice(0,-1).map((s,i)=>({...s,...(!i?{type:first.type,instruction:first.instruction,name:first.name,...(first.exit_number?{exit_number:first.exit_number}:{})}:{}),way_points:s.way_points.map(n=>n+w.from),part:first.part}));
+  const start=stitched.findIndex(s=>s.way_points[0]===w.from&&s.type!==10);
+  let end=start;while(end<stitched.length&&stitched[end].way_points[0]<w.to)end++;
+  require(start>=0&&end>start&&stitched[end]?.way_points[0]===w.to,'Fenêtre de raccordement incomplète.');
+  stitched.splice(start,end-start,...replacement);bridges.push({from:w.from,to:w.to,observedAt:bridge.observedAt});
+ }
+ check(signal);for(const p of parts)fresh(p);require(now()>=started&&now()-started<=300000,'Assemblage périmé.');
+ // User stops are the only internal arrive/depart pairs permitted in the final route.
+ const ends=[...boundaries.filter(x=>x.stop).map(x=>x.index),coordinates.length-1];let start=0,pos=0;
+ const legs=ends.map(end=>{
+  const steps=[];while(pos<stitched.length){const s=stitched[pos++],[a,b]=s.way_points;require(a>=start&&b<=end,'Manœuvre hors de son étape.');const points=coordinates.slice(a,b+1);if(points.length===1)points.push([...points[0]]);steps.push({distance:s.distance,duration:s.duration,name:s.name==='-'?'':s.name,providerInstruction:s.instruction,maneuver:maneuver(s,coordinates[a]),geometry:{type:'LineString',coordinates:points}});if(s.type===10)break}
+  require(steps.length>=2&&steps[0].maneuver.type==='depart'&&steps.at(-1).maneuver.type==='arrive'&&steps.slice(1,-1).every(s=>!['depart','arrive'].includes(s.maneuver.type)),'Départ ou arrivée artificielle dans le guidage.');
+  const leg={distance:steps.reduce((a,s)=>a+s.distance,0),duration:steps.reduce((a,s)=>a+s.duration,0),steps};start=end;return leg;
+ });
+ require(pos===stitched.length&&stitched.length<=6000,'Manœuvres restantes ou trop nombreuses.');
+ return freeze({geometry:{type:'LineString',coordinates},distance:legs.reduce((a,l)=>a+l.distance,0),duration:legs.reduce((a,l)=>a+l.duration,0),legs,alternatives:[],provider:'openrouteservice',graphDate:graph,observedAt:new Date(Math.min(...parts.map(p=>Date.parse(p.observedAt)),...bridges.map(p=>Date.parse(p.observedAt)))).toISOString(),tollAttributes:{tolls,categories},instructionJoins:bridges,qualification:'INSTRUCTIONS_JOINED_NOT_PHYSICAL_VALIDATION'});
+}
+
+/** Propose one genuine stop outside the paid range. No adoption, price transfer or GPS inference. */
+async function withOutsideStop(input,stop,{calculate,avoid=['tollways'],allowHighwayOnSection=false,now=Date.now,signal}={}){
+ input=copy(input);stop=copy(stop);avoid=[...avoid];check(signal);
+ require(typeof calculate==='function'&&typeof now==='function'&&input?.length===3,'Trois parties de trajet sont nécessaires.');
+ require(['before','after'].includes(stop?.side)&&Array.isArray(stop.point)&&stop.point.length===2&&stop.point.every(finite)&&Math.abs(stop.point[0])<=180&&Math.abs(stop.point[1])<=90,'Choisir un arrêt avant ou après la portion payante.');
+ require(avoid.includes('tollways')&&new Set(avoid).size===avoid.length&&avoid.every(x=>['tollways','highways','ferries'].includes(x)),'Les péages doivent rester évités hors de la portion.');
+ const parts=input.map(validatePart),fresh=r=>{const age=now()-Date.parse(r.observedAt);if(!finite(age)||age<0||age>300000)fail('STALE_ROUTE','Trajet ancien : comparer à nouveau avant l’arrêt.')};
+ for(const p of parts)fresh(p);const graph=parts[0].graphDate;
+ require(parts.every(p=>p.graphDate===graph)&&same(parts[0].coordinates.at(-1),parts[1].coordinates[0])&&same(parts[1].coordinates.at(-1),parts[2].coordinates[0]),'Raccordements de la portion non vérifiés.');
+ require(parts[1].tolls.every(t=>t===1),'Portion payante non confirmée.');
+ const outside=r=>{fresh(r);require(r.graphDate===graph,'Le réseau a changé.');if(r.tolls.some(Boolean)||r.categories.some(v=>v&2))fail('TOLL_OUTSIDE','Un péage subsiste sur l’accès à l’arrêt.');for(const [name,flag] of [['highways',1],['ferries',8]])if(avoid.includes(name)&&r.categories.some(v=>v&flag))fail('EXCLUSION_LOST','Un évitement n’est pas respecté pour cet arrêt.')};
+ outside(parts[0]);outside(parts[2]);const index=stop.side==='before'?0:2,part=parts[index],start=part.coordinates[0],end=part.coordinates.at(-1);
+ require(!same(stop.point,start)&&!same(stop.point,end),'L’arrêt doit être distinct des limites de la portion.');
+ const request=async(a,b)=>{check(signal);const r=validatePart(await calculate({coordinates:[copy(a),copy(b)],avoid:[...avoid],vehicle:{type:'car'},alternatives:false},{signal,purpose:'station-access'}));check(signal);outside(r);return r};
+ const first=await request(start,stop.point),actual=first.coordinates.at(-1);
+ require(same(first.coordinates[0],start)&&meters(actual,stop.point)<=20,'Accès routier à la station trop éloigné.');
+ require(!same(actual,start)&&!same(actual,end),'Arrêt rattaché à une limite du trajet.');
+ const second=await request(actual,end);require(same(second.coordinates[0],actual)&&same(second.coordinates.at(-1),end),'Raccordement de l’arrêt non exact.');
+ parts.splice(index,1,first,second);
+ const route=await joinInstructions(parts,{calculate,stopAfter:[index],avoid,allowHighwayOnSection,now,signal});
+ return freeze({kind:'selected-toll-station-proposal',route,stop:{side:stop.side,requestedPoint:stop.point,roadPoint:copy(actual),snapMeters:meters(actual,stop.point),physicalEntranceVerified:false},parts,stopAfter:[index],requiresConfirmation:true,price:null});
+}
+
+return {meters,detailedRoute,maneuver,joinInstructions,withOutsideStop};
+})();
+const module2=(()=>{
+// The exception has a lifecycle: upcoming, currently traversed, then permanently passed.
+const {detailedRoute,joinInstructions,meters}=module1;
+const copy=v=>structuredClone(v),finite=n=>typeof n==='number'&&Number.isFinite(n),point=p=>Array.isArray(p)&&p.length===2&&p.every(finite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90;
+const same=(a,b)=>point(a)&&point(b)&&a.every((n,i)=>Math.abs(n-b[i])<=1e-7);
+const fail=(code,message)=>{throw Object.assign(new Error(message),{code})};
+const need=(v,message)=>{if(!v)fail('INVALID_SELECTION',message)};
+const freeze=o=>{if(o&&typeof o==='object'){for(const v of Object.values(o))freeze(v);Object.freeze(o)}return o};
+const issued=new WeakMap();
+const check=s=>{if(s?.aborted)fail('CANCELLED','Calcul annulé.')};
+function selected(selection){
+ need(selection?.kind==='selected-toll-section'&&typeof selection.sectionKey==='string'&&selection.sectionKey.length>0&&selection.context?.vehicle==='car'&&Array.isArray(selection.context.avoid)&&selection.context.avoid.includes('tollways')&&new Set(selection.context.avoid).size===selection.context.avoid.length&&selection.context.avoid.every(v=>['tollways','highways','ferries'].includes(v))&&typeof selection.allowHighwayOnSection==='boolean','Portion payante non confirmée.');
+ const paid=selection.parts?.[1];need(paid?.source==='ors'&&Number.isFinite(Date.parse(paid.graphDate))&&Array.isArray(paid.coordinates)&&paid.coordinates.length>=2&&paid.coordinates.every(point)&&paid.tolls?.length===paid.coordinates.length-1&&paid.tolls.every(t=>t===1),'Tracé payant absent.');
+ need(same(selection.section?.entry,paid.coordinates[0])&&same(selection.section?.exit,paid.coordinates.at(-1)),'Limites de la portion incohérentes.');return paid;
+}
+function bounds(route){
+ const coords=route?.geometry?.coordinates,tolls=route?.tollAttributes?.tolls,categories=route?.tollAttributes?.categories;
+ need(route?.geometry?.type==='LineString'&&Array.isArray(coords)&&coords.length>=2&&coords.length<=150000&&coords.every(point)&&Array.isArray(tolls)&&tolls.length===coords.length-1&&tolls.every(t=>t===0||t===1)&&Array.isArray(categories)&&categories.length===tolls.length&&categories.every(v=>Number.isInteger(v)&&v>=0&&v<=31),'Attributs du parcours absents.');
+ const first=tolls.indexOf(1),last=tolls.lastIndexOf(1);
+ if(first>=0)need(tolls.slice(first,last+1).every(Boolean),'Plusieurs portions payantes dans le parcours.');
+ const distances=[0];for(let i=1;i<coords.length;i++){const length=meters(coords[i-1],coords[i]);distances.push(distances.at(-1)+(length>.05?length:0))}
+ return {coords,tolls,categories,first,last,distances};
+}
+function projection(p,a,b){
+ const x=111195*Math.cos((p[1]+a[1]+b[1])/3*Math.PI/180),y=111195,dx=(b[0]-a[0])*x,dy=(b[1]-a[1])*y,px=(p[0]-a[0])*x,py=(p[1]-a[1])*y,den=dx*dx+dy*dy;if(!den)return {fraction:0,distance:meters(p,a)};
+ const fraction=(px*dx+py*dy)/den;return {fraction,distance:Math.hypot(px-fraction*dx,py-fraction*dy)};
+}
+// A start snapped inside the first remaining edge is accepted only on that same edge,
+// with all subsequent vertices exactly equal and no reversal or skipped internal edge.
+function suffixEdge(expected,actual,minimum=0){
+ need(Array.isArray(expected)&&expected.length>=2&&expected.every(point)&&Array.isArray(actual)&&actual.length>=2&&actual.every(point)&&Number.isInteger(minimum)&&minimum>=0&&minimum<expected.length-1,'Suffixe payant invalide.');
+ for(let i=minimum;i<expected.length-1;i++){
+  if(actual.length!==expected.length-i||!actual.slice(1).every((p,j)=>same(p,expected[i+j+1])))continue;
+  const p=projection(actual[0],expected[i],expected[i+1]);
+  if(same(actual[0],expected[i])||p.fraction>=0&&p.fraction<1&&p.distance<=1)return i;
+ }
+ fail('SECTION_CHANGED','La portion restante ne suit plus le tracé et le sens autorisés.');
+}
+function selectedProgress(selection,route,state,previous,revision,now=Date.now()){
+ const paid=selected(selection),b=bounds(route);need(typeof revision==='string'&&revision.length>0&&revision.length<=256&&finite(now),'Révision du guidage absente.');
+ const prior=previous?copy(previous):{binding:selection.sectionKey,revision,phase:'before',minimumEdge:0,at:null,progress:0};
+ need(prior.binding===selection.sectionKey&&prior.revision===revision&&['before','within','after'].includes(prior.phase)&&Number.isInteger(prior.minimumEdge)&&prior.minimumEdge>=0&&prior.minimumEdge<paid.coordinates.length-1,'Progression liée à un autre trajet.');
+ if(state?.ignored||!['active','stop','arrived'].includes(state?.status))return freeze(prior);
+ const fix=state.last;
+ if(!fix||!point(fix.point)||!point(state.snapped)||!finite(fix.at)||!finite(fix.accuracy)||fix.accuracy<0||fix.accuracy>50||fix.at>now||now-fix.at>15000||!finite(state.progress)||state.progress<0||state.progress>b.distances.at(-1)+1)return freeze(prior);
+ if(prior.at!==null&&(fix.at<=prior.at||state.progress<prior.progress-1||state.progress-prior.progress>(fix.at-prior.at)/1000*70+100))return freeze(prior);
+ let edge=b.distances.findIndex((d,i)=>i<b.distances.length-1&&state.progress>=d-.01&&state.progress<=b.distances[i+1]+.01);if(edge<0)edge=b.coords.length-2;
+ const p=projection(state.snapped,b.coords[edge],b.coords[edge+1]);if(p.fraction<-.001||p.fraction>1.001||p.distance>1.5||meters(fix.point,state.snapped)>Math.max(40,fix.accuracy*2))return freeze(prior);
+ const projected=b.distances[edge]+Math.max(0,Math.min(1,p.fraction))*(b.distances[edge+1]-b.distances[edge]);if(Math.abs(projected-state.progress)>2)return freeze(prior);
+ if(b.first<0){need(prior.phase==='after','La portion a disparu avant son passage confirmé.');return freeze({...prior,at:fix.at,progress:state.progress})}
+ const firstOriginal=suffixEdge(paid.coordinates,b.coords.slice(b.first,b.last+2),0),margin=Math.max(10,fix.accuracy);
+ let phase=prior.phase,minimumEdge=prior.minimumEdge;
+ if(phase!=='after'&&state.progress>=b.distances[b.last+1]+margin)phase='after';
+ else if(phase==='before'&&state.progress>=b.distances[b.first]+margin)phase='within';
+ if(phase==='within'){
+  const conservative=state.progress-margin;
+  let local=b.first;for(let i=b.first;i<=b.last;i++)if(b.distances[i]<=conservative)local=i;
+  minimumEdge=Math.max(minimumEdge,Math.min(paid.coordinates.length-2,firstOriginal+local-b.first));
+ }
+ return freeze({...prior,phase,minimumEdge,at:fix.at,progress:state.progress});
+}
+function validateDetails(raw){
+ need(raw?.source==='ors'&&Array.isArray(raw.coordinates)&&Array.isArray(raw.tolls)&&Array.isArray(raw.categories),'Réponse de recalcul incomplète.');
+ const runs=a=>a.map((v,i)=>[i,i+1,v]);return detailedRoute({type:'FeatureCollection',metadata:{query:{profile:'driving-car'},engine:{graph_date:raw.graphDate}},features:[{geometry:{type:'LineString',coordinates:raw.coordinates},properties:{summary:{distance:raw.distance,duration:raw.duration},segments:[{distance:raw.distance,duration:raw.duration,steps:raw.steps}],extras:{tollways:{values:runs(raw.tolls)},waycategory:{values:runs(raw.categories)}}}}]},raw.observedAt);
+}
+/** Propose a remaining route; caller must bind/adopt it only if its revision is still current.
+ * position is an already validated device fix, progress only comes from selectedProgress.
+ * A single pending genuine stop is supported; an in-section stop is never guessed.
+ */
+async function recalculateSelected({selection,progress,position,destination,stop=null,revision},{calculate,now=Date.now,signal}={}){
+ selection=copy(selection);progress=copy(progress);position=copy(position);destination=copy(destination);stop=copy(stop);check(signal);const paid=selected(selection),avoid=[...selection.context.avoid],allowHighway=selection.allowHighwayOnSection,started=now();
+ need(typeof calculate==='function'&&typeof now==='function'&&point(destination)&&typeof revision==='string'&&revision,'Recalcul non configuré.');
+ need(progress?.binding===selection.sectionKey&&progress.revision===revision&&['before','within','after'].includes(progress.phase)&&finite(progress.at)&&progress.at<=started&&started-progress.at<=60000&&Number.isInteger(progress.minimumEdge)&&progress.minimumEdge>=0&&progress.minimumEdge<paid.coordinates.length-1,'Passage de la portion insuffisamment confirmé.');
+ need(point(position?.point)&&finite(position.at)&&position.at<=started&&started-position.at<=15000&&finite(position.accuracy)&&position.accuracy>=0&&position.accuracy<=50,'Position de recalcul non fiable.');
+ if(stop)need(['before','after'].includes(stop.side)&&point(stop.point)&&(progress.phase==='before'||stop.side==='after'),'Arrêt restant incompatible avec la progression.');
+ const entry=paid.coordinates[0],exit=paid.coordinates.at(-1),parts=[],stopAfter=[],requests=[];
+ let current=copy(position.point),first=true;
+ const fresh=r=>{const age=now()-Date.parse(r.observedAt);if(!finite(age)||age<0||age>300000)fail('STALE_ROUTE','Recalcul trop ancien.')};
+ const request=async(target,kind,realStop=false)=>{
+  check(signal);need(!same(current,target),'Étape restante dégénérée.');const from=copy(current),constraints=kind==='free'?avoid:avoid.filter(x=>x!=='tollways'&&!(allowHighway&&x==='highways'));
+  const response=await calculate({coordinates:[from,copy(target)],avoid:[...constraints],vehicle:{type:'car'},alternatives:false},{signal,purpose:'remaining-'+kind});check(signal);const r=validateDetails(response);fresh(r);need(r.graphDate===paid.graphDate,'Le réseau a changé : nouvelle comparaison nécessaire.');
+  need(first?meters(r.coordinates[0],from)<=20:same(r.coordinates[0],from),'Départ du recalcul non raccordé.');need(realStop?meters(r.coordinates.at(-1),target)<=20:same(r.coordinates.at(-1),target),'Arrivée du recalcul non raccordée.');
+  for(const [name,flag] of [['highways',1],['ferries',8]])if(avoid.includes(name)&&r.categories.some((v,i)=>(v&flag)&&!(name==='highways'&&allowHighway&&kind!=='free'&&r.tolls[i]===1)))fail('EXCLUSION_LOST','Un évitement a changé pendant le recalcul.');
+  if(kind==='free'){if(r.tolls.some(Boolean)||r.categories.some(v=>v&2))fail('TOLL_OUTSIDE','Un péage apparaît hors de la portion autorisée.')}
+  else{
+   const b=bounds({geometry:{type:'LineString',coordinates:r.coordinates},tollAttributes:r});need(b.first>=0&&b.last===r.tolls.length-1,'La portion payante restante n’est pas confirmée.');
+   need(!r.categories.slice(0,b.first).some(v=>v&2),'Attribut de péage contradictoire.');
+   const i=suffixEdge(paid.coordinates,r.coordinates.slice(b.first),kind==='paid'?0:progress.minimumEdge);
+   if(kind==='paid')need(i===0&&b.first===0&&r.coordinates.length===paid.coordinates.length&&r.coordinates.every((p,j)=>same(p,paid.coordinates[j])),'La portion payante entière a changé.');
+  }
+  parts.push(r);requests.push({kind,from,to:copy(target)});current=copy(r.coordinates.at(-1));first=false;if(realStop)stopAfter.push(parts.length-1);
+ };
+ if(progress.phase==='before'){
+  if(stop?.side==='before')await request(stop.point,'free',true);
+  if(!same(current,entry))await request(entry,'free');
+  await request(exit,'paid');
+ }else if(progress.phase==='within'){
+  need(!same(current,exit),'Sortie proche : passage à confirmer avant recalcul.');await request(exit,'remaining-paid');
+ }
+ if(stop?.side==='after')await request(stop.point,'free',true);
+ await request(destination,'free');
+ const route=await joinInstructions(parts,{calculate,stopAfter,avoid,allowHighwayOnSection:allowHighway,now,signal});check(signal);need(now()>=started&&now()-started<=300000,'Recalcul périmé.');
+ const proposal=freeze({kind:'selected-toll-recalculation',binding:selection.sectionKey,revision,progressAt:progress.at,phase:progress.phase,minimumEdge:progress.minimumEdge,route,parts,stopAfter,requests,price:null,origin:position,proposedAt:now(),expiresAt:now()+300000,qualification:'CALCULATION_ONLY_NOT_ANDROID'});issued.set(proposal,{used:false});return proposal;
+}
+function confirmRecalculation(proposal,selection,progress,revision,{now=Date.now(),position}={}){
+ selected(selection);const receipt=issued.get(proposal);need(receipt&&!receipt.used,'Recalcul inconnu ou déjà adopté.');need(proposal?.kind==='selected-toll-recalculation'&&proposal.binding===selection.sectionKey&&progress?.binding===selection.sectionKey&&proposal.revision===revision&&progress.revision===revision&&proposal.progressAt===progress.at&&proposal.phase===progress.phase,'La progression ou le trajet a changé pendant le recalcul.');
+ need(finite(now)&&now>=proposal.proposedAt&&now<=proposal.expiresAt,'Recalcul périmé.');
+ need(point(position?.point)&&finite(position.at)&&position.at>=proposal.origin.at&&position.at<=now&&now-position.at<=15000&&finite(position.accuracy)&&position.accuracy>=0&&position.accuracy<=50&&meters(position.point,proposal.origin.point)<=50,'Position modifiée pendant le calcul : nouvelle proposition nécessaire.');receipt.used=true;return copy(proposal.route);
+}
+
+function bindRecalculation(proposal,newRevision){const receipt=issued.get(proposal);need(receipt?.used&&!receipt.bound&&typeof newRevision==='string'&&newRevision&&newRevision.length<=256&&newRevision!==proposal.revision,'Nouvelle révision requise après adoption.');receipt.bound=true;return freeze({binding:proposal.binding,revision:newRevision,phase:proposal.phase,minimumEdge:proposal.minimumEdge,at:null,progress:0})}
+
+return {suffixEdge,selectedProgress,recalculateSelected,confirmRecalculation,bindRecalculation};
+})();
+const module3=(()=>{
+// Browser-independent interaction state. The host owns the trip and must adopt explicitly.
+const {createPlanner,sections}=module0;
+const {joinInstructions,withOutsideStop,meters}=module1;
+const copy=v=>structuredClone(v),finite=n=>typeof n==='number'&&Number.isFinite(n),point=p=>Array.isArray(p)&&p.length===2&&p.every(finite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90;
+const same=(a,b)=>point(a)&&point(b)&&a.every((n,i)=>Math.abs(n-b[i])<=1e-7);
+const fail=(code,message)=>{throw Object.assign(Error(message),{code})};
+const need=(v,message)=>{if(!v)fail('INVALID_CONTEXT',message)};
+const freeze=o=>{if(o&&typeof o==='object'){Object.values(o).forEach(freeze);Object.freeze(o)}return o};
+function context(raw){
+ need(raw&&typeof raw.revision==='string'&&raw.revision&&raw.revision.length<=256&&raw.vehicle==='car'&&raw.optimization==='fastest'&&['1','2'].includes(raw.vehicleClass),'Comparaison disponible pour un trajet voiture au plus rapide.');
+ need(Array.isArray(raw.coordinates)&&raw.coordinates.length===2&&raw.coordinates.every(point)&&!same(...raw.coordinates),'Départ et arrivée distincts requis.');
+ need(Array.isArray(raw.avoid)&&raw.avoid.includes('tollways')&&new Set(raw.avoid).size===raw.avoid.length&&raw.avoid.every(x=>['tollways','highways','ferries'].includes(x)),'Conserver l’évitement des péages sur le reste du trajet.');
+ need(typeof raw.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(raw.date)&&Number.isFinite(Date.parse(raw.date))&&new Date(raw.date).toISOString().slice(0,10)===raw.date,'Date du trajet invalide.');
+ return freeze({revision:raw.revision,vehicle:raw.vehicle,optimization:raw.optimization,vehicleClass:raw.vehicleClass,coordinates:copy(raw.coordinates),avoid:[...raw.avoid],date:raw.date});
+}
+const signature=c=>JSON.stringify(c);
+/** All network calls use the same two-point contract. Provider failures are never retried.
+ * state()/onChange contain copies. Confirmation consumes a private proposal once.
+ * No storage writes, GPS start, fare inference or application mutation happens here.
+ */
+function createSelectedTollSession({calculate,getContext,validateRoute=()=>{},onChange=()=>{},now=Date.now}={}){
+ need([calculate,getContext,validateRoute,onChange,now].every(v=>typeof v==='function'),'Session de comparaison non configurée.');
+ let state={status:'idle'},sequence=0,job=null,closed=false,comparison=null,pending=null,active=null,stopProposal=null;
+ const publish=next=>{state=freeze(copy(next));onChange(copy(state));return copy(state)};
+ const snapshot=()=>copy(state);
+ const get=()=>context(getContext());
+ const current=j=>!closed&&job===j&&!j.controller.signal.aborted&&signature(get())===j.signature;
+ const guard=j=>{if(!current(j))fail('STALE_CONTEXT','Le trajet ou ses réglages ont changé. Recommencer la comparaison.')};
+ const cancel=()=>{job?.controller.abort();job=null;pending=null;stopProposal=null;sequence++};
+ const begin=(status,source=null)=>{need(!closed,'Comparaison fermée.');const c=get();cancel();const j=job={context:c,signature:signature(c),controller:new AbortController(),id:sequence};if(source)need(source.signature===j.signature,'Le trajet a changé. Recommencer la comparaison.');publish({...state,status,error:null});return j};
+ const call=j=>async(request,options={})=>{
+  guard(j);const avoid=request.avoid??request.options?.avoid_features;
+  need(Array.isArray(request.coordinates)&&request.coordinates.length===2&&request.coordinates.every(point)&&Array.isArray(avoid),'Requête de calcul invalide.');
+  const result=await calculate({coordinates:copy(request.coordinates),avoid:[...avoid],vehicle:{type:'car'},alternatives:false},{...options,signal:j.controller.signal});guard(j);return result;
+ };
+ const catchJob=(j,e)=>{if(job===j&&!closed){pending=null;stopProposal=null;publish({...state,status:'error',error:{code:e.code||'CALCULATION_FAILED',message:e.message}})}throw e};
+ const validateFree=(r,graph,start,end,avoid)=>{
+  need(r.graphDate===graph&&same(r.geometry.coordinates[0],start)&&same(r.geometry.coordinates.at(-1),end),'Raccordement de la référence sans péage non confirmé.');
+  need(!r.tollAttributes.tolls.some(Boolean)&&!r.tollAttributes.categories.some(v=>v&2),'Un péage subsiste sur la référence gratuite.');
+  for(const [name,flag] of [['highways',1],['ferries',8]])if(avoid.includes(name))need(!r.tollAttributes.categories.some(v=>v&flag),'Un évitement initial a changé.');
+ };
+ return {
+  state:snapshot,
+  async compare({allowHighwayOnSection=false}={}){
+   need(typeof allowHighwayOnSection==='boolean','Exception autoroutière invalide.');const j=begin('comparing');comparison=null;active=null;
+   try{
+    const c=j.context,calc=call(j),referenceAvoid=c.avoid.filter(x=>x!=='tollways'&&!(allowHighwayOnSection&&x==='highways'));
+    const reference=await calc({coordinates:c.coordinates,avoid:referenceAvoid});
+    // Also validate instructions and every declared avoidance on the reference.
+    const referenceRoute=await joinInstructions([reference],{calculate:calc,avoid:referenceAvoid,now,signal:j.controller.signal});
+    const endpoints=[referenceRoute.geometry.coordinates[0],referenceRoute.geometry.coordinates.at(-1)];
+    need(endpoints.every((p,i)=>meters(p,c.coordinates[i])<=20),'Accès routier éloigné du lieu choisi.');
+    const baseline=await calc({coordinates:endpoints,avoid:c.avoid});
+    const baselineRoute=await joinInstructions([baseline],{calculate:calc,avoid:c.avoid,now,signal:j.controller.signal});
+    validateFree(baselineRoute,referenceRoute.graphDate,...endpoints,c.avoid);guard(j);
+    comparison={signature:j.signature,context:c,reference,baseline,baselineRoute,allowHighwayOnSection};
+    const choices=sections(reference).map((s,index)=>({...s,number:index+1,road:[...new Set(reference.steps.filter(step=>step.way_points[0]<s.to&&step.way_points[1]>s.from).map(step=>step.name).filter(name=>name&&name!=='-'))].slice(0,3).join(' / '),coordinates:reference.coordinates.slice(s.from,s.to+1),distance:reference.coordinates.slice(s.from+1,s.to+1).reduce((n,p,i)=>n+meters(reference.coordinates[s.from+i],p),0),price:null}));
+    return publish({status:'choices',context:c,baseline:baselineRoute,reference:referenceRoute,sections:choices,allowHighwayOnSection,proposal:null,error:null});
+   }catch(e){return catchJob(j,e)}
+  },
+  async choose(sectionId,{quote=null,maxCents=null}={}){
+   need(comparison,'Comparer les trajets avant de choisir une portion.');const j=begin('calculating',comparison);
+   try{
+    const c=comparison,calc=call(j),planner=createPlanner({calculate:calc,now});
+    const proposal=await planner.propose({reference:c.reference,baseline:c.baseline,sectionId,context:c.context,allowHighwayOnSection:c.allowHighwayOnSection,quote,maxCents,signal:j.controller.signal});
+    const route=await joinInstructions(proposal.parts,{calculate:calc,avoid:c.context.avoid,allowHighwayOnSection:c.allowHighwayOnSection,now,signal:j.controller.signal});guard(j);
+    validateRoute(copy(route),{kind:'selection',context:copy(c.context)});guard(j);
+    pending={planner,proposal,route,signature:j.signature,job:j};
+    return publish({...state,status:'proposal',proposal:{section:copy(proposal.section),route,price:proposal.price,maxCents,deltaDistance:route.distance-c.baselineRoute.distance,deltaDuration:route.duration-c.baselineRoute.duration,expiresAt:proposal.expiresAt},error:null});
+   }catch(e){return catchJob(j,e)}
+  },
+  confirm(){
+   need(pending&&state.status==='proposal','Aucune proposition prête à confirmer.');const p=pending;guard(p.job);
+   validateRoute(copy(p.route),{kind:'selection',context:copy(p.job.context)});guard(p.job);
+   const selection=p.planner.confirm(p.proposal,get().revision,{signal:p.job.controller.signal});
+   active={selection,route:copy(p.route),signature:p.signature,stop:null};pending=null;
+   publish({...state,status:'confirmed',proposal:null,active});return copy(active);
+  },
+  async prepareStop(stop){
+   need(active,'Confirmer une portion avant de choisir un arrêt.');const j=begin('calculating-stop',active);stop=copy(stop);
+   try{
+    const s=active.selection,proposal=await withOutsideStop(s.parts,stop,{calculate:call(j),avoid:s.context.avoid,allowHighwayOnSection:s.allowHighwayOnSection,now,signal:j.controller.signal});guard(j);
+    validateRoute(copy(proposal.route),{kind:'stop',context:copy(j.context),stop:copy(stop)});guard(j);
+    stopProposal={proposal,stop,job:j,active,created:now()};return publish({...state,status:'stop-proposal',stopProposal:proposal,error:null});
+   }catch(e){return catchJob(j,e)}
+  },
+  confirmStop(){
+   const p=stopProposal;need(p&&state.status==='stop-proposal'&&active===p.active,'Arrêt non confirmé ou remplacé.');guard(p.job);
+   need(now()>=p.created&&now()-p.created<=300000,'L’arrêt proposé a expiré.');validateRoute(copy(p.proposal.route),{kind:'stop',context:copy(p.job.context),stop:copy(p.stop)});guard(p.job);
+   active={...active,route:copy(p.proposal.route),stop:copy(p.stop)};stopProposal=null;publish({...state,status:'confirmed',active,stopProposal:null});return copy(active);
+  },
+  cancel(){cancel();publish({...state,status:comparison?'choices':'idle',proposal:null,stopProposal:null,error:null})},
+  close(){cancel();closed=true;comparison=null;active=null;publish({status:'closed'})}
+ };
+}
+
+return {createSelectedTollSession};
+})();
+const module4=(()=>{
+const {detailedRoute}=module1;
+const relayEndpoint='https://ouquandqui-routing.d-serant.workers.dev/api/route';
+const messages={DAILY_LIMIT:'Quota gratuit quotidien atteint. Réessayer demain.',MINUTE_LIMIT:'Calculs trop rapprochés. Réessayer dans une minute.',UPSTREAM_LIMIT:'Service de calcul momentanément limité.',ROAD_ACCESS_RESTRICTED:'Accès routier réservé ou restreint. Choisir un autre point.',ORIGIN_REFUSED:'Cette page n’est pas autorisée à utiliser le service de calcul.',NOT_CONFIGURED:'Service de calcul indisponible.',UPSTREAM_ACCESS:'Service de calcul indisponible.',EXCLUSION_NOT_RESPECTED:'Les évitements ne sont pas confirmés.',INVALID_INSTRUCTIONS:'Les indications ne sont pas suffisamment précises pour ce parcours.'};
+function request(input){
+ const p=v=>Array.isArray(v)&&v.length===2&&v.every(Number.isFinite)&&Math.abs(v[0])<=180&&Math.abs(v[1])<=90;
+ if(!input||input.vehicle?.type!=='car'||Object.keys(input.vehicle).length!==1||input.alternatives!==false||input.coordinates?.length!==2||!input.coordinates.every(p)||input.coordinates[0].every((n,i)=>n===input.coordinates[1][i])||!Array.isArray(input.avoid)||new Set(input.avoid).size!==input.avoid.length||input.avoid.some(x=>!['tollways','highways','ferries'].includes(x)))throw Error('Calcul limité à deux points voiture et aux évitements proposés.');
+ return {coordinates:structuredClone(input.coordinates),avoid:[...input.avoid],vehicle:{type:'car'},alternatives:false};
+}
+function createRelayCalculator({fetchImpl=fetch,now=Date.now,timeoutMs=25000}={}){
+ if(typeof fetchImpl!=='function'||typeof now!=='function'||!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>30000)throw Error('Service non configuré.');
+ let notBefore=0;const cache=new Map();
+ return async(input,{signal}={})=>{
+  const body=request(input);if(signal?.aborted)throw Object.assign(Error('Calcul annulé.'),{code:'CANCELLED'});
+  const key=JSON.stringify(body),cached=cache.get(key),age=cached?now()-Date.parse(cached.observedAt):Infinity;
+  if(age>=0&&age<=60000)return structuredClone(cached);if(cached)cache.delete(key);
+  if(now()<notBefore)throw Object.assign(Error('Service temporairement limité. Réessayer plus tard.'),{code:'ROUTING_LIMIT',retryAt:notBefore});
+  const controller=new AbortController(),abort=()=>controller.abort(),timer=setTimeout(abort,timeoutMs);signal?.addEventListener('abort',abort,{once:true});
+  try{
+   const response=await fetchImpl(relayEndpoint,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body),signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',redirect:'error'});
+   if(response.redirected||response.status>=300&&response.status<400)throw Error('Redirection du service refusée.');
+   const reader=response.body?.getReader();if(!reader)throw Error('Réponse du service vide.');let bytes=0;const chunks=[];
+   try{while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>4*1024*1024){await reader.cancel();throw Error('Réponse du service trop volumineuse.')}chunks.push(value)}}finally{reader.releaseLock()}
+   const dataBytes=new Uint8Array(bytes);let offset=0;for(const c of chunks){dataBytes.set(c,offset);offset+=c.length}
+   const data=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(dataBytes));
+   if(!response.ok){const code=typeof data?.error?.code==='string'?data.error.code:'ROUTING_UNAVAILABLE';
+    if(response.status===429){const raw=response.headers.get('Retry-After'),seconds=raw&&/^\d+$/.test(raw)?Math.min(86400,Math.max(1,Number(raw))):code==='DAILY_LIMIT'?Math.ceil((Date.parse(new Date(now()).toISOString().slice(0,10)+'T00:00:00Z')+86400000-now())/1000):60;notBefore=now()+seconds*1000}
+    throw Object.assign(Error(messages[code]||'Calcul indisponible. Réessayer volontairement plus tard.'),{code,retryAt:notBefore||null});
+   }
+   if(signal?.aborted||controller.signal.aborted)throw Object.assign(Error('Calcul annulé.'),{code:'CANCELLED'});
+   // Freshness is the local receipt time, not a provider timestamp or fixture field.
+   const result=detailedRoute(data,new Date(now()).toISOString());cache.set(key,structuredClone(result));if(cache.size>12)cache.delete(cache.keys().next().value);return result;
+  }catch(e){if(signal?.aborted)throw Object.assign(Error('Calcul annulé.'),{code:'CANCELLED'});if(controller.signal.aborted)throw Object.assign(Error('Le calcul n’a pas répondu à temps. Réessayer.'),{code:'TIMEOUT'});throw e}
+  finally{clearTimeout(timer);signal?.removeEventListener('abort',abort)}
+ };
+}
+
+return {relayEndpoint,createRelayCalculator};
+})();
+const module5=(()=>{
+const {createSelectedTollSession}=module3;
+// Mounted by the existing preparation screen; the host owns final trip adoption.
+function createSelectedTollDialog({document,calculate,getContext,validateRoute,onAdopt,effects='',mapView=null,now=Date.now}){
+ if(!document?.createElement||typeof onAdopt!=='function')throw Error('Écran de comparaison non configuré.');
+ const dialog=document.createElement('dialog');dialog.className='selected-toll-dialog';dialog.setAttribute('aria-label','Choisir une portion payante');
+ const make=(tag,text,attrs={})=>{const e=document.createElement(tag);if(text)e.textContent=text;for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);return e};
+ const title=make('h2','🛣️ Une portion payante'),close=make('button','×',{'aria-label':'Fermer la comparaison',type:'button',class:'icon-btn'}),head=make('div','',{class:'dialog-heading'});head.append(title,close);
+ const info=make('details','',{class:'explanation'});info.append(make('summary','ⓘ',{'aria-label':'Informations sur la portion payante'}),make('p','Une seule portion choisie. Péages évités avant et après. Durées hors trafic et pauses. Les repères indiquent les limites de la portion dans le réseau, sans nom de gare ni contrôle physique. Le tarif reste inconnu sans source vérifiée. Coordonnées transmises à openrouteservice via le relais OùQuandQui ; aucune clé à fournir.'));
+ if(effects)info.append(make('p',effects));
+ const classLabel=make('label','Classe de péage '),vehicleClass=make('select','',{'aria-label':'Classe de péage'});for(const [value,label]of [['','À préciser'],['1','Classe 1'],['2','Classe 2']])vehicleClass.append(make('option',label,{value}));classLabel.append(vehicleClass);info.append(make('p','Classe déclarée pour le tarif. Elle ne qualifie pas un gabarit, une caravane ou un poids lourd.'));
+ const highwayLabel=make('label','',{class:'check-label'}),highway=make('input','',{type:'checkbox'});highwayLabel.append(highway,make('span','Autoroute autorisée sur cette portion seulement'));
+ const compare=make('button','Comparer les parcours',{type:'button',class:'ghost'}),status=make('p','',{role:'status',class:'note'}),choices=make('fieldset','',{class:'stop-modes'}),legend=make('legend','Portions repérées');choices.append(legend);
+ const plot=make('div','',{class:'selected-toll-map'}),metrics=make('div','',{class:'selected-toll-metrics'}),limits=make('details','',{class:'explanation'}),limitLabel=make('label','Plafond péage (€) '),limit=make('input','',{type:'number',min:'0',max:'1000',step:'.01','aria-label':'Plafond péage en euros'});limitLabel.append(limit);limits.append(make('summary','💰 Limite de prix'),limitLabel,make('p','Vide : aucun plafond. Un plafond impose un tarif vérifié pour la portion ; un prix inconnu ne vaut pas zéro.',{class:'note'}));
+ const calculateButton=make('button','Calculer cette portion',{type:'button',class:'primary'}),confirm=make('button','Choisir ce trajet',{type:'button',class:'primary'}),cancel=make('button','Annuler le calcul',{type:'button',class:'ghost'}),actions=make('div','',{class:'dialog-actions'});actions.append(calculateButton,confirm,cancel);
+ dialog.append(head,info,classLabel,highwayLabel,compare,status,choices,plot,metrics,limits,actions);document.body.append(dialog);
+ const style=make('style');style.textContent='.selected-toll-dialog{width:min(42rem,calc(100vw - 2rem));box-sizing:border-box;max-height:calc(100dvh - 2rem);overflow:auto}.selected-toll-dialog [hidden]{display:none!important}.selected-toll-dialog .dialog-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem}.selected-toll-dialog h2{font-size:1.3rem}.selected-toll-dialog fieldset label{display:flex;align-items:center;gap:.5rem;padding:.7rem}.selected-toll-dialog input[type=radio],.selected-toll-dialog input[type=checkbox]{width:auto;min-height:1rem}.selected-toll-dialog table{width:100%;border-collapse:collapse}.selected-toll-dialog th,.selected-toll-dialog td{text-align:left;padding:.45rem;border-bottom:1px solid #555}.selected-toll-dialog caption{font-weight:700;text-align:left;margin:.5rem 0}.selected-toll-map > svg{width:100%;height:auto;display:block;background:#121820;border-radius:.5rem}.selected-toll-dialog .dialog-actions{display:flex;flex-wrap:wrap;gap:.5rem}.selected-toll-dialog .dialog-actions button{flex:1;min-height:44px}.selected-toll-price{font-weight:700;color:#e9ba66}.selected-toll-dialog .explanation{margin:.6rem 0}.selected-toll-dialog .note{overflow-wrap:anywhere}';document.head.append(style);
+ let session=null,trigger=null,chosen=null,lastState={status:'idle'},destroyed=false,operation=0,mapCleanup=null;
+ const fmt=(n,unit)=>(unit==='min'?Math.round(n/60):n/1000).toLocaleString('fr-FR',{maximumFractionDigits:unit==='min'?0:1})+' '+unit;
+ function showMap(state){
+  mapCleanup?.();mapCleanup=null;plot.replaceChildren();const lines=[state.baseline&&{route:state.baseline.geometry.coordinates,color:'#94a3b8',label:'Sans péage',width:5},state.proposal&&{route:state.proposal.route.geometry.coordinates,color:'#82baff',label:'Avec la portion',width:5}].filter(Boolean),selected=state.sections?.find(s=>s.id===chosen);
+  if(selected)lines.push({route:selected.coordinates,color:'#e9ba66',label:'Portion payante choisie',width:8});if(!lines.length)return;if(mapView){mapCleanup=mapView(plot,{lines,selected});if(mapCleanup)return;}
+  const all=lines.flatMap(x=>x.route),[a,b,c,d]=all.reduce((v,p)=>[Math.min(v[0],p[0]),Math.max(v[1],p[0]),Math.min(v[2],p[1]),Math.max(v[3],p[1])],[Infinity,-Infinity,Infinity,-Infinity]),scaleX=Math.cos((c+d)/2*Math.PI/180),w=(b-a)*scaleX,h=d-c,scale=220/Math.max(w/2,h,.000001),project=p=>[20+(p[0]-a)*scaleX*scale,240-(p[1]-c)*scale];
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 500 260');svg.setAttribute('role','img');svg.setAttribute('aria-label','Schéma de comparaison : gris sans péage, bleu avec la portion, ambre portion choisie.');
+  for(const line of lines){const p=document.createElementNS(svg.namespaceURI,'polyline');p.setAttribute('points',line.route.map(p=>project(p).map(x=>x.toFixed(2)).join(',')).join(' '));p.setAttribute('fill','none');p.setAttribute('stroke',line.color);p.setAttribute('stroke-width',String(line.width));svg.append(p)}
+  if(selected)for(const [name,point] of [['E',selected.entry],['S',selected.exit]]){const [x,y]=project(point),c=document.createElementNS(svg.namespaceURI,'circle'),t=document.createElementNS(svg.namespaceURI,'text');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','12');c.setAttribute('fill','#09090e');c.setAttribute('stroke','#fff');c.setAttribute('stroke-width','2');t.setAttribute('x',x);t.setAttribute('y',y+5);t.setAttribute('text-anchor','middle');t.setAttribute('fill','#fff');t.textContent=name;svg.append(c,t)}
+  plot.append(svg,make('p','Gris : sans péage · Bleu : proposition · Ambre : portion choisie',{class:'note'}));
+ }
+ function render(state){
+  lastState=state;const busy=['comparing','calculating','calculating-stop'].includes(state.status),proposal=state.status==='proposal';
+  compare.disabled=busy||!['1','2'].includes(vehicleClass.value);vehicleClass.disabled=busy;highway.disabled=busy;limit.disabled=busy;choices.hidden=!state.sections?.length;choices.replaceChildren(legend);
+  for(const s of state.sections||[]){const label=make('label'),radio=make('input','',{type:'radio',name:'selected-toll-section',value:s.id});radio.checked=chosen===s.id;radio.disabled=busy;radio.addEventListener('change',()=>{session.cancel();chosen=s.id;render(session.state())});label.append(radio,make('span','Portion '+s.number+' · '+(s.road||'Route non nommée')+' · '+fmt(s.distance,'km')));choices.append(label)}
+  calculateButton.hidden=!chosen||proposal;calculateButton.disabled=busy;confirm.hidden=!proposal;confirm.disabled=busy;cancel.hidden=!busy;limits.hidden=!chosen;metrics.replaceChildren();
+  const messages={idle:'',comparing:'Comparaison en cours…',choices:state.sections?.length?'Choisir une portion.':'Aucune portion avec une entrée et une sortie repérées.',calculating:'Vérification du parcours et des indications…',proposal:'Prêt à comparer.',confirmed:'Trajet choisi.',closed:'',error:state.error?.message||'Comparaison indisponible.'};status.textContent=messages[state.status]||'';
+  if(proposal){const p=state.proposal,table=make('table'),caption=make('caption','Comparer avant de choisir');table.append(caption);const rows=[['Parcours','Distance','Conduite'],['Sans péage',fmt(state.baseline.distance,'km'),fmt(state.baseline.duration,'min')],['Avec cette portion',fmt(p.route.distance,'km'),fmt(p.route.duration,'min')]];
+   rows.forEach((row,i)=>{const tr=make('tr');row.forEach((text,j)=>tr.append(make(i===0||j===0?'th':'td',text,i===0?{scope:'col'}:j===0?{scope:'row'}:{})));table.append(tr)});metrics.append(table,make('p',p.price?'Péage : '+(p.price.cents/100).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}):'Péage : prix inconnu',{class:'selected-toll-price'}));
+  }
+  showMap(state);
+ }
+ const attempt=async fn=>{const own=++operation,current=session;try{await fn()}catch(e){if(dialog.open&&operation===own&&session===current)status.textContent=e.message}};
+ function end(){operation++;mapCleanup?.();mapCleanup=null;session?.close();if(dialog.open)dialog.close();if(trigger?.isConnected&&!document.querySelector('dialog[open]'))trigger.focus()}
+ close.addEventListener('click',end);dialog.addEventListener('cancel',e=>{e.preventDefault();end()});dialog.addEventListener('close',()=>{if(session?.state().status!=='closed')end()});cancel.addEventListener('click',()=>{operation++;session.cancel()});
+ compare.addEventListener('click',()=>{chosen=null;attempt(()=>session.compare({allowHighwayOnSection:highway.checked}))});
+ highway.addEventListener('change',()=>{operation++;session?.close();session=newSession();chosen=null;render({status:'idle'})});
+ limit.addEventListener('input',()=>{if(lastState.status==='proposal'){operation++;session.cancel();render(session.state())}});
+ calculateButton.addEventListener('click',()=>attempt(()=>{let maxCents=null;if(limit.value!==''){const n=Number(limit.value);if(!Number.isFinite(n)||n<0||n>1000||Math.abs(n*100-Math.round(n*100))>1e-7)throw Error('Saisir un plafond en euros, à deux décimales.');maxCents=Math.round(n*100)}return session.choose(chosen,{maxCents})}));
+ confirm.addEventListener('click',()=>attempt(()=>{const adoption=session.confirm();onAdopt(adoption);end()}));
+ vehicleClass.addEventListener('change',()=>{operation++;session?.close();session=newSession();chosen=null;render({status:'idle'})});
+ const newSession=()=>createSelectedTollSession({calculate,getContext:()=>({...getContext(),vehicleClass:vehicleClass.value}),validateRoute,now,onChange:render});
+ return {open(){if(destroyed)throw Error('Écran fermé.');session?.close();session=newSession();trigger=document.activeElement;chosen=null;vehicleClass.value=getContext().vehicleClass||'';highway.checked=false;highwayLabel.hidden=!getContext().avoid.includes('highways');limit.value='';render({status:'idle'});dialog.showModal();compare.focus()},close:end,destroy(){end();dialog.remove();style.remove();destroyed=true},state:()=>session?.state()||{status:'idle'}};
+}
+
+return {createSelectedTollDialog};
+})();
+return Object.freeze(Object.assign({},module0,module1,module2,module3,module4,module5));
+})();
+// END SELECTED TOLLS GENERATED
 // BEGIN SOURCES DATA MODEL
 const SOURCE_REFS={
  osm:['OpenStreetMap · licence','https://www.openstreetmap.org/copyright'],
@@ -656,6 +1229,7 @@ function openJournal(){if(!$('journalMonth').value)$('journalMonth').value=journ
 function journalForm(entry=null,fromRoute=false,collectiveDraft=null){
  if(!journal.enabled||journalBlocked)return;
  const now=new Date().toISOString();let e=entry?structuredClone(entry):{id:crypto.randomUUID(),date:journalDay(),start:'',end:'',mode:'car',distanceMeters:null,distanceSource:'unknown',note:'',createdAt:now,updatedAt:now,revision:1,calculation:null,emissions:{version:'unavailable-v1',status:'unavailable',valueKg:null,factor:null}};
+ if(fromRoute&&selectedTollActive()){$('journalMessage').textContent='La copie de ce trajet avec portion choisie n’est pas encore disponible. Le journal reste accessible en saisie manuelle.';return}
  if(fromRoute){if((!trip&&!multiActive)||busy)return;if(multiActive){const c=multiJournalCalculation(multiActive.plan);e={...e,start:c.start,end:c.end,mode:c.mode,distanceMeters:c.distanceMeters,distanceSource:'route',calculation:c};}else{const r=selectedStop?.via||trip.base;e={...e,start:trip.places.start,end:trip.places.end,mode:trip.routing.vehicle.type,distanceMeters:r.distance,distanceSource:'route',calculation:{version:'route-snapshot-v1',engine:trip.routing.provider,start:trip.places.start,end:trip.places.end,resourceVersion:typeof r.resourceVersion==='string'?r.resourceVersion:null,calculatedAt:trip.calculatedAt,mode:trip.routing.vehicle.type,distanceMeters:r.distance,stop:selectedStop?selectedStop.station.address:null}}}}
  if(collectiveDraft)e=structuredClone(collectiveDraft);
  journalDraft={entry:e,editing:!!entry,lastMode:e.mode};$('journalEditor').hidden=false;$('journalFormTitle').textContent=entry?'Corriger le trajet':'Confirmer un trajet effectué';
@@ -1237,6 +1811,7 @@ function bindBudgetMemory(){
 }
 
 function capturePreparedTrip(){
+ if(selectedTollActive())throw Error('Cette portion choisie reste dans la session. Son enregistrement n’est pas encore disponible.');
  const r=selectedStop?.via||trip?.base;if(!trip||!r)throw new Error('Calculer un trajet avant de le sauvegarder.');
  if(!trip.meetings&&($('meetingPickup').value.trim()||$('meetingDropoff').value.trim()))throw new Error('Rencontres encore en préparation : les adopter ou les effacer avant de sauvegarder.');
  const walking=trip.routing.vehicle.type==='walk';
@@ -1697,7 +2272,7 @@ function geocodedPlace(feature){
   for(const detail of details)if(!parts.some(part=>part.toLocaleLowerCase("fr-FR").includes(detail.toLocaleLowerCase("fr-FR"))))parts.push(detail);
   return {lat:coordinates[1],lon:coordinates[0],label:parts.join(" · ")};
 }
-async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false){
+async function geocode(q,field,isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false,stationIntent=false){
   if(!isCurrent())throw new Error("Recherche du lieu annulée.");
   if(temporaryAddress(q)&&field!=='start')throw new Error('Ce libellé GPS ne désigne pas une arrivée confirmée. Renseigner une adresse fixe.');
   if(q==="__CURRENT__"){
@@ -1759,6 +2334,7 @@ function walkReview(distance,criteria){const c=walkCriteria(criteria.maxWalkKm,c
 function walkingPreference(distance,criteria){const r=walkReview(distance,criteria),f=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3});if(r.status==='not-requested')return 'Marche · aucune limite personnelle renseignée.';return (r.distance===null?'Distance inconnue':f(r.distance/1000)+' km calculés')+' / '+f(r.maxWalkKm)+' km demandés. '+(r.status==='unknown'?'Distance non vérifiable.':r.status==='over'?(r.walkStrict?'Limite impérative dépassée.':'Limite souhaitée dépassée. Préférence souple.')+' Dépassement : '+(r.excess<1?'moins de 1 m':r.excess.toLocaleString('fr-FR',{maximumFractionDigits:1})+' m')+'.':r.walkStrict?'Limite impérative respectée.':'Distance dans la limite souhaitée.')+' '+(!r.admissible?'Parcours non admissible pour cette limite. ':'')+'Le tracé reste consultable. Comparaison avant arrondi ; pente, effort et accessibilité non vérifiés.'}
 // END WALKING MODEL
 function updatePreparationReadout(){
+ selectedTollControls();
  if(typeof compactReady!=='undefined'&&compactReady)syncModeCurrent();
  const selected=id=>$(id).selectedOptions[0]?.textContent||'À renseigner',value=id=>$(id).value.trim();
  const walking=isWalking(),avoid=[...document.querySelectorAll('.avoid-options input:checked')].map(e=>avoidLabels[e.value]+(e.dataset.routingAvailable==='false'?' (indisponible)':''));
@@ -1797,7 +2373,7 @@ function fillWalkingCriteria(c){$('maxWalkKm').value=c.maxWalkKm??'';$('walkRule
 function walkingChanged(){if(walkRun){cancelTripSearch('Critères de marche modifiés : calcul annulé.');return}updateWalking()}
 function updateWalking(){
  const walking=isWalking();$('routeModuleName').hidden=walking;$('carMode').setAttribute('aria-pressed',String(!walking));$('walkMode').setAttribute('aria-pressed',String(walking));$('routeModeHeading').textContent=walking?'Trajet à pied':'Trajet en véhicule';$('walkingOptions').hidden=!walking;$('routingOptions').hidden=walking;if(walking)$('activeVehicle').hidden=true;
- $('savePreparationBtn').disabled=busy;$('journalRecordBtn').disabled=busy;
+ $('savePreparationBtn').disabled=busy||selectedTollActive();$('journalRecordBtn').disabled=busy||selectedTollActive();
  $('walkingStatus').hidden=!trip||trip.routing.vehicle.type!=='walk';if($('walkingStatus').hidden)return;
  try{const c=readWalkingCriteria();$('maxWalkKm').setAttribute('aria-invalid','false');$('walkingStatus').dataset.state=walkReview(trip.base.distance,c).admissible?'admissible':'excluded';$('walkingStatus').textContent=walkingPreference(trip.base.distance,c)}catch(e){$('maxWalkKm').setAttribute('aria-invalid','true');$('walkingStatus').dataset.state='invalid';$('walkingStatus').textContent='Critères invalides : '+e.message;$('savePreparationBtn').disabled=true;$('journalRecordBtn').disabled=true}
 }
@@ -1840,7 +2416,7 @@ function routingPreferences(){
 }
 function routingLabel(settings){
   if(settings.vehicle.type==='walk')return 'IGN · BD TOPO · à pied · '+optimizationLabel(settings.optimization);
-  return (settings.provider==="ors"?"OpenRouteService · service public":settings.provider==="ign"?"IGN · BD TOPO":"OSRM")+(settings.vehicle.type==="truck"?" · poids lourd · "+dimensionLabel(settings.vehicle.dimensions):" · véhicule léger")+(settings.avoid.length?" · exclusions : "+settings.avoid.map(x=>avoidLabels[x]).join(", "):" · sans exclusions")+" · "+optimizationLabel(settings.optimization);
+  return (settings.provider==="ors-selected"?"openrouteservice · une portion payante autorisée":settings.provider==="ors"?"OpenRouteService · service public":settings.provider==="ign"?"IGN · BD TOPO":"OSRM")+(settings.vehicle.type==="truck"?" · poids lourd · "+dimensionLabel(settings.vehicle.dimensions):" · véhicule léger")+(settings.avoid.length?" · exclusions : "+settings.avoid.map(x=>avoidLabels[x]).join(", "):" · sans exclusions")+" · "+optimizationLabel(settings.optimization);
 }
 function invalidateRouting(){
   clearResults();updateVehicleRouting();
@@ -1848,6 +2424,7 @@ function invalidateRouting(){
 }
 function ensureRouting(settings){
   if(!['fastest','shortest'].includes(settings.optimization))throw new Error('Choisir un critère de trajet avant de calculer.');
+  if(settings.provider==='ors-selected'){selectedTollEntry(settings);return;}
   if(!['ign','osrm','ors'].includes(settings.provider))throw new Error('Moteur de calcul non reconnu.');
   if(settings.optimization==='shortest'&&settings.provider!=='ign')throw new Error('Le calcul au plus court n’est pas pris en charge par ce moteur. Aucun autre critère ne sera substitué.');
   if(settings.vehicle.type==='walk'){
@@ -1943,10 +2520,11 @@ async function ignRoute(points,settings,isCurrent=()=>true,signal=activeAbort?.s
   ignCache.set(key,{at:performance.now(),route:structuredClone(r)});
   return r;
 }
-async function route(points,overview=true,alternatives=false,settings=trip?.routing||routingPreferences(),isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false){
+async function route(points,overview=true,alternatives=false,settings=trip?.routing||routingPreferences(),isCurrent=()=>true,signal=activeAbort?.signal,forceFresh=false,stationIntent=false){
   checkRouteRequest(isCurrent,signal);
   health("hRoute","busy","routage…");
   ensureRouting(settings);
+  if(settings.provider==='ors-selected'){const result=await selectedTollPlan(points,settings,isCurrent,signal,stationIntent);health('hRoute','ok','routage ✓');return result;}
   if(settings.provider==="ign"){
     const r=await ignRoute(points,settings,isCurrent,signal,forceFresh);
     health("hRoute","ok","routage ✓");return r;
@@ -2176,9 +2754,11 @@ async function scoreConstrainedCandidates(cands,liters,cons,isCurrent=()=>true,p
     if(!isCurrent()||activeAbort?.signal.aborted)throw new Error("Recherche interrompue.");
     $("fuelStatus").textContent=progress||`Vérification avec exclusions : station ${i+1} sur ${cands.length}…`;
     const station=cands[i];let via;
-    try{via=await route(routePlanNodes(station).map(n=>n.point),true,false,trip.routing,isCurrent);if(!isCurrent())throw new Error("Recherche interrompue.");if(trip.meetings)meetingLegs(via,routePlanNodes(station))}
+    try{via=await route(routePlanNodes(station).map(n=>n.point),true,false,trip.routing,isCurrent,activeAbort?.signal,false,true);if(!isCurrent())throw new Error("Recherche interrompue.");if(trip.meetings)meetingLegs(via,routePlanNodes(station))}
     catch(e){if(e.noRoute){unavailable++;continue}throw e}
-    const extraKm=(via.distance-trip.base.distance)/1000,extraMin=(via.duration-trip.base.duration)/60;
+    const distanceDelta=via.distance-trip.base.distance,durationDelta=via.duration-trip.base.duration;
+    // Ignore floating-point summation noise only (less than one micrometre/microsecond).
+    const extraKm=(Math.abs(distanceDelta)<1e-6?0:distanceDelta)/1000,extraMin=(Math.abs(durationDelta)<1e-6?0:durationDelta)/60;
     // A shorter/faster recalculated route is not silently treated as a zero detour.
     if(extraKm<0||extraMin<0){incomparable++;continue}
     if(trip.meetings&&!meetingDetour(via,trip.meetings.reference.base,trip.meetings.limits).allowed){overLimit++;continue}
@@ -2864,7 +3444,7 @@ function clearMeetingDraft(){
 function updateMeetings(){
  const plan=trip?.meetings;$('meetingSummary').hidden=!plan;
  $('meetingApply').hidden=!meetingProposal;$('meetingApply').disabled=busy||!meetingProposal;
- $('meetingCalculate').disabled=busy||!trip||trip.routing.vehicle.type==='walk';$('meetingDiscard').disabled=busy;
+ $('meetingCalculate').disabled=busy||!trip||trip.routing.vehicle.type==='walk'||selectedTollActive();$('meetingDiscard').disabled=busy;
  if(plan){$('meetingOrder').textContent='Départ → '+routePlanNodes(selectedStop?.station).slice(1,-1).map(n=>n.kind==='pickup'?'Prise en charge : '+plan.pickup.label:n.kind==='dropoff'?'Dépose : '+plan.dropoff.label:'Station : '+selectedStop.station.address).join(' → ')+' → Arrivée';$('meetingMetrics').textContent=meetingRouteSummary(selectedStop?.via||trip.base,plan,plan.reference.base)}
  $('meetingPending').hidden=!trip||Boolean(plan)||!($('meetingPickup').value.trim()||$('meetingDropoff').value.trim());
 }
@@ -2880,6 +3460,7 @@ function meetingEdited(){
  updateMeetings();
 }
 async function calculateMeetings(){
+ if(selectedTollActive()){$('meetingStatus').textContent='Revenir au trajet précédent avant d’ajouter des rencontres.';return}
  if(busy||!trip||trip.routing.vehicle.type==='walk')return;
  meetingProposal=null;const source=trip,controller=new AbortController();activeAbort=controller;lock(true);$('meetingCancel').hidden=false;$('meetingCancel').disabled=false;
  const current=()=>trip===source&&!controller.signal.aborted;
@@ -3735,6 +4316,7 @@ function roadControls(running){
  $('roadCancel').hidden=!running;$('roadCancel').disabled=false;
 }
 function openRoadChoices(){
+ if(selectedTollActive()){setStatus('Revenir au trajet précédent avant de comparer d’autres variantes.');return}
  if(busy||!trip||trip.routing.vehicle.type==='walk')return;
  clearRoadChoices();$('roadDeparture').value=$('stationDeparture').value;$('roadArriveBy').value=$('routeArriveBy').value;$('roadOnlyBefore').checked=$('routeOnlyBefore').checked;$('roadCons').value=$('cons').value;$('roadPrice').value='';$('roadSort').value='duration';roadControls(false);
  $('roadContext').textContent=trip.places.start+' → '+trip.places.end+'. Même véhicule et exclusions : '+routingLabel(trip.routing)+'. Les deux critères seront demandés séparément, sans arrêt carburant ni rencontre.';
@@ -4954,7 +5536,7 @@ function updateBudget(){
   updateTripTiming();updateRouteCarbon();updateMeetings();
   $("compareBtn").hidden=!trip;
   $("roadCompareBtn").hidden=!trip||trip.routing.vehicle.type==='walk';
-  $("findAlternativesBtn").hidden=!trip||trip.routing.vehicle.type==='walk';
+  $("findAlternativesBtn").hidden=!trip||trip.routing.vehicle.type==='walk'||selectedTollActive();
   $("navigationBtn").hidden=!trip;
   $("guidanceOpen").hidden=!trip&&!multiActive;
   $("journalRecordBtn").hidden=!trip;$("savePreparationBtn").hidden=!trip;
@@ -4976,6 +5558,7 @@ function updateBudget(){
   $("budgetSource").textContent=validPrice?(budgetReference?`${budgetReference.label} · ${$("fuel").value} · ${fmt(price,3)} €/L · ${budgetReference.stationId?priceAgeText(budgetReference.updated,budgetReference.receivedAt):budgetReference.at}`:`Prix saisi · ${$("fuel").value} · ${fmt(price,3)} €/L`):"Prix de référence non renseigné ou invalide. Aucun prix moyen supposé.";
 }
 function navigationLinks(){
+ if(selectedTollActive())return null;
   if(!trip||!["car","walk"].includes(trip.routing.vehicle.type))return null;
   const google=new URL("https://www.google.com/maps/dir/");
   google.search=new URLSearchParams({api:"1",origin:trip.a.join(","),destination:trip.b.join(","),travelmode:trip.routing.vehicle.type==="walk"?"walking":"driving"}).toString();
@@ -5129,6 +5712,7 @@ function clearStations(){
   updateTripMetrics();updateBudget();
 }
 function clearResults(){
+ selectedTollClose();
  multiLeaveActive(false);closeRouteChoice();
  clearRoadChoices();if($('roadCompareDialog').open)$('roadCompareDialog').close();
  budgetRecall=null;$("budgetMemoryMessage").textContent='';
@@ -5328,13 +5912,13 @@ function stationSearchSignature(){
 function stationSearchNote(s){return [s.found.waitMessage||'',s.found.unrequested?`${s.found.unrequested} point(s) non demandés après la limite du service.`:'',s.counts.overLimit?`${s.counts.overLimit} station(s) au-delà de la limite totale des rencontres : exclues.`:'',s.counts.unavailable?`${s.counts.unavailable} station(s) sans accès calculable.`:'',s.counts.incomparable?`${s.counts.incomparable} trajet(s) recalculé(s) plus courts ou plus rapides : exclus du classement, comparaison à examiner.`:'',s.counts.matrix?`${s.counts.matrix} accès indisponible(s) ou trajet(s) recalculé(s) non comparable(s) : exclus du classement.`:''].filter(Boolean).join(' ')}
 function updateStationCoverage(){
  const s=stationSearch;if(!s){$('stationContinuation').hidden=true;return}
- const remaining=s.queue.length-s.cursor,n=stationPage(s.queue,s.cursor,C.maxCandidates).length,f=s.found;
+ const remaining=s.queue.length-s.cursor,n=stationPage(s.queue,s.cursor,selectedTollActive()?1:C.maxCandidates).length,f=s.found;
  $('stationCoverage').hidden=false;
  $('stationCoverageDetails').textContent=`Recherche par échantillons : ${samplingPlanText(f.settings,f.plan)} ${s.cursor} candidates examinées sur ${s.queue.length} dans la zone approchée. ${s.results.length} comparables dans la plage routière, ${s.outside} hors plage et ${s.rejected} non comparables.${remaining?' Limite atteinte : comparaison partielle. Continuer explicitement ci-dessous ou choisir une distance plus précise.':' Toutes les candidates reçues de cette sélection ont été examinées.'}${f.limited?` ${f.limited} réponse(s) limitée(s) par le service : couverture partielle.`:''}${f.failed?` ${f.failed} point(s) en échec : couverture partielle.`:''}${f.unrequested?` ${f.unrequested} point(s) non demandés après la limite du service.`:''} Les filtres s’appliquent aux accès calculés, sans nouvelle recherche ni garantie d’exhaustivité.`;
  $('stationCoverageBrief').textContent=`${s.cursor} candidates examinées sur ${s.queue.length} · ${s.results.length} comparables. ${remaining?'Comparaison partielle : '+remaining+' restent à examiner.':'Candidates reçues examinées.'}${f.limited?' Réponses limitées : couverture partielle.':''}${f.failed?' Points en échec : couverture partielle.':''}${f.unrequested?' Points non demandés après la limite du service.':''} Recherche non exhaustive.`;
  $('stationContinuation').hidden=false;$('continueStationsBtn').hidden=!remaining;$('continueStationsBtn').disabled=busy;
  $('continueStationsBtn').textContent=`Comparer ${n} autre${n>1?"s":""} station${n>1?"s":""}`;
- $('stationContinuationMethod').textContent=`Stations reçues le ${new Date(s.at).toLocaleString('fr-FR')}. ${remaining} candidate(s) restent à examiner. Chaque continuation calcule au plus ${stationPageSize(C.maxCandidates)} accès parmi les stations déjà reçues ; les prix gardent leur date. Pour obtenir de nouvelles données ou changer de zone, relancer la recherche.`;
+ $('stationContinuationMethod').textContent=`Stations reçues le ${new Date(s.at).toLocaleString('fr-FR')}. ${remaining} candidate(s) restent à examiner. Chaque continuation calcule au plus ${stationPageSize(selectedTollActive()?1:C.maxCandidates)} accès parmi les stations déjà reçues ; les prix gardent leur date. Pour obtenir de nouvelles données ou changer de zone, relancer la recherche.`;
  $("stationContinuationNote").textContent=remaining?`${remaining} candidates restantes. Continuer conserve la date des prix.`:"Pour actualiser les prix, relancer la recherche.";updatePreparationReadout();
 }
 async function searchStations(more=false){
@@ -5356,7 +5940,7 @@ async function searchStations(more=false){
    $('stationCount').textContent=String(found.stations.length);$('stationSummary').hidden=false;updateStationCoverage();
    if(!session.queue.length)throw new Error(`Aucune station ${fuel} reçue dans la zone demandée.`);
   }
-  const cands=stationPage(session.queue,session.cursor,C.maxCandidates),start=session.cursor;
+  const cands=stationPage(session.queue,session.cursor,selectedTollActive()?1:C.maxCandidates),start=session.cursor;
   const accept=(examined,scored,counts)=>{if(!current())throw new Error('Recherche interrompue.');Object.assign(session,commitStationPage(session,examined,scored));for(const [k,v] of Object.entries(counts))session.counts[k]+=v;compared=session.results;updateStationCoverage()};
   if(trip.routing.provider!=='osrm'||trip.meetings){
    for(const [i,station] of cands.entries()){
@@ -5459,7 +6043,7 @@ async function selectStation(id){
  $('stationPreviewContext').textContent=station.address+' · '+routingLabel(trip.routing)+'. Les rencontres et leurs limites sont conservées.';
  $('stationPreviewStatus').textContent='Calcul du trajet avec cette station… Le trajet actuel reste en place.';$('stationPreviewDialog').showModal();$('stationPreviewTitle').focus();
  try{
-  const via=station.via||await route(nodes.map(n=>n.point),true,false,op.trip.routing,()=>stationPreviewCurrent(op));
+  const via=station.via||await route(nodes.map(n=>n.point),true,false,op.trip.routing,()=>stationPreviewCurrent(op),op.controller.signal,false,true);
   if(!stationPreviewCurrent(op))return;
   validateRoadChoice(via,[op.trip.a,op.trip.b]);
   if(op.trip.meetings){meetingLegs(via,nodes);if(!meetingDetour(via,op.trip.meetings.reference.base,op.trip.meetings.limits).allowed)throw new Error('Limite totale de détour des rencontres dépassée.')}
@@ -5473,6 +6057,7 @@ function confirmStationPreview(){
  const op=stationPreview;if(!op?.via||op.running)return;
  if(!stationPreviewCurrent(op)){closeStationPreview('Aperçu périmé : le contexte a changé. Rechercher à nouveau cet arrêt.');return}
  if(!stationPreviewConsent(op)){$('stationPreviewStatus').textContent='Vérifier les réserves affichées avant de confirmer cet arrêt.';return}
+ if(selectedTollActive()&&(!selectedTollFresh(op.via)||op.via.selectedTollKey!==trip.selectedToll.id)){closeStationPreview('Comparaison de station ancienne ou modifiée. Actualiser la recherche avant de choisir cet arrêt.');return}
  if(op.access.source==='route'){op.station.distanceFromStart=op.access.km;op.station.accessSeconds=op.access.seconds}
  invalidateStationPrice();selectedStop={station:op.station,via:op.via,confirmedAt:new Date().toISOString()};
  closeStationPreview('Trajet avec la station sélectionnée affiché sur la carte.');
@@ -7154,7 +7739,7 @@ function guidanceSymbol(step){
  return {'left':'↰','slight left':'↖','sharp left':'↙','right':'↱','slight right':'↗','sharp right':'↘','uturn':'↶','straight':'↑'}[step.modifier]||'↑';
 }
 function guidanceModel(route,provider,nodes){
- if(!['ign','osrm'].includes(provider)||!route||!Array.isArray(nodes)||nodes.length<2||nodes.length>12)throw Error('Parcours non pris en charge pour le guidage intégré.');
+ if(!['ign','osrm','ors-selected'].includes(provider)||provider==='ors-selected'&&(route?.provider!=='openrouteservice'||route?.qualification!=='INSTRUCTIONS_JOINED_NOT_PHYSICAL_VALIDATION')||!route||!Array.isArray(nodes)||nodes.length<2||nodes.length>12)throw Error('Parcours non pris en charge pour le guidage intégré.');
  const geometry=guidanceCoordinates(route.geometry),legs=route.legs;
  if(!Array.isArray(legs)||legs.length!==nodes.length-1||[route.distance,route.duration].some(n=>!Number.isFinite(n)||n<0))throw Error('Étapes de guidage incomplètes.');
  const steps=[],segments=[],all=[],ends=[];let meters=0,seconds=0,reportedMeters=0;
@@ -7166,7 +7751,7 @@ function guidanceModel(route,provider,nodes){
    if([s.distance,s.duration].some(n=>!Number.isFinite(n)||n<0)||!m)throw Error('Distance, durée ou manœuvre invalide.');
    if(si===0&&m.type!=='depart'||si===leg.steps.length-1&&m.type!=='arrive'||si>0&&si<leg.steps.length-1&&['depart','arrive'].includes(m.type))throw Error('Ordre des manœuvres incohérent.');
    if(previous&&guidanceMeters(previous,p[0])>2)throw Error('Coupure dans les instructions de guidage.');
-   if(provider==='osrm'&&guidanceMeters(guidancePoint(m.location),p[0])>3)throw Error('Manœuvre éloignée du tracé.');
+   if(provider!=='ign'&&guidanceMeters(guidancePoint(m.location),p[0])>3)throw Error('Manœuvre éloignée du tracé.');
    if(!si&&guidanceMeters(p[0],[nodes[li].point[1],nodes[li].point[0]])>100)throw Error('Accès au point de départ non vérifié pour le guidage.');
    if(all.length+p.length>150000)throw Error('Instructions de guidage trop volumineuses.');
    const at=meters,stepIndex=steps.length,distances=p.slice(1).map((v,i)=>guidanceMeters(p[i],v)),length=distances.reduce((a,b)=>a+b,0);
@@ -7292,6 +7877,90 @@ function guidanceFuelFilter(rows,options,originAt,now=Date.now()){
 }
 // END GUIDANCE FUEL MODEL
 
+// BEGIN SELECTED TOLLS CONTROLLER
+let selectedTollDialog=null;
+const selectedTollCalculate=selectedTollsCore.createRelayCalculator();
+function selectedTollActive(){return trip?.routing.provider==='ors-selected'&&!!trip.selectedToll}
+function selectedTollEligible(){return C.selectedTollPilot===true&&trip?.routing.vehicle.type==='car'&&trip.routing.optimization==='fastest'&&!trip.meetings&&!multiActive}
+function selectedTollClose(){selectedTollDialog?.destroy();selectedTollDialog=null}
+function selectedTollControls(){
+ const active=selectedTollActive();$('selectedTollOpen').hidden=!selectedTollEligible();$('selectedTollOpen').disabled=busy;$('selectedTollNotice').hidden=!active;
+ if(active){const r=selectedStop?.via||trip.base;$('selectedTollSummary').textContent=fmt(r.distance/1000,1)+' km · '+Math.round(r.duration/60)+' min · péage : prix inconnu.';$('savePreparationBtn').disabled=true;$('journalRecordBtn').disabled=true;$('findAlternativesBtn').hidden=true;$('roadCompareBtn').disabled=true;$('meetingCalculate').disabled=true;}
+}
+function selectedTollRouteModel(r,nodes){
+ if(r.provider!=='openrouteservice'||r.qualification!=='INSTRUCTIONS_JOINED_NOT_PHYSICAL_VALIDATION')throw Error('Provenance des indications non confirmée.');return guidanceModel(r,'ors-selected',nodes);
+}
+function selectedTollMapView(host,{lines,selected}){
+ if(!window.L||!map)return null;const el=document.createElement('div');el.style.height='270px';el.setAttribute('aria-label','Carte de comparaison des portions');host.append(el);
+ const m=L.map(el,{attributionControl:true,scrollWheelZoom:false});L.tileLayer(C.tileUrl,{attribution:'© OpenStreetMap contributors'}).addTo(m);const group=L.featureGroup().addTo(m);
+ for(const l of lines)L.polyline(l.route.map(p=>[p[1],p[0]]),{color:l.color,weight:l.width,opacity:1}).addTo(group);
+ if(selected)for(const [name,p]of [['Entrée',selected.entry],['Sortie',selected.exit]])L.circleMarker([p[1],p[0]],{radius:8,color:'#fff',fillColor:'#09090e',fillOpacity:1}).bindTooltip(name,{permanent:true,direction:'top'}).addTo(group);
+ m.fitBounds(group.getBounds(),{padding:[28,28]});const frame=requestAnimationFrame(()=>{m.invalidateSize();m.fitBounds(group.getBounds(),{padding:[28,28]})});return ()=>{cancelAnimationFrame(frame);m.remove()};
+}
+function selectedTollOpen(){
+ if(busy||!selectedTollEligible())return;selectedTollClose();
+ const owner=trip,signature=routeChoiceSignature(),revision=crypto.randomUUID(),original=structuredClone(trip.selectedToll?.previous||trip);
+ const getContext=()=>{
+  if(trip!==owner||routeChoiceSignature()!==signature||!selectedTollEligible())throw Error('Le trajet ou ses réglages ont changé. Recommencer la comparaison.');
+  return {revision,coordinates:[owner.a,owner.b].map(p=>[p[1],p[0]]),vehicle:'car',vehicleClass:$('tariffClass').value||null,optimization:'fastest',avoid:[...new Set([...owner.routing.avoid,'tollways'])],date:$('stationDeparture').value.slice(0,10)||localDate()};
+ };
+ const validateRoute=r=>selectedTollRouteModel(r,[r.geometry.coordinates[0],r.geometry.coordinates.at(-1)].map(p=>({point:[p[1],p[0]]})));
+ selectedTollDialog=selectedTollsCore.createSelectedTollDialog({document,calculate:selectedTollCalculate,getContext,validateRoute,mapView:selectedTollMapView,effects:'Confirmer remplace le trajet affiché et retire ses stations comparées, son arrêt et son ancien budget de péages. Les enregistrements restent conservés.',onAdopt:adoption=>{
+  getContext();validateRoute(adoption.route);const id=crypto.randomUUID(),r=structuredClone(adoption.route);
+  clearRoadChoices();clearComparison();clearMeetingDraft();clearNavigation();tollState.enabled=false;tollState.key='';resetTollQuote();clearTableTolls('Portion choisie : prix à vérifier.');
+  trip={...owner,base:r,a:r.geometry.coordinates[0].slice().reverse(),b:r.geometry.coordinates.at(-1).slice().reverse(),coords:r.geometry.coordinates.map(p=>[p[1],p[0]]),choices:[r],choice:0,calculatedAt:new Date().toISOString(),routing:{provider:'ors-selected',vehicle:{type:'car'},optimization:'fastest',avoid:[...adoption.selection.context.avoid],selectedTollKey:id},selectedToll:{id,selection:adoption.selection,previous:original}};
+  trip.base.alternativeNotice='Péages évités hors de la portion choisie.';delete trip.meetings;clearStations();renderRouteChoices();updateWindow();updateTripMetrics();
+  $('appliedRouting').textContent=routingLabel(trip.routing);$('routingAttribution').innerHTML='<a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">© openrouteservice.org by HeiGIT</a> · © OpenStreetMap contributors';selectedTollControls();setStatus('Portion choisie. Péages évités avant et après.','ok');
+ }});selectedTollDialog.open();
+}
+function selectedTollRemove(){
+ if(busy||!selectedTollActive())return;const previous=structuredClone(trip.selectedToll.previous);selectedTollClose();clearRoadChoices();clearComparison();clearNavigation();tollState.enabled=false;resetTollQuote();clearTableTolls('Retour au trajet précédent : péages à vérifier.');trip=previous;clearStations();renderRouteChoices();updateWindow();updateTripMetrics();$('appliedRouting').textContent=routingLabel(trip.routing);$('routingAttribution').textContent=trip.routing.provider==='ign'?'IGN · BD TOPO':'OSRM';selectedTollControls();setStatus('Trajet précédent rétabli. Rechercher à nouveau ses stations.','ok');
+}
+function selectedTollFresh(route){const age=Date.now()-Date.parse(route?.observedAt);return Number.isFinite(age)&&age>=0&&age<=300000}
+function selectedTollEntry(settings){
+ if(C.selectedTollPilot!==true||!selectedTollActive()||settings.selectedTollKey!==trip.selectedToll.id||settings.vehicle?.type!=='car'||settings.optimization!=='fastest'||JSON.stringify(settings.avoid)!==JSON.stringify(trip.selectedToll.selection.context.avoid))throw Error('La portion choisie ne correspond plus à ce trajet. Comparer à nouveau.');return trip.selectedToll;
+}
+function selectedTollStopSide(selection,point,phase='before'){
+ if(phase==='after')return 'after';const parts=selection.parts,distances=parts.map(part=>{let best=Infinity;for(let i=1;i<part.coordinates.length;i++){const a=part.coordinates[i-1],b=part.coordinates[i],length=guidanceMeters(a,b);if(length>.05)best=Math.min(best,guidanceProjection(point,{a,b,at:0,length,leg:0}).offset)}return best});
+ const free=phase==='within'?2:distances[0]<=distances[2]?0:2;
+ if(!Number.isFinite(distances[free])||distances[1]<=distances[free]+20)throw Object.assign(Error('Station située sur la portion payante ou accès ambigu : choisir une station avant ou après.'),{noRoute:true});return free===0?'before':'after';
+}
+async function selectedTollPlan(points,settings,current,signal,stationIntent){
+ const entry=selectedTollEntry(settings),coordinates=points.map(p=>[p[1],p[0]]),same=(a,b)=>selectedTollsCore.meters(a,b)<.02;
+ if(!same(coordinates[0],entry.selection.parts[0].coordinates[0])||!same(coordinates.at(-1),entry.selection.parts[2].coordinates.at(-1)))throw Error('Cette opération modifierait les limites du trajet avec portion choisie.');
+ if(points.length===2){if(!selectedTollFresh(trip.base))throw Error('Trajet ancien : comparer à nouveau la portion.');return structuredClone(trip.base)}
+ if(points.length!==3||stationIntent!==true)throw Error('Avec une portion payante choisie, un seul arrêt carburant avant ou après est disponible.');
+ const stop={side:selectedTollStopSide(entry.selection,coordinates[1]),point:coordinates[1]},proposal=await selectedTollsCore.withOutsideStop(entry.selection.parts,stop,{calculate:selectedTollCalculate,avoid:entry.selection.context.avoid,allowHighwayOnSection:entry.selection.allowHighwayOnSection,signal});checkRouteRequest(current,signal);
+ selectedTollRouteModel(proposal.route,points.map(p=>({point:p})));return {...structuredClone(proposal.route),selectedTollStop:stop,selectedTollKey:entry.id};
+}
+function selectedTollObserve(g,state){
+ if(!g.owner.toll)return;g.tollProgress=selectedTollsCore.selectedProgress(g.owner.toll.selection,g.route||g.owner.route,state,g.tollProgress,g.tollRevision,Date.now());
+}
+function selectedTollFix(g,fix){
+ const raw={coords:{longitude:fix.point[0],latitude:fix.point[1],accuracy:fix.accuracy},timestamp:fix.at},state=guidanceTrack(g.model,g.state,raw,Date.now());selectedTollObserve(g,state);
+}
+async function selectedTollGuidance(g,nodes,reference,signal,fix){
+ if(!g.owner.toll||g.owner.routing.vehicle.type!=='car')throw Error('Sélection de péage absente du guidage.');
+ if(reference){
+  const age=Date.now()-Date.parse(reference.observedAt);if(age<0||age>300000)throw Error('Trajet ancien : comparer la portion à nouveau avant de démarrer.');
+  const route=structuredClone(reference),model=selectedTollRouteModel(route,nodes);return {route,model};
+ }
+ if(!fix||nodes.length<2||nodes.length>3)throw Error('Une position fiable et au plus une station restante sont nécessaires pour conserver cette portion.');
+ if(guidanceMeters(fix.point,[nodes[0].point[1],nodes[0].point[0]])>.02)throw Error('Origine de recalcul différente de la position confirmée.');
+ const intermediate=nodes.slice(1,-1);if(intermediate.some(n=>n.kind!=='station'))throw Error('Les rencontres ne sont pas encore disponibles avec une portion payante choisie.');
+ const stop=intermediate.length?{point:[intermediate[0].point[1],intermediate[0].point[0]],side:selectedTollStopSide(g.owner.toll.selection,[intermediate[0].point[1],intermediate[0].point[0]],g.tollProgress?.phase)}:null;
+ const proposal=await selectedTollsCore.recalculateSelected({selection:g.owner.toll.selection,progress:g.tollProgress,position:fix,destination:[nodes.at(-1).point[1],nodes.at(-1).point[0]],stop,revision:g.tollRevision},{calculate:selectedTollCalculate,signal});
+ if(!guidanceCurrent(g)||signal.aborted)throw Error('Guidage modifié pendant le calcul.');
+ return {route:proposal.route,model:selectedTollRouteModel(proposal.route,nodes),tollProposal:proposal};
+}
+function selectedTollAdoptGuidance(g,data,fix){
+ if(!g.owner.toll)return;
+ const route=selectedTollsCore.confirmRecalculation(data.tollProposal,g.owner.toll.selection,g.tollProgress,g.tollRevision,{position:fix,now:Date.now()}),revision=crypto.randomUUID();
+ g.tollProgress=selectedTollsCore.bindRecalculation(data.tollProposal,revision);g.tollRevision=revision;data.route=route;delete data.tollProposal;
+}
+$('selectedTollOpen').addEventListener('click',selectedTollOpen);$('selectedTollRemove').addEventListener('click',selectedTollRemove);
+// END SELECTED TOLLS CONTROLLER
+
 // BEGIN GUIDANCE CONTROLLER
 let guidance=null;
 function guidanceBinding(){return JSON.stringify([roadContextSignature(),multiActive?.plan||null,trip?.base,selectedStop?.via||null])}
@@ -7300,10 +7969,11 @@ function guidanceOwner(){
  if(p)return {route:structuredClone(p.route),routing:structuredClone(p.routing),nodes:structuredClone(p.nodes),label:p.name};
  if(!trip)throw Error('Calculer un trajet avant de préparer le guidage.');
  const nodes=routePlanNodes(selectedStop?.station).map((n,i)=>({...n,...(n.kind==='station'?{stationId:String(selectedStop.station.id)}:{}),name:n.kind==='start'?trip.places.start:n.kind==='end'?trip.places.end:n.kind==='station'?selectedStop.station.address:n.kind==='pickup'?trip.meetings.pickup.label:n.kind==='dropoff'?trip.meetings.dropoff.label:'Étape '+i}));
- return {route:structuredClone(selectedStop?.via||trip.base),routing:structuredClone(trip.routing),nodes,label:trip.places.start+' → '+trip.places.end};
+ return {route:structuredClone(selectedStop?.via||trip.base),routing:structuredClone(trip.routing),...(selectedTollActive()?{toll:structuredClone({id:trip.selectedToll.id,selection:trip.selectedToll.selection})}:{}),nodes,label:trip.places.start+' → '+trip.places.end};
 }
 function guidanceCurrent(g){return guidance===g&&$('guidanceDialog').open&&!g.invalid&&g.binding===guidanceBinding()}
-async function guidanceFetch(g,nodes,reference,signal){
+async function guidanceFetch(g,nodes,reference,signal,selectedFix=null){
+ if(g.owner.toll)return selectedTollGuidance(g,nodes,reference,signal,selectedFix);
  const current=()=>guidanceCurrent(g)&&!signal.aborted,settings=g.owner.routing,points=nodes.map(n=>n.point);
  if(settings.vehicle.type!=='car'||!['ign','osrm'].includes(settings.provider))throw Error('Guidage intégré disponible pour les trajets voiture IGN ou OSRM. Ce véhicule ou moteur n’est pas encore qualifié.');
  let routes;
@@ -7392,7 +8062,7 @@ function guidanceMapDraw(g,fit=false){
 }
 function guidanceRender(g){
  if(guidance!==g)return;guidanceRangeRender(g);const s=g.state;
- $('guidanceFuelOpen').hidden=!g.model||['arrived','stop'].includes(s?.status);$('guidanceFuelOpen').disabled=g.loading||g.invalid||!!g.fuel;
+ $('guidanceFuelOpen').hidden=!g.model||['arrived','stop'].includes(s?.status);$('guidanceFuelOpen').disabled=g.loading||g.invalid||!!g.fuel||!!g.owner.toll&&g.nodes.slice((s?.leg||0)+1,-1).some(n=>n.kind==='station');$('guidanceFuelOpen').title=g.owner.toll&&g.nodes.slice((s?.leg||0)+1,-1).some(n=>n.kind==='station')?'Atteindre la station déjà prévue avant d’en ajouter une autre.':'';
  $('guidanceSetup').hidden=!!g.model;
  $('guidanceStart').disabled=g.loading||g.invalid;$('guidanceStart').hidden=!g.paused||['arrived','stop'].includes(s?.status);
  $('guidanceStart').textContent=g.model?'▶ Reprendre':'▶ Démarrer';
@@ -7421,6 +8091,7 @@ function guidanceWatch(g){
  try{const watch=navigator.geolocation.watchPosition(raw=>{
   if(!guidanceCurrent(g)||g.paused||g.watchEpoch!==epoch)return;g.lastRaw=raw;
   const s=guidanceTrack(g.model,g.state,raw,Date.now());if(s.ignored)return;g.range=guidanceRangeAdvance(g.range,s,g.rangeRevision||0,Date.now());g.state=s;
+  try{selectedTollObserve(g,s)}catch(e){g.state={...s,status:'uncertain',next:null,message:e.message};guidanceRender(g);return}
   if(s.status==='arrived'||s.status==='stop'){g.paused=true;g.epoch++;g.controller?.abort();g.controller=null;g.loading=false;guidanceReleaseWatch(g);}
   guidanceRender(g);
   if(s.status==='offroute'&&g.auto&&!g.recalculateFailed&&!g.loading&&performance.now()-g.lastRecalculate>=30000)guidanceRecalculate();
@@ -7439,7 +8110,7 @@ async function guidanceRecalculate(){
  let fix;try{fix=guidanceFix(g.lastRaw,Date.now())}catch(e){g.state={...g.state,status:'recalculation-error',next:null,message:e.message};guidanceRender(g);return}
  const nodes=[{kind:'start',name:'Position actuelle',point:[fix.point[1],fix.point[0]]},...g.nodes.slice((g.state.leg||0)+1)],controller=new AbortController(),epoch=++g.epoch;
  g.controller=controller;g.loading=true;g.lastRecalculate=performance.now();g.recalculateFailed=false;guidanceRender(g);
- try{const data=await guidanceFetch(g,nodes,null,controller.signal);if(!guidanceCurrent(g)||g.epoch!==epoch)return;guidanceRangeInvalidate(g,'Tracé recalculé ; distance hors suivi inconnue.');g.rangeRevision=(g.rangeRevision||0)+1;Object.assign(g,data,{nodes,state:null,spoken:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · guidage recalculé depuis la dernière position. Préparation et budgets initiaux conservés, non actualisés.';guidanceMapDraw(g,true);}
+ try{const data=await guidanceFetch(g,nodes,null,controller.signal,fix);if(!guidanceCurrent(g)||g.epoch!==epoch)return;selectedTollAdoptGuidance(g,data,guidanceFix(g.lastRaw,Date.now()));guidanceRangeInvalidate(g,'Tracé recalculé ; distance hors suivi inconnue.');g.rangeRevision=(g.rangeRevision||0)+1;Object.assign(g,data,{nodes,state:null,spoken:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · guidage recalculé depuis la dernière position. Préparation et budgets initiaux conservés, non actualisés.';guidanceMapDraw(g,true);}
  catch(e){if(guidance===g&&g.epoch===epoch){g.recalculateFailed=true;g.state={...g.state,status:'recalculation-error',next:null,remaining:null,message:'Recalcul impossible. '+e.message+' Réessayer volontairement à l’arrêt.'};}}
  finally{if(guidance===g&&g.epoch===epoch){g.loading=false;g.controller=null;guidanceRender(g);}}
 }
@@ -7449,7 +8120,7 @@ function guidanceClose(){
 }
 function guidanceOpen(){
  if(busy||guidance)return;let owner;try{owner=guidanceOwner()}catch{return}
- const g=guidance={trigger:document.activeElement,owner,nodes:structuredClone(owner.nodes),binding:guidanceBinding(),model:null,paused:true,watch:null,watchEpoch:0,wakeEpoch:0,epoch:0,follow:true,loading:false,invalid:false,lastRecalculate:-Infinity,recalculateFailed:false,map:null,wake:null,state:null};
+ const g=guidance={tollRevision:crypto.randomUUID(),tollProgress:null,trigger:document.activeElement,owner,nodes:structuredClone(owner.nodes),binding:guidanceBinding(),model:null,paused:true,watch:null,watchEpoch:0,wakeEpoch:0,epoch:0,follow:true,loading:false,invalid:false,lastRecalculate:-Infinity,recalculateFailed:false,map:null,wake:null,state:null};
  $('guidanceSettings').open=false;$('guidanceInfo').open=false;$('guidanceVoice').checked=false;$('guidanceAwake').checked=true;$('guidanceSummary').textContent=owner.label+' · '+routingLabel(owner.routing);
  guidanceVoiceControls();$('guidanceDialog').showModal();guidanceRender(g);$('guidanceStart').focus();
  g.timer=setInterval(()=>{if(guidance!==g)return;
@@ -7494,7 +8165,7 @@ function guidanceFuelPosition(signal){
 }
 function guidanceFuelOpen(){
  const g=guidance;if(!g||!g.model||g.invalid||g.loading||['arrived','stop'].includes(g.state?.status)||!guidanceCurrent(g))return;
- const nodes=structuredClone(g.nodes.slice((g.state?.leg||0)+1));guidancePause('Guidage en pause pendant le choix d’une station.');
+ const nodes=structuredClone(g.nodes.slice((g.state?.leg||0)+1));if(g.owner.toll&&nodes.slice(0,-1).some(n=>n.kind==='station'))return;guidancePause('Guidage en pause pendant le choix d’une station.');
  const f=g.fuel={remaining:nodes,rows:[],queue:[],cursor:0,rejected:0,busy:false,key:null,selected:null,controller:null,map:null,markers:null,invalid:false};
  $('guidanceFuelType').value=$('fuel').value;$('guidanceFuelLiters').value=$('liters').value;$('guidanceFuelCons').value=$('cons').value;$('guidanceFuelMode').value='soon';$('guidanceFuelTarget').value='100';$('guidanceFuelTolerance').value='20';$('guidanceFuelNear').value='50';
  for(const [a,b] of [['MaxKm','maxDetourKm'],['MaxMin','maxDetourMin'],['Opening','stationOpeningFilter']])$('guidanceFuel'+a).value=$(b).value;
@@ -7519,7 +8190,7 @@ function guidanceFuelDescribe(s,f){
 }
 function guidanceFuelRender(g,f){
  if(!guidanceFuelCurrent(g,f))return;f.priceKey=JSON.stringify(f.rows.map(s=>priceFreshness(s.updated,Date.now(),s.receivedAt).state));const current=f.key&&f.key===guidanceFuelOptionsKey(),filtered=current&&f.origin?guidanceFuelFilter(f.rows,f.options,f.origin.at):{rows:[],expired:false,excluded:{}};f.visible=filtered.rows;
- $('guidanceFuelSearch').disabled=f.busy;$('guidanceFuelCancel').hidden=!f.busy;$('guidanceFuelMore').hidden=!current||f.busy||filtered.expired||!f.baseline||f.cursor>=f.queue.length;$('guidanceFuelMore').textContent='Comparer les '+Math.min(20,f.queue.length-f.cursor)+' stations suivantes ('+(f.queue.length-f.cursor)+' restantes)';
+ $('guidanceFuelSearch').disabled=f.busy;$('guidanceFuelCancel').hidden=!f.busy;$('guidanceFuelMore').hidden=!current||f.busy||filtered.expired||!f.baseline||f.cursor>=f.queue.length;$('guidanceFuelMore').textContent='Comparer les '+Math.min(g.owner.toll?1:20,f.queue.length-f.cursor)+' stations suivantes ('+(f.queue.length-f.cursor)+' restantes)';
  $('guidanceFuelCoverage').textContent=f.found?f.found.stations.length+' stations reçues · '+f.cursor+' candidates examinées · '+filtered.rows.length+' affichées · '+f.rejected+' accès non comparables. '+(f.found.partial||f.found.limited||f.found.plan.capped?'Collecte partielle. ':'')+'Recherche non exhaustive. '+Object.entries(filtered.excluded).filter(([,n])=>n).map(([k,n])=>n+' exclue(s) : '+({price:'prix ancien/inconnu',detour:'détour',services:'services',range:'portée',opening:'horaires'}[k])).join(' · '):'';
  $('guidanceFuelCards').innerHTML=filtered.rows.map(s=>'<article class="guidance-fuel-card"><p class="badges">'+s.badges.map(b=>'<span class="badge">'+b+'</span>').join(' ')+'</p>'+guidanceFuelDescribe(s,f)+'<button type="button" class="ghost" data-guidance-station="'+escapeHtml(s.id)+'" '+(f.busy?'disabled':'')+'>Examiner cet arrêt</button></article>').join('');
  const outside=!!f.selected&&f.options?.range!==null&&f.selected.distanceFromStart>Math.max(0,f.options.range-f.options.reserve);$('guidanceFuelRangeWarning').hidden=!outside;
@@ -7532,19 +8203,19 @@ async function guidanceFuelSearch(more=false){
  if(more&&(!f.key||f.key!==JSON.stringify(options)||!f.origin||guidanceFuelFilter([],options,f.origin.at).expired)){$('guidanceFuelStatus').textContent='Actualiser la recherche depuis la position actuelle.';return}
  const controller=new AbortController(),current=()=>guidanceFuelCurrent(g,f)&&f.controller===controller&&!controller.signal.aborted&&f.key===guidanceFuelOptionsKey();f.controller=controller;f.busy=true;f.selected=null;f.options=options;f.key=JSON.stringify(options);guidanceFuelRender(g,f);
  try{
-  if(!more){f.rows=[];f.queue=[];f.cursor=0;f.rejected=0;f.found=null;f.baseline=null;f.origin=null;f.expiryShown=false;guidanceFuelRender(g,f);$('guidanceFuelStatus').textContent='Recherche de la position GPS…';const origin=await guidanceFuelPosition(controller.signal);if(!current())return;
+  if(!more){f.rows=[];f.queue=[];f.cursor=0;f.rejected=0;f.found=null;f.baseline=null;f.origin=null;f.expiryShown=false;guidanceFuelRender(g,f);$('guidanceFuelStatus').textContent='Recherche de la position GPS…';const origin=await guidanceFuelPosition(controller.signal);if(!current())return;if(g.owner.toll)selectedTollFix(g,origin);
    const nodes=[{kind:'start',name:'Position relevée',point:[origin.point[1],origin.point[0]]},...structuredClone(f.remaining)];if(nodes.length>=12)throw Error('Le parcours comporte déjà le maximum d’étapes. Atteindre une étape avant d’ajouter une station.');
-   $('guidanceFuelStatus').textContent='Calcul de la suite du trajet avec les mêmes options…';const baseline=await guidanceFetch(g,nodes,null,controller.signal);if(!current())return;
+   $('guidanceFuelStatus').textContent='Calcul de la suite du trajet avec les mêmes options…';const baseline=await guidanceFetch(g,nodes,null,controller.signal,origin);if(!current())return;
    const window=stationWindow(options,baseline.route.distance/1000);if(!window.valid)throw Error(window.error+' Longueur restante : '+fmt(window.length,1)+' km.');
    f.origin=origin;f.nodes=nodes;f.baseline=baseline;f.window=window;const settings={radius:12,spacing:30,maxPoints:Math.min(24,C.maxFuelSamples),scope:'window'},section=stationCollectionSection(baseline.model.points.map(p=>[p[1],p[0]]),window,'window'),plan={...stationSampling(section.coords,30,settings.maxPoints),section};
    $('guidanceFuelOrigin').textContent='Position relevée le '+new Date(origin.at).toLocaleString('fr-FR')+' · précision ±'+Math.ceil(origin.accuracy)+' m. Recherche de '+fmt(window.min,1)+' à '+fmt(window.max,1)+' km sur la suite du trajet ; '+f.remaining.length+' étape(s) conservée(s).';
    $('guidanceFuelStatus').textContent='Consultation des stations sur la portion choisie…';const found=await collectStations(section.coords,options.fuel,settings,plan,current,controller.signal);if(!current())return;f.found=found;const receivedAt=new Date().toISOString();const candidates=guidanceFuelCandidates(found.stations.map(s=>({...s,receivedAt})),baseline.model,nodes,window);f.queue=candidates.rows;f.geographicExcluded=candidates.excluded;
    const services=[...new Set([...options.services,...found.stations.flatMap(s=>s.services||[])])].sort((a,b)=>a.localeCompare(b,'fr'));$('guidanceFuelServices').innerHTML=services.map(x=>'<label class="check-label"><input type="checkbox" data-guidance-service value="'+escapeHtml(x)+'" '+(options.services.includes(x)?'checked':'')+'> '+escapeHtml(x)+'</label>').join('');
   }
-  const end=Math.min(f.cursor+20,f.queue.length);
+  const end=Math.min(f.cursor+(g.owner.toll?1:20),f.queue.length);
   while(f.cursor<end){if(!current())return;const s=f.queue[f.cursor];$('guidanceFuelStatus').textContent='Vérification routière de la station '+(f.cursor+1)+' sur '+f.queue.length+'…';
    if(!priceFreshness(s.updated,Date.now(),s.receivedAt).eligible){f.cursor++;f.rejected++;continue}
-   let data;try{data=await guidanceFetch(g,guidanceFuelNodes(f.nodes,s),null,controller.signal)}catch(e){if(e.noRoute){f.cursor++;f.rejected++;continue}throw e}if(!current())return;
+   let data;try{data=await guidanceFetch(g,guidanceFuelNodes(f.nodes,s),null,controller.signal,f.origin)}catch(e){if(e.noRoute){f.cursor++;f.rejected++;continue}throw e}if(!current())return;
    const row=guidanceFuelScore(s,data.route,f.baseline.route,options);f.cursor++;if(row)f.rows.push({...row,number:f.rows.length+1});else f.rejected++;
   }
   $('guidanceFuelStatus').textContent=f.rows.length?'Comparaison terminée pour ce groupe. Choisir un arrêt avant de reprendre le guidage.':'Aucune station comparable dans cette zone avec ces critères. Modifier les critères ou consulter la suite des candidates.';
@@ -7559,13 +8230,13 @@ async function guidanceFuelApply(){
  if(f.options.range!==null&&f.selected.distanceFromStart>Math.max(0,f.options.range-f.options.reserve)&&!$('guidanceFuelRangeConsent').checked)return;
  if(!guidanceFuelFilter([f.selected],f.options,f.origin.at).rows.length){guidanceFuelRender(g,f);return}
  const controller=new AbortController();f.controller=controller;f.busy=true;const current=()=>guidanceFuelCurrent(g,f)&&f.controller===controller&&!controller.signal.aborted&&f.key===guidanceFuelOptionsKey();guidanceFuelRender(g,f);
- try{$('guidanceFuelStatus').textContent='Vérification de la position et de l’arrêt avant reprise…';const fix=await guidanceFuelPosition(controller.signal);if(!current())return;
+ try{$('guidanceFuelStatus').textContent='Vérification de la position et de l’arrêt avant reprise…';const fix=await guidanceFuelPosition(controller.signal);if(!current())return;if(g.owner.toll)selectedTollFix(g,fix);
   if(guidanceMeters(fix.point,f.origin.point)>100)throw Error('La position a changé de plus de 100 m. Actualiser la recherche avant de confirmer cet arrêt.');
-  const nodes=structuredClone(f.nodes);nodes[0]={kind:'start',name:'Position actuelle',point:[fix.point[1],fix.point[0]]};const baseline=await guidanceFetch(g,nodes,null,controller.signal);if(!current())return;const window=stationWindow(f.options,baseline.route.distance/1000),located=window.valid&&guidanceFuelCandidates([f.selected],baseline.model,nodes,window).rows[0];if(!located||located.insertion!==f.selected.insertion)throw Error('La station ne correspond plus à la portion choisie. Actualiser la recherche.');const added=guidanceFuelNodes(nodes,f.selected),data=await guidanceFetch(g,added,null,controller.signal);if(!current())return;
+  const nodes=structuredClone(f.nodes);nodes[0]={kind:'start',name:'Position actuelle',point:[fix.point[1],fix.point[0]]};const baseline=await guidanceFetch(g,nodes,null,controller.signal,fix);if(!current())return;const window=stationWindow(f.options,baseline.route.distance/1000),located=window.valid&&guidanceFuelCandidates([f.selected],baseline.model,nodes,window).rows[0];if(!located||located.insertion!==f.selected.insertion)throw Error('La station ne correspond plus à la portion choisie. Actualiser la recherche.');const added=guidanceFuelNodes(nodes,f.selected),data=await guidanceFetch(g,added,null,controller.signal,fix);if(!current())return;
   const score=guidanceFuelScore(f.selected,data.route,baseline.route,f.options);if(!score||!guidanceFuelFilter([score],f.options,fix.at).rows.length)throw Error('L’accès ou les critères ne sont plus confirmés. Actualiser la recherche.');
   const changed=Math.abs(score.distanceFromStart-f.selected.distanceFromStart)>.1||Math.abs(score.extraKm-f.selected.extraKm)>.1||Math.abs(score.extraMin-f.selected.extraMin)>1||Math.round(score.real*100)!==Math.round(f.selected.real*100);
   if(changed||f.options.range!==null&&score.distanceFromStart>Math.max(0,f.options.range-f.options.reserve)&&!$('guidanceFuelRangeConsent').checked){f.rows=[score];f.queue=[score];f.cursor=1;f.rejected=0;f.selected=score;f.origin=fix;f.nodes=nodes;f.baseline=baseline;$('guidanceFuelRangeConsent').checked=false;$('guidanceFuelStatus').textContent='L’estimation a changé. Les autres comparaisons sont retirées. Relire cet arrêt et confirmer de nouveau, ou actualiser toute la recherche.';return}
-  guidanceRangeInvalidate(g,'Station ajoutée ; guidage à réactualiser après le plein.');g.rangeRevision=(g.rangeRevision||0)+1;Object.assign(g,data,{nodes:added,state:null,spoken:null,recalculateFailed:false,lastRaw:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · station ajoutée : '+score.address+'. Étapes restantes conservées. Préparation, prix et budgets antérieurs non actualisés.';guidanceFuelClose(false);guidanceMapDraw(g,true);guidanceWatch(g);$('guidanceInstruction').setAttribute('tabindex','-1');$('guidanceInstruction').focus();
+  selectedTollAdoptGuidance(g,data,fix);guidanceRangeInvalidate(g,'Station ajoutée ; guidage à réactualiser après le plein.');g.rangeRevision=(g.rangeRevision||0)+1;Object.assign(g,data,{nodes:added,state:null,spoken:null,recalculateFailed:false,lastRaw:null});$('guidanceSteps').innerHTML=g.model.steps.map(s=>'<li>'+escapeHtml(s.text)+'</li>').join('');$('guidanceSummary').textContent=g.owner.label+' · station ajoutée : '+score.address+'. Étapes restantes conservées. Préparation, prix et budgets antérieurs non actualisés.';guidanceFuelClose(false);guidanceMapDraw(g,true);guidanceWatch(g);$('guidanceInstruction').setAttribute('tabindex','-1');$('guidanceInstruction').focus();
  }catch(e){if(current())$('guidanceFuelStatus').textContent=e.message+' Aucun arrêt ajouté ; le guidage précédent reste en pause.';else if(guidanceFuelCurrent(g,f)&&controller.signal.aborted)$('guidanceFuelStatus').textContent='Vérification interrompue. Aucun arrêt ajouté.';}
  finally{if(guidanceFuelCurrent(g,f)&&f.controller===controller){f.busy=false;f.controller=null;guidanceFuelRender(g,f)}}
 }

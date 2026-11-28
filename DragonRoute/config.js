@@ -1,6 +1,8 @@
 window.DRAGONROUTE_CONFIG = Object.freeze({
   // Public URL only, never a credential. Empty until an approved server is activated.
   routingApi: "",
+  // Isolated two-point car relay. Does not activate truck or legacy multi-point routing.
+  selectedTollPilot: true,
   // Protected toll service; activate only after France tariff qualification. No private key here.
   tollsApi: "",
   // Public IGN service: light vehicles without motorways, no key required.

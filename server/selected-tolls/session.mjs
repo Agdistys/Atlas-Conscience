@@ -54,7 +54,7 @@ export function createSelectedTollSession({calculate,getContext,validateRoute=()
     const baselineRoute=await joinInstructions([baseline],{calculate:calc,avoid:c.avoid,now,signal:j.controller.signal});
     validateFree(baselineRoute,referenceRoute.graphDate,...endpoints,c.avoid);guard(j);
     comparison={signature:j.signature,context:c,reference,baseline,baselineRoute,allowHighwayOnSection};
-    const choices=sections(reference).map((s,index)=>({...s,number:index+1,coordinates:reference.coordinates.slice(s.from,s.to+1),distance:reference.coordinates.slice(s.from+1,s.to+1).reduce((n,p,i)=>n+meters(reference.coordinates[s.from+i],p),0),price:null}));
+    const choices=sections(reference).map((s,index)=>({...s,number:index+1,road:[...new Set(reference.steps.filter(step=>step.way_points[0]<s.to&&step.way_points[1]>s.from).map(step=>step.name).filter(name=>name&&name!=='-'))].slice(0,3).join(' / '),coordinates:reference.coordinates.slice(s.from,s.to+1),distance:reference.coordinates.slice(s.from+1,s.to+1).reduce((n,p,i)=>n+meters(reference.coordinates[s.from+i],p),0),price:null}));
     return publish({status:'choices',context:c,baseline:baselineRoute,reference:referenceRoute,sections:choices,allowHighwayOnSection,proposal:null,error:null});
    }catch(e){return catchJob(j,e)}
   },

@@ -1,5 +1,13 @@
 // A bounded contract, shared by collection and publication: removing a case is not a pass.
 export const compatibilityRoadCases = [
+  "selected toll app: compare, explicitly adopt, protect saved routes and restore",
+  "selected toll app: station preview and removal preserve the chosen paid edges",
+  "selected toll app: GPS keeps forward-only paid progress through recalculation",
+  "selected toll app: expired proposal and cancelled dialog leave the original trip intact",
+  "selected toll app: station chosen during guidance preserves the paid exception and resumes GPS",
+  "selected toll app: old station comparisons cannot be confirmed",
+  "selected toll app: free-service quota does not replace a confirmed route or retry",
+
   "préparation compacte : dernier mode conservé, menu au clavier et aucun calcul au rechargement",
   "préparation compacte : nuit mémorisée, carte et bande horaire accessibles sans changer le trajet",
   "adresses : dossiers, renommage, suppression sans perte et export complet",

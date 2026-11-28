@@ -8,9 +8,11 @@ function request(input){
 }
 export function createRelayCalculator({fetchImpl=fetch,now=Date.now,timeoutMs=25000}={}){
  if(typeof fetchImpl!=='function'||typeof now!=='function'||!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>30000)throw Error('Service non configuré.');
- let notBefore=0;
+ let notBefore=0;const cache=new Map();
  return async(input,{signal}={})=>{
   const body=request(input);if(signal?.aborted)throw Object.assign(Error('Calcul annulé.'),{code:'CANCELLED'});
+  const key=JSON.stringify(body),cached=cache.get(key),age=cached?now()-Date.parse(cached.observedAt):Infinity;
+  if(age>=0&&age<=60000)return structuredClone(cached);if(cached)cache.delete(key);
   if(now()<notBefore)throw Object.assign(Error('Service temporairement limité. Réessayer plus tard.'),{code:'ROUTING_LIMIT',retryAt:notBefore});
   const controller=new AbortController(),abort=()=>controller.abort(),timer=setTimeout(abort,timeoutMs);signal?.addEventListener('abort',abort,{once:true});
   try{
@@ -26,7 +28,7 @@ export function createRelayCalculator({fetchImpl=fetch,now=Date.now,timeoutMs=25
    }
    if(signal?.aborted||controller.signal.aborted)throw Object.assign(Error('Calcul annulé.'),{code:'CANCELLED'});
    // Freshness is the local receipt time, not a provider timestamp or fixture field.
-   return detailedRoute(data,new Date(now()).toISOString());
+   const result=detailedRoute(data,new Date(now()).toISOString());cache.set(key,structuredClone(result));if(cache.size>12)cache.delete(cache.keys().next().value);return result;
   }catch(e){if(signal?.aborted)throw Object.assign(Error('Calcul annulé.'),{code:'CANCELLED'});if(controller.signal.aborted)throw Object.assign(Error('Le calcul n’a pas répondu à temps. Réessayer.'),{code:'TIMEOUT'});throw e}
   finally{clearTimeout(timer);signal?.removeEventListener('abort',abort)}
  };

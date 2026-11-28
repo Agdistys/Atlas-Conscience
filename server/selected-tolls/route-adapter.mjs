@@ -92,7 +92,7 @@ export async function joinInstructions(input,{calculate,stopAfter=[],avoid=['tol
   const leg={distance:steps.reduce((a,s)=>a+s.distance,0),duration:steps.reduce((a,s)=>a+s.duration,0),steps};start=end;return leg;
  });
  require(pos===stitched.length&&stitched.length<=6000,'Manœuvres restantes ou trop nombreuses.');
- return freeze({geometry:{type:'LineString',coordinates},distance:legs.reduce((a,l)=>a+l.distance,0),duration:legs.reduce((a,l)=>a+l.duration,0),legs,alternatives:[],provider:'openrouteservice',graphDate:graph,observedAt:new Date(now()).toISOString(),tollAttributes:{tolls,categories},instructionJoins:bridges,qualification:'INSTRUCTIONS_JOINED_NOT_PHYSICAL_VALIDATION'});
+ return freeze({geometry:{type:'LineString',coordinates},distance:legs.reduce((a,l)=>a+l.distance,0),duration:legs.reduce((a,l)=>a+l.duration,0),legs,alternatives:[],provider:'openrouteservice',graphDate:graph,observedAt:new Date(Math.min(...parts.map(p=>Date.parse(p.observedAt)),...bridges.map(p=>Date.parse(p.observedAt)))).toISOString(),tollAttributes:{tolls,categories},instructionJoins:bridges,qualification:'INSTRUCTIONS_JOINED_NOT_PHYSICAL_VALIDATION'});
 }
 
 /** Propose one genuine stop outside the paid range. No adoption, price transfer or GPS inference. */

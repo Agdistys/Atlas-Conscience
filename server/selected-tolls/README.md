@@ -1,12 +1,12 @@
-# Portion payante choisie — intégration locale en cours
+# Portion payante choisie — pilote intégré V114
 
-Les modules sont qualifiés séparément. L'application publiée reste inchangée : ces modules ne sont pas encore montés dans son écran de préparation. Le banc navigateur `tests/fixtures/selected-tolls/dialog.html` emploie un réseau fictif et ne constitue pas une application parallèle à livrer.
+Les modules sont montés dans l’écran de préparation de DragonRoute, avec le fournisseur isolé `ors-selected`, les stations et le guidage. Leur activation est limitée au pilote `selectedTollPilot`, voiture au plus rapide. Voir V114 pour le périmètre et les preuves actuels. Le banc navigateur `tests/fixtures/selected-tolls/dialog.html` emploie un réseau fictif et ne constitue pas une application parallèle à livrer.
 
 ## Contrats disponibles
 
-- `client.mjs` : calcul voiture à deux points via le relais gratuit existant. Aucun secret, profil ou libellé d'adresse envoyé ; pas de redirection, de nouvelle tentative ou de fournisseur de secours. Réponses limitées à 4 Mio, fraîcheur à la réception locale, attente explicite après quota.
+- `client.mjs` : calcul voiture à deux points via le relais gratuit existant. Aucun secret, profil ou libellé d'adresse envoyé ; pas de redirection, de nouvelle tentative ou de fournisseur de secours. Réponses limitées à 4 Mio, fraîcheur à la réception locale, cache mémoire de 12 réponses au plus pendant 60 secondes sans renouveler leur date, attente explicite après quota.
 - `session.mjs` : référence avec péages et référence gratuite, sélection, raccordements et indications, comparaison, confirmation unique. Le contexte comprend une courte révision, deux coordonnées longitude/latitude, voiture, classe déclarée 1/2, date, critère `fastest` et évitements dont `tollways`. Un changement de contexte, une annulation ou une réponse tardive empêche l'adoption. `validateRoute` permet au contrôleur hôte de vérifier le modèle de guidage avant de consommer la confirmation. `confirm` retourne un instantané ; le contrôleur hôte reste seul responsable de modifier le trajet.
-- `dialog.mjs` : fenêtre responsive à monter dans l'interface existante. Sélection radio, schéma et comparaison distance/durée, tarif inconnu, plafond strict facultatif, aides repliées, annulation/Escape et restitution du focus. Le callback `onAdopt` doit effectuer l'adoption atomique dans le contrôleur existant. Aucun enregistrement ou GPS démarré par la fenêtre.
+- `dialog.mjs` : fenêtre responsive montée dans l'interface existante. Sélection radio, schéma et comparaison distance/durée, tarif inconnu, plafond strict facultatif, aides repliées, annulation/Escape et restitution du focus. Le callback `onAdopt` doit effectuer l'adoption atomique dans le contrôleur existant. Aucun enregistrement ou GPS démarré par la fenêtre.
 - `navigation.mjs` : progression `before` → `within` → `after` issue d'une position de guidage qualifiée ; passage irréversible. Le recalcul conserve la portion entière avant l'entrée, seulement son suffixe dans le même sens pendant le passage, et aucune exception après la sortie. Jamais de retour demandé à l'entrée après passage. Un arrêt réel restant avant/après la portion est conservé ; pas d'arrêt supposé à l'intérieur.
 
 ## Adoption du recalcul
@@ -15,19 +15,23 @@ Les modules sont qualifiés séparément. L'application publiée reste inchangé
 
 `recalculateSelected(input, {calculate, now, signal})` retourne une proposition liée au contexte. `confirmRecalculation(proposal, selection, progress, revision, {now, position})` exige encore une position récente à moins de 50 m de l'origine du calcul, la même progression/révision et une proposition non consommée. `bindRecalculation(proposal, newRevision)` est unique et conserve la phase/minimum de portion tout en remettant la progression relative à zéro ; un nouveau point fiable est nécessaire avant le prochain recalcul. Le prix reste inconnu.
 
-## Raccordement restant avant activation publique
+## Contrôleur intégré
 
-1. Monter la fenêtre dans `DragonRoute`, après un trajet voiture au plus rapide ; comparer explicitement avec évitement des péages. Utiliser un jeton de révision court, dont le contrôleur renouvelle la valeur lorsque la signature complète du trajet change.
-2. Adopter via un chemin de calcul distinct : ne pas brancher le relais deux points sur `routingApi`, qui active aussi poids lourds et calculs multiples. Reprendre le modèle de guidage avec provenance ORS explicite, sans le présenter comme OSRM.
-3. Préserver la sélection lors de l'ajout/retrait d'une station et du recalcul GPS. Qualifier une entrée de station réelle, le calcul de son détour, le retour et la reprise. Les tests de halte témoins ne valident pas une station.
-4. Empêcher les anciennes sauvegardes, rencontres/multi-arrêts et autres contrôleurs de perdre silencieusement l'exception. Le budget ne peut supposer « zéro péage » à partir de l'évitement général. Définir le contrat d'enregistrement avant d'autoriser la sauvegarde de cette nouvelle forme de trajet.
-5. Assembler les modules dans les ressources existantes ou adapter le manifeste de publication sans casser les anciens aperçus. Mettre à jour les empreintes PWA après modification des ressources applicatives, puis tester les parcours intégrés, publier/vérifier l'aperçu de PR. Aucun merge main.
+`tests/build-selected-tolls.mjs --write` assemble les six modules dans `DragonRoute/app.js`. Le contrat du dépôt vérifie l’identité du bloc généré. Les six ressources de publication existantes restent suffisantes ; aucun ancien aperçu ne dépend de nouveaux fichiers.
+
+Le contrôleur conserve le trajet précédent jusqu’à confirmation, invalide les anciens arrêts et budgets lors de l’adoption, et permet un retour explicite. `routingApi` reste inchangé. `guidanceModel` exige la provenance openrouteservice et les instructions qualifiées pour `ors-selected`.
+
+Stations : un arrêt avant ou après, géométrie payante conservée, comparaison/confirmation datées. Une candidate par action pour préserver le quota gratuit. Guidage : `selectedProgress`, propositions de recalcul puis confirmation/binding de la nouvelle révision ; pas de retour à l’entrée après passage. Une station restante à la fois. Les plafonds globaux restent 100/jour UTC et 10/minute ; aucune répétition automatique après refus.
+
+Sauvegarde de préparation, copie vers journal, rencontres et itinéraires multiples sont explicitement indisponibles avec l’exception jusqu’à définition de leur format. Les enregistrements existants restent intacts. Les liens externes de navigation ne perdent pas silencieusement la sélection. Prix inconnu, jamais zéro déduit de `avoid: tollways`.
+
+Vérifications : 901 contrôles, sept tests d’assemblage, 126 parcours Chromium ciblés. Le scénario public Lyon–Valence et la station DGCCRF 69310004 produisent respectivement 28 et 38 instructions, une puis deux étapes, en dix réponses HTTP200 avec cache partagé. Le point routier est à 0,71m de la coordonnée DGCCRF ; accès physique non certifié. Preuves locales conservées dans `quality/selected-toll-integrated` ; rapports GitHub/aperçu rattachés au commit de livraison.
 
 Les vérifications de navigateur utilisent un GPS/réseau simulé et ne remplacent pas la recette physique Android. Le tarif exact, les données routières et l'accès physique conservent leurs limites.
 
 ## Références et contrats antérieurs conservés — V112/V113
 
-Les nombres de contrôles et étapes ci-dessous décrivent les qualifications antérieures. La suite courante compte 900 contrôles ; la fenêtre a 14 scénarios Chromium et 12 Firefox réussis. WebKit local ne démarre pas (erreur du navigateur), sans résultat applicatif. Le raccordement à l’application et la publication restent à effectuer.
+Les paragraphes ci-dessous conservent les qualifications antérieures V112/V113. Leurs mentions de raccordement encore attendu décrivent ces états historiques ; le pilote V114 ci-dessus les remplace. Au point de préparation précédent : 900 contrôles,14 cas Chromium et12 Firefox ; WebKit local ne démarrait pas, sans résultat applicatif.
 
 ### Planner with bounded live evidence
 
